@@ -17,9 +17,10 @@ include_directories( ${X11_INCLUDE_DIRS} )
 link_directories   ( ${X11_LIBRARY_DIRS} )
 
 add_executable(cr42ynth_ui.so
-	
+	lv2_ui.cpp
+	CR42YnthUI.cpp
 )
 
-target_link_libraries(midisynth_ui.so ${PROJECT_SOURCE_DIR}/libavtk.a)
-target_link_libraries(midisynth_ui.so ${CAIRO_LIBRARIES})
-target_link_libraries(midisynth_ui.so ${X11_LIBRARIES})
+target_link_libraries(cr42ynth_ui.so ${PROJECT_SOURCE_DIR}/libavtk.a)
+target_link_libraries(cr42ynth_ui.so ${CAIRO_LIBRARIES})
+target_link_libraries(cr42ynth_ui.so ${X11_LIBRARIES})
