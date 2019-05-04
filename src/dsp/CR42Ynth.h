@@ -40,8 +40,13 @@ namespace cr42y
 class CR42Ynth
 {
 public:
-	CR42Ynth();
 	virtual ~CR42Ynth();
+
+	static CR42Ynth* getInstance();
+
+private:
+	CR42Ynth();
+	static CR42Ynth* singleton = 0;
 };
 
 } /* namespace cr42y */

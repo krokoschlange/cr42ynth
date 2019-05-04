@@ -36,31 +36,31 @@
 #define OPENAV_ERROR -1
 
 // the UI header, defines lots of interaction functionality
-#include "../../../src_old/avtk/avtk/ui.hxx"
-#include "../../../src_old/avtk/avtk/utils.hxx"
+#include "ui.hxx"
+#include "utils.hxx"
 
 // the Theme class definition
-#include "../../../src_old/avtk/avtk/theme.hxx"
+#include "theme.hxx"
 
 // container class
-#include "../../../src_old/avtk/avtk/group.hxx"
-#include "../../../src_old/avtk/avtk/scroll.hxx"
+#include "group.hxx"
+#include "scroll.hxx"
 
 // widget headers
-#include "../../../src_old/avtk/avtk/box.hxx"
-#include "../../../src_old/avtk/avtk/text.hxx"
-#include "../../../src_old/avtk/avtk/list.hxx"
-#include "../../../src_old/avtk/avtk/dial.hxx"
-#include "../../../src_old/avtk/avtk/image.hxx"
-#include "../../../src_old/avtk/avtk/dialog.hxx"
-#include "../../../src_old/avtk/avtk/button.hxx"
-#include "../../../src_old/avtk/avtk/number.hxx"
-#include "../../../src_old/avtk/avtk/slider.hxx"
-#include "../../../src_old/avtk/avtk/rotary.hxx"
-#include "../../../src_old/avtk/avtk/spectrum.hxx"
-#include "../../../src_old/avtk/avtk/envelope.hxx"
-#include "../../../src_old/avtk/avtk/waveform.hxx"
-#include "../../../src_old/avtk/avtk/listitem.hxx"
-#include "../../../src_old/avtk/avtk/eventeditor.hxx"
+#include "box.hxx"
+#include "text.hxx"
+#include "list.hxx"
+#include "dial.hxx"
+#include "image.hxx"
+#include "dialog.hxx"
+#include "button.hxx"
+#include "number.hxx"
+#include "slider.hxx"
+#include "rotary.hxx"
+#include "spectrum.hxx"
+#include "envelope.hxx"
+#include "waveform.hxx"
+#include "listitem.hxx"
+#include "eventeditor.hxx"
 
 #endif // OPENAV_AVTK_HXX

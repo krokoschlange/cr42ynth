@@ -32,7 +32,7 @@
 #ifndef OPENAV_AVTK_NUMBER_HXX
 #define OPENAV_AVTK_NUMBER_HXX
 
-#include "../../../src_old/avtk/avtk/widget.hxx"
+#include "widget.hxx"
 
 namespace Avtk
 {

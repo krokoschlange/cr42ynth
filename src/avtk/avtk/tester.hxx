@@ -34,7 +34,7 @@
 
 #ifdef AVTK_TESTER
 
-#include "../../../src_old/avtk/avtk/pugl/pugl.h"
+#include "pugl/pugl.h"
 
 #include <string>
 #include <vector>

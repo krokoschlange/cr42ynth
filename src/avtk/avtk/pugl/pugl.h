@@ -40,8 +40,8 @@
 
 #include <stdint.h>
 
-#include "../../../../src_old/avtk/avtk/pugl/common.h"
-#include "../../../../src_old/avtk/avtk/pugl/event.h"
+#include "pugl/common.h"
+#include "pugl/event.h"
 
 #ifdef PUGL_SHARED
 #    ifdef _WIN32

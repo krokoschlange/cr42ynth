@@ -32,8 +32,9 @@
 #ifndef OPENAV_AVTK_WAVEFORM_HXX
 #define OPENAV_AVTK_WAVEFORM_HXX
 
+#include "widget.hxx"
+
 #include <vector>
-#include "../../../src_old/avtk/avtk/widget.hxx"
 
 namespace Avtk
 {

@@ -29,13 +29,12 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "../../../src_old/avtk/avtk/waveform.hxx"
+#include "waveform.hxx"
 
 #include <stdio.h>
 #include <math.h>
-
-#include "../../../src_old/avtk/avtk/theme.hxx"
-#include "../../../src_old/avtk/avtk/ui.hxx"
+#include "ui.hxx"
+#include "theme.hxx"
 
 
 using namespace Avtk;

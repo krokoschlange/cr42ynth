@@ -32,12 +32,13 @@
 #ifndef OPENAV_AVTK_SCROLL_HXX
 #define OPENAV_AVTK_SCROLL_HXX
 
+#include "group.hxx"
+
 #include <string>
 #include <vector>
 
 // for the childs cairo_t
 #include <cairo/cairo.h>
-#include "../../../src_old/avtk/avtk/group.hxx"
 
 namespace Avtk
 {

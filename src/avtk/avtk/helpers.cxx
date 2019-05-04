@@ -29,7 +29,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "../../../src_old/avtk/avtk/helpers.hxx"
+#include "helpers.hxx"
 
 void roundedBox(cairo_t* cr, double x, double y, double w, double h, double radius )
 {

@@ -3,8 +3,8 @@ project(cr42ynth_ui.so)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
-include_directories ("${PROJECT_SOURCE_DIR}/src/avtk/avtk/")
-include_directories ("${PROJECT_SOURCE_DIR}/src/avtk/avtk/pugl/")
+include_directories ("${PROJECT_SOURCE_DIR}/../avtk/avtk/")
+include_directories ("${PROJECT_SOURCE_DIR}/../avtk/avtk/pugl/")
 
 find_package(PkgConfig)
 

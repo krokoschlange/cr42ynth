@@ -32,12 +32,13 @@
 #ifndef OPENAV_AVTK_EVENT_EDITOR_HXX
 #define OPENAV_AVTK_EVENT_EDITOR_HXX
 
+#include "widget.hxx"
+
 #include <string>
 #include <vector>
 #include <valarray>
 
-#include "../../../src_old/avtk/avtk/midi.hxx"
-#include "../../../src_old/avtk/avtk/widget.hxx"
+#include "midi.hxx"
 
 namespace Avtk
 {

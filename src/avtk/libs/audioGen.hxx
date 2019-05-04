@@ -2,10 +2,10 @@
 #ifndef OPENAV_AVTK_AUDIOGEN_HXX
 #define OPENAV_AVTK_AUDIOGEN_HXX
 
+#include "pffft.hxx"
+#include "plotter.hxx"
 #include <math.h>
 #include <stdio.h>
-#include "../../../src_old/avtk/libs/pffft.hxx"
-#include "../../../src_old/avtk/libs/plotter.hxx"
 
 #define N 1024
 #define SAMPLE_RATE 44100

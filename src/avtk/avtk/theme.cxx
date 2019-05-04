@@ -29,17 +29,19 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "../../../src_old/avtk/avtk/theme.hxx"
+#include "theme.hxx"
+
+#include "common.hxx"
+
+#include "ui.hxx"
+#include "widget.hxx"
 
 #include <fstream>
 #include <sstream>
 #include <fstream>
 #include <iostream>
 
-#include "../../../src_old/avtk/avtk/common.hxx"
-#include "../../../src_old/avtk/avtk/picojson.hxx"
-#include "../../../src_old/avtk/avtk/ui.hxx"
-#include "../../../src_old/avtk/avtk/widget.hxx"
+#include "picojson.hxx"
 
 namespace Avtk
 {

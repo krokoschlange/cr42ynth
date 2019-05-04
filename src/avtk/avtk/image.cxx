@@ -29,7 +29,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "../../../src_old/avtk/avtk/image.hxx"
+#include "image.hxx"
 
 #include <stdio.h>
 

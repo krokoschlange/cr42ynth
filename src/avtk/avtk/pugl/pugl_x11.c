@@ -58,8 +58,8 @@
 #include <cairo/cairo-xlib.h>
 #endif
 
-#include "../../../../src_old/avtk/avtk/pugl/event.h"
-#include "../../../../src_old/avtk/avtk/pugl/pugl_internal.h"
+#include "pugl/event.h"
+#include "pugl/pugl_internal.h"
 
 struct PuglInternalsImpl {
 	Display*   display;

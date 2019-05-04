@@ -29,14 +29,14 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "../../../src_old/avtk/avtk/ui.hxx"
+#include "ui.hxx"
 
-#include "../../../src_old/avtk/avtk/avtk.hxx"
-#include "../../../src_old/avtk/avtk/theme.hxx"
-#include "../../../src_old/avtk/avtk/themes.hxx"
+#include "avtk.hxx"
+#include "theme.hxx"
+#include "themes.hxx"
 
 #ifdef AVTK_TESTER
-#include "../../../src_old/avtk/avtk/tester.hxx"
+#include "tester.hxx"
 #endif
 
 using namespace Avtk;

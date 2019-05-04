@@ -33,6 +33,7 @@
 #define OPENAV_AVTK_UI_HXX
 
 // libs AVTK needs
+#include "pugl/pugl.h"
 #include <cairo/cairo.h>
 
 // general C++ includes
@@ -43,8 +44,7 @@
 #include <unistd.h>
 
 // the AVTK UI is a group
-#include "../../../src_old/avtk/avtk/group.hxx"
-#include "../../../src_old/avtk/avtk/pugl/pugl.h"
+#include "group.hxx"
 
 namespace Avtk
 {

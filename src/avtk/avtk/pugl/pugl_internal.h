@@ -45,8 +45,8 @@
    PUGL_HAVE_GL:    Include OpenGL support code.
 */
 
-#include "../../../../src_old/avtk/avtk/pugl/event.h"
-#include "../../../../src_old/avtk/avtk/pugl/pugl.h"
+#include "pugl/pugl.h"
+#include "pugl/event.h"
 
 typedef struct PuglInternalsImpl PuglInternals;
 

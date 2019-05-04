@@ -45,7 +45,7 @@ extern "C" {
 #    include <stdbool.h>
 #endif
 
-#include "../../../../src_old/avtk/avtk/pugl/common.h"
+#include "pugl/common.h"
 
 /**
    The type of a PuglEvent.

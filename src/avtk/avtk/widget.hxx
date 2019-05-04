@@ -32,14 +32,15 @@
 #ifndef OPENAV_AVTK_WIDGET_HXX
 #define OPENAV_AVTK_WIDGET_HXX
 
+#include "common.hxx"
+
 #include <stdio.h>
 #include <string>
 #include <cairo/cairo.h>
 
-#include "../../../src_old/avtk/avtk/common.hxx"
-#include "../../../src_old/avtk/avtk/helpers.hxx"
-#include "../../../src_old/avtk/avtk/pugl/pugl.h"
-#include "../../../src_old/avtk/avtk/utils.hxx"
+#include "utils.hxx"
+#include "helpers.hxx"
+#include "pugl/pugl.h"
 
 
 namespace Avtk

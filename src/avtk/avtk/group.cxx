@@ -29,10 +29,10 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "../../../src_old/avtk/avtk/group.hxx"
+#include "group.hxx"
 
-#include "../../../src_old/avtk/avtk/avtk.hxx"
-#include "../../../src_old/avtk/avtk/ui.hxx"
+#include "ui.hxx"
+#include "avtk.hxx"
 
 namespace Avtk
 {

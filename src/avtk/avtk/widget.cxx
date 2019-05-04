@@ -29,12 +29,12 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "../../../src_old/avtk/avtk/widget.hxx"
+#include "widget.hxx"
 
 #include <math.h>
 
-#include "../../../src_old/avtk/avtk/theme.hxx"
-#include "../../../src_old/avtk/avtk/ui.hxx"
+#include "ui.hxx"
+#include "theme.hxx"
 
 namespace Avtk
 {

@@ -38,13 +38,20 @@ namespace cr42y
 
 CR42Ynth::CR42Ynth()
 {
-	// TODO Auto-generated constructor stub
 
 }
 
 CR42Ynth::~CR42Ynth()
 {
-	// TODO Auto-generated destructor stub
+}
+
+CR42Ynth* CR42Ynth::getInstance()
+{
+	if (singleton == 0)
+	{
+		singleton = new CR42Ynth();
+	}
+	return singleton;
 }
 
 } /* namespace cr42y */

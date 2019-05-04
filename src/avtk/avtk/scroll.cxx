@@ -29,13 +29,14 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "../../../src_old/avtk/avtk/scroll.hxx"
+#include "scroll.hxx"
+
+#include "ui.hxx"
+#include "theme.hxx"
+#include "slider.hxx"
+#include "listitem.hxx"
 
 #include <stdio.h>
-#include "../../../src_old/avtk/avtk/listitem.hxx"
-#include "../../../src_old/avtk/avtk/slider.hxx"
-#include "../../../src_old/avtk/avtk/theme.hxx"
-#include "../../../src_old/avtk/avtk/ui.hxx"
 
 using namespace Avtk;
 

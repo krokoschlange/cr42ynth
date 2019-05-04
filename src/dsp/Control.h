@@ -40,7 +40,7 @@ namespace cr42y
 class Control
 {
 public:
-	Control(float v = 0, float m = 0, float ma = 1);
+	Control(int i, float v = 0, float m = 0, float ma = 1);
 	virtual ~Control();
 
 	void setValue(float v)
@@ -62,7 +62,25 @@ public:
 		max = m;
 	}
 
+	int getID()
+	{
+		return id;
+	}
+
+	void setLFO(int l)
+	{
+		lfo = l;
+	}
+
+	int getLFO()
+	{
+		return lfo;
+	}
+
 private:
+	const int id;
+	int lfo = -1;
+
 	float value;
 
 	float min;

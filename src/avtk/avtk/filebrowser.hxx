@@ -32,7 +32,7 @@
 #ifndef OPENAV_AVTK_FILE_BROWSER_HXX
 #define OPENAV_AVTK_FILE_BROWSER_HXX
 
-#include "../../../src_old/avtk/avtk/group.hxx"
+#include "group.hxx"
 
 namespace Avtk
 {

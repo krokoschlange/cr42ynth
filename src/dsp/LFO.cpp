@@ -36,8 +36,10 @@
 namespace cr42y
 {
 
-LFO::LFO(float rate)
+LFO::LFO(int i, float rate)
 {
+	id = i;
+	currentValue = 0;
 	samplerate = rate;
 	smooth = false;
 	wavePos = 0;
@@ -46,38 +48,34 @@ LFO::LFO(float rate)
 
 LFO::~LFO()
 {
-	// TODO Auto-generated destructor stub
 }
 
-void LFO::run(int samples, float* output)
+float LFO::nextSample()
 {
+	float out;
+
 	float sampleLenght = frequency / samplerate;
-	for (int i = 0; i < samples; i++)
+	if (smooth)
 	{
-		if (smooth)
-		{
-			float smpl1 = waveform[(int) wavePos];
-			float smpl2 = waveform[(int) wavePos + 1];
+		float smpl1 = waveform[(int) wavePos];
+		float smpl2 = waveform[(int) wavePos + 1];
 
-			float waveSample = wavePos * waveform.size();
-			output[i] = smpl1 + (waveSample - (int) waveSample) * (smpl2 - smpl1);
-		}
-		else
-		{
-			output[i] = waveform[(int) wavePos];
-		}
-
-		wavePos += sampleLenght;
-		if (wavePos > 1)
-		{
-			wavePos = wavePos - (int) wavePos;
-		}
+		float waveSample = wavePos * waveform.size();
+		out = smpl1 + (waveSample - (int) waveSample) * (smpl2 - smpl1);
+	}
+	else
+	{
+		out = waveform[(int) wavePos];
 	}
 
-	for (int i = 0; i < controls.size(); i++)
+	wavePos += sampleLenght;
+	if (wavePos > 1)
 	{
-		controls[i]->setLFOValue(output[samples - 1]);
+		wavePos = wavePos - (int) wavePos;
 	}
+
+	currentValue = out;
+	return out;
 }
 
 } /* namespace cr42y */

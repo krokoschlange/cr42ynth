@@ -29,7 +29,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "../../../src_old/avtk/avtk/midi.hxx"
+#include "midi.hxx"
 
 #include <stdio.h>
 #include <cstring>

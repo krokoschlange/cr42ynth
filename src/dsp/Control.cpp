@@ -36,11 +36,13 @@
 namespace cr42y
 {
 
-Control::Control(float v, float m, float ma)
+Control::Control(int i, float v, float m, float ma)
 {
+	id = i;
 	value = v;
 	min = m;
 	max = ma;
+	id = 0;
 }
 
 Control::~Control()

@@ -36,7 +36,6 @@
 
 #include <vector>
 #include <list>
-#include "../../src/dsp/Control.h"
 
 namespace cr42y
 {
@@ -44,10 +43,10 @@ namespace cr42y
 class LFO
 {
 public:
-	LFO(float rate);
+	LFO(int i, float rate);
 	virtual ~LFO();
 
-	void run(int samples, float* output);
+	float nextSample();
 
 	void setWaveform(std::vector<float> wave)
 	{
@@ -69,20 +68,18 @@ public:
 		samplerate = rate;
 	}
 
-	void addControl(Control* ctrl)
+	float getValue()
 	{
-		controls.push_back(ctrl);
+		return currentValue;
 	}
 
-	void removeControl(Control* ctrl)
+	int getID()
 	{
-		int index = 0;
-		for (; index < controls.size() || controls[index] == ctrl; index++) {}
-
-		controls.erase(controls.begin() + index);
+		return id;
 	}
 
 private:
+	const int id;
 	std::vector<float> waveform;
 
 	float samplerate;
@@ -90,7 +87,7 @@ private:
 	float wavePos;
 	bool smooth;
 
-	std::vector<Control*> controls;
+	float currentValue;
 };
 
 } /* namespace cr42y */

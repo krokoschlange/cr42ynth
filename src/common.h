@@ -35,8 +35,15 @@
 #define COMMON_H_
 
 #define CR42YnthURI "https://github.com/krokoschlange/cr42ynth"
+#define CR42YnthUIURI "https://github.com/krokoschlange/cr42ynth#ui"
 
+namespace cr42y
+{
+enum Controls
+{
 
+};
 
+}
 
 #endif /* COMMON_H_ */

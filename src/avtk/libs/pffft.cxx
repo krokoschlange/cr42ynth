@@ -57,7 +57,7 @@
   - 2011/10/02, version 1: This is the very first release of this file.
 */
 
-#include "../../../src_old/avtk/libs/pffft.hxx"
+#include "pffft.hxx"
 
 #include <stdlib.h>
 #include <stdio.h>

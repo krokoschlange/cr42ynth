@@ -36,15 +36,14 @@
 namespace cr42y
 {
 
-CR42YnthUI::CR42YnthUI()
+CR42YnthUI::CR42YnthUI(PuglNativeWindow parent) :
+		Avtk::UI(1280, 720, parent, "CR42Ynth")
 {
-	// TODO Auto-generated constructor stub
 
 }
 
 CR42YnthUI::~CR42YnthUI()
 {
-	// TODO Auto-generated destructor stub
 }
 
 } /* namespace cr42y */

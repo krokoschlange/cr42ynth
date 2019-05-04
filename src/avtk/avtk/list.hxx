@@ -32,9 +32,10 @@
 #ifndef OPENAV_AVTK_LIST_HXX
 #define OPENAV_AVTK_LIST_HXX
 
+#include "group.hxx"
+
 #include <string>
 #include <vector>
-#include "../../../src_old/avtk/avtk/group.hxx"
 
 namespace Avtk
 {

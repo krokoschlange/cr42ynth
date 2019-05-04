@@ -47,7 +47,7 @@
 #include <libgen.h>
 #include <sys/stat.h>
 
-#include "../../../src_old/avtk/avtk/tinydir.hxx"
+#include "tinydir.hxx"
 
 namespace Avtk
 {

@@ -35,15 +35,33 @@
 #define SRC_UI_CR42YNTHUI_H_
 
 #include "avtk.hxx"
+#include "lv2/lv2plug.in/ns/lv2core/lv2.h"
+#include "lv2/lv2plug.in/ns/extensions/ui/ui.h"
 
 namespace cr42y
 {
 
-class CR42YnthUI : public Avtk::UI
+class CR42YnthUI: public Avtk::UI
 {
 public:
 	CR42YnthUI(PuglNativeWindow parent);
 	virtual ~CR42YnthUI();
+
+	static LV2UI_Handle lv2Instantiate(
+			const struct _LV2UI_Descriptor* descriptor, const char* pluginUri,
+			const char* bundlePath, LV2UI_Write_Function writeFunction,
+			LV2UI_Controller controller, LV2UI_Widget* widget,
+			const LV2_Feature* const * features);
+
+	static void lv2Cleanup(LV2UI_Handle handle);
+	static void lv2PortEvent(LV2UI_Handle handle, uint32_t portIndex,
+			uint32_t bufferSize, uint32_t format, const void* buffer);
+	static int lv2Idle(LV2UI_Handle handle);
+	static const void* lv2ExtensionData(const char* uri);
+
+	void cleanup();
+	void portEvent(uint32_t portIndex, uint32_t bufferSize, uint32_t format,
+			const void* buffer);
 };
 
 } /* namespace cr42y */

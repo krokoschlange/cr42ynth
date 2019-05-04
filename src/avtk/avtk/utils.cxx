@@ -29,13 +29,13 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "../../../src_old/avtk/avtk/utils.hxx"
+#include "utils.hxx"
 
+#include "avtk.hxx"
+#include "theme.hxx"
 #include <algorithm>
 #include <cstring>
 #include <sndfile.h>
-#include "../../../src_old/avtk/avtk/avtk.hxx"
-#include "../../../src_old/avtk/avtk/theme.hxx"
 
 namespace Avtk
 {

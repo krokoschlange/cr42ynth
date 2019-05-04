@@ -29,13 +29,12 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "../../../src_old/avtk/avtk/rotary.hxx"
+#include "rotary.hxx"
 
 #include <math.h>
 #include <stdio.h>
-
-#include "../../../src_old/avtk/avtk/theme.hxx"
-#include "../../../src_old/avtk/avtk/ui.hxx"
+#include "ui.hxx"
+#include "theme.hxx"
 
 
 using namespace Avtk;

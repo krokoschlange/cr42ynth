@@ -33,7 +33,7 @@
 
 #include "lv2/lv2plug.in/ns/lv2core/lv2.h"
 
-#define CR42YnthURI "krokoschlange:cr42ynth"
+#include "../common.h"
 
 static const LV2_Descriptor descriptor = {
 		CR42YnthURI,

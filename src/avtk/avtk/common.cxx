@@ -29,7 +29,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "../../../src_old/avtk/avtk/common.hxx"
+#include "common.hxx"
 
 #include <stdio.h>
 #include <cassert>
