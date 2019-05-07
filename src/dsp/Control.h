@@ -31,8 +31,8 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef DSP_CONTROL_H_
-#define DSP_CONTROL_H_
+#ifndef SRC_DSP_CONTROL_H_
+#define SRC_DSP_CONTROL_H_
 
 namespace cr42y
 {
@@ -40,53 +40,28 @@ namespace cr42y
 class Control
 {
 public:
-	Control(int i, float v = 0, float m = 0, float ma = 1);
+	Control(float* v, int id);
 	virtual ~Control();
 
-	void setValue(float v)
-	{
-		value = v;
-	}
+	void setValueLFO(float lfoValue);
 
-	void setLFOValue(float lfoValue);
+	void setValue(float v);
+	void setMin(float m);
+	void setMax(float m);
 
 	float getValue();
+	float getMin();
+	float getMax();
 
-	void setMin(float m)
-	{
-		min = m;
-	}
-
-	void setMax(float m)
-	{
-		max = m;
-	}
-
-	int getID()
-	{
-		return id;
-	}
-
-	void setLFO(int l)
-	{
-		lfo = l;
-	}
-
-	int getLFO()
-	{
-		return lfo;
-	}
+	const int getID();
 
 private:
-	const int id;
-	int lfo = -1;
-
-	float value;
-
+	const int ID;
+	float* value;
 	float min;
 	float max;
 };
 
 } /* namespace cr42y */
 
-#endif /* DSP_CONTROL_H_ */
+#endif /* SRC_DSP_CONTROL_H_ */

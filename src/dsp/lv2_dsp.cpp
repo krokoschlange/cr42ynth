@@ -45,8 +45,14 @@ LV2_SYMBOL_EXPORT const LV2_Descriptor* lv2_descriptor(uint32_t index)
 {
 	if (index != 0)
 	{
-		return NULL;
+		return nullptr;
 	}
 	return &descriptor;
 
+}
+
+
+int main()
+{
+	return 0;
 }

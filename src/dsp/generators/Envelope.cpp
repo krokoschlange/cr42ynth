@@ -31,34 +31,46 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_DSP_CR42YNTH_H_
-#define SRC_DSP_CR42YNTH_H_
-
-#include "WTOscillator.h"
 #include "Envelope.h"
-#include "LFO.h"
 
 namespace cr42y
 {
 
-class CR42Ynth
+Envelope::Envelope(float rate) :
+		samplerate(rate), length(0), sustainPoint(0)
 {
-public:
-	virtual ~CR42Ynth();
+	envelope = new std::vector<float>();
+	for (int i = 0; i < 100; i++)
+	{
+		(*envelope)[i] = 0;
+	}
+}
 
-	static CR42Ynth* getInstance();
+Envelope::~Envelope()
+{
+	delete envelope;
+}
 
-	void newVoice(int note);
+float Envelope::getSample(ENVVoice* voice)
+{
+	if (voice->getLastPos() > 1)
+	{
+		return 0;
+	}
 
-private:
-	CR42Ynth();
-	static CR42Ynth* singleton;
+	if (voice->getLastPos() < sustainPoint && !voice->getSustain())
+	{
+		voice->setLastPos(sustainPoint);
+	}
+	int envSample = (int) voice->getLastPos() * envelope->size();
+	float out = (*envelope)[envSample];
 
-	WTOscillator* oscillators;
-	LFO* lfos;
-	Envelope* envelopes;
-};
+	voice->setLastPos(voice->getLastPos() + 1.0 / (length * samplerate));
+	if (voice->getSustain() && voice->getLastPos() > sustainPoint)
+	{
+		voice->setLastPos(sustainPoint);
+	}
+	return out;
+}
 
 } /* namespace cr42y */
-
-#endif /* SRC_DSP_CR42YNTH_H_ */

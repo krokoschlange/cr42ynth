@@ -31,51 +31,59 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#include "LFO.h"
+#ifndef SRC_DSP_OSCVOICE_H_
+#define SRC_DSP_OSCVOICE_H_
+
+#include "WTOscillator.h"
+#include "Control.h"
 
 namespace cr42y
 {
+class WTOscillator;
 
-LFO::LFO(int i, float rate)
+class OscVoice
 {
-	id = i;
-	currentValue = 0;
-	samplerate = rate;
-	smooth = false;
-	wavePos = 0;
-	frequency = 1;
-}
+public:
+	OscVoice(WTOscillator* osc, float phase, float n, float vol, float wtp, float p);
+	virtual ~OscVoice();
 
-LFO::~LFO()
-{
-}
+	void nextSample();
 
-float LFO::nextSample()
-{
-	float out;
+	float getValue();
+	float getOutput();
 
-	float sampleLenght = frequency / samplerate;
-	if (smooth)
-	{
-		float smpl1 = waveform[(int) wavePos];
-		float smpl2 = waveform[(int) wavePos + 1];
+	float getWTPos();
 
-		float waveSample = wavePos * waveform.size();
-		out = smpl1 + (waveSample - (int) waveSample) * (smpl2 - smpl1);
-	}
-	else
-	{
-		out = waveform[(int) wavePos];
-	}
+	float getFrequency();
+	float getPhase();
+	void movePhase(float newPhase);
 
-	wavePos += sampleLenght;
-	if (wavePos > 1)
-	{
-		wavePos = wavePos - (int) wavePos;
-	}
 
-	currentValue = out;
-	return out;
-}
+private:
+	WTOscillator* oscillator;
+
+	float lastPos;
+	float deltaPhaseLFO_ENV;
+
+	float note;
+	float deltaFrequencyLFO_ENV;
+
+	float volume;
+
+	float wtPos;
+	float pan;
+
+	float value;
+	float output;
+
+	float FM;
+	float AM;
+	float PM;
+	float RM;
+
+	Control** controls;
+};
 
 } /* namespace cr42y */
+
+#endif /* SRC_DSP_OSCVOICE_H_ */

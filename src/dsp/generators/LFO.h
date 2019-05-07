@@ -31,34 +31,38 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_DSP_CR42YNTH_H_
-#define SRC_DSP_CR42YNTH_H_
 
-#include "WTOscillator.h"
-#include "Envelope.h"
-#include "LFO.h"
+#ifndef SRC_DSP_GENERATORS_LFO_H_
+#define SRC_DSP_GENERATORS_LFO_H_
+
+#include <vector>
+#include "LFOVoice.h"
 
 namespace cr42y
 {
+class LFOVoice;
 
-class CR42Ynth
+class LFO
 {
 public:
-	virtual ~CR42Ynth();
+	LFO(float rate);
+	virtual ~LFO();
 
-	static CR42Ynth* getInstance();
+	float getSample(LFOVoice* voice);
 
-	void newVoice(int note);
+	void setLFO(std::vector<float>* data, float freq)
+	{
+		delete lfo;
+		lfo = data;
+		frequency = freq;
+	}
 
 private:
-	CR42Ynth();
-	static CR42Ynth* singleton;
-
-	WTOscillator* oscillators;
-	LFO* lfos;
-	Envelope* envelopes;
+	float samplerate;
+	std::vector<float>* lfo;
+	float frequency;
 };
 
 } /* namespace cr42y */
 
-#endif /* SRC_DSP_CR42YNTH_H_ */
+#endif /* SRC_DSP_GENERATORS_LFO_H_ */

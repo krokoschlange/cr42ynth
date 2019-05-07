@@ -31,34 +31,56 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_DSP_CR42YNTH_H_
-#define SRC_DSP_CR42YNTH_H_
-
 #include "WTOscillator.h"
-#include "Envelope.h"
-#include "LFO.h"
 
 namespace cr42y
 {
 
-class CR42Ynth
+WTOscillator::WTOscillator(float rate, int id) :
+		ID(id),
+		smooth(false),
+		samplerate(rate),
+		wavetable(nullptr)
 {
-public:
-	virtual ~CR42Ynth();
+}
 
-	static CR42Ynth* getInstance();
+WTOscillator::~WTOscillator()
+{
+	delete wavetable;
+}
 
-	void newVoice(int note);
+float WTOscillator::getSample(OscVoice* voice)
+{
+	float out;
+	float pos = voice->getPhase();
 
-private:
-	CR42Ynth();
-	static CR42Ynth* singleton;
+	int wtSample = voice->getWTPos() * wavetable->size();
+	if (wtSample >= wavetable->size())
+	{
+		wtSample--;
+	}
+	float waveSample = pos * (*wavetable)[0].size();
+	if (waveSample >= (*wavetable)[0].size())
+	{
+		waveSample -= 1;
+	}
+	if (smooth)
+	{
+		float smpl1 = (*wavetable)[wtSample][(int) waveSample];
+		float smpl2 = (*wavetable)[wtSample][(int) waveSample + 1];
 
-	WTOscillator* oscillators;
-	LFO* lfos;
-	Envelope* envelopes;
-};
+		out = smpl1 + (waveSample - (int) waveSample) * (smpl2 - smpl1);
+	}
+	else
+	{
+		out = (*wavetable)[wtSample][(int) waveSample];
+	}
+
+	float deltaPos = voice->getFrequency() / samplerate;
+	pos += deltaPos;
+	voice->movePhase(pos);
+
+	return out;
+}
 
 } /* namespace cr42y */
-
-#endif /* SRC_DSP_CR42YNTH_H_ */

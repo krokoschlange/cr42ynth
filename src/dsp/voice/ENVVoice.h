@@ -31,70 +31,35 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_OLD_DSP_WTOSCILLATOR_H_
-#define SRC_OLD_DSP_WTOSCILLATOR_H_
+#ifndef SRC_DSP_VOICE_ENVVOICE_H_
+#define SRC_DSP_VOICE_ENVVOICE_H_
 
-#include "lv2/log/log.h"
-#include "lv2/log/logger.h"
-
-#include <vector>
+#include "Envelope.h"
 
 namespace cr42y
 {
+class Envelope;
 
-class WTOscillator
+class ENVVoice
 {
 public:
-	WTOscillator(int rate);
-	virtual ~WTOscillator() {}
+	ENVVoice(Envelope* env);
+	virtual ~ENVVoice();
 
-	void run(int samples, float* output);
+	float getLastPos();
+	bool getSustain();
 
-	void setWavetable(int length, int height, bool ipolate, std::vector<std::vector<float>>);
-
-	void setSmooth(bool sm)
-	{
-		smooth = sm;
-	}
-
-	void setFrequency(float f)
-	{
-		frequency = f;
-	}
-
-	float getFrequency()
-	{
-		return frequency;
-	}
-
-	void updateRate(int rate)
-	{
-		samplerate = rate;
-	}
-
-	void setWTPos(float pos)
-	{
-		wtPos = pos;
-	}
-
-	float getWTPos()
-	{
-		return wtPos;
-	}
+	void setLastPos(float newPos);
+	void setSustain(bool sus);
 
 private:
-	float frequency;
-	int samplerate;
-	bool smooth;
-	float wavePos;
+	Envelope* envelope;
+	float lastPos;
+	bool sustain;
 
-	int wtLength;
-	int wtHeight;
-	std::vector<std::vector<float>> wavetable;
-	float wtPos;
-	bool interpolate;
+	float value;
 };
 
 } /* namespace cr42y */
 
-#endif /* SRC_OLD_DSP_WTOSCILLATOR_H_ */
+#endif /* SRC_DSP_VOICE_ENVVOICE_H_ */

@@ -31,34 +31,33 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_DSP_CR42YNTH_H_
-#define SRC_DSP_CR42YNTH_H_
-
-#include "WTOscillator.h"
-#include "Envelope.h"
-#include "LFO.h"
+#include "LFOVoice.h"
 
 namespace cr42y
 {
 
-class CR42Ynth
+LFOVoice::LFOVoice(LFO* l) :
+		lfo(l),
+		lastPos(0)
 {
-public:
-	virtual ~CR42Ynth();
+}
 
-	static CR42Ynth* getInstance();
+LFOVoice::~LFOVoice()
+{
+}
 
-	void newVoice(int note);
+float LFOVoice::getLastPos()
+{
+	return lastPos;
+}
 
-private:
-	CR42Ynth();
-	static CR42Ynth* singleton;
-
-	WTOscillator* oscillators;
-	LFO* lfos;
-	Envelope* envelopes;
-};
+void LFOVoice::setLastPos(float newPos)
+{
+	if (newPos > 1)
+	{
+		newPos -= (int) newPos;
+	}
+	lastPos = newPos;
+}
 
 } /* namespace cr42y */
-
-#endif /* SRC_DSP_CR42YNTH_H_ */

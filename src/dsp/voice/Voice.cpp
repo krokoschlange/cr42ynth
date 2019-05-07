@@ -31,35 +31,23 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_DSP_LFOHANDLER_H_
-#define SRC_DSP_LFOHANDLER_H_
-
-#include <vector>
-
-#include "LFO.h"
-#include "Control.h"
+#include "Voice.h"
 
 namespace cr42y
 {
 
-class LFOHandler
+Voice::Voice(int n, OscVoice* oscs, LFOVoice* lfos, ENVVoice* envs) :
+		oscVoices(oscs),
+		lfoVoices(lfos),
+		envVoices(envs),
+		note(n)
 {
-public:
-	LFOHandler();
-	virtual ~LFOHandler();
 
-	void updateLFOs();
+}
 
-	void addLFO(LFO* lfo);
-	void removeLFO(LFO* lfo);
-
-	void addControl
-
-private:
-	std::vector<LFO*> lfos;
-	std::vector<Control*> controls;
-};
+Voice::~Voice()
+{
+	// TODO Auto-generated destructor stub
+}
 
 } /* namespace cr42y */
-
-#endif /* SRC_DSP_LFOHANDLER_H_ */

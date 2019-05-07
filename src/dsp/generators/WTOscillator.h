@@ -31,32 +31,50 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#include "LFOHandler.h"
+#ifndef SRC_DSP_WTOSCILLATOR_H_
+#define SRC_DSP_WTOSCILLATOR_H_
+
+#include <vector>
+#include "Control.h"
+#include "OscVoice.h"
 
 namespace cr42y
 {
+class OscVoice;
 
-LFOHandler::LFOHandler()
+class WTOscillator
 {
-}
+public:
+	WTOscillator(float rate, int id);
+	virtual ~WTOscillator();
 
-LFOHandler::~LFOHandler()
-{
-}
+	float getSample(OscVoice* voice);
 
-void LFOHandler::updateLFOs()
-{
-	for (int i = 0; lfos[i]; i++)
+	void setWavetable(std::vector<std::vector<float>>* wt)
 	{
-		float v = lfos[i]->nextSample();
-		for (int j = 0; controls[j]; j++)
-		{
-			if (controls[j]->getLFO() == lfos[i]->getID())
-			{
-				controls[j]->setLFOValue(lfos[i]->getValue());
-			}
-		}
+		delete wavetable;
+		wavetable = wt;
 	}
-}
+
+	void setSmooth(bool s)
+	{
+		smooth = s;
+	}
+
+	const int getID()
+	{
+		return ID;
+	}
+
+private:
+	const int ID;
+
+	std::vector<std::vector<float>>* wavetable;
+	float samplerate;
+
+	bool smooth;
+};
 
 } /* namespace cr42y */
+
+#endif /* SRC_DSP_WTOSCILLATOR_H_ */

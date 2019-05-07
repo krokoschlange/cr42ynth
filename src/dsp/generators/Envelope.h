@@ -31,65 +31,41 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef DSP_LFO_H_
-#define DSP_LFO_H_
+#ifndef SRC_DSP_GENERATORS_ENVELOPE_H_
+#define SRC_DSP_GENERATORS_ENVELOPE_H_
 
 #include <vector>
-#include <list>
+
+#include "ENVVoice.h"
 
 namespace cr42y
 {
+class ENVVoice;
 
-class LFO
+class Envelope
 {
 public:
-	LFO(int i, float rate);
-	virtual ~LFO();
+	Envelope(float rate);
+	virtual ~Envelope();
 
-	float nextSample();
+	float getSample(ENVVoice* voice);
 
-	void setWaveform(std::vector<float> wave)
+	void setEnvelope(std::vector<float>* data, float l, float susPoint)
 	{
-		waveform = wave;
-	}
-
-	void setFrequency(float f)
-	{
-		frequency = f;
-	}
-
-	void setSmooth(bool s)
-	{
-		smooth = s;
-	}
-
-	void updateSamplerate(float rate)
-	{
-		samplerate = rate;
-	}
-
-	float getValue()
-	{
-		return currentValue;
-	}
-
-	int getID()
-	{
-		return id;
+		delete data;
+		envelope = data;
+		sustainPoint = susPoint;
+		length = l;
 	}
 
 private:
-	const int id;
-	std::vector<float> waveform;
-
 	float samplerate;
-	float frequency;
-	float wavePos;
-	bool smooth;
 
-	float currentValue;
+	std::vector<float>* envelope;
+	float sustainPoint;
+	float length;
 };
 
 } /* namespace cr42y */
 
-#endif /* DSP_LFO_H_ */
+#endif /* SRC_DSP_GENERATORS_ENVELOPE_H_ */

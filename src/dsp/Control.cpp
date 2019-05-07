@@ -36,27 +36,64 @@
 namespace cr42y
 {
 
-Control::Control(int i, float v, float m, float ma)
+Control::Control(float* v, int id) :
+		value(v),
+		min(0),
+		max(1),
+		ID(id)
 {
-	id = i;
-	value = v;
-	min = m;
-	max = ma;
-	id = 0;
 }
 
 Control::~Control()
 {
 }
 
-void Control::setLFOValue(float lfoValue)
+void Control::setValueLFO(float lfoValue)
 {
-	value = min + lfoValue * (max - min);
+	*value = min + (lfoValue + 1) / 2 * (max - min);
+}
+
+void Control::setValue(float v)
+{
+	if (v > max)
+	{
+		v = max;
+	}
+	else if (v < min)
+	{
+		v = min;
+	}
+	*value = v;
+}
+
+void Control::setMin(float m)
+{
+	min = m;
+}
+
+void Control::setMax(float m)
+{
+	max = m;
 }
 
 float Control::getValue()
 {
-	return value;
+	return *value;
+}
+
+float Control::getMin()
+{
+	return min;
+}
+
+float Control::getMax()
+{
+	return max;
+}
+
+const int Control::getID()
+{
+	return ID;
 }
 
 } /* namespace cr42y */
