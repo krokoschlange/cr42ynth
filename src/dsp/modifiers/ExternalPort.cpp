@@ -31,23 +31,19 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#include "Voice.h"
+#include "../modifiers/ExternalPort.h"
 
 namespace cr42y
 {
 
-Voice::Voice(int n, OscVoice* oscs, LFOVoice* lfos, ENVVoice* envs) :
-		oscVoices(oscs),
-		lfoVoices(lfos),
-		envVoices(envs),
-		note(n)
+ExternalPort::ExternalPort(int port) :
+		portIndex(port)
 {
 
 }
 
-Voice::~Voice()
+ExternalPort::~ExternalPort()
 {
-	// TODO Auto-generated destructor stub
 }
 
 } /* namespace cr42y */

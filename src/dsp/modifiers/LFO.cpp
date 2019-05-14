@@ -31,7 +31,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#include "LFO.h"
+#include "../modifiers/LFO.h"
 
 namespace cr42y
 {
@@ -52,7 +52,7 @@ LFO::~LFO()
 	delete lfo;
 }
 
-float LFO::getSample(LFOVoice* voice)
+float LFO::getSample(LFOPlayhead* voice)
 {
 	int lfoSample = voice->getLastPos() * lfo->size();
 	float out = (*lfo)[lfoSample];

@@ -31,29 +31,36 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_DSP_VOICE_LFOVOICE_H_
-#define SRC_DSP_VOICE_LFOVOICE_H_
+#ifndef SRC_DSP_VOICE_ENVPLAYHEAD_H_
+#define SRC_DSP_VOICE_ENVPLAYHEAD_H_
 
-#include "LFO.h"
+#include "Envelope.h"
+#include "Controller.h"
 
 namespace cr42y
 {
-class LFO;
+class Envelope;
 
-class LFOVoice
+class ENVPlayhead : public Controller
 {
 public:
-	LFOVoice(LFO* l);
-	virtual ~LFOVoice();
+	ENVPlayhead(Envelope* env);
+	virtual ~ENVPlayhead();
 
 	float getLastPos();
+	bool getSustain();
+
 	void setLastPos(float newPos);
+	void setSustain(bool sus);
 
 private:
-	LFO* lfo;
+	Envelope* envelope;
 	float lastPos;
+	bool sustain;
+
+	float value;
 };
 
 } /* namespace cr42y */
 
-#endif /* SRC_DSP_VOICE_LFOVOICE_H_ */
+#endif /* SRC_DSP_VOICE_ENVPLAYHEAD_H_ */

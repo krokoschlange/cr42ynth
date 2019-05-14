@@ -36,11 +36,11 @@
 
 #include <vector>
 #include "Control.h"
-#include "OscVoice.h"
+#include "OscPlayhead.h"
 
 namespace cr42y
 {
-class OscVoice;
+class OscPlayhead;
 
 class WTOscillator
 {
@@ -48,7 +48,7 @@ public:
 	WTOscillator(float rate, int id);
 	virtual ~WTOscillator();
 
-	float getSample(OscVoice* voice);
+	float getSample(OscPlayhead* voice);
 
 	void setWavetable(std::vector<std::vector<float>>* wt)
 	{
@@ -66,6 +66,13 @@ public:
 		return ID;
 	}
 
+	float getDetune();
+	void setDetune(float d);
+	void setDetune(int semi, int cents);
+
+	void setEnabled(bool state);
+	bool getEnabled();
+
 private:
 	const int ID;
 
@@ -73,6 +80,10 @@ private:
 	float samplerate;
 
 	bool smooth;
+
+	float detune;
+
+	bool enabled;
 };
 
 } /* namespace cr42y */

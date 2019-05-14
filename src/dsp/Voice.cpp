@@ -31,35 +31,23 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_DSP_VOICE_ENVVOICE_H_
-#define SRC_DSP_VOICE_ENVVOICE_H_
-
-#include "Envelope.h"
+#include "Voice.h"
 
 namespace cr42y
 {
-class Envelope;
 
-class ENVVoice
+Voice::Voice(int n, OscPlayhead* oscs, LFOPlayhead* lfos, ENVPlayhead* envs) :
+		oscVoices(oscs),
+		lfoVoices(lfos),
+		envVoices(envs),
+		note(n)
 {
-public:
-	ENVVoice(Envelope* env);
-	virtual ~ENVVoice();
 
-	float getLastPos();
-	bool getSustain();
+}
 
-	void setLastPos(float newPos);
-	void setSustain(bool sus);
-
-private:
-	Envelope* envelope;
-	float lastPos;
-	bool sustain;
-
-	float value;
-};
+Voice::~Voice()
+{
+	// TODO Auto-generated destructor stub
+}
 
 } /* namespace cr42y */
-
-#endif /* SRC_DSP_VOICE_ENVVOICE_H_ */

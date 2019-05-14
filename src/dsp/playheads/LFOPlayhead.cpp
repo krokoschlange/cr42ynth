@@ -31,27 +31,27 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#include "LFOVoice.h"
+#include "LFOPlayhead.h"
 
 namespace cr42y
 {
 
-LFOVoice::LFOVoice(LFO* l) :
+LFOPlayhead::LFOPlayhead(LFO* l) :
 		lfo(l),
 		lastPos(0)
 {
 }
 
-LFOVoice::~LFOVoice()
+LFOPlayhead::~LFOPlayhead()
 {
 }
 
-float LFOVoice::getLastPos()
+float LFOPlayhead::getLastPos()
 {
 	return lastPos;
 }
 
-void LFOVoice::setLastPos(float newPos)
+void LFOPlayhead::setLastPos(float newPos)
 {
 	if (newPos > 1)
 	{

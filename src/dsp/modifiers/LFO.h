@@ -31,70 +31,38 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#include "OscVoice.h"
-#include "../common.h"
+
+#ifndef SRC_DSP_GENERATORS_LFO_H_
+#define SRC_DSP_GENERATORS_LFO_H_
+
+#include <vector>
+#include "LFOPlayhead.h"
 
 namespace cr42y
 {
+class LFOPlayhead;
 
-OscVoice::OscVoice(WTOscillator* osc, float phase, float n, float vol,
-		float wtp, float p) :
-		oscillator(osc), lastPos(phase), deltaPhaseLFO_ENV(0), note(n), deltaFrequencyLFO_ENV(
-				0), volume(vol), wtPos(wtp), pan(p), value(0), output(0), FM(1), RM(
-				1), AM(1), PM(0)
+class LFO
 {
-	controls = new Control*[6];
-	controls[0] = new Control(&volume, oscillator->getID() * 6 + 2);
-	controls[1] = new Control(&deltaFrequencyLFO_ENV,
-			oscillator->getID() * 6 + 3);
-	controls[2] = new Control(&pan, oscillator->getID() * 6 + 4);
-	controls[3] = new Control(&wtPos, oscillator->getID() * 6 + 5);
-	//controls[4] = new Control(&volume, OSC_1_VOL); //TODO: Unison Controls
-	//controls[5] = new Control(&volume, OSC_1_VOL);
-}
+public:
+	LFO(float rate);
+	virtual ~LFO();
 
-OscVoice::~OscVoice()
-{
-	delete[] controls;
-}
+	float getSample(LFOPlayhead* voice);
 
-float OscVoice::getWTPos()
-{
-	return wtPos;
-}
-
-float OscVoice::getFrequency()
-{
-	return (note + deltaFrequencyLFO_ENV) * FM;
-}
-
-float OscVoice::getPhase()
-{
-	float phase = lastPos + deltaPhaseLFO_ENV + PM;
-	if (phase > 1)
+	void setLFO(std::vector<float>* data, float freq)
 	{
-		phase -= (int) phase;
+		delete lfo;
+		lfo = data;
+		frequency = freq;
 	}
-	else if (phase < 0)
-	{
-		phase -= (int) phase;
-		phase += 1;
-	}
-	return phase;
-}
 
-void OscVoice::movePhase(float newPhase)
-{
-	if (newPhase > 1)
-	{
-		newPhase -= (int) newPhase;
-	}
-	lastPos = newPhase;
-}
-
-void OscVoice::nextSample()
-{
-	output = oscillator->getSample(this);
-}
+private:
+	float samplerate;
+	std::vector<float>* lfo;
+	float frequency;
+};
 
 } /* namespace cr42y */
+
+#endif /* SRC_DSP_GENERATORS_LFO_H_ */

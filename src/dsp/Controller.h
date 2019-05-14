@@ -31,32 +31,27 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#include "lv2/lv2plug.in/ns/lv2core/lv2.h"
+#ifndef SRC_DSP_CONTROLLER_H_
+#define SRC_DSP_CONTROLLER_H_
 
-#include "../common.h"
-#include "CR42Ynth.h"
+namespace cr42y
+{
+class Controller
+{
+public:
+	Controller();
+	virtual ~Controller();
 
-static const LV2_Descriptor descriptor = {
-		CR42YnthURI,
-		cr42y::CR42Ynth::lv2Instantiate,
-		cr42y::CR42Ynth::lv2ConnectPort,
-		cr42y::CR42Ynth::lv2Activate,
-		cr42y::CR42Ynth::lv2Run,
-		cr42y::CR42Ynth::lv2Deactivate,
-		cr42y::CR42Ynth::lv2Cleanup,
-		cr42y::CR42Ynth::lv2ExtensionData
+	virtual float getValue()
+	{
+		return value;
+	}
+
+
+private:
+	float value;
 };
 
-LV2_SYMBOL_EXPORT const LV2_Descriptor* lv2_descriptor(uint32_t index)
-{
-	if (index != 0)
-	{
-		return nullptr;
-	}
-	return &descriptor;
-}
+} /* namespace cr42y */
 
-int main()
-{
-	return 0;
-}
+#endif /* SRC_DSP_CONTROLLER_H_ */

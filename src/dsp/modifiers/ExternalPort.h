@@ -31,38 +31,28 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_DSP_VOICE_H_
-#define SRC_DSP_VOICE_H_
+#ifndef SRC_DSP_MODIFIERS_EXTERNALPORT_H_
+#define SRC_DSP_MODIFIERS_EXTERNALPORT_H_
 
-#include "OscVoice.h"
-#include "ENVVoice.h"
-#include "LFOVoice.h"
+#include "Controller.h"
 
 namespace cr42y
 {
 
-class Voice
+class ExternalPort
 {
 public:
-	Voice(int n, OscVoice* oscs, LFOVoice* lfos, ENVVoice* envs);
-	virtual ~Voice();
+	ExternalPort(int port);
+	virtual ~ExternalPort();
 
-
+	void setValue(float val);
+	float getValue();
 
 private:
-	OscVoice* oscVoices;
-	LFOVoice* lfoVoices;
-	ENVVoice* envVoices;
-
-
-
-	const int note;
-
-	float outR;
-	float outL;
-
+	int portIndex;
+	float value;
 };
 
 } /* namespace cr42y */
 
-#endif /* SRC_DSP_VOICE_H_ */
+#endif /* SRC_DSP_MODIFIERS_EXTERNALPORT_H_ */

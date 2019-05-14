@@ -33,6 +33,8 @@
 
 #include "WTOscillator.h"
 
+#include <cmath>
+
 namespace cr42y
 {
 
@@ -40,7 +42,9 @@ WTOscillator::WTOscillator(float rate, int id) :
 		ID(id),
 		smooth(false),
 		samplerate(rate),
-		wavetable(nullptr)
+		wavetable(nullptr),
+		detune(0),
+		enabled(false)
 {
 }
 
@@ -49,8 +53,12 @@ WTOscillator::~WTOscillator()
 	delete wavetable;
 }
 
-float WTOscillator::getSample(OscVoice* voice)
+float WTOscillator::getSample(OscPlayhead* voice)
 {
+	if (!enabled)
+	{
+		return 0;
+	}
 	float out;
 	float pos = voice->getPhase();
 
@@ -76,11 +84,36 @@ float WTOscillator::getSample(OscVoice* voice)
 		out = (*wavetable)[wtSample][(int) waveSample];
 	}
 
-	float deltaPos = voice->getFrequency() / samplerate;
+	float frequency = pow(2, (voice->note + detune - 69) / 12) * 440 * voice->getDeltaFreq() * voice->getFM();
+	float deltaPos = frequency / samplerate;//(voice->getFrequency() * detune) / samplerate;
 	pos += deltaPos;
 	voice->movePhase(pos);
 
 	return out;
 }
 
+float WTOscillator::getDetune()
+{
+	return detune;
+}
+
+void WTOscillator::setDetune(float d)
+{
+	detune = d;
+}
+
+void WTOscillator::setDetune(int semi, int cents)
+{
+	detune = semi + cents / 100;
+}
+
+void WTOscillator::setEnabled(bool state)
+{
+	enabled = state;
+}
+
+bool WTOscillator::getEnabled()
+{
+	return enabled;
+}
 } /* namespace cr42y */

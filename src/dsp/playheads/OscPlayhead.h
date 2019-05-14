@@ -31,38 +31,82 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
+#ifndef SRC_DSP_OSCVOICE_H_
+#define SRC_DSP_OSCVOICE_H_
 
-#ifndef SRC_DSP_GENERATORS_LFO_H_
-#define SRC_DSP_GENERATORS_LFO_H_
-
-#include <vector>
-#include "LFOVoice.h"
+#include "WTOscillator.h"
+#include "Control.h"
 
 namespace cr42y
 {
-class LFOVoice;
+class WTOscillator;
 
-class LFO
+class OscPlayhead
 {
 public:
-	LFO(float rate);
-	virtual ~LFO();
+	OscPlayhead(WTOscillator* osc, float phase, float n, float vol, float wtp,
+			float p);
+	virtual ~OscPlayhead();
 
-	float getSample(LFOVoice* voice);
+	void nextSample();
 
-	void setLFO(std::vector<float>* data, float freq)
-	{
-		delete lfo;
-		lfo = data;
-		frequency = freq;
-	}
+	float getValue();
+	float getOutput();
+
+	float getNote();
+	float getPhase();
+	void movePhase(float newPhase);
+
+	void setDeltaPhase(float p);
+	float getDeltaPhase();
+
+	void setDeltaFreq(float f);
+	float getDeltaFreq();
+
+	void setVol(float v);
+	float getVol();
+
+	void setWTPos(float pos);
+	float getWTPos();
+
+	void setPan(float p);
+	float getPan();
+
+	void setFM(float f);
+	float getFM();
+	void setAM(float a);
+	float getAM();
+	void setPM(float p);
+	float getPM();
+	void setRM(float r);
+	float getRM();
+
 
 private:
-	float samplerate;
-	std::vector<float>* lfo;
-	float frequency;
+	WTOscillator* oscillator;
+
+	float lastPos;
+	float deltaPhaseLFO_ENV;
+
+	float note;
+	float deltaFrequencyLFO_ENV;
+
+	float volume;
+
+	float wtPos;
+	float pan;
+
+	float value;
+	float output;
+
+	float FM;
+	float AM;
+	float PM;
+	float RM;
+
+	Control** controls;
 };
 
 } /* namespace cr42y */
 
-#endif /* SRC_DSP_GENERATORS_LFO_H_ */
+#endif /* SRC_DSP_OSCVOICE_H_ */

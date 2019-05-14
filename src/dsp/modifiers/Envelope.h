@@ -31,46 +31,41 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#include "Envelope.h"
+#ifndef SRC_DSP_GENERATORS_ENVELOPE_H_
+#define SRC_DSP_GENERATORS_ENVELOPE_H_
+
+#include <vector>
+
+#include "ENVPlayhead.h"
 
 namespace cr42y
 {
+class ENVPlayhead;
 
-Envelope::Envelope(float rate) :
-		samplerate(rate), length(0), sustainPoint(0)
+class Envelope
 {
-	envelope = new std::vector<float>();
-	for (int i = 0; i < 100; i++)
-	{
-		(*envelope)[i] = 0;
-	}
-}
+public:
+	Envelope(float rate);
+	virtual ~Envelope();
 
-Envelope::~Envelope()
-{
-	delete envelope;
-}
+	float getSample(ENVPlayhead* voice);
 
-float Envelope::getSample(ENVVoice* voice)
-{
-	if (voice->getLastPos() > 1)
+	void setEnvelope(std::vector<float>* data, float l, float susPoint)
 	{
-		return 0;
+		delete data;
+		envelope = data;
+		sustainPoint = susPoint;
+		length = l;
 	}
 
-	if (voice->getLastPos() < sustainPoint && !voice->getSustain())
-	{
-		voice->setLastPos(sustainPoint);
-	}
-	int envSample = (int) voice->getLastPos() * envelope->size();
-	float out = (*envelope)[envSample];
+private:
+	float samplerate;
 
-	voice->setLastPos(voice->getLastPos() + 1.0 / (length * samplerate));
-	if (voice->getSustain() && voice->getLastPos() > sustainPoint)
-	{
-		voice->setLastPos(sustainPoint);
-	}
-	return out;
-}
+	std::vector<float>* envelope;
+	float sustainPoint;
+	float length;
+};
 
 } /* namespace cr42y */
+
+#endif /* SRC_DSP_GENERATORS_ENVELOPE_H_ */

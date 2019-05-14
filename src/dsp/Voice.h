@@ -31,41 +31,38 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_DSP_GENERATORS_ENVELOPE_H_
-#define SRC_DSP_GENERATORS_ENVELOPE_H_
+#ifndef SRC_DSP_VOICE_H_
+#define SRC_DSP_VOICE_H_
 
-#include <vector>
-
-#include "ENVVoice.h"
+#include "ENVPlayhead.h"
+#include "OscPlayhead.h"
+#include "LFOPlayhead.h"
 
 namespace cr42y
 {
-class ENVVoice;
 
-class Envelope
+class Voice
 {
 public:
-	Envelope(float rate);
-	virtual ~Envelope();
+	Voice(int n, OscPlayhead* oscs, LFOPlayhead* lfos, ENVPlayhead* envs);
+	virtual ~Voice();
 
-	float getSample(ENVVoice* voice);
 
-	void setEnvelope(std::vector<float>* data, float l, float susPoint)
-	{
-		delete data;
-		envelope = data;
-		sustainPoint = susPoint;
-		length = l;
-	}
 
 private:
-	float samplerate;
+	OscPlayhead* oscVoices;
+	LFOPlayhead* lfoVoices;
+	ENVPlayhead* envVoices;
 
-	std::vector<float>* envelope;
-	float sustainPoint;
-	float length;
+
+
+	const int note;
+
+	float outR;
+	float outL;
+
 };
 
 } /* namespace cr42y */
 
-#endif /* SRC_DSP_GENERATORS_ENVELOPE_H_ */
+#endif /* SRC_DSP_VOICE_H_ */

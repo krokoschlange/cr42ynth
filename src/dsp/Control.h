@@ -34,14 +34,20 @@
 #ifndef SRC_DSP_CONTROL_H_
 #define SRC_DSP_CONTROL_H_
 
+#include "Controller.h"
+
+#include <functional>
+
 namespace cr42y
 {
 
 class Control
 {
 public:
-	Control(float* v, int id);
+	Control(int id, std::function<void(float)> getter, std::function<float()> setter);
 	virtual ~Control();
+
+	const int getID();
 
 	void setValueLFO(float lfoValue);
 
@@ -53,13 +59,24 @@ public:
 	float getMin();
 	float getMax();
 
-	const int getID();
+	void updateValue();
+
+	void setController(Controller* cont);
+	Controller* getController();
 
 private:
 	const int ID;
-	float* value;
+
 	float min;
 	float max;
+
+	Controller* controller;
+
+	/*void (*const setterFunction)(float);
+	float (*const getterFunction)();*/
+
+	std::function<void(float)> setterFunction;
+	std::function<float()> getterFunction;
 };
 
 } /* namespace cr42y */

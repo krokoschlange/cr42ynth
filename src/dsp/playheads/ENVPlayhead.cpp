@@ -31,32 +31,42 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#include "lv2/lv2plug.in/ns/lv2core/lv2.h"
+#include "ENVPlayhead.h"
 
-#include "../common.h"
-#include "CR42Ynth.h"
-
-static const LV2_Descriptor descriptor = {
-		CR42YnthURI,
-		cr42y::CR42Ynth::lv2Instantiate,
-		cr42y::CR42Ynth::lv2ConnectPort,
-		cr42y::CR42Ynth::lv2Activate,
-		cr42y::CR42Ynth::lv2Run,
-		cr42y::CR42Ynth::lv2Deactivate,
-		cr42y::CR42Ynth::lv2Cleanup,
-		cr42y::CR42Ynth::lv2ExtensionData
-};
-
-LV2_SYMBOL_EXPORT const LV2_Descriptor* lv2_descriptor(uint32_t index)
+namespace cr42y
 {
-	if (index != 0)
+
+ENVPlayhead::ENVPlayhead(Envelope* env) :
+		envelope(env), sustain(true), lastPos(0), value(0)
+{
+}
+
+ENVPlayhead::~ENVPlayhead()
+{
+}
+
+float ENVPlayhead::getLastPos()
+{
+	return lastPos;
+}
+
+bool ENVPlayhead::getSustain()
+{
+	return sustain;
+}
+
+void ENVPlayhead::setLastPos(float newPos)
+{
+	if (newPos < 0)
 	{
-		return nullptr;
+		newPos = 0;
 	}
-	return &descriptor;
+	lastPos = newPos;
 }
 
-int main()
+void ENVPlayhead::setSustain(bool sus)
 {
-	return 0;
+	sustain = sus;
 }
+
+} /* namespace cr42y */

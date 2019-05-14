@@ -31,59 +31,18 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_DSP_OSCVOICE_H_
-#define SRC_DSP_OSCVOICE_H_
-
-#include "WTOscillator.h"
-#include "Control.h"
+#include "Controller.h"
 
 namespace cr42y
 {
-class WTOscillator;
 
-class OscVoice
+Controller::Controller() :
+		value(0)
 {
-public:
-	OscVoice(WTOscillator* osc, float phase, float n, float vol, float wtp, float p);
-	virtual ~OscVoice();
+}
 
-	void nextSample();
-
-	float getValue();
-	float getOutput();
-
-	float getWTPos();
-
-	float getFrequency();
-	float getPhase();
-	void movePhase(float newPhase);
-
-
-private:
-	WTOscillator* oscillator;
-
-	float lastPos;
-	float deltaPhaseLFO_ENV;
-
-	float note;
-	float deltaFrequencyLFO_ENV;
-
-	float volume;
-
-	float wtPos;
-	float pan;
-
-	float value;
-	float output;
-
-	float FM;
-	float AM;
-	float PM;
-	float RM;
-
-	Control** controls;
-};
+Controller::~Controller()
+{
+}
 
 } /* namespace cr42y */
-
-#endif /* SRC_DSP_OSCVOICE_H_ */

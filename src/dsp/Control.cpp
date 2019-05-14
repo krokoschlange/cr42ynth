@@ -36,11 +36,13 @@
 namespace cr42y
 {
 
-Control::Control(float* v, int id) :
-		value(v),
+Control::Control(int id, std::function<void(float)> setter, std::function<float()> getter) :
+		ID(id),
+		setterFunction(setter),
+		getterFunction(getter),
 		min(0),
 		max(1),
-		ID(id)
+		controller(nullptr)
 {
 }
 
@@ -48,9 +50,14 @@ Control::~Control()
 {
 }
 
+const int Control::getID()
+{
+	return ID;
+}
+
 void Control::setValueLFO(float lfoValue)
 {
-	*value = min + (lfoValue + 1) / 2 * (max - min);
+	setterFunction(min + (lfoValue + 1) / 2 * (max - min));
 }
 
 void Control::setValue(float v)
@@ -63,7 +70,7 @@ void Control::setValue(float v)
 	{
 		v = min;
 	}
-	*value = v;
+	setterFunction(v);
 }
 
 void Control::setMin(float m)
@@ -78,7 +85,7 @@ void Control::setMax(float m)
 
 float Control::getValue()
 {
-	return *value;
+	return getterFunction();
 }
 
 float Control::getMin()
@@ -91,9 +98,22 @@ float Control::getMax()
 	return max;
 }
 
-const int Control::getID()
+void Control::setController(Controller* cont)
 {
-	return ID;
+	controller = cont;
+}
+
+Controller* Control::getController()
+{
+	return controller;
+}
+
+void Control::updateValue()
+{
+	if (getController() != 0)
+	{
+		setValueLFO(controller->getValue());
+	}
 }
 
 } /* namespace cr42y */

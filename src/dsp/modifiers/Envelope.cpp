@@ -31,32 +31,46 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#include "lv2/lv2plug.in/ns/lv2core/lv2.h"
+#include "../modifiers/Envelope.h"
 
-#include "../common.h"
-#include "CR42Ynth.h"
-
-static const LV2_Descriptor descriptor = {
-		CR42YnthURI,
-		cr42y::CR42Ynth::lv2Instantiate,
-		cr42y::CR42Ynth::lv2ConnectPort,
-		cr42y::CR42Ynth::lv2Activate,
-		cr42y::CR42Ynth::lv2Run,
-		cr42y::CR42Ynth::lv2Deactivate,
-		cr42y::CR42Ynth::lv2Cleanup,
-		cr42y::CR42Ynth::lv2ExtensionData
-};
-
-LV2_SYMBOL_EXPORT const LV2_Descriptor* lv2_descriptor(uint32_t index)
+namespace cr42y
 {
-	if (index != 0)
+
+Envelope::Envelope(float rate) :
+		samplerate(rate), length(0), sustainPoint(0)
+{
+	envelope = new std::vector<float>();
+	for (int i = 0; i < 100; i++)
 	{
-		return nullptr;
+		(*envelope)[i] = 0;
 	}
-	return &descriptor;
 }
 
-int main()
+Envelope::~Envelope()
 {
-	return 0;
+	delete envelope;
 }
+
+float Envelope::getSample(ENVPlayhead* voice)
+{
+	if (voice->getLastPos() > 1)
+	{
+		return 0;
+	}
+
+	if (voice->getLastPos() < sustainPoint && !voice->getSustain())
+	{
+		voice->setLastPos(sustainPoint);
+	}
+	int envSample = (int) voice->getLastPos() * envelope->size();
+	float out = (*envelope)[envSample];
+
+	voice->setLastPos(voice->getLastPos() + 1.0 / (length * samplerate));
+	if (voice->getSustain() && voice->getLastPos() > sustainPoint)
+	{
+		voice->setLastPos(sustainPoint);
+	}
+	return out;
+}
+
+} /* namespace cr42y */
