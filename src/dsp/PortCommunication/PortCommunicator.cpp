@@ -31,18 +31,74 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
+#include <lv2/atom/util.h>
+#include <lv2/atom/forge.h>
+
 #include "PortCommunicator.h"
+#include "../../DefinitionHandler.h"
 
 namespace cr42y
 {
 
-PortCommunicator::PortCommunicator()
+PortCommunicator::PortCommunicator(LV2_URID_Map* m, LV2_Atom_Sequence* in,
+		LV2_Atom_Sequence* out) :
+				map(m),
+				inPort(in),
+				outPort(out)
 {
-
 }
 
 PortCommunicator::~PortCommunicator()
 {
+}
+
+void PortCommunicator::receiveEvents()
+{
+	LV2_Atom_Event* event = lv2_atom_sequence_begin(&inPort->body);
+	while(!lv2_atom_sequence_is_end(&inPort->body, inPort->atom.size, event))
+	{
+		LV2_Atom_Forge* forge;
+		lv2_atom_forge_init(forge, map);
+		if (lv2_atom_forge_is_object_type(forge, event->body.type))
+		{
+			LV2_Atom_Object* object = (LV2_Atom_Object*) &event->body;
+
+			for (MessageReceiver* rec : receivers)
+			{
+				LV2_Atom_Int* messageType;
+				lv2_atom_object_get_typed(object, DefinitionHandler::msg_type, &messageType, DefinitionHandler::atom_int);
+				if (rec->getMessageType() == messageType->body)
+				{
+					rec->receive(object);
+				}
+			}
+		}
+		event = lv2_atom_sequence_next(event);
+	}
+}
+
+void PortCommunicator::addReceiver(MessageReceiver* rec)
+{
+	for (MessageReceiver* r : receivers)
+	{
+		if (r == rec)
+		{
+			return;
+		}
+	}
+	receivers.push_back(rec);
+}
+
+void PortCommunicator::removeReceiver(MessageReceiver* rec)
+{
+	for (int i = 0; i < receivers.size(); i++)
+	{
+		if (receivers[i] == rec)
+		{
+			receivers.erase(receivers.begin() + i);
+			i--;
+		}
+	}
 }
 
 } /* namespace cr42y */

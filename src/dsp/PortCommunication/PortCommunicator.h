@@ -35,8 +35,10 @@
 #define SRC_DSP_PORTCOMMUNICATION_PORTCOMMUNICATOR_H_
 
 #include <vector>
+#include <lv2/atom/atom.h>
+#include <lv2/urid/urid.h>
 
-#include "PortMessageReceiver.h"
+#include "MessageReceiver.h"
 
 namespace cr42y
 {
@@ -44,7 +46,7 @@ namespace cr42y
 class PortCommunicator
 {
 public:
-	PortCommunicator();
+	PortCommunicator(LV2_URID_Map* m, LV2_Atom_Sequence* in, LV2_Atom_Sequence* out);
 	virtual ~PortCommunicator();
 
 	void receiveEvents();
@@ -55,8 +57,8 @@ public:
 
 private:
 	LV2_URID_Map* map;
-	LV2_Atom_Sequence* in;
-	LV2_Atom_Sequence* out;
+	LV2_Atom_Sequence* inPort;
+	LV2_Atom_Sequence* outPort;
 	std::vector<MessageReceiver*> receivers;
 };
 
