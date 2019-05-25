@@ -31,59 +31,34 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_DSP_PORTCOMMUNICATION_PORTMESSAGERECEIVER_H_
-#define SRC_DSP_PORTCOMMUNICATION_PORTMESSAGERECEIVER_H_
+#ifndef SRC_DSP_PORTCOMMUNICATION_DOUBLEMESSAGERECEIVER_H_
+#define SRC_DSP_PORTCOMMUNICATION_DOUBLEMESSAGERECEIVER_H_
 
 #include <functional>
-#include <lv2/urid/urid.h>
 #include <lv2/atom/atom.h>
-#include <lv2/atom/util.h>
+#include <lv2/urid/urid.h>
 
-#include "PortCommunicator.h"
 #include "MessageReceiver.h"
-#include "../../DefinitionHandler.h"
+#include "PortCommunicator.h"
 
 namespace cr42y
 {
-template<class dataT, class retT>
-class PortMessageReceiver : public MessageReceiver
+
+class DoubleMessageReceiver : public MessageReceiver
 {
 public:
-	PortMessageReceiver(PortCommunicator comm, int type, LV2_URID* dType,
-			std::function<void(retT)> setter);
-	virtual ~PortMessageReceiver() {}
-
-	int getMessageType();
+	DoubleMessageReceiver(PortCommunicator comm, int type, std::function<void(double)> setter, LV2_URID* dKey = nullptr);
+	virtual ~DoubleMessageReceiver();
 
 	void receive(LV2_Atom_Object* obj);
+	int getMessageType();
 
 private:
 	int messageType;
-	LV2_URID* dataType;
-	std::function<void(retT)> setterFunction;
+	LV2_URID* dataKey;
+	std::function<void(double)> setterFunction;
 };
-
-template<class dataT, class retT>
-PortMessageReceiver<dataT, retT>::PortMessageReceiver(PortCommunicator comm, int type, LV2_URID* dType,
-		std::function<void(retT)> setter) :
-		messageType(type), dataType(dType), setterFunction(setter)
-{
-	comm.
-}
-
-template<class dataT, class retT>
-PortMessageReceiver<dataT, retT>::~PortMessageReceiver()
-{
-}
-
-template<class dataT, class retT>
-void PortMessageReceiver<dataT, retT>::receive(LV2_Atom_Object* obj)
-{
-	dataT* data;
-	lv2_atom_object_get_typed(obj, DefinitionHandler::msg_key, &data, dataType);
-	setterFunction(data->body);
-}
 
 } /* namespace cr42y */
 
-#endif /* SRC_DSP_PORTCOMMUNICATION_PORTMESSAGERECEIVER_H_ */
+#endif /* SRC_DSP_PORTCOMMUNICATION_DOUBLEMESSAGERECEIVER_H_ */
