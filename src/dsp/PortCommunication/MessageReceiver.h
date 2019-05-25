@@ -31,23 +31,22 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#include "Voice.h"
+#ifndef SRC_DSP_PORTCOMMUNICATION_MESSAGERECEIVER_H_
+#define SRC_DSP_PORTCOMMUNICATION_MESSAGERECEIVER_H_
 
 namespace cr42y
 {
 
-Voice::Voice(int n, OscPlayhead* oscs, LFOPlayhead* lfos, ENVPlayhead* envs) :
-		oscVoices(oscs),
-		lfoVoices(lfos),
-		envVoices(envs),
-		note(n)
+class MessageReceiver
 {
+public:
+	MessageReceiver();
+	virtual ~MessageReceiver();
 
-}
-
-Voice::~Voice()
-{
-	// TODO Auto-generated destructor stub
-}
+	virtual int getMessageType() = 0;
+	virtual void receive(LV2_Atom_Object* obj) = 0;
+};
 
 } /* namespace cr42y */
+
+#endif /* SRC_DSP_PORTCOMMUNICATION_MESSAGERECEIVER_H_ */

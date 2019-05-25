@@ -31,41 +31,48 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_DSP_GENERATORS_ENVELOPE_H_
-#define SRC_DSP_GENERATORS_ENVELOPE_H_
+#ifndef SRC_DEFINITIONHANDLER_H_
+#define SRC_DEFINITIONHANDLER_H_
 
-#include <vector>
+#include <lv2/urid/urid.h>
+#include <string>
 
-#include "ENVPlayhead.h"
+#include "common.h"
 
 namespace cr42y
 {
-class ENVPlayhead;
 
-class Envelope
+class DefinitionHandler
 {
 public:
-	Envelope(float rate);
-	virtual ~Envelope();
+	DefinitionHandler();
+	virtual ~DefinitionHandler();
 
-	float getSample(ENVPlayhead* voice);
+	static void load(LV2_URID_Map* map);
 
-	void setEnvelope(std::vector<float>* data, float l, float susPoint)
+	static LV2_URID map(std::string uri);
+
+	static LV2_URID_Map* thisMap;
+
+	static enum msg_types
 	{
-		delete data;
-		envelope = data;
-		sustainPoint = susPoint;
-		length = l;
-	}
+		osc_update,
+		lfo_env_add,
+		lfo_env_update,
+		lfo_env_remove
+	};
 
-private:
-	float samplerate;
+	static LV2_URID atom_obj;
+	static LV2_URID atom_int;
+	static LV2_URID atom_double;
 
-	std::vector<float>* envelope;
-	float sustainPoint;
-	float length;
+	static LV2_URID cr42ynth_uri;
+	static LV2_URID cr42ynth_ui_uri;
+	static LV2_URID msg_type;
+	static LV2_URID msg_key;
+
 };
 
 } /* namespace cr42y */
 
-#endif /* SRC_DSP_GENERATORS_ENVELOPE_H_ */
+#endif /* SRC_DEFINITIONHANDLER_H_ */

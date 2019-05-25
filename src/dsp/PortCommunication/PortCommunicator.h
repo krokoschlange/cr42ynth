@@ -31,18 +31,35 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#include "Controller.h"
+#ifndef SRC_DSP_PORTCOMMUNICATION_PORTCOMMUNICATOR_H_
+#define SRC_DSP_PORTCOMMUNICATION_PORTCOMMUNICATOR_H_
+
+#include <vector>
+
+#include "PortMessageReceiver.h"
 
 namespace cr42y
 {
 
-Controller::Controller() :
-		value(0)
+class PortCommunicator
 {
-}
+public:
+	PortCommunicator();
+	virtual ~PortCommunicator();
 
-Controller::~Controller()
-{
-}
+	void receiveEvents();
+	void sendEvent(int messageType, LV2_Atom* data);
+
+	void addReceiver(MessageReceiver* rec);
+	void removeReceiver(MessageReceiver* rec);
+
+private:
+	LV2_URID_Map* map;
+	LV2_Atom_Sequence* in;
+	LV2_Atom_Sequence* out;
+	std::vector<MessageReceiver*> receivers;
+};
 
 } /* namespace cr42y */
+
+#endif /* SRC_DSP_PORTCOMMUNICATION_PORTCOMMUNICATOR_H_ */

@@ -31,18 +31,17 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#include "../modifiers/ExternalPort.h"
+#include "PortCommunicator.h"
 
 namespace cr42y
 {
 
-ExternalPort::ExternalPort(int port) :
-		portIndex(port)
+PortCommunicator::PortCommunicator()
 {
 
 }
 
-ExternalPort::~ExternalPort()
+PortCommunicator::~PortCommunicator()
 {
 }
 

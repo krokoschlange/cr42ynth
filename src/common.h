@@ -31,32 +31,14 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#include "lv2/lv2plug.in/ns/lv2core/lv2.h"
+#ifndef COMMON_H_
+#define COMMON_H_
 
-#include "../common.h"
-#include "CR42Ynth.h"
+#define CR42YnthURI "https://github.com/krokoschlange/cr42ynth"
+#define CR42YnthUIURI CR42YnthURI "#ui"
+#define CR42YnthMSG CR42YnthURI "/msg#"
 
-static const LV2_Descriptor descriptor = {
-		CR42YnthURI,
-		cr42y::CR42Ynth::lv2Instantiate,
-		cr42y::CR42Ynth::lv2ConnectPort,
-		cr42y::CR42Ynth::lv2Activate,
-		cr42y::CR42Ynth::lv2Run,
-		cr42y::CR42Ynth::lv2Deactivate,
-		cr42y::CR42Ynth::lv2Cleanup,
-		cr42y::CR42Ynth::lv2ExtensionData
-};
+#define MSG_TYPE CR42YnthMSG "type"
+#define MSG_KEY CR42YnthMSG "data"
 
-LV2_SYMBOL_EXPORT const LV2_Descriptor* lv2_descriptor(uint32_t index)
-{
-	if (index != 0)
-	{
-		return nullptr;
-	}
-	return &descriptor;
-}
-
-int main()
-{
-	return 0;
-}
+#endif /* COMMON_H_ */

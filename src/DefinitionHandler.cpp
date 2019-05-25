@@ -31,38 +31,36 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_DSP_VOICE_H_
-#define SRC_DSP_VOICE_H_
+#include <lv2/atom/atom.h>
 
-#include "ENVPlayhead.h"
-#include "OscPlayhead.h"
-#include "LFOPlayhead.h"
+#include "DefinitionHandler.h"
 
 namespace cr42y
 {
 
-class Voice
+DefinitionHandler::DefinitionHandler()
 {
-public:
-	Voice(int n, OscPlayhead* oscs, LFOPlayhead* lfos, ENVPlayhead* envs);
-	virtual ~Voice();
+}
 
+DefinitionHandler::~DefinitionHandler()
+{
+}
 
+void DefinitionHandler::load(LV2_URID_Map* m)
+{
+	thisMap = m;
+	atom_obj = map(LV2_ATOM__Object);
+	atom_int = map(LV2_ATOM__Int);
+	atom_double = map(LV2_ATOM__Double);
 
-private:
-	OscPlayhead* oscVoices;
-	LFOPlayhead* lfoVoices;
-	ENVPlayhead* envVoices;
+	cr42ynth_uri = map(CR42YnthURI);
+	cr42ynth_ui_uri = map(CR42YnthUIURI);
+	msg_type = map(MSG_TYPE);
+	msg_key = map(MSG_KEY);
+}
 
-
-
-	const int note;
-
-	float outR;
-	float outL;
-
-};
-
+LV2_URID DefinitionHandler::map(std::string uri)
+{
+	return thisMap->map(thisMap->handle, uri);
+}
 } /* namespace cr42y */
-
-#endif /* SRC_DSP_VOICE_H_ */

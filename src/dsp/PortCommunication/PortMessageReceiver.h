@@ -31,82 +31,59 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_DSP_OSCVOICE_H_
-#define SRC_DSP_OSCVOICE_H_
+#ifndef SRC_DSP_PORTCOMMUNICATION_PORTMESSAGERECEIVER_H_
+#define SRC_DSP_PORTCOMMUNICATION_PORTMESSAGERECEIVER_H_
 
-#include "WTOscillator.h"
-#include "Control.h"
+#include <functional>
+#include <lv2/urid/urid.h>
+#include <lv2/atom/atom.h>
+#include <lv2/atom/util.h>
+
+#include "PortCommunicator.h"
+#include "MessageReceiver.h"
+#include "../../DefinitionHandler.h"
 
 namespace cr42y
 {
-class WTOscillator;
-
-class OscPlayhead
+template<class dataT, class retT>
+class PortMessageReceiver : public MessageReceiver
 {
 public:
-	OscPlayhead(WTOscillator* osc, float phase, float n, float vol, float wtp,
-			float p);
-	virtual ~OscPlayhead();
+	PortMessageReceiver(PortCommunicator comm, int type, LV2_URID* dType,
+			std::function<void(retT)> setter);
+	virtual ~PortMessageReceiver() {}
 
-	void nextSample();
+	int getMessageType();
 
-	float getValue();
-	float getOutput();
-
-	float getNote();
-	float getPhase();
-	void movePhase(float newPhase);
-
-	void setDeltaPhase(float p);
-	float getDeltaPhase();
-
-	void setDeltaFreq(float f);
-	float getDeltaFreq();
-
-	void setVol(float v);
-	float getVol();
-
-	void setWTPos(float pos);
-	float getWTPos();
-
-	void setPan(float p);
-	float getPan();
-
-	void setFM(float f);
-	float getFM();
-	void setAM(float a);
-	float getAM();
-	void setPM(float p);
-	float getPM();
-	void setRM(float r);
-	float getRM();
-
+	void receive(LV2_Atom_Object* obj);
 
 private:
-	WTOscillator* oscillator;
-
-	float lastPos;
-	float deltaPhaseLFO_ENV;
-
-	float note;
-	float deltaFrequencyLFO_ENV;
-
-	float volume;
-
-	float wtPos;
-	float pan;
-
-	float value;
-	float output;
-
-	float FM;
-	float AM;
-	float PM;
-	float RM;
-
-	Control** controls;
+	int messageType;
+	LV2_URID* dataType;
+	std::function<void(retT)> setterFunction;
 };
+
+template<class dataT, class retT>
+PortMessageReceiver<dataT, retT>::PortMessageReceiver(PortCommunicator comm, int type, LV2_URID* dType,
+		std::function<void(retT)> setter) :
+		messageType(type), dataType(dType), setterFunction(setter)
+{
+	comm.
+}
+
+template<class dataT, class retT>
+PortMessageReceiver<dataT, retT>::~PortMessageReceiver()
+{
+}
+
+template<class dataT, class retT>
+void PortMessageReceiver<dataT, retT>::receive(LV2_Atom_Object* obj)
+{
+	dataT* data;
+	lv2_atom_object_get_typed(obj, DefinitionHandler::msg_key, &data, dataType);
+	setterFunction(data->body);
+}
 
 } /* namespace cr42y */
 
-#endif /* SRC_DSP_OSCVOICE_H_ */
+#endif /* SRC_DSP_PORTCOMMUNICATION_PORTMESSAGERECEIVER_H_ */
