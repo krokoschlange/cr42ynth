@@ -31,36 +31,21 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_DSP_PORTCOMMUNICATION_DOUBLEMESSAGERECEIVER_H_
-#define SRC_DSP_PORTCOMMUNICATION_DOUBLEMESSAGERECEIVER_H_
+#ifndef SRC_DSP_CONTROLLERS_LFOCONTROLLER_H_
+#define SRC_DSP_CONTROLLERS_LFOCONTROLLER_H_
 
-#include <functional>
-#include <lv2/atom/atom.h>
-#include <lv2/urid/urid.h>
-
-#include "MessageReceiver.h"
-#include "PortCommunicator.h"
-#include "../../DefinitionHandler.h"
+#include "Controller.h"
 
 namespace cr42y
 {
-class MessageReceiver;
 
-class DoubleMessageReceiver : public MessageReceiver
+class LFOController : public Controller
 {
 public:
-	DoubleMessageReceiver(PortCommunicator* comm, int type, std::function<void(double)> setter, LV2_URID dKey = DefinitionHandler::getInstance()->msg_key);
-	virtual ~DoubleMessageReceiver();
-
-	void receive(LV2_Atom_Object* obj);
-	int getMessageType();
-
-private:
-	int messageType;
-	LV2_URID dataKey;
-	std::function<void(double)> setterFunction;
+	LFOController();
+	virtual ~LFOController();
 };
 
 } /* namespace cr42y */
 
-#endif /* SRC_DSP_PORTCOMMUNICATION_DOUBLEMESSAGERECEIVER_H_ */
+#endif /* SRC_DSP_CONTROLLERS_LFOCONTROLLER_H_ */

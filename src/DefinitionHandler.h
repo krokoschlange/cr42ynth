@@ -45,16 +45,16 @@ namespace cr42y
 class DefinitionHandler
 {
 public:
-	DefinitionHandler();
+	static DefinitionHandler* getInstance();
 	virtual ~DefinitionHandler();
 
-	static void load(LV2_URID_Map* map);
+	void load(LV2_URID_Map* map);
 
-	static LV2_URID map(std::string uri);
+	LV2_URID map(std::string uri);
 
-	static LV2_URID_Map* thisMap;
+	LV2_URID_Map* thisMap;
 
-	static enum msg_types
+	enum msg_types
 	{
 		osc_update,
 		lfo_env_add,
@@ -62,15 +62,18 @@ public:
 		lfo_env_remove
 	};
 
-	static LV2_URID atom_obj;
-	static LV2_URID atom_int;
-	static LV2_URID atom_double;
+	LV2_URID atom_obj;
+	LV2_URID atom_int;
+	LV2_URID atom_double;
 
-	static LV2_URID cr42ynth_uri;
-	static LV2_URID cr42ynth_ui_uri;
-	static LV2_URID msg_type;
-	static LV2_URID msg_key;
+	LV2_URID cr42ynth_uri;
+	LV2_URID cr42ynth_ui_uri;
+	LV2_URID msg_type;
+	LV2_URID msg_key;
 
+private:
+	DefinitionHandler();
+	static DefinitionHandler* instance;
 };
 
 } /* namespace cr42y */

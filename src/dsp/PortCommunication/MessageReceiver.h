@@ -34,17 +34,23 @@
 #ifndef SRC_DSP_PORTCOMMUNICATION_MESSAGERECEIVER_H_
 #define SRC_DSP_PORTCOMMUNICATION_MESSAGERECEIVER_H_
 
+#include "PortCommunicator.h"
+
 namespace cr42y
 {
+class PortCommunicator;
 
 class MessageReceiver
 {
 public:
-	MessageReceiver();
+	MessageReceiver(PortCommunicator* comm);
 	virtual ~MessageReceiver();
 
 	virtual int getMessageType() = 0;
 	virtual void receive(LV2_Atom_Object* obj) = 0;
+
+private:
+	PortCommunicator* communicator;
 };
 
 } /* namespace cr42y */

@@ -31,36 +31,40 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_DSP_PORTCOMMUNICATION_DOUBLEMESSAGERECEIVER_H_
-#define SRC_DSP_PORTCOMMUNICATION_DOUBLEMESSAGERECEIVER_H_
+#ifndef SRC_DSP_PORTCOMMUNICATION_DOUBLECONTROL_H_
+#define SRC_DSP_PORTCOMMUNICATION_DOUBLECONTROL_H_
 
-#include <functional>
-#include <lv2/atom/atom.h>
-#include <lv2/urid/urid.h>
-
-#include "MessageReceiver.h"
-#include "PortCommunicator.h"
-#include "../../DefinitionHandler.h"
+#include "PortCommunication/PortCommunicator.h"
+#include "PortCommunication/DoubleMessageReceiver.h"
 
 namespace cr42y
 {
-class MessageReceiver;
 
-class DoubleMessageReceiver : public MessageReceiver
+class DoubleControl
 {
 public:
-	DoubleMessageReceiver(PortCommunicator* comm, int type, std::function<void(double)> setter, LV2_URID dKey = DefinitionHandler::getInstance()->msg_key);
-	virtual ~DoubleMessageReceiver();
+	DoubleControl(double val = 0, double mi = 0, double ma = 1);
+	virtual ~DoubleControl();
 
-	void receive(LV2_Atom_Object* obj);
-	int getMessageType();
+	void setValue(double val);
+	double getValue();
+
+	void setMin(double m);
+	void setMax(double m);
+	double getMin();
+	double getMax();
+
+	void connectPort(PortCommunicator* comm, int msgType, LV2_URID dataKey = DefinitionHandler::getInstance()->msg_key);
+	void disconnectPort();
 
 private:
-	int messageType;
-	LV2_URID dataKey;
-	std::function<void(double)> setterFunction;
+	double min;
+	double max;
+	double value;
+
+	DoubleMessageReceiver* receiver;
 };
 
 } /* namespace cr42y */
 
-#endif /* SRC_DSP_PORTCOMMUNICATION_DOUBLEMESSAGERECEIVER_H_ */
+#endif /* SRC_DSP_PORTCOMMUNICATION_DOUBLECONTROL_H_ */

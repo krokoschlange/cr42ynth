@@ -34,19 +34,18 @@
 #include <lv2/atom/util.h>
 
 #include "DoubleMessageReceiver.h"
-#include "../../DefinitionHandler.h"
-
 
 namespace cr42y
 {
 
-DoubleMessageReceiver::DoubleMessageReceiver(PortCommunicator comm, int type,
-		std::function<void(double)> setter, LV2_URID* dKey = nullptr) :
+DoubleMessageReceiver::DoubleMessageReceiver(PortCommunicator* comm, int type,
+		std::function<void(double)> setter, LV2_URID dKey) :
+		MessageReceiver(comm),
 				messageType(type),
 				setterFunction(setter),
 				dataKey(dKey)
 {
-	comm.addReceiver(this);
+	comm->addReceiver(this);
 }
 
 DoubleMessageReceiver::~DoubleMessageReceiver()
@@ -61,8 +60,7 @@ int DoubleMessageReceiver::getMessageType()
 void DoubleMessageReceiver::receive(LV2_Atom_Object* obj)
 {
 	LV2_Atom_Double* value;
-	LV2_URID* keyURID = dataKey ? dataKey : DefinitionHandler::msg_key;
-	lv2_atom_object_get_typed(obj, keyURID, &value, DefinitionHandler::atom_double);
+	lv2_atom_object_get_typed(obj, dataKey, &value, DefinitionHandler::getInstance()->atom_double);
 	setterFunction(value->body);
 }
 

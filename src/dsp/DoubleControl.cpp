@@ -31,36 +31,72 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_DSP_PORTCOMMUNICATION_DOUBLEMESSAGERECEIVER_H_
-#define SRC_DSP_PORTCOMMUNICATION_DOUBLEMESSAGERECEIVER_H_
-
-#include <functional>
-#include <lv2/atom/atom.h>
-#include <lv2/urid/urid.h>
-
-#include "MessageReceiver.h"
-#include "PortCommunicator.h"
-#include "../../DefinitionHandler.h"
+#include "DoubleControl.h"
 
 namespace cr42y
 {
-class MessageReceiver;
 
-class DoubleMessageReceiver : public MessageReceiver
+DoubleControl::DoubleControl(double val, double mi, double ma) :
+		value(val),
+		min(mi),
+		max(ma)
 {
-public:
-	DoubleMessageReceiver(PortCommunicator* comm, int type, std::function<void(double)> setter, LV2_URID dKey = DefinitionHandler::getInstance()->msg_key);
-	virtual ~DoubleMessageReceiver();
+	receiver = nullptr;
+}
 
-	void receive(LV2_Atom_Object* obj);
-	int getMessageType();
+DoubleControl::~DoubleControl()
+{
+	if (receiver)
+	{
+		delete receiver;
+	}
+}
 
-private:
-	int messageType;
-	LV2_URID dataKey;
-	std::function<void(double)> setterFunction;
-};
+void DoubleControl::connectPort(PortCommunicator* comm, int msgType, LV2_URID dataKey)
+{
 
+}
+
+void DoubleControl::disconnectPort()
+{
+
+}
+
+void DoubleControl::setValue(double val)
+{
+	if (val > max)
+	{
+		val = max;
+	}
+	else if (val < min)
+	{
+		val = min;
+	}
+	value = val;
+}
+
+double DoubleControl::getValue()
+{
+	return value;
+}
+
+void DoubleControl::setMax(double m)
+{
+	max = m;
+}
+
+void DoubleControl::setMin(double m)
+{
+	min = m;
+}
+
+double DoubleControl::getMax()
+{
+	return max;
+}
+
+double DoubleControl::getMin()
+{
+	return min;
+}
 } /* namespace cr42y */
-
-#endif /* SRC_DSP_PORTCOMMUNICATION_DOUBLEMESSAGERECEIVER_H_ */

@@ -42,6 +42,7 @@
 
 namespace cr42y
 {
+class MessageReceiver;
 
 class PortCommunicator
 {

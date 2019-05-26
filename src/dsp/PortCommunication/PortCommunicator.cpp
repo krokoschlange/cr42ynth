@@ -66,7 +66,7 @@ void PortCommunicator::receiveEvents()
 			for (MessageReceiver* rec : receivers)
 			{
 				LV2_Atom_Int* messageType;
-				lv2_atom_object_get_typed(object, DefinitionHandler::msg_type, &messageType, DefinitionHandler::atom_int);
+				lv2_atom_object_get_typed(object, DefinitionHandler::getInstance()->msg_type, &messageType, DefinitionHandler::getInstance()->atom_int);
 				if (rec->getMessageType() == messageType->body)
 				{
 					rec->receive(object);

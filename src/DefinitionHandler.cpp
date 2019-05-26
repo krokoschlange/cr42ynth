@@ -37,6 +37,7 @@
 
 namespace cr42y
 {
+DefinitionHandler* DefinitionHandler::instance;
 
 DefinitionHandler::DefinitionHandler()
 {
@@ -44,6 +45,15 @@ DefinitionHandler::DefinitionHandler()
 
 DefinitionHandler::~DefinitionHandler()
 {
+}
+
+DefinitionHandler* DefinitionHandler::getInstance()
+{
+	if (!instance)
+	{
+		instance = new DefinitionHandler();
+	}
+	return instance;
 }
 
 void DefinitionHandler::load(LV2_URID_Map* m)
@@ -61,6 +71,6 @@ void DefinitionHandler::load(LV2_URID_Map* m)
 
 LV2_URID DefinitionHandler::map(std::string uri)
 {
-	return thisMap->map(thisMap->handle, uri);
+	return thisMap->map(thisMap->handle, uri.c_str());
 }
 } /* namespace cr42y */
