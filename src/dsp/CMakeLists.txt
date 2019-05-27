@@ -12,7 +12,8 @@ include_directories ("${PROJECT_SOURCE_DIR}/PortCommunication/")
 include_directories ("${PROJECT_SOURCE_DIR}/../")
 include_directories ("${PROJECT_SOURCE_DIR}/")
 
-add_executable(cr42ynth.so 
+add_executable(cr42ynth.so
+	lv2_dsp.cpp
 	DoubleControl.cpp
 	Controllers/Controller.cpp
 	Controllers/LFOController.cpp

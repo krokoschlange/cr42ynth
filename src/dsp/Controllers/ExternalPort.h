@@ -31,26 +31,19 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#include <iostream>
-#include <lv2/core/lv2.h>
+#ifndef SRC_DSP_CONTROLLERS_EXTERNALPORT_H_
+#define SRC_DSP_CONTROLLERS_EXTERNALPORT_H_
 
-#include "../common.h"
+namespace cr42y
+{
 
-static const LV2_Descriptor descriptor = {
-		CR42YnthURI
+class ExternalPort
+{
+public:
+	ExternalPort();
+	virtual ~ExternalPort();
 };
 
-LV2_SYMBOL_EXPORT const LV2_Descriptor* lv2_descriptor(uint32_t index)
-{
-	if (index != 0)
-	{
-		return nullptr;
-	}
-	return &descriptor;
-}
+} /* namespace cr42y */
 
-int main()
-{
-	std::cout << "Use as LV2 Plugin";
-	return 0;
-}
+#endif /* SRC_DSP_CONTROLLERS_EXTERNALPORT_H_ */

@@ -31,26 +31,101 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#include <iostream>
-#include <lv2/core/lv2.h>
+#include <cmath>
 
-#include "../common.h"
+#include "WTOscillator.h"
 
-static const LV2_Descriptor descriptor = {
-		CR42YnthURI
-};
-
-LV2_SYMBOL_EXPORT const LV2_Descriptor* lv2_descriptor(uint32_t index)
+namespace cr42y
 {
-	if (index != 0)
+
+WTOscillator::WTOscillator(float rate) :
+		samplerate(rate),
+		wavetable(nullptr),
+		smooth(false),
+		detune(0),
+		enabled(false)
+{
+}
+
+WTOscillator::~WTOscillator()
+{
+	delete wavetable;
+}
+
+float WTOscillator::getSample(float* wavePos, float WTPos, float note, float deltaFreq, float FM)
+{
+	if (!enabled)
 	{
-		return nullptr;
+		return 0;
 	}
-	return &descriptor;
+	float out;
+
+	int wtSample = WTPos * wavetable->size();
+	if (wtSample >= wavetable->size())
+	{
+		wtSample--;
+	}
+
+	float waveSample = *wavePos * (*wavetable)[0].size());
+	if (waveSample >= (*wavetable)[0].size())
+	{
+		waveSample--;
+	}
+	if (smooth)
+	{
+		float smpl1 = (*wavetable)[wtSample][(int) waveSample];
+		float smpl2 = (*wavetable)[wtSample][(int) waveSample + 1];
+
+		out = smpl1 + (waveSample - (int) waveSample) * (smpl2 - smpl1);
+	}
+	else
+	{
+		out = (*wavetable)[wtSample][(int) waveSample];
+	}
+
+	float frequency = pow(2, (note + detune - 69) / 12) * 440 * deltaFreq * FM;
+	*wavePos += frequency / samplerate;
+	return out;
 }
 
-int main()
+void WTOscillator::setWavetable(std::vector<std::vector<float>>* wt)
 {
-	std::cout << "Use as LV2 Plugin";
-	return 0;
+	delete wavetable;
+	wavetable = wt;
 }
+
+void WTOscillator::setSmooth(bool s)
+{
+	smooth = s;
+}
+
+void WTOscillator::setDetune(float notes)
+{
+	detune = notes;
+}
+
+void WTOscillator::setDetune(int semi, int cents)
+{
+	detune = semi + cents / 100;
+}
+
+void WTOscillator::setEnabled(bool state)
+{
+	enabled = state;
+}
+
+bool WTOscillator::getSmooth()
+{
+	return smooth;
+}
+
+float WTOscillator::getDetune()
+{
+	return detune;
+}
+
+bool WTOscillator::getEnabled()
+{
+	return enabled;
+}
+} /* namespace cr42y */

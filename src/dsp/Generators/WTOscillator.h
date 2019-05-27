@@ -31,26 +31,43 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#include <iostream>
-#include <lv2/core/lv2.h>
+#ifndef SRC_DSP_GENERATORS_WTOSCILLATOR_H_
+#define SRC_DSP_GENERATORS_WTOSCILLATOR_H_
 
-#include "../common.h"
+#include <vector>
 
-static const LV2_Descriptor descriptor = {
-		CR42YnthURI
+namespace cr42y
+{
+
+class WTOscillator
+{
+public:
+	WTOscillator(float rate);
+	virtual ~WTOscillator();
+
+	float getSample(float* wavePos, float WTPos, float note, float deltaFreq, float FM);
+
+	void setWavetable(std::vector<std::vector<float>>* wt);
+	void setSmooth(bool s);
+	void setDetune(float notes);
+	void setDetune(int semi, int cents);
+	void setEnabled(bool state);
+	void setSync(bool state);
+
+	bool getSmooth();
+	float getDetune();
+	bool getEnabled();
+	bool getSync();
+
+private:
+	float samplerate;
+	float detune;
+	std::vector<std::vector<float>>* wavetable;
+
+	bool enabled;
+	bool smooth;
 };
 
-LV2_SYMBOL_EXPORT const LV2_Descriptor* lv2_descriptor(uint32_t index)
-{
-	if (index != 0)
-	{
-		return nullptr;
-	}
-	return &descriptor;
-}
+} /* namespace cr42y */
 
-int main()
-{
-	std::cout << "Use as LV2 Plugin";
-	return 0;
-}
+#endif /* SRC_DSP_GENERATORS_WTOSCILLATOR_H_ */

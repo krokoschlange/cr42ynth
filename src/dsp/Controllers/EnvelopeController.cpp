@@ -31,26 +31,20 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#include <iostream>
-#include <lv2/core/lv2.h>
+#include "EnvelopeController.h"
 
-#include "../common.h"
-
-static const LV2_Descriptor descriptor = {
-		CR42YnthURI
-};
-
-LV2_SYMBOL_EXPORT const LV2_Descriptor* lv2_descriptor(uint32_t index)
+namespace cr42y
 {
-	if (index != 0)
-	{
-		return nullptr;
-	}
-	return &descriptor;
+
+EnvelopeController::EnvelopeController()
+{
+	// TODO Auto-generated constructor stub
+
 }
 
-int main()
+EnvelopeController::~EnvelopeController()
 {
-	std::cout << "Use as LV2 Plugin";
-	return 0;
+	// TODO Auto-generated destructor stub
 }
+
+} /* namespace cr42y */
