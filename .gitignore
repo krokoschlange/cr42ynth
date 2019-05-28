@@ -1,5 +1,6 @@
 .settings
 build
+Debug
 .cproject
 .project
 bin
