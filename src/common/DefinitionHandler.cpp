@@ -63,6 +63,7 @@ void DefinitionHandler::load(LV2_URID_Map* m)
 	atom_obj = map(LV2_ATOM__Object);
 	atom_int = map(LV2_ATOM__Int);
 	atom_double = map(LV2_ATOM__Double);
+	atom_bool = map(LV2_ATOM__Bool);
 
 	cr42ynth_uri = map(CR42YnthURI);
 	cr42ynth_ui_uri = map(CR42YnthUIURI);

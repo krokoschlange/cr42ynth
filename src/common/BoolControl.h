@@ -31,43 +31,33 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_COMMON_DOUBLECONTROL_H_
-#define SRC_COMMON_DOUBLECONTROL_H_
+#ifndef SRC_COMMON_BOOLCONTROL_H_
+#define SRC_COMMON_BOOLCONTROL_H_
 
-#include <lv2/atom/atom.h>
-
-#include "DefinitionHandler.h"
 #include "PortCommunication/MessageReceiver.h"
+#include "DefinitionHandler.h"
 
 namespace cr42y
 {
-class MessageReceiver;
 
-class DoubleControl: public MessageReceiver
+class BoolControl: public MessageReceiver
 {
 public:
-	DoubleControl(int msgType, PortCommunicator* comm = nullptr, LV2_URID dKey = DefinitionHandler::getInstance()->msg_key,
-			double val = 0, double mi = 0, double ma = 1);
-	virtual ~DoubleControl();
+	BoolControl(int msgType, PortCommunicator* comm = nullptr, LV2_URID dKey =
+			DefinitionHandler::getInstance()->msg_type, bool val = false);
+	virtual ~BoolControl();
 
-	virtual void receive(LV2_Atom_Object* data);
+	void receive(LV2_Atom_Object* data);
 
-	double getValue();
-	double getMin();
-	double getMax();
-
-	void setValue(double val);
-	void setMin(double m);
-	void setMax(double m);
+	void setValue(bool val);
+	bool getValue();
 
 private:
-	double value;
-	double min;
-	double max;
+	bool value;
 
 	LV2_URID dataKey;
 };
 
 } /* namespace cr42y */
 
-#endif /* SRC_COMMON_DOUBLECONTROL_H_ */
+#endif /* SRC_COMMON_BOOLCONTROL_H_ */

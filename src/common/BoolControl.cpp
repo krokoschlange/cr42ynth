@@ -31,43 +31,42 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_COMMON_DOUBLECONTROL_H_
-#define SRC_COMMON_DOUBLECONTROL_H_
+#include <lv2/atom/util.h>
 
-#include <lv2/atom/atom.h>
-
-#include "DefinitionHandler.h"
-#include "PortCommunication/MessageReceiver.h"
+#include "BoolControl.h"
 
 namespace cr42y
 {
-class MessageReceiver;
 
-class DoubleControl: public MessageReceiver
+BoolControl::BoolControl(int msgType, PortCommunicator* comm, LV2_URID dKey,
+		bool val) :
+		MessageReceiver(msgType, comm), dataKey(dKey), value(val)
 {
-public:
-	DoubleControl(int msgType, PortCommunicator* comm = nullptr, LV2_URID dKey = DefinitionHandler::getInstance()->msg_key,
-			double val = 0, double mi = 0, double ma = 1);
-	virtual ~DoubleControl();
+}
 
-	virtual void receive(LV2_Atom_Object* data);
+BoolControl::~BoolControl()
+{
+}
 
-	double getValue();
-	double getMin();
-	double getMax();
+void BoolControl::receive(LV2_Atom_Object* data)
+{
+	LV2_Atom_Bool* val;
+		lv2_atom_object_get_typed(data, dataKey, &val,
+				DefinitionHandler::getInstance()->atom_bool);
+		if (val)
+		{
+			setValue(val->body);
+		}
+}
 
-	void setValue(double val);
-	void setMin(double m);
-	void setMax(double m);
+void BoolControl::setValue(bool val)
+{
+	value = val;
+}
 
-private:
-	double value;
-	double min;
-	double max;
-
-	LV2_URID dataKey;
-};
+bool BoolControl::getValue()
+{
+	return value;
+}
 
 } /* namespace cr42y */
-
-#endif /* SRC_COMMON_DOUBLECONTROL_H_ */

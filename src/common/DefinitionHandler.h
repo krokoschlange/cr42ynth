@@ -65,6 +65,7 @@ public:
 	LV2_URID atom_obj;
 	LV2_URID atom_int;
 	LV2_URID atom_double;
+	LV2_URID atom_bool;
 
 	LV2_URID cr42ynth_uri;
 	LV2_URID cr42ynth_ui_uri;
