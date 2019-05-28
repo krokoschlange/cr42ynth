@@ -36,6 +36,8 @@
 
 #include <vector>
 
+#include "../../common/DoubleControl.h"
+
 namespace cr42y
 {
 
@@ -61,11 +63,11 @@ public:
 
 private:
 	float samplerate;
-	float detune;
+	DoubleControl* detune;
 	std::vector<std::vector<float>>* wavetable;
 
-	bool enabled;
-	bool smooth;
+	DoubleControl* enabled;
+	DoubleControl* smooth;
 };
 
 } /* namespace cr42y */

@@ -31,36 +31,51 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_DSP_PORTCOMMUNICATION_DOUBLEMESSAGERECEIVER_H_
-#define SRC_DSP_PORTCOMMUNICATION_DOUBLEMESSAGERECEIVER_H_
+#ifndef SRC_COMMON_DEFINITIONHANDLER_H_
+#define SRC_COMMON_DEFINITIONHANDLER_H_
 
-#include <functional>
-#include <lv2/atom/atom.h>
 #include <lv2/urid/urid.h>
+#include <string>
 
-#include "MessageReceiver.h"
-#include "PortCommunicator.h"
-#include "../../DefinitionHandler.h"
+#include "common.h"
 
 namespace cr42y
 {
-class MessageReceiver;
 
-class DoubleMessageReceiver : public MessageReceiver
+class DefinitionHandler
 {
 public:
-	DoubleMessageReceiver(PortCommunicator* comm, int type, std::function<void(double)> setter, LV2_URID dKey = DefinitionHandler::getInstance()->msg_key);
-	virtual ~DoubleMessageReceiver();
+	static DefinitionHandler* getInstance();
+	virtual ~DefinitionHandler();
 
-	void receive(LV2_Atom_Object* obj);
-	int getMessageType();
+	void load(LV2_URID_Map* map);
+
+	LV2_URID map(std::string uri);
+
+	LV2_URID_Map* thisMap;
+
+	enum msg_types
+	{
+		osc_update,
+		lfo_env_add,
+		lfo_env_update,
+		lfo_env_remove
+	};
+
+	LV2_URID atom_obj;
+	LV2_URID atom_int;
+	LV2_URID atom_double;
+
+	LV2_URID cr42ynth_uri;
+	LV2_URID cr42ynth_ui_uri;
+	LV2_URID msg_type;
+	LV2_URID msg_key;
 
 private:
-	int messageType;
-	LV2_URID dataKey;
-	std::function<void(double)> setterFunction;
+	DefinitionHandler();
+	static DefinitionHandler* instance;
 };
 
 } /* namespace cr42y */
 
-#endif /* SRC_DSP_PORTCOMMUNICATION_DOUBLEMESSAGERECEIVER_H_ */
+#endif /* SRC_COMMON_DEFINITIONHANDLER_H_ */

@@ -31,37 +31,47 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#include <lv2/atom/util.h>
+#include "DefinitionHandler.h"
 
-#include "DoubleMessageReceiver.h"
+#include <lv2/atom/atom.h>
+
 
 namespace cr42y
 {
+DefinitionHandler* DefinitionHandler::instance;
 
-DoubleMessageReceiver::DoubleMessageReceiver(PortCommunicator* comm, int type,
-		std::function<void(double)> setter, LV2_URID dKey) :
-		MessageReceiver(comm),
-				messageType(type),
-				setterFunction(setter),
-				dataKey(dKey)
-{
-	comm->addReceiver(this);
-}
-
-DoubleMessageReceiver::~DoubleMessageReceiver()
+DefinitionHandler::DefinitionHandler()
 {
 }
 
-int DoubleMessageReceiver::getMessageType()
+DefinitionHandler::~DefinitionHandler()
 {
-	return messageType;
 }
 
-void DoubleMessageReceiver::receive(LV2_Atom_Object* obj)
+DefinitionHandler* DefinitionHandler::getInstance()
 {
-	LV2_Atom_Double* value;
-	lv2_atom_object_get_typed(obj, dataKey, &value, DefinitionHandler::getInstance()->atom_double);
-	setterFunction(value->body);
+	if (!instance)
+	{
+		instance = new DefinitionHandler();
+	}
+	return instance;
 }
 
+void DefinitionHandler::load(LV2_URID_Map* m)
+{
+	thisMap = m;
+	atom_obj = map(LV2_ATOM__Object);
+	atom_int = map(LV2_ATOM__Int);
+	atom_double = map(LV2_ATOM__Double);
+
+	cr42ynth_uri = map(CR42YnthURI);
+	cr42ynth_ui_uri = map(CR42YnthUIURI);
+	msg_type = map(MSG_TYPE);
+	msg_key = map(MSG_KEY);
+}
+
+LV2_URID DefinitionHandler::map(std::string uri)
+{
+	return thisMap->map(thisMap->handle, uri.c_str());
+}
 } /* namespace cr42y */

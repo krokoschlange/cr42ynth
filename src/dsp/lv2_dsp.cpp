@@ -34,7 +34,7 @@
 #include <iostream>
 #include <lv2/core/lv2.h>
 
-#include "../common.h"
+#include "../common/common.h"
 
 static const LV2_Descriptor descriptor = {
 		CR42YnthURI
