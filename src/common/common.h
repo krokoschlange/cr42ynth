@@ -40,5 +40,7 @@
 
 #define MSG_TYPE CR42YnthMSG "type"
 #define MSG_KEY CR42YnthMSG "data"
+#define MSG_OBJECT CR42YnthMSG "data_object"
+#define MSG_OBJECT_TYPE CR42YnthMSG "data_object_type"
 
 #endif /* COMMON_H_ */

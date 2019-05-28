@@ -69,6 +69,8 @@ void DefinitionHandler::load(LV2_URID_Map* m)
 	cr42ynth_ui_uri = map(CR42YnthUIURI);
 	msg_type = map(MSG_TYPE);
 	msg_key = map(MSG_KEY);
+	msg_object = map(MSG_OBJECT);
+	msg_object_type = map(MSG_OBJECT_TYPE);
 }
 
 LV2_URID DefinitionHandler::map(std::string uri)

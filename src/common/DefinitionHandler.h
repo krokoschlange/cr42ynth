@@ -71,6 +71,8 @@ public:
 	LV2_URID cr42ynth_ui_uri;
 	LV2_URID msg_type;
 	LV2_URID msg_key;
+	LV2_URID msg_object;
+	LV2_URID msg_object_type;
 
 private:
 	DefinitionHandler();

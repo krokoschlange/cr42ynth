@@ -48,7 +48,7 @@ class MessageReceiver;
 class PortCommunicator
 {
 public:
-	PortCommunicator();
+	PortCommunicator(LV2_URID_Map* m);
 	virtual ~PortCommunicator();
 
 	virtual void receiveEvents() = 0;
@@ -57,7 +57,7 @@ public:
 	void addReceiver(MessageReceiver* receiver);
 	void removeReceiver(MessageReceiver* receiver);
 
-private:
+protected:
 	std::vector<MessageReceiver*> receivers;
 
 	LV2_URID_Map* map;

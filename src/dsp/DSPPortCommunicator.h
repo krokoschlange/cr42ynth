@@ -31,46 +31,30 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_DSP_GENERATORS_WTOSCILLATOR_H_
-#define SRC_DSP_GENERATORS_WTOSCILLATOR_H_
+#ifndef SRC_DSP_DSPPORTCOMMUNICATOR_H_
+#define SRC_DSP_DSPPORTCOMMUNICATOR_H_
 
-#include <vector>
-
-#include "../../common/DoubleControl.h"
-#include "../../common/BoolControl.h"
+#include "../common/PortCommunication/PortCommunicator.h"
 
 namespace cr42y
 {
 
-class WTOscillator
+class DSPPortCommunicator : public PortCommunicator
 {
 public:
-	WTOscillator(float rate, PortCommunicator* comm);
-	virtual ~WTOscillator();
+	DSPPortCommunicator(LV2_Atom_Sequence* i, LV2_Atom_Sequence* o, LV2_URID_Map* m);
+	virtual ~DSPPortCommunicator();
 
-	float getSample(float* wavePos, float WTPos, float note, float deltaFreq, float FM);
-
-	void setWavetable(std::vector<std::vector<float>>* wt);
-	void setSmooth(bool s);
-	void setDetune(float notes);
-	void setDetune(int semi, int cents);
-	void setEnabled(bool state);
-	void setSync(bool state);
-
-	bool getSmooth();
-	float getDetune();
-	bool getEnabled();
-	bool getSync();
+	void receiveEvents();
+	void sendEvent(int msgType, LV2_Atom* data);
 
 private:
-	float samplerate;
-	DoubleControl* detune;
-	std::vector<std::vector<float>>* wavetable;
+	LV2_Atom_Sequence* in;
+	LV2_Atom_Sequence* out;
+	LV2_Atom_Forge forge;
 
-	BoolControl* enabled;
-	BoolControl* smooth;
 };
 
 } /* namespace cr42y */
 
-#endif /* SRC_DSP_GENERATORS_WTOSCILLATOR_H_ */
+#endif /* SRC_DSP_DSPPORTCOMMUNICATOR_H_ */

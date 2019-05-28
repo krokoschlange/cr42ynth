@@ -36,15 +36,44 @@
 namespace cr42y
 {
 
-LFO::LFO()
+LFO::LFO(float rate, PortCommunicator* comm) :
+		samplerate(rate),
+		waveform(nullptr),
+		frequency(1, comm, DefinitionHandler::getInstance()->msg_key, 1, 0, 0)
 {
-	// TODO Auto-generated constructor stub
-
 }
 
 LFO::~LFO()
 {
-	// TODO Auto-generated destructor stub
+}
+
+float LFO::getSample(float* wavePos)
+{
+	int waveSample = wavePos * waveform->size();
+	float out = (*waveform)[waveSample];
+
+	*wavePos += frequency.getValue() / samplerate;
+	return out;
+}
+
+void LFO::setLFO(std::vector<float>* lfo, float freq)
+{
+	if (waveform)
+	{
+		delete waveform;
+	}
+	waveform = lfo;
+	setFrequency(freq);
+}
+
+void LFO::setFrequency(float freq)
+{
+	frequency.setValue(freq);
+}
+
+float LFO::getFrequency()
+{
+	return frequency.getValue();
 }
 
 } /* namespace cr42y */

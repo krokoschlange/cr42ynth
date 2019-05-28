@@ -34,16 +34,32 @@
 #ifndef SRC_DSP_GENERATORS_LFO_H_
 #define SRC_DSP_GENERATORS_LFO_H_
 
+#include <vector>
+
+#include "../../common/DoubleControl.h"
+#include "../../common/BoolControl.h"
+
 namespace cr42y
 {
 
 class LFO
 {
 public:
-	LFO();
+	LFO(float rate, PortCommunicator* comm);
 	virtual ~LFO();
 
+	float getSample(float* wavePos);
+
+	void setLFO(std::vector<float>* lfo, float freq);
+
+	void setFrequency(float freq);
+
+	float getFrequency();
+
 private:
+	float samplerate;
+	std::vector<float>* waveform;
+	DoubleControl frequency;
 
 };
 

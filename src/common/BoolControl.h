@@ -44,7 +44,7 @@ class BoolControl: public MessageReceiver
 {
 public:
 	BoolControl(int msgType, PortCommunicator* comm = nullptr, LV2_URID dKey =
-			DefinitionHandler::getInstance()->msg_type, bool val = false);
+			DefinitionHandler::getInstance()->msg_key, bool val = false);
 	virtual ~BoolControl();
 
 	void receive(LV2_Atom_Object* data);
