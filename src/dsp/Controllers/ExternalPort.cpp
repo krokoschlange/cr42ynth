@@ -38,13 +38,11 @@ namespace cr42y
 
 ExternalPort::ExternalPort()
 {
-	// TODO Auto-generated constructor stub
 
 }
 
 ExternalPort::~ExternalPort()
 {
-	// TODO Auto-generated destructor stub
 }
 
 } /* namespace cr42y */

@@ -60,6 +60,7 @@ private:
 	float samplerate;
 	std::vector<float>* waveform;
 	DoubleControl frequency;
+	BoolControl smooth;
 
 };
 

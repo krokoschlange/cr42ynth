@@ -37,9 +37,9 @@ namespace cr42y
 {
 
 LFO::LFO(float rate, PortCommunicator* comm) :
-		samplerate(rate),
-		waveform(nullptr),
-		frequency(1, comm, DefinitionHandler::getInstance()->msg_key, 1, 0, 0)
+		samplerate(rate), waveform(nullptr), frequency(1, comm,
+				DefinitionHandler::getInstance()->msg_key, 1, 0, 0), //TODO
+		smooth(2, comm)
 {
 }
 
@@ -49,8 +49,30 @@ LFO::~LFO()
 
 float LFO::getSample(float* wavePos)
 {
+	if (!waveform)
+	{
+		*wavePos += frequency.getValue() / samplerate;
+		return 0;
+	}
 	int waveSample = wavePos * waveform->size();
-	float out = (*waveform)[waveSample];
+	float out;
+	if (smooth.getValue())
+	{
+		float smpl1 = (*waveform)[waveSample];
+
+		float waveSample2 = waveSample + 1;
+		if (waveSample2 > waveform->size())
+		{
+			waveSample2 -= waveform->size();
+		}
+		float smpl2 = (*waveform)[waveSample2];
+
+		out = smpl1 + (waveSample - (int) waveSample) * (smpl2 - smpl1);
+	}
+	else
+	{
+		out = (*waveform)[waveSample];
+	}
 
 	*wavePos += frequency.getValue() / samplerate;
 	return out;

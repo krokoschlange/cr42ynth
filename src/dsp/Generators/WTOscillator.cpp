@@ -54,8 +54,9 @@ WTOscillator::~WTOscillator()
 
 float WTOscillator::getSample(float* wavePos, float WTPos, float note, float deltaFreq, float FM)
 {
-	if (enabled->getValue())
+	if (enabled->getValue() || !wavetable)
 	{
+		float frequency = pow(2, (note + detune->getValue() - 69) / 12) * 440 * deltaFreq * FM;
 		return 0;
 	}
 	float out;
@@ -63,18 +64,24 @@ float WTOscillator::getSample(float* wavePos, float WTPos, float note, float del
 	int wtSample = WTPos * wavetable->size();
 	if (wtSample >= wavetable->size())
 	{
-		wtSample--;
+		wtSample = wavetable->size() - 1;
 	}
 
 	float waveSample = *wavePos * (*wavetable)[0].size();
 	if (waveSample >= (*wavetable)[0].size())
 	{
-		waveSample--;
+		waveSample -= (*wavetable)[0].size();
 	}
 	if (smooth->getValue())
 	{
 		float smpl1 = (*wavetable)[wtSample][(int) waveSample];
-		float smpl2 = (*wavetable)[wtSample][(int) waveSample + 1];
+
+		float waveSample2 = waveSample + 1;
+		if (waveSample2 > (*wavetable)[0].size())
+		{
+			waveSample2 -= (*wavetable)[0].size();
+		}
+		float smpl2 = (*wavetable)[wtSample][(int) waveSample2];
 
 		out = smpl1 + (waveSample - (int) waveSample) * (smpl2 - smpl1);
 	}

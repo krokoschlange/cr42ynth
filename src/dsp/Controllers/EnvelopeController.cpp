@@ -38,13 +38,11 @@ namespace cr42y
 
 EnvelopeController::EnvelopeController()
 {
-	// TODO Auto-generated constructor stub
 
 }
 
 EnvelopeController::~EnvelopeController()
 {
-	// TODO Auto-generated destructor stub
 }
 
 } /* namespace cr42y */

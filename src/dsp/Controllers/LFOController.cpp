@@ -38,13 +38,10 @@ namespace cr42y
 
 LFOController::LFOController()
 {
-	// TODO Auto-generated constructor stub
-
 }
 
 LFOController::~LFOController()
 {
-	// TODO Auto-generated destructor stub
 }
 
 } /* namespace cr42y */
