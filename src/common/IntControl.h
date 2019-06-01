@@ -30,45 +30,40 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
+#ifndef SRC_COMMON_INTCONTROL_H_
+#define SRC_COMMON_INTCONTROL_H_
 
-#include <lv2/atom/util.h>
-
-#include "BoolControl.h"
+#include "DefinitionHandler.h"
+#include "PortCommunication/MessageReceiver.h"
 
 namespace cr42y
 {
 
-BoolControl::BoolControl(int msgType, PortCommunicator* comm, bool val,
-		LV2_URID dKey) :
-				MessageReceiver(msgType, comm),
-				dataKey(dKey),
-				value(val)
+class IntControl : public MessageReceiver
 {
-}
+public:
+	IntControl(int msgType, PortCommunicator* comm = nullptr, int val = 0,
+			int mi = 0, int ma = 1, LV2_URID dKey =
+					DefinitionHandler::getInstance()->msg_key);
+	virtual ~IntControl();
 
-BoolControl::~BoolControl()
-{
-}
+	virtual void receive(LV2_Atom_Object* data);
 
-void BoolControl::receive(LV2_Atom_Object* data)
-{
-	LV2_Atom_Bool* val;
-	lv2_atom_object_get_typed(data, dataKey, &val,
-			DefinitionHandler::getInstance()->atom_bool);
-	if (val)
-	{
-		setValue(val->body);
-	}
-}
+	int getValue();
+	int getMin();
+	int getMax();
 
-void BoolControl::setValue(bool val)
-{
-	value = val;
-}
+	void setValue(int val);
+	void setMin(int m);
+	void setMax(int m);
 
-bool BoolControl::getValue()
-{
-	return value;
-}
+private:
+	int min;
+	int max;
+	int value;
+	LV2_URID dataKey;
+};
 
 } /* namespace cr42y */
+
+#endif /* SRC_COMMON_INTCONTROL_H_ */

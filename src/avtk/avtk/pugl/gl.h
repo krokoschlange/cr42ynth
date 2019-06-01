@@ -32,11 +32,11 @@
  *******************************************************************************/
 
 /**
-   @file gl.h Portable header wrapper for gl.h.
+ @file gl.h Portable header wrapper for gl.h.
 
-   Unfortunately, GL includes vary across platforms so this header allows for
-   pure portable programs.
-*/
+ Unfortunately, GL includes vary across platforms so this header allows for
+ pure portable programs.
+ */
 
 #ifdef __APPLE__
 #    include "OpenGL/gl.h"

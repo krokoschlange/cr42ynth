@@ -39,9 +39,13 @@
 namespace cr42y
 {
 
-DoubleControl::DoubleControl(int msgType, PortCommunicator* comm,
-		LV2_URID dKey, double val, double mi, double ma) :
-		MessageReceiver(msgType, comm), value(val), min(mi), max(ma), dataKey(dKey)
+DoubleControl::DoubleControl(int msgType, PortCommunicator* comm, double val,
+		double mi, double ma, LV2_URID dKey) :
+				MessageReceiver(msgType, comm),
+				value(val),
+				min(mi),
+				max(ma),
+				dataKey(dKey)
 {
 }
 

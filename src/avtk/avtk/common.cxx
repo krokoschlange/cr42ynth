@@ -27,32 +27,40 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 #include "common.hxx"
 
 #include <stdio.h>
 #include <cassert>
 
-void avtk_debug( int warnLevel, const char* name, const char* file, const char* func, int line,
-                 const char* format, ... )
+void avtk_debug(int warnLevel, const char* name, const char* file,
+		const char* func, int line, const char* format, ...)
 {
-	if ( warnLevel == DEBUG_LEVEL_ERROR ) {
-		printf( "[\033[1;31m%s\033[0m] %s:%i: ", name, func, line );
-	} else if ( warnLevel == DEBUG_LEVEL_WARN ) {
-		printf( "[\033[1;33m%s\033[0m] %s:%i: ", name, func, line );
-	} else if ( warnLevel == DEBUG_LEVEL_DEVELOPER ) {
-		printf( "[\033[1;34m%s\033[0m] %s:%i: ", name, func, line );
-	} else {
-		printf( "[\033[1;32m%s\033[0m] %s:%i: ", name, func, line );
+	if (warnLevel == DEBUG_LEVEL_ERROR)
+	{
+		printf("[\033[1;31m%s\033[0m] %s:%i: ", name, func, line);
 	}
-	printf( "\033[0m" );
-
-	if ( format ) {
+	else if (warnLevel == DEBUG_LEVEL_WARN)
+	{
+		printf("[\033[1;33m%s\033[0m] %s:%i: ", name, func, line);
+	}
+	else if (warnLevel == DEBUG_LEVEL_DEVELOPER)
+	{
+		printf("[\033[1;34m%s\033[0m] %s:%i: ", name, func, line);
+	}
+	else
+	{
+		printf("[\033[1;32m%s\033[0m] %s:%i: ", name, func, line);
+	}
+	printf("\033[0m");
+	
+	if (format)
+	{
 		va_list args;
-		va_start( args, format );
-		vfprintf( stdout, format, args );
-		va_end( args );
+		va_start(args, format);
+		vfprintf( stdout, format, args);
+		va_end(args);
 	}
 	//printf( "\n" );
 }

@@ -38,7 +38,7 @@ namespace cr42y
 
 EnvelopeController::EnvelopeController()
 {
-
+	
 }
 
 EnvelopeController::~EnvelopeController()

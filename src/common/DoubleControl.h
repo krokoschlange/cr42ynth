@@ -43,11 +43,12 @@ namespace cr42y
 {
 class MessageReceiver;
 
-class DoubleControl: public MessageReceiver
+class DoubleControl : public MessageReceiver
 {
 public:
-	DoubleControl(int msgType, PortCommunicator* comm = nullptr, LV2_URID dKey = DefinitionHandler::getInstance()->msg_key,
-			double val = 0, double mi = 0, double ma = 1);
+	DoubleControl(int msgType, PortCommunicator* comm = nullptr, double val = 0,
+			double mi = 0, double ma = 1, LV2_URID dKey =
+					DefinitionHandler::getInstance()->msg_key);
 	virtual ~DoubleControl();
 
 	virtual void receive(LV2_Atom_Object* data);

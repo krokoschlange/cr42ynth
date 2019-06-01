@@ -56,10 +56,7 @@ public:
 
 	enum msg_types
 	{
-		osc_update,
-		lfo_env_add,
-		lfo_env_update,
-		lfo_env_remove
+		osc_update, lfo_env_add, lfo_env_update, lfo_env_remove
 	};
 
 	LV2_URID atom_obj;

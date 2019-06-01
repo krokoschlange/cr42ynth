@@ -12,14 +12,27 @@ include_directories ("${PROJECT_SOURCE_DIR}/../common/")
 include_directories ("${PROJECT_SOURCE_DIR}/")
 
 add_executable(cr42ynth.so
-	lv2_dsp.cpp
+	
 	../common/DoubleControl.cpp
-	Controllers/Controller.cpp
-	Controllers/LFOController.cpp
-	Generators/LFO.cpp
+	../common/BoolControl.cpp
+	../common/IntControl.cpp
 	../common/DefinitionHandler.cpp
 	../common/PortCommunication/PortCommunicator.cpp
 	../common/PortCommunication/MessageReceiver.cpp
+	
+	Controllers/Controller.cpp
+	Controllers/LFOController.cpp
+	
+	Generators/LFO.cpp
+	Generators/Envelope.cpp
+	Generators/WTOscillator.cpp
+	
+	lv2_dsp.cpp
+	ModulatableControl.cpp
+	ModulatableDoubleControl.cpp
+	ModulatableIntControl.cpp
+	DSPPortCommunicator.cpp
+	CR42Ynth.cpp
 )
 
 target_link_libraries(cr42ynth.so ${LIBSNDFILE_LIBRARIES})

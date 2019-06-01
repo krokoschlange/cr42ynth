@@ -40,11 +40,11 @@
 namespace cr42y
 {
 
-class BoolControl: public MessageReceiver
+class BoolControl : public MessageReceiver
 {
 public:
-	BoolControl(int msgType, PortCommunicator* comm = nullptr, LV2_URID dKey =
-			DefinitionHandler::getInstance()->msg_key, bool val = false);
+	BoolControl(int msgType, PortCommunicator* comm = nullptr, bool val = false,
+			LV2_URID dKey = DefinitionHandler::getInstance()->msg_key);
 	virtual ~BoolControl();
 
 	void receive(LV2_Atom_Object* data);

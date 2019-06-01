@@ -36,9 +36,9 @@
 
 #include "../common/common.h"
 
-static const LV2_Descriptor descriptor = {
-		CR42YnthURI
-};
+static const LV2_Descriptor descriptor =
+	{
+	CR42YnthURI};
 
 LV2_SYMBOL_EXPORT const LV2_Descriptor* lv2_descriptor(uint32_t index)
 {

@@ -32,14 +32,23 @@
  *******************************************************************************/
 
 #include "LFO.h"
+#include "../CR42Ynth.h"
 
 namespace cr42y
 {
 
 LFO::LFO(float rate, PortCommunicator* comm) :
-		samplerate(rate), waveform(nullptr), frequency(1, comm,
-				DefinitionHandler::getInstance()->msg_key, 1, 0, 0), //TODO
-		smooth(2, comm)
+				samplerate(rate),
+				waveform(nullptr), //TODO
+				smooth(2, comm),
+				global(2, comm),
+				sync(2, comm),
+				useFrequency(2, comm),
+				frequency(1, comm, 1, 0, 0),
+				pitchScale(2, comm),
+				beatNumerator(2, comm),
+				beatDenominator(2, comm),
+				globalPos(0)
 {
 }
 
@@ -47,34 +56,50 @@ LFO::~LFO()
 {
 }
 
-float LFO::getSample(float* wavePos)
+float LFO::getSample(float* wavePos, float noteFreq)
 {
-	if (!waveform)
+	float freq =
+			getUseFrequency() ?
+					getFrequency() + (noteFreq * getPitchScale() / 100) :
+					(CR42Ynth::getInstance()->getBPM() / 60)
+							/ (getBeatNumerator() / getBeatDenominator());
+	
+	float deltaPos = freq / samplerate;
+	
+	float out = 0;
+	if (waveform)
 	{
-		*wavePos += frequency.getValue() / samplerate;
-		return 0;
-	}
-	int waveSample = wavePos * waveform->size();
-	float out;
-	if (smooth.getValue())
-	{
-		float smpl1 = (*waveform)[waveSample];
-
-		float waveSample2 = waveSample + 1;
-		if (waveSample2 > waveform->size())
+		float waveSample =
+				getGlobal() ?
+						globalPos * waveform->size() :
+						*wavePos * waveform->size();
+		
+		if (getSmooth())
 		{
-			waveSample2 -= waveform->size();
+			float waveSample2 = waveSample + 1;
+			if (waveSample2 > waveform->size())
+			{
+				waveSample2 -= waveform->size();
+			}
+			
+			float smpl1 = (*waveform)[(int) waveSample];
+			float smpl2 = (*waveform)[(int) waveSample2];
+			
+			out = smpl1 + (waveSample - (int) waveSample) * (smpl2 - smpl1);
 		}
-		float smpl2 = (*waveform)[waveSample2];
-
-		out = smpl1 + (waveSample - (int) waveSample) * (smpl2 - smpl1);
+		else
+		{
+			out = (*waveform)[(int) waveSample];
+		}
+	}
+	if (getGlobal())
+	{
+		globalPos += deltaPos;
 	}
 	else
 	{
-		out = (*waveform)[waveSample];
+		*wavePos += deltaPos;
 	}
-
-	*wavePos += frequency.getValue() / samplerate;
 	return out;
 }
 
@@ -93,9 +118,94 @@ void LFO::setFrequency(float freq)
 	frequency.setValue(freq);
 }
 
+void LFO::setSmooth(bool state)
+{
+	smooth.setValue(state);
+}
+
+void LFO::setGlobal(bool state)
+{
+	global.setValue(state);
+}
+
+void LFO::setSync(bool state)
+{
+	sync.setValue(state);
+}
+
+void LFO::setUseFrequency(bool state)
+{
+	useFrequency.setValue(state);
+}
+
+void LFO::setPitchScale(float scale)
+{
+	pitchScale.setValue(scale);
+}
+
+void LFO::setBeatNumerator(int num)
+{
+	beatNumerator.setValue(num);
+}
+
+void LFO::setBeatDenominator(int den)
+{
+	beatDenominator.setValue(den);
+}
+
+void LFO::setGlobalPos(float pos)
+{
+	globalPos = pos;
+}
+
+void LFO::updateSamplerate(float rate)
+{
+	samplerate = rate;
+}
+
 float LFO::getFrequency()
 {
 	return frequency.getValue();
+}
+
+bool LFO::getSmooth()
+{
+	return smooth.getValue();
+}
+
+bool LFO::getGlobal()
+{
+	return global.getValue();
+}
+
+bool LFO::getSync()
+{
+	return sync.getValue();
+}
+
+bool LFO::getUseFrequency()
+{
+	return useFrequency.getValue();
+}
+
+float LFO::getPitchScale()
+{
+	return pitchScale.getValue();
+}
+
+int LFO::getBeatNumerator()
+{
+	return beatNumerator.getValue();
+}
+
+int LFO::getBeatDenominator()
+{
+	return beatDenominator.getValue();
+}
+
+float LFO::getGlobalPos()
+{
+	return globalPos;
 }
 
 } /* namespace cr42y */

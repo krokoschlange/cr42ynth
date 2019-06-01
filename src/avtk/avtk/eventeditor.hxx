@@ -46,24 +46,27 @@ namespace Avtk
 class EventEditor : public Widget
 {
 public:
-	EventEditor( Avtk::UI* ui, int x, int y, int w, int h, std::string label);
+	EventEditor(Avtk::UI* ui, int x, int y, int w, int h, std::string label);
 	virtual ~EventEditor();
 
-	virtual void draw( cairo_t* cr );
+	virtual void draw(cairo_t* cr);
 
-	void zoom( float z )
+	void zoom(float z)
 	{
-		if( z > 0.9 ) {
+		if (z > 0.9)
+		{
 			w_ *= 1.5;
 			h_ *= 1.5;
-		} else {
+		}
+		else
+		{
 			w_ *= 0.75;
 			h_ *= 0.75;
 		}
 	}
-
+	
 	/// sets the data to be displayed in the Editor
-	void setEvents( SeqEventList* events );
+	void setEvents(SeqEventList* events);
 
 private:
 	// current view
@@ -74,9 +77,10 @@ private:
 	SeqEventList* events;
 
 	/// convienience functions
-	void drawKeyboard( cairo_t* cr );
+	void drawKeyboard(cairo_t* cr);
 };
 
-};
+}
+;
 
 #endif // OPENAV_AVTK_EVENT_EDITOR_HXX

@@ -37,8 +37,8 @@ namespace cr42y
 {
 
 MessageReceiver::MessageReceiver(int msgType, PortCommunicator* comm) :
-		messageType(msgType),
-		communicator(comm)
+				messageType(msgType),
+				communicator(comm)
 {
 	if (communicator)
 	{

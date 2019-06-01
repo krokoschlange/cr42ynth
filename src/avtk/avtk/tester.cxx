@@ -29,7 +29,6 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 #ifdef AVTK_TESTER
 
 #include "tester.hxx"

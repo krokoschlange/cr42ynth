@@ -36,7 +36,8 @@
 
 #include <vector>
 
-#include "../../common/DoubleControl.h"
+#include "../ModulatableDoubleControl.h"
+#include "../ModulatableIntControl.h"
 #include "../../common/BoolControl.h"
 
 namespace cr42y
@@ -48,20 +49,48 @@ public:
 	LFO(float rate, PortCommunicator* comm);
 	virtual ~LFO();
 
-	float getSample(float* wavePos);
+	float getSample(float* wavePos, float noteFreq);
 
 	void setLFO(std::vector<float>* lfo, float freq);
-
 	void setFrequency(float freq);
+	void setSmooth(bool state);
+	void setGlobal(bool state);
+	void setSync(bool state);
+	void setUseFrequency(bool state);
+	void setPitchScale(float scale);
+	void setBeatNumerator(int num);
+	void setBeatDenominator(int den);
+	void setGlobalPos(float pos);
+	void updateSamplerate(float rate);
 
 	float getFrequency();
+	bool getSmooth();
+	bool getGlobal();
+	bool getSync();
+	bool getUseFrequency();
+	float getPitchScale();
+	int getBeatNumerator();
+	int getBeatDenominator();
+	float getGlobalPos();
 
 private:
 	float samplerate;
 	std::vector<float>* waveform;
-	DoubleControl frequency;
 	BoolControl smooth;
 
+	BoolControl global;
+	BoolControl sync;
+
+	BoolControl useFrequency;
+
+	ModulatableDoubleControl frequency;
+	DoubleControl pitchScale;
+
+	IntControl beatNumerator;
+	ModulatableIntControl beatDenominator;
+
+	float globalPos;
+	
 };
 
 } /* namespace cr42y */

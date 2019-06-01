@@ -34,6 +34,8 @@
 #ifndef SRC_DSP_DSPPORTCOMMUNICATOR_H_
 #define SRC_DSP_DSPPORTCOMMUNICATOR_H_
 
+#include <lv2/atom/forge.h>
+
 #include "../common/PortCommunication/PortCommunicator.h"
 
 namespace cr42y
@@ -42,7 +44,8 @@ namespace cr42y
 class DSPPortCommunicator : public PortCommunicator
 {
 public:
-	DSPPortCommunicator(LV2_Atom_Sequence* i, LV2_Atom_Sequence* o, LV2_URID_Map* m);
+	DSPPortCommunicator(LV2_Atom_Sequence* i, LV2_Atom_Sequence* o,
+			LV2_URID_Map* m);
 	virtual ~DSPPortCommunicator();
 
 	void receiveEvents();
@@ -52,7 +55,7 @@ private:
 	LV2_Atom_Sequence* in;
 	LV2_Atom_Sequence* out;
 	LV2_Atom_Forge forge;
-
+	
 };
 
 } /* namespace cr42y */

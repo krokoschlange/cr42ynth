@@ -27,7 +27,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 #ifndef OPENAV_AVTK_DIALOG_HXX
 #define OPENAV_AVTK_DIALOG_HXX
@@ -42,19 +42,22 @@ class Button;
 class Dialog : public Group
 {
 public:
-	Dialog( Avtk::UI* ui, int x, int y, int w, int h, std::string label);
-	virtual ~Dialog() {}
-
-	enum BUTTONS {
-		OK = 0,
-		OK_CANCEL,
+	Dialog(Avtk::UI* ui, int x, int y, int w, int h, std::string label);
+	virtual ~Dialog()
+	{
+	}
+	
+	enum BUTTONS
+	{
+		OK = 0, OK_CANCEL,
 	};
 
 	/// Optionally pass in X,Y co-ords of the mouse, and the OK/YES button will
 	/// be positioned under the mouse cursor.
-	void run( const char* header, const char* content, BUTTONS b = OK, int x = -1, int y = -1 );
+	void run(const char* header, const char* content, BUTTONS b = OK,
+			int x = -1, int y = -1);
 
-	virtual void draw( cairo_t* cr );
+	virtual void draw(cairo_t* cr);
 
 private:
 	BUTTONS buttons_;
@@ -66,9 +69,10 @@ private:
 	Avtk::Button* cancel;
 
 	// internally highjack the OK / Cancel buttons events
-	virtual void valueCB( Avtk::Widget* widget);
+	virtual void valueCB(Avtk::Widget* widget);
 };
 
-};
+}
+;
 
 #endif // OPENAV_AVTK_DIALOG_HXX

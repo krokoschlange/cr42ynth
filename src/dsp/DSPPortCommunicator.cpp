@@ -42,7 +42,9 @@ namespace cr42y
 
 DSPPortCommunicator::DSPPortCommunicator(LV2_Atom_Sequence* i,
 		LV2_Atom_Sequence* o, LV2_URID_Map* m) :
-		PortCommunicator(m), in(i), out(o)
+				PortCommunicator(m),
+				in(i),
+				out(o)
 {
 	lv2_atom_forge_init(&forge, map);
 }
@@ -91,21 +93,21 @@ void DSPPortCommunicator::sendEvent(int msgType, LV2_Atom* data)
 	lv2_atom_forge_set_buffer(&forge, (uint8_t*) out, capacity);
 	lv2_atom_forge_sequence_head(&forge, frame, 0);
 	lv2_atom_forge_frame_time(&forge, 0);
-
+	
 	//Atom
 	LV2_Atom_Forge_Frame* objectFrame;
 	LV2_Atom* object = (LV2_Atom*) lv2_atom_forge_object(&forge, objectFrame, 0,
 			DefinitionHandler::getInstance()->msg_object_type);
-
+	
 	//msgType
 	lv2_atom_forge_key(&forge, DefinitionHandler::getInstance()->msg_type);
 	lv2_atom_forge_int(&forge, msgType);
-
+	
 	//Atom Object
 	lv2_atom_forge_key(&forge, DefinitionHandler::getInstance()->msg_object);
 	lv2_atom_forge_primitive(&forge, data);
 	lv2_atom_forge_pop(&forge, objectFrame);
-
+	
 	lv2_atom_forge_pop(&forge, frame);
 }
 

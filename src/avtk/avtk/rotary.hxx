@@ -27,7 +27,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 #ifndef OPENAV_AVTK_ROTARY_HXX
 #define OPENAV_AVTK_ROTARY_HXX
@@ -40,12 +40,15 @@ namespace Avtk
 class Rotary : public Widget
 {
 public:
-	Rotary( Avtk::UI* ui, int x, int y, int w, int h, std::string label);
-	virtual ~Rotary() {}
-
-	virtual void draw( cairo_t* cr );
+	Rotary(Avtk::UI* ui, int x, int y, int w, int h, std::string label);
+	virtual ~Rotary()
+	{
+	}
+	
+	virtual void draw(cairo_t* cr);
 };
 
-};
+}
+;
 
 #endif // OPENAV_AVTK_ROTARY_HXX

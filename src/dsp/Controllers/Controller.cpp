@@ -37,9 +37,9 @@ namespace cr42y
 {
 
 Controller::Controller() :
-		value(0)
+				value(0)
 {
-
+	
 }
 
 Controller::~Controller()

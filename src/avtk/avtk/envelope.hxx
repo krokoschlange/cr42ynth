@@ -27,7 +27,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 #ifndef OPENAV_AVTK_ENVELOPE_HXX
 #define OPENAV_AVTK_ENVELOPE_HXX
@@ -40,28 +40,30 @@ namespace Avtk
 class Envelope : public Widget
 {
 public:
-	Envelope( Avtk::UI* ui, int x, int y, int w, int h, std::string label);
-	virtual ~Envelope() {}
+	Envelope(Avtk::UI* ui, int x, int y, int w, int h, std::string label);
+	virtual ~Envelope()
+	{
+	}
+	
+	virtual void draw(cairo_t* cr);
 
-	virtual void draw( cairo_t* cr );
-
-	void attack (float v)
+	void attack(float v)
 	{
 		a = v;
 	}
-	void decay  (float v)
+	void decay(float v)
 	{
 		d = v;
 	}
 	void sustain(float v)
 	{
-		s=1-v;
+		s = 1 - v;
 	}
 	void release(float v)
 	{
 		r = v;
 	}
-
+	
 private:
 	float a;
 	float d;
@@ -69,6 +71,7 @@ private:
 	float r;
 };
 
-};
+}
+;
 
 #endif // OPENAV_AVTK_ENVELOPE_HXX

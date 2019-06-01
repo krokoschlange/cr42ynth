@@ -31,44 +31,27 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#include <lv2/atom/util.h>
+#ifndef SRC_DSP_MODULATABLEINTCONTROL_H_
+#define SRC_DSP_MODULATABLEINTCONTROL_H_
 
-#include "BoolControl.h"
+#include "../common/IntControl.h"
+#include "ModulatableControl.h"
 
 namespace cr42y
 {
 
-BoolControl::BoolControl(int msgType, PortCommunicator* comm, bool val,
-		LV2_URID dKey) :
-				MessageReceiver(msgType, comm),
-				dataKey(dKey),
-				value(val)
+class ModulatableIntControl : public IntControl, public ModulatableControl
 {
-}
+public:
+	ModulatableIntControl(int msgType, PortCommunicator* comm = nullptr,
+			int val = 0, int mi = 0, int ma = 1, Controller* con =
+					nullptr,
+			LV2_URID dKey = DefinitionHandler::getInstance()->msg_key);
+	virtual ~ModulatableIntControl();
 
-BoolControl::~BoolControl()
-{
-}
-
-void BoolControl::receive(LV2_Atom_Object* data)
-{
-	LV2_Atom_Bool* val;
-	lv2_atom_object_get_typed(data, dataKey, &val,
-			DefinitionHandler::getInstance()->atom_bool);
-	if (val)
-	{
-		setValue(val->body);
-	}
-}
-
-void BoolControl::setValue(bool val)
-{
-	value = val;
-}
-
-bool BoolControl::getValue()
-{
-	return value;
-}
+	void modulateValue(double modval);
+};
 
 } /* namespace cr42y */
+
+#endif /* SRC_DSP_MODULATABLEINTCONTROL_H_ */

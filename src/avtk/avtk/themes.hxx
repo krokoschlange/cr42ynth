@@ -86,5 +86,4 @@
 "\"highlight\": [ {\"c\":255}, {\"c\":255}, {\"c\":255} ]  "\
 "}"
 
-
 #endif // OPENAV_AVTK_THEMES_HXX

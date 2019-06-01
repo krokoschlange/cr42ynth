@@ -30,45 +30,78 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
-
 #include <lv2/atom/util.h>
 
-#include "BoolControl.h"
+#include "IntControl.h"
 
 namespace cr42y
 {
 
-BoolControl::BoolControl(int msgType, PortCommunicator* comm, bool val,
-		LV2_URID dKey) :
+IntControl::IntControl(int msgType, PortCommunicator* comm, int val, int mi,
+		int ma, LV2_URID dKey) :
 				MessageReceiver(msgType, comm),
-				dataKey(dKey),
-				value(val)
+				value(val),
+				min(mi),
+				max(ma),
+				dataKey(dKey)
+{
+	
+}
+
+IntControl::~IntControl()
 {
 }
 
-BoolControl::~BoolControl()
+void IntControl::receive(LV2_Atom_Object* data)
 {
-}
-
-void BoolControl::receive(LV2_Atom_Object* data)
-{
-	LV2_Atom_Bool* val;
+	LV2_Atom_Double* val;
 	lv2_atom_object_get_typed(data, dataKey, &val,
-			DefinitionHandler::getInstance()->atom_bool);
+			DefinitionHandler::getInstance()->atom_int);
 	if (val)
 	{
 		setValue(val->body);
 	}
 }
 
-void BoolControl::setValue(bool val)
+int IntControl::getValue()
 {
+	return value;
+}
+
+int IntControl::getMin()
+{
+	return min;
+}
+
+int IntControl::getMax()
+{
+	return max;
+}
+
+void IntControl::setValue(int val)
+{
+	if (!(min == 0 && max == 0))
+	{
+		if (val < min)
+		{
+			val = min;
+		}
+		else if (val > max)
+		{
+			val = max;
+		}
+	}
 	value = val;
 }
 
-bool BoolControl::getValue()
+void IntControl::setMin(int m)
 {
-	return value;
+	min = m;
+}
+
+void IntControl::setMax(int m)
+{
+	min = m;
 }
 
 } /* namespace cr42y */

@@ -48,7 +48,8 @@ public:
 	WTOscillator(float rate, PortCommunicator* comm);
 	virtual ~WTOscillator();
 
-	float getSample(float* wavePos, float WTPos, float note, float deltaFreq, float FM);
+	float getSample(float* wavePos, float WTPos, float note, float deltaFreq,
+			float FM);
 
 	void setWavetable(std::vector<std::vector<float>>* wt);
 	void setSmooth(bool s);
@@ -64,11 +65,11 @@ public:
 
 private:
 	float samplerate;
-	DoubleControl* detune;
+	DoubleControl detune;
 	std::vector<std::vector<float>>* wavetable;
 
-	BoolControl* enabled;
-	BoolControl* smooth;
+	BoolControl enabled;
+	BoolControl smooth;
 };
 
 } /* namespace cr42y */

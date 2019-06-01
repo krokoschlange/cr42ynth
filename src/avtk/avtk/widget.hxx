@@ -42,7 +42,6 @@
 #include "helpers.hxx"
 #include "pugl/pugl.h"
 
-
 namespace Avtk
 {
 
@@ -53,7 +52,7 @@ class Group;
 class Widget
 {
 public:
-	Widget( Avtk::UI* ui_, int x_, int y_, int w_, int h_, std::string label_);
+	Widget(Avtk::UI* ui_, int x_, int y_, int w_, int h_, std::string label_);
 	virtual ~Widget();
 
 	/// returns the name of the Widget
@@ -61,54 +60,53 @@ public:
 	{
 		return label_.c_str();
 	}
-	void label( const char* l )
+	void label(const char* l)
 	{
 		label_ = l;
 	}
-
+	
 	/// returns the widgets parent
 	Group* parent()
 	{
 		return parent_;
 	}
-
+	
 	/// sets the visibility: virtual so group can override to also mark children
-	virtual void visible( bool visibile );
+	virtual void visible(bool visibile);
 	virtual bool visible()
 	{
 		return visible_;
 	}
-
+	
 	/// get the current value
 	float value();
 	/// set a new value and redraws widget
-	void value( float v );
+	void value(float v);
 
 	/// sets a default value: right clicking will return the dial to this value
 	// TODO
 	/// unless the right-click mode is changed
-	void defaultValue( float dv );
+	void defaultValue(float dv);
 
 	/// can be used to change the way the widget behaves for its value().
 	/// - FLOAT_0_1, value returns float value 0-1 (default)
 	/// - VALUE_INT returns *any* integer value. example: Number, Number::setRange()
 	/// parameters set the range of the widget
-	enum ValueMode {
-		VALUE_FLOAT_0_1 = 0,
-		VALUE_INT,
+	enum ValueMode
+	{
+		VALUE_FLOAT_0_1 = 0, VALUE_INT,
 	};
-	void valueMode( ValueMode v, int base, int range );
+	void valueMode(ValueMode v, int base, int range);
 
+	virtual void draw(cairo_t* cr) = 0;
 
-	virtual void draw( cairo_t* cr ) = 0;
-
-	bool touches( int inx, int iny );
+	bool touches(int inx, int iny);
 
 	/// called by the UI class on any event that occurs
-	virtual int handle( const PuglEvent* event );
+	virtual int handle(const PuglEvent* event);
 
 	/// called by the UI class when this widget has a mouse pressed
-	void motion( int x, int y );
+	void motion(int x, int y);
 
 	/// position of widget functions, and virtual set methods
 	virtual int x()
@@ -127,7 +125,7 @@ public:
 	{
 		return h_;
 	}
-
+	
 	virtual void x(int x__)
 	{
 		x_ = x__;
@@ -144,26 +142,28 @@ public:
 	{
 		h_ = h__;
 	}
-
+	
 	std::string label_;     /// widget name - sometimes shown in UI
-	bool  label_visible;    /// When true, label gets drawn
-	bool  visible_;         /// widget visibility
-
-	enum ClickMode {
+	bool label_visible;    /// When true, label gets drawn
+	bool visible_;         /// widget visibility
+	
+	enum ClickMode
+	{
 		CLICK_NONE,           /// click has no effect
 		CLICK_MOMENTARY,      /// click highlights button while mouse-down
 		CLICK_TOGGLE,         /// click toggles value between zero and one
-		CLICK_VALUE_FROM_Y,   /// click sets value to mouse Y position / widget Y
+		CLICK_VALUE_FROM_Y, /// click sets value to mouse Y position / widget Y
 	};
 
-	enum RClickMode {
+	enum RClickMode
+	{
 		RCLICK_NONE,          /// Click has no effect
 		RCLICK_VALUE_DEFAULT, /// Resets the value() to the widgets default
 	};
 
 	/// sets the click mode
-	void clickMode ( ClickMode  cm  );
-	void rClickMode( RClickMode rcm );
+	void clickMode(ClickMode cm);
+	void rClickMode(RClickMode rcm);
 
 	/// 0 when no mouse button is down, otherwise the mouse button pressed
 	int mouseButton()
@@ -178,27 +178,27 @@ public:
 	{
 		return mousePressY;
 	}
-
+	
 	/// the Avtk::UI pointer, used to redraw the view etc
 	Avtk::UI* ui;
 
 	/// sets a theme for a Widget
-	void theme( Theme* t );
+	void theme(Theme* t);
 
-	void addToGroup( Group* parent, int itemNumber );
+	void addToGroup(Group* parent, int itemNumber);
 	int groupItemNumber()
 	{
 		return groupItemNumber_;
 	}
-
+	
 	/// the callback and its userdata pointer. the user-data pointer is set to
 	/// the Avtk::UI* that is passed into the contstructor. The callback
-	void (*callback)(Widget* , void*);
+	void (*callback)(Widget*, void*);
 	void* callbackUD;
 
 protected:
 	/// constructor for top level windows
-	Widget( Avtk::UI* ui, int w, int h );
+	Widget(Avtk::UI* ui, int w, int h);
 
 	Avtk::Group* parent_;
 
@@ -221,13 +221,14 @@ protected:
 	int groupItemNumber_;
 
 	/// enum defines the way in which mouse click / drag works
-	enum DragMode {
+	enum DragMode
+	{
 		DM_NONE,              /// drag has no effect
 		DM_DRAG_VERTICAL,     /// vertical mouse drag will change value()
 		DM_DRAG_HORIZONTAL,   /// horizontal mouse drag changes value()
 	};
 
-	void dragMode( DragMode cdm );
+	void dragMode(DragMode cdm);
 	DragMode dragMode()
 	{
 		return dm;
@@ -240,7 +241,7 @@ protected:
 	{
 		return rcm;
 	}
-
+	
 	/// used for mouse-drag
 	int mX, mY;
 
@@ -256,13 +257,12 @@ protected:
 
 	/// sets the scroll-delta amount: that is the size of the change that occurs
 	/// to value() in the widget. PX moved / <value> == step
-	void setScrollDeltaAmount( float sda );
-
+	void setScrollDeltaAmount(float sda);
 
 private:
 	ClickMode cm;
 	RClickMode rcm;
-	DragMode  dm;
+	DragMode dm;
 	ValueMode vm;
 
 	int valueIntBase;
@@ -274,7 +274,7 @@ private:
 	float auditionValue_;
 
 	float scrollDeltaAmount;
-
+	
 #ifdef AVTK_DEBUG
 public:
 	// public so main() can print out how many widgets have not been cleaned up
@@ -283,6 +283,7 @@ public:
 #endif
 };
 
-};
+}
+;
 
 #endif // OPENAV_AVTK_WIDGET_HXX

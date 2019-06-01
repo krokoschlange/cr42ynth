@@ -61,30 +61,30 @@ class Slider;
 class Scroll : public Group
 {
 public:
-	Scroll( Avtk::UI* ui, int x, int y, int w, int h, std::string label);
+	Scroll(Avtk::UI* ui, int x, int y, int w, int h, std::string label);
 	virtual ~Scroll();
 
-	virtual void draw( cairo_t* cr );
+	virtual void draw(cairo_t* cr);
 
 	/// sets widget to be the child of this scroll. Only one widget can be inside
 	/// a scroll at a time: add a group if multiple child-widgets need to scroll
-	void set( Widget* child );
+	void set(Widget* child);
 
 	/// sets the  and horizontal scroll position;
 	/// - vertical  : 0 is top,  1 is bottom
 	/// - horizontal: 0 is left, 1 is right
-	void vertical  ( float v );
-	void horizontal( float v );
+	void vertical(float v);
+	void horizontal(float v);
 
 	/// choose scroll action: pass Ctrl + Scroll wheel on to child, or zoom widget
-	void setCtrlZoom( bool zoom );
+	void setCtrlZoom(bool zoom);
 
 	/// called by child widgets when thier size changes
-	virtual void childResize( Widget* w );
+	virtual void childResize(Widget* w);
 
 	/// handles an event, propagating it to the integrated scroll bars: and if
 	/// not handled, pass on to the child widget
-	virtual int handle( const PuglEvent* event );
+	virtual int handle(const PuglEvent* event);
 
 protected:
 	/// when true, child widget is bigger than Scroll, so there is a possibility
@@ -106,23 +106,24 @@ protected:
 
 	bool setCtrlZoom_;
 
-	void redrawChild( cairo_t* cr );
+	void redrawChild(cairo_t* cr);
 
 	Avtk::Slider* vSlider;
 	Avtk::Slider* hSlider;
 
 	// sliderCB functions
-	void sliderCB( Avtk::Widget* w );
-	static void staticSliderCB( Avtk::Widget* w, void* ud )
+	void sliderCB(Avtk::Widget* w);
+	static void staticSliderCB(Avtk::Widget* w, void* ud)
 	{
-		((Scroll*)ud)->sliderCB( w );
+		((Scroll*) ud)->sliderCB(w);
 	}
-
+	
 	// convienience function to handle offset from scroll widget position, to
 	// the child widgets co-ordinates on the child-cairo canvas
-	void offsetEvent( const PuglEvent* inEvent, PuglEvent* outEvent );
+	void offsetEvent(const PuglEvent* inEvent, PuglEvent* outEvent);
 };
 
-};
+}
+;
 
 #endif // OPENAV_AVTK_SCROLL_HXX

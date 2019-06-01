@@ -31,44 +31,29 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#include <lv2/atom/util.h>
-
-#include "BoolControl.h"
+#include "ModulatableControl.h"
 
 namespace cr42y
 {
 
-BoolControl::BoolControl(int msgType, PortCommunicator* comm, bool val,
-		LV2_URID dKey) :
-				MessageReceiver(msgType, comm),
-				dataKey(dKey),
-				value(val)
+ModulatableControl::ModulatableControl(Controller* con) :
+				controller(con)
 {
 }
 
-BoolControl::~BoolControl()
+ModulatableControl::~ModulatableControl()
 {
 }
 
-void BoolControl::receive(LV2_Atom_Object* data)
+void ModulatableControl::setController(Controller* con)
 {
-	LV2_Atom_Bool* val;
-	lv2_atom_object_get_typed(data, dataKey, &val,
-			DefinitionHandler::getInstance()->atom_bool);
-	if (val)
-	{
-		setValue(val->body);
-	}
+	controller = con;
 }
 
-void BoolControl::setValue(bool val)
+Controller* ModulatableControl::getController()
 {
-	value = val;
-}
-
-bool BoolControl::getValue()
-{
-	return value;
+	return controller;
 }
 
 } /* namespace cr42y */
+

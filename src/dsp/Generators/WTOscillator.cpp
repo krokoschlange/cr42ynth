@@ -39,11 +39,11 @@ namespace cr42y
 {
 
 WTOscillator::WTOscillator(float rate, PortCommunicator* comm) :
-		samplerate(rate),
-		wavetable(nullptr),
-		detune(0, comm), //TODO: set constructor values
-		smooth(1, comm),
-		enabled(1, comm)
+				samplerate(rate),
+				wavetable(nullptr),
+				detune(0, comm), //TODO: set constructor values
+				smooth(1, comm),
+				enabled(1, comm)
 {
 }
 
@@ -52,46 +52,47 @@ WTOscillator::~WTOscillator()
 	delete wavetable;
 }
 
-float WTOscillator::getSample(float* wavePos, float WTPos, float note, float deltaFreq, float FM)
+float WTOscillator::getSample(float* wavePos, float WTPos, float note,
+		float deltaFreq, float FM)
 {
-	if (enabled->getValue() || !wavetable)
-	{
-		float frequency = pow(2, (note + detune->getValue() - 69) / 12) * 440 * deltaFreq * FM;
-		return 0;
-	}
-	float out;
+	float frequency = pow(2, (note + getDetune() - 69) / 12) * 440 * deltaFreq
+			* FM;
+	float deltaPos = frequency / samplerate;
 
-	int wtSample = WTPos * wavetable->size();
-	if (wtSample >= wavetable->size())
+	float out = 0;
+	if (getEnabled() && wavetable)
 	{
-		wtSample = wavetable->size() - 1;
-	}
-
-	float waveSample = *wavePos * (*wavetable)[0].size();
-	if (waveSample >= (*wavetable)[0].size())
-	{
-		waveSample -= (*wavetable)[0].size();
-	}
-	if (smooth->getValue())
-	{
-		float smpl1 = (*wavetable)[wtSample][(int) waveSample];
-
-		float waveSample2 = waveSample + 1;
-		if (waveSample2 > (*wavetable)[0].size())
+		int wtSample = (int) (WTPos * wavetable->size());
+		if (wtSample >= wavetable->size())
 		{
-			waveSample2 -= (*wavetable)[0].size();
+			wtSample = wavetable->size() - 1;
 		}
-		float smpl2 = (*wavetable)[wtSample][(int) waveSample2];
+		
+		float waveSample = *wavePos * (*wavetable)[0].size();
+		if (waveSample >= (*wavetable)[0].size())
+		{
+			waveSample -= (*wavetable)[0].size();
+		}
+		if (getSmooth())
+		{
+			float smpl1 = (*wavetable)[wtSample][(int) waveSample];
 
-		out = smpl1 + (waveSample - (int) waveSample) * (smpl2 - smpl1);
-	}
-	else
-	{
-		out = (*wavetable)[wtSample][(int) waveSample];
-	}
+			float waveSample2 = waveSample + 1;
+			if (waveSample2 > (*wavetable)[0].size())
+			{
+				waveSample2 -= (*wavetable)[0].size();
+			}
+			float smpl2 = (*wavetable)[wtSample][(int) waveSample2];
 
-	float frequency = pow(2, (note + detune->getValue() - 69) / 12) * 440 * deltaFreq * FM;
-	*wavePos += frequency / samplerate;
+			out = smpl1 + (waveSample - (int) waveSample) * (smpl2 - smpl1);
+		}
+		else
+		{
+			out = (*wavetable)[wtSample][(int) waveSample];
+		}
+	}
+	
+	*wavePos += deltaPos;
 	return out;
 }
 
@@ -103,36 +104,36 @@ void WTOscillator::setWavetable(std::vector<std::vector<float>>* wt)
 
 void WTOscillator::setSmooth(bool s)
 {
-	smooth->setValue(s);
+	smooth.setValue(s);
 }
 
 void WTOscillator::setDetune(float notes)
 {
-	detune->setValue(notes);
+	detune.setValue(notes);
 }
 
 void WTOscillator::setDetune(int semi, int cents)
 {
-	detune->setValue(semi + cents / 100);
+	detune.setValue(semi + cents / 100);
 }
 
 void WTOscillator::setEnabled(bool state)
 {
-	enabled->setValue(state);
+	enabled.setValue(state);
 }
 
 bool WTOscillator::getSmooth()
 {
-	return smooth->getValue();
+	return smooth.getValue();
 }
 
 float WTOscillator::getDetune()
 {
-	return detune->getValue();
+	return detune.getValue();
 }
 
 bool WTOscillator::getEnabled()
 {
-	return enabled->getValue();
+	return enabled.getValue();
 }
 } /* namespace cr42y */

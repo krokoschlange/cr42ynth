@@ -61,7 +61,7 @@ protected:
 	std::vector<MessageReceiver*> receivers;
 
 	LV2_URID_Map* map;
-
+	
 };
 
 } /* namespace cr42y */

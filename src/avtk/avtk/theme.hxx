@@ -43,23 +43,21 @@ namespace Avtk
 class UI;
 
 /// each color gets a use-case. To draw using said color
-enum USE_CASE {
-	BG = 0,
-	BG_DARK,
-	FG,
-	FG_DARK,
+enum USE_CASE
+{
+	BG = 0, BG_DARK, FG, FG_DARK,
 
 	HIGHLIGHT,
 
-	LINE_WIDTH_THIN,
-	LINE_WIDTH_WIDE,
+	LINE_WIDTH_THIN, LINE_WIDTH_WIDE,
 
 	CORNER_RADIUS,
 
 	USE_CASE_COUNT,
 };
 
-struct Color {
+struct Color
+{
 	/// r, g, b
 	float c[3];
 };
@@ -68,9 +66,11 @@ struct Color {
 class Theme
 {
 public:
-	Theme( Avtk::UI* ui_, std::string path );
-	virtual ~Theme() {}
-
+	Theme(Avtk::UI* ui_, std::string path);
+	virtual ~Theme()
+	{
+	}
+	
 	float lineWidthThin()
 	{
 		return lineWidthThin_;
@@ -83,10 +83,10 @@ public:
 	{
 		return lineWidthWide_;
 	}
+	
+	float color(cairo_t* cr, USE_CASE uc, float alpha = 1.0);
 
-	float color( cairo_t* cr, USE_CASE uc, float alpha = 1.0 );
-
-	void cornerRadius( int c );
+	void cornerRadius(int c);
 
 	int cornerRadius_;
 	float lineWidthThin_;
@@ -101,9 +101,10 @@ private:
 
 	Color colors[USE_CASE_COUNT];
 
-	int load( std::string jsonTheme );
+	int load(std::string jsonTheme);
 };
 
-};
+}
+;
 
 #endif // OPENAV_AVTK_THEME_HXX

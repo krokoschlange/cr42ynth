@@ -29,7 +29,7 @@
  * The following python one-liner can be used to plot the graph:
  * python -c import pylab ; pylab.plot( open("plot.dat").readlines()[:-1] ) ; pylab.show()
  *
-**/
+ **/
 
 #ifndef OPENAV_UTIL_PLOTTER_H
 #define OPENAV_UTIL_PLOTTER_H
@@ -39,40 +39,40 @@
 #include <iostream>
 #include <stdlib.h>
 
-
 class Plotter
 {
 public:
 	Plotter() :
-		plotNum( 0 )
+					plotNum(0)
 	{
 	}
-
-	static void plot( std::string name, long samples, const float* data )
+	
+	static void plot(std::string name, long samples, const float* data)
 	{
-		printf("Plotter::plot() writing %s to %s\n", name.c_str(), getenv("PWD") );
-
+		printf("Plotter::plot() writing %s to %s\n", name.c_str(),
+				getenv("PWD"));
+		
 		std::stringstream s;
 		s << name << ".dat";
-
+		
 		std::ofstream outFile;
-		outFile.open ( s.str().c_str() );
-
-		for(long i = 0; i < samples; i++ )
+		outFile.open(s.str().c_str());
+		
+		for (long i = 0; i < samples; i++)
 			outFile << data[i] << "\n";
-
+		
 		outFile.close();
 	}
-
+	
 	void showLast()
 	{
 		const char* pycommand = "";
-		system( pycommand );
+		system(pycommand);
 	}
-
+	
 private:
 	int plotNum;
-
+	
 };
 
 #endif // OPENAV_UTIL_PLOTTER_H

@@ -30,45 +30,26 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
-
-#include <lv2/atom/util.h>
-
-#include "BoolControl.h"
+#include "ModulatableIntControl.h"
 
 namespace cr42y
 {
 
-BoolControl::BoolControl(int msgType, PortCommunicator* comm, bool val,
-		LV2_URID dKey) :
-				MessageReceiver(msgType, comm),
-				dataKey(dKey),
-				value(val)
+ModulatableIntControl::ModulatableIntControl(int msgType,
+		PortCommunicator* comm, int val, int mi, int ma,
+		Controller* con, LV2_URID dKey) :
+				IntControl(msgType, comm, val, mi, ma, dKey),
+				ModulatableControl(con)
 {
 }
 
-BoolControl::~BoolControl()
+ModulatableIntControl::~ModulatableIntControl()
 {
 }
 
-void BoolControl::receive(LV2_Atom_Object* data)
+void ModulatableIntControl::modulateValue(double modval)
 {
-	LV2_Atom_Bool* val;
-	lv2_atom_object_get_typed(data, dataKey, &val,
-			DefinitionHandler::getInstance()->atom_bool);
-	if (val)
-	{
-		setValue(val->body);
-	}
-}
-
-void BoolControl::setValue(bool val)
-{
-	value = val;
-}
-
-bool BoolControl::getValue()
-{
-	return value;
+	setValue((int) (getMin() + (getMax() - (float) getMin()) * modval));
 }
 
 } /* namespace cr42y */
