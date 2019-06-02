@@ -38,7 +38,7 @@
 using namespace Avtk;
 
 Dial::Dial(Avtk::UI* ui, int x_, int y_, int w_, int h_, std::string l) :
-				Widget(ui, x_, y_, w_, h_, l)
+		Widget(ui, x_, y_, w_, h_, l)
 {
 	dragMode(DM_DRAG_VERTICAL);
 	scrollDisable = false;

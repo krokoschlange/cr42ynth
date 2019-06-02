@@ -37,18 +37,19 @@ namespace cr42y
 {
 
 Controller::Controller() :
-				value(0)
+		value(new double(0))
 {
 	
 }
 
 Controller::~Controller()
 {
+	delete value;
 }
 
 double Controller::getValue()
 {
-	return value;
+	return *value;
 }
 
 } /* namespace cr42y */

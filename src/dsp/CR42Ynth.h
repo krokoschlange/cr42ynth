@@ -1,7 +1,12 @@
 #ifndef SRC_DSP_CR42YNTH_H_
 #define SRC_DSP_CR42YNTH_H_
 
+#include <vector>
+
 #include "DSPPortCommunicator.h"
+#include "Generators/WTOscillator.h"
+#include "Generators/LFO.h"
+#include "Generators/Envelope.h"
 
 namespace cr42y
 {
@@ -14,6 +19,10 @@ public:
 
 	float getBPM();
 
+	WTOscillator** getOscillators();
+	LFO** getLFOs();
+	Envelope** getEnvelopes();
+
 private:
 	CR42Ynth();
 	static CR42Ynth* instance;
@@ -22,6 +31,10 @@ private:
 
 	DSPPortCommunicator* control;
 	DSPPortCommunicator* external;
+
+	WTOscillator** oscillators;
+	std::vector<LFO*> lfos;
+	std::vector<Envelope*> envelopes;
 };
 
 } /* namespace cr42y */

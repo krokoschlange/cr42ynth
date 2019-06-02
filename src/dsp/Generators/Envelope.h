@@ -48,7 +48,7 @@ public:
 	Envelope(float rate, PortCommunicator* comm);
 	virtual ~Envelope();
 
-	float getSample(float* pos);
+	float getSample(float* pos, bool sustain);
 
 	void setEnvelope(std::vector<float>* env, float len);
 	void setLength(float len);

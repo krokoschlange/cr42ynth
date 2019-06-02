@@ -5,7 +5,7 @@ namespace cr42y
 
 CR42Ynth* CR42Ynth::instance;
 CR42Ynth::CR42Ynth() :
-				bpm(140)
+		bpm(140)
 {
 }
 

@@ -36,9 +36,9 @@
 using namespace Avtk;
 
 Image::Image(Avtk::UI* ui, int x_, int y_, int w_, int h_, std::string label_) :
-				Widget(ui, x_, y_, w_, h_, label_),
-				imgSurf(0),
-				cairoImgData(0)
+		Widget(ui, x_, y_, w_, h_, label_),
+		imgSurf(0),
+		cairoImgData(0)
 {
 	stride = cairo_format_stride_for_width(CAIRO_FORMAT_ARGB32, w_);
 	cairoImgData = malloc(stride * h_);

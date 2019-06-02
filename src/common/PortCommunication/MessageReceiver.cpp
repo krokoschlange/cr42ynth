@@ -36,9 +36,10 @@
 namespace cr42y
 {
 
-MessageReceiver::MessageReceiver(int msgType, PortCommunicator* comm) :
-				messageType(msgType),
-				communicator(comm)
+MessageReceiver::MessageReceiver(int msgType, PortCommunicator* comm, std::function<bool(LV2_Atom_Object*)>* checkerFunc) :
+		messageType(msgType),
+		communicator(comm),
+		checkerFunction(checkerFunc)
 {
 	if (communicator)
 	{
@@ -49,6 +50,7 @@ MessageReceiver::MessageReceiver(int msgType, PortCommunicator* comm) :
 MessageReceiver::~MessageReceiver()
 {
 	disconnect();
+	delete checkerFunction;
 }
 
 int MessageReceiver::getMessageType()
@@ -56,9 +58,23 @@ int MessageReceiver::getMessageType()
 	return messageType;
 }
 
+std::function<bool(LV2_Atom_Object*)>* MessageReceiver::getCheckerFunction()
+{
+	return checkerFunction;
+}
+
 void MessageReceiver::setMessageType(int msgType)
 {
 	messageType = msgType;
+}
+
+void MessageReceiver::setCheckerFunction(std::function<bool(LV2_Atom_Object*)>* checkerFunc)
+{
+	if (checkerFunction)
+	{
+		delete checkerFunction;
+	}
+	checkerFunction = checkerFunc;
 }
 
 void MessageReceiver::connect(PortCommunicator* comm)

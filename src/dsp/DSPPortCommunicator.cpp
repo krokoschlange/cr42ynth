@@ -42,9 +42,9 @@ namespace cr42y
 
 DSPPortCommunicator::DSPPortCommunicator(LV2_Atom_Sequence* i,
 		LV2_Atom_Sequence* o, LV2_URID_Map* m) :
-				PortCommunicator(m),
-				in(i),
-				out(o)
+		PortCommunicator(m),
+		in(i),
+		out(o)
 {
 	lv2_atom_forge_init(&forge, map);
 }
@@ -78,7 +78,17 @@ void DSPPortCommunicator::receiveEvents()
 							DefinitionHandler::getInstance()->atom_obj);
 					if (data)
 					{
-						receivers[i]->receive(data);
+						if (receivers[i]->getCheckerFunction())
+						{
+							if (receivers[i]->getCheckerFunction()(data))
+							{
+								receivers[i]->receive(data);
+							}
+						}
+						else
+						{
+							receivers[i]->receive(data);
+						}
 					}
 				}
 			}

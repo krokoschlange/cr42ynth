@@ -169,12 +169,12 @@ typedef value::array array;
 typedef value::object object;
 
 inline value::value() :
-				type_(null_type)
+		type_(null_type)
 {
 }
 
 inline value::value(int type, bool) :
-				type_(type)
+		type_(type)
 {
 	switch (type)
 	{
@@ -194,7 +194,7 @@ inline value::value(int type, bool) :
 }
 
 inline value::value(bool b) :
-				type_(boolean_type)
+		type_(boolean_type)
 {
 	u_.boolean_ = b;
 }
@@ -207,7 +207,7 @@ inline value::value(int64_t i) : type_(int64_type)
 #endif
 
 inline value::value(double n) :
-				type_(number_type)
+		type_(number_type)
 {
 	if (
 #ifdef _MSC_VER
@@ -225,31 +225,31 @@ inline value::value(double n) :
 }
 
 inline value::value(const std::string& s) :
-				type_(string_type)
+		type_(string_type)
 {
 	u_.string_ = new std::string(s);
 }
 
 inline value::value(const array& a) :
-				type_(array_type)
+		type_(array_type)
 {
 	u_.array_ = new array(a);
 }
 
 inline value::value(const object& o) :
-				type_(object_type)
+		type_(object_type)
 {
 	u_.object_ = new object(o);
 }
 
 inline value::value(const char* s) :
-				type_(string_type)
+		type_(string_type)
 {
 	u_.string_ = new std::string(s);
 }
 
 inline value::value(const char* s, size_t len) :
-				type_(string_type)
+		type_(string_type)
 {
 	u_.string_ = new std::string(s, len);
 }
@@ -269,7 +269,7 @@ inline value::~value()
 }
 
 inline value::value(const value& x) :
-				type_(x.type_)
+		type_(x.type_)
 {
 	switch (type_)
 	{
@@ -617,11 +617,11 @@ protected:
 	int line_;
 public:
 	input(const Iter& first, const Iter& last) :
-					cur_(first),
-					end_(last),
-					last_ch_(-1),
-					ungot_(false),
-					line_(1)
+			cur_(first),
+			end_(last),
+			last_ch_(-1),
+			ungot_(false),
+			line_(1)
 	{
 	}
 	int getc()
@@ -1031,7 +1031,7 @@ protected:
 	value* out_;
 public:
 	default_parse_context(value* out) :
-					out_(out)
+			out_(out)
 	{
 	}
 	bool set_null()

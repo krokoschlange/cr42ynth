@@ -38,11 +38,28 @@ namespace cr42y
 
 ExternalPort::ExternalPort()
 {
-	
 }
 
 ExternalPort::~ExternalPort()
 {
+}
+
+void ExternalPort::setValue(double val)
+{
+	if (value)
+	{
+		*value = val;
+	}
+}
+
+void ExternalPort::setValueP(double* valP)
+{
+	value = valP;
+}
+
+double* ExternalPort::getValueP()
+{
+	return value;
 }
 
 } /* namespace cr42y */

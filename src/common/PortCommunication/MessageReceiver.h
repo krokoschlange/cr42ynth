@@ -34,6 +34,7 @@
 #ifndef SRC_COMMON_PORTCOMMUNICATION_MESSAGERECEIVER_H_
 #define SRC_COMMON_PORTCOMMUNICATION_MESSAGERECEIVER_H_
 
+#include <functional>
 #include <lv2/atom/atom.h>
 
 #include "PortCommunicator.h"
@@ -45,12 +46,15 @@ class PortCommunicator;
 class MessageReceiver
 {
 public:
-	MessageReceiver(int msgType, PortCommunicator* comm = nullptr);
+	MessageReceiver(int msgType, PortCommunicator* comm = nullptr,
+			std::function<bool(LV2_Atom_Object*)>* checkerFunc = nullptr);
 	virtual ~MessageReceiver();
 
 	int getMessageType();
+	std::function<bool(LV2_Atom_Object*)>* getCheckerFunction();
 
 	void setMessageType(int msgType);
+	void setCheckerFunction(std::function<bool(LV2_Atom_Object*)>* checkerFunc);
 
 	virtual void receive(LV2_Atom_Object* data) = 0;
 
@@ -60,6 +64,7 @@ public:
 private:
 	PortCommunicator* communicator;
 	int messageType;
+	std::function<bool(LV2_Atom_Object*)>* checkerFunction;
 };
 
 } /* namespace cr42y */

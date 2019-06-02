@@ -39,11 +39,11 @@ namespace cr42y
 
 IntControl::IntControl(int msgType, PortCommunicator* comm, int val, int mi,
 		int ma, LV2_URID dKey) :
-				MessageReceiver(msgType, comm),
-				value(val),
-				min(mi),
-				max(ma),
-				dataKey(dKey)
+		MessageReceiver(msgType, comm),
+		value(val),
+		min(mi),
+		max(ma),
+		dataKey(dKey)
 {
 	
 }

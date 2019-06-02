@@ -43,10 +43,11 @@ public:
 	Controller();
 	virtual ~Controller();
 
-	double getValue();
+	virtual void nextFrame() = 0;
+	virtual double getValue();
 
-private:
-	double value;
+protected:
+	double* value;
 };
 
 } /* namespace cr42y */

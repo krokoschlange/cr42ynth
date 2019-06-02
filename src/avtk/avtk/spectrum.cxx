@@ -40,12 +40,12 @@ using namespace Avtk;
 
 Spectrum::Spectrum(Avtk::UI* ui, int x_, int y_, int w_, int h_,
 		std::string label_) :
-				Widget(ui, x_, y_, w_, h_, label_),
-				waveformCr(0),
-				waveformSurf(0),
-				zoom_(1.0f),
-				zoomOffset_(0),
-				startPoint(0)
+		Widget(ui, x_, y_, w_, h_, label_),
+		waveformCr(0),
+		waveformSurf(0),
+		zoom_(1.0f),
+		zoomOffset_(0),
+		startPoint(0)
 {
 	waveformSurf = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, w_, h_);
 	waveformCr = cairo_create(waveformSurf);

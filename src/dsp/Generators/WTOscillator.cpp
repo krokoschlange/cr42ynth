@@ -39,11 +39,11 @@ namespace cr42y
 {
 
 WTOscillator::WTOscillator(float rate, PortCommunicator* comm) :
-				samplerate(rate),
-				wavetable(nullptr),
-				detune(0, comm), //TODO: set constructor values
-				smooth(1, comm),
-				enabled(1, comm)
+		samplerate(rate),
+		wavetable(nullptr),
+		detune(0, comm), //TODO: set constructor values
+		smooth(1, comm),
+		enabled(1, comm)
 {
 }
 
@@ -58,7 +58,7 @@ float WTOscillator::getSample(float* wavePos, float WTPos, float note,
 	float frequency = pow(2, (note + getDetune() - 69) / 12) * 440 * deltaFreq
 			* FM;
 	float deltaPos = frequency / samplerate;
-
+	
 	float out = 0;
 	if (getEnabled() && wavetable)
 	{
@@ -76,14 +76,14 @@ float WTOscillator::getSample(float* wavePos, float WTPos, float note,
 		if (getSmooth())
 		{
 			float smpl1 = (*wavetable)[wtSample][(int) waveSample];
-
+			
 			float waveSample2 = waveSample + 1;
 			if (waveSample2 > (*wavetable)[0].size())
 			{
 				waveSample2 -= (*wavetable)[0].size();
 			}
 			float smpl2 = (*wavetable)[wtSample][(int) waveSample2];
-
+			
 			out = smpl1 + (waveSample - (int) waveSample) * (smpl2 - smpl1);
 		}
 		else

@@ -34,14 +34,23 @@
 #ifndef SRC_DSP_CONTROLLERS_EXTERNALPORT_H_
 #define SRC_DSP_CONTROLLERS_EXTERNALPORT_H_
 
+#include "Controller.h"
+
 namespace cr42y
 {
 
-class ExternalPort
+class ExternalPort : public Controller
 {
 public:
 	ExternalPort();
 	virtual ~ExternalPort();
+
+	void setValue(double val);
+	void setValueP(double* valP);
+
+	double getValue();
+	double* getValueP();
+
 };
 
 } /* namespace cr42y */

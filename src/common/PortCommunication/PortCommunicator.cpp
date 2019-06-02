@@ -37,7 +37,7 @@ namespace cr42y
 {
 
 PortCommunicator::PortCommunicator(LV2_URID_Map* m) :
-				map(m)
+		map(m)
 {
 }
 

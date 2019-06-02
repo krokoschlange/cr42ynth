@@ -504,7 +504,7 @@ return event;
 void puglGrabFocus(PuglView* view)
 {
 XSetInputFocus(view->impl->display, view->impl->win, RevertToPointerRoot,
-		CurrentTime);
+CurrentTime);
 }
 
 PuglStatus puglProcessEvents(PuglView* view)

@@ -38,21 +38,21 @@ namespace Avtk
 {
 
 Group::Group(Avtk::UI* ui, int w, int h) :
-				Widget(ui, w, h),
-				groupMode(NONE),
-				valueMode_(VALUE_NORMAL),
-				resizeMode_(RESIZE_NONE),
-				spacing_(0)
+		Widget(ui, w, h),
+		groupMode(NONE),
+		valueMode_(VALUE_NORMAL),
+		resizeMode_(RESIZE_NONE),
+		spacing_(0)
 {
 	noHandle_ = true;
 }
 
 Group::Group(Avtk::UI* ui, int x, int y, int w, int h, std::string label) :
-				Widget(ui, x, y, w, h, label),
-				groupMode(NONE),
-				valueMode_(VALUE_NORMAL),
-				resizeMode_(RESIZE_NONE),
-				spacing_(1)
+		Widget(ui, x, y, w, h, label),
+		groupMode(NONE),
+		valueMode_(VALUE_NORMAL),
+		resizeMode_(RESIZE_NONE),
+		spacing_(1)
 {
 	noHandle_ = false;
 	ui->pushParent(this);
@@ -286,7 +286,7 @@ void Group::draw(cairo_t* cr)
 		
 		if (true)
 		{ // draws group boundary
-			//printf("drawing group\n");
+		  //printf("drawing group\n");
 			roundedBox(cr, x_, y_, w_, h_, theme_->cornerRadius_);
 			theme_->color(cr, FG);
 			cairo_set_line_width(cr, 0.9);

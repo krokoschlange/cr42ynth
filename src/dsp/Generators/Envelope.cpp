@@ -37,10 +37,10 @@ namespace cr42y
 {
 
 Envelope::Envelope(float rate, PortCommunicator* comm) :
-				samplerate(rate),
-				length(1, comm, 0, 0, 0),
-				smooth(1, comm),
-				sustainPoint(1, comm, 0, 0, 1) //TODO
+		samplerate(rate),
+		length(1, comm, 0, 0, 0),
+		smooth(1, comm),
+		sustainPoint(1, comm, 0, 0, 1) //TODO
 {
 	
 }
@@ -49,14 +49,20 @@ Envelope::~Envelope()
 {
 }
 
-float Envelope::getSample(float* pos)
+float Envelope::getSample(float* pos, bool sustain)
 {
 	float deltaPos = 1 / (length.getValue() * samplerate);
 	float out = 0;
-
+	
 	if (waveform && *pos < 1)
 	{
+		if (sustain && *pos > sustainPoint)
+		{
+			*pos = sustainPoint;
+		}
+
 		float waveSample = *pos * waveform->size();
+
 		if (getSmooth())
 		{
 			float smpl1 = (*waveform)[(int) waveSample];
@@ -69,7 +75,11 @@ float Envelope::getSample(float* pos)
 			{
 				smpl2 = 0;
 			}
-
+			if (sustain && sustainPoint * waveform->size() < waveSample + 1)
+			{
+				smpl2 = (*waveform)[(int) sustainPoint * waveform->size()];
+			}
+			
 			out = smpl1 + (waveSample - (int) waveSample) * (smpl2 - smpl1);
 		}
 		else
@@ -78,7 +88,10 @@ float Envelope::getSample(float* pos)
 		}
 	}
 	
-	*pos += deltaPos;
+	if (!sustain)
+	{
+		*pos += deltaPos;
+	}
 	return out;
 }
 

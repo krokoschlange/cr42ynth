@@ -38,17 +38,17 @@ namespace cr42y
 {
 
 LFO::LFO(float rate, PortCommunicator* comm) :
-				samplerate(rate),
-				waveform(nullptr), //TODO
-				smooth(2, comm),
-				global(2, comm),
-				sync(2, comm),
-				useFrequency(2, comm),
-				frequency(1, comm, 1, 0, 0),
-				pitchScale(2, comm),
-				beatNumerator(2, comm),
-				beatDenominator(2, comm),
-				globalPos(0)
+		samplerate(rate),
+		waveform(nullptr), //TODO
+		smooth(2, comm),
+		global(2, comm),
+		sync(2, comm),
+		useFrequency(2, comm),
+		frequency(1, comm, 1, 0, 0),
+		pitchScale(2, comm),
+		beatNumerator(2, comm),
+		beatDenominator(2, comm),
+		globalPos(0)
 {
 }
 

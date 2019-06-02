@@ -45,13 +45,13 @@ SeqEventBase::SeqEventBase(float t, float dur)
 }
 
 MidiEvent::MidiEvent() :
-				SeqEventBase(-1, 0)
+		SeqEventBase(-1, 0)
 {
 	memset(data, 0, sizeof(unsigned char) * 3);
 }
 
 MidiEvent::MidiEvent(float time, float duration, unsigned char* srcData) :
-				SeqEventBase(time, duration)
+		SeqEventBase(time, duration)
 {
 	if (srcData)
 		setData(srcData);
@@ -68,12 +68,12 @@ void MidiEvent::setData(unsigned char* d)
 #define DEFAULT_NUM_EVENTS 1024
 
 SeqEventList::SeqEventList(int s) :
-				ID(privateID++),
-				scene(s),
-				loopLengthBeats(8),
-				eventCount(0),
-				eventIndex(0),
-				eventCapacity( DEFAULT_NUM_EVENTS)
+		ID(privateID++),
+		scene(s),
+		loopLengthBeats(8),
+		eventCount(0),
+		eventIndex(0),
+		eventCapacity( DEFAULT_NUM_EVENTS)
 {
 	events.reserve(DEFAULT_NUM_EVENTS);
 }

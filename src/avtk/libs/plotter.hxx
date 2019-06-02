@@ -43,7 +43,7 @@ class Plotter
 {
 public:
 	Plotter() :
-					plotNum(0)
+			plotNum(0)
 	{
 	}
 	

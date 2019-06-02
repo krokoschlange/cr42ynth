@@ -36,10 +36,10 @@ namespace cr42y
 {
 
 ModulatableDoubleControl::ModulatableDoubleControl(int msgType,
-		PortCommunicator* comm, double val, double mi, double ma, Controller* con,
-		LV2_URID dKey) :
-				DoubleControl(msgType, comm, val, mi, ma, dKey),
-				ModulatableControl(con)
+		PortCommunicator* comm, double val, double mi, double ma,
+		Controller* con, LV2_URID dKey) :
+		DoubleControl(msgType, comm, val, mi, ma, dKey),
+		ModulatableControl(con)
 {
 	
 }

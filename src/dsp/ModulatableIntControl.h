@@ -44,8 +44,7 @@ class ModulatableIntControl : public IntControl, public ModulatableControl
 {
 public:
 	ModulatableIntControl(int msgType, PortCommunicator* comm = nullptr,
-			int val = 0, int mi = 0, int ma = 1, Controller* con =
-					nullptr,
+			int val = 0, int mi = 0, int ma = 1, Controller* con = nullptr,
 			LV2_URID dKey = DefinitionHandler::getInstance()->msg_key);
 	virtual ~ModulatableIntControl();
 

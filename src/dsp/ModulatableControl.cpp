@@ -37,7 +37,7 @@ namespace cr42y
 {
 
 ModulatableControl::ModulatableControl(Controller* con) :
-				controller(con)
+		controller(con)
 {
 }
 

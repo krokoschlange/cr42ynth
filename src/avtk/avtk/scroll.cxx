@@ -43,21 +43,20 @@ using namespace Avtk;
 #define AVTK_SCROLL_BAR_SIZE 15
 
 Scroll::Scroll(Avtk::UI* ui, int x_, int y_, int w_, int h_, std::string label_) :
-				Group(ui, x_, y_, w_, h_, label_),
-				newChildCr(false),
-				childCr(0x0),
-				scrollX_(0),
-				scrollY_(0),
-				scrollV_(false),
-				scrollH_(false),
-				setCtrlZoom_(false),
-				
-				vSlider(
-						new Avtk::Slider(ui, x_ + w_ - AVTK_SCROLL_BAR_SIZE, y_,
-								AVTK_SCROLL_BAR_SIZE, h_, "Scroll VSlider")),
-				hSlider(
-						new Avtk::Slider(ui, x_, y_ - w_ - AVTK_SCROLL_BAR_SIZE,
-								w_, AVTK_SCROLL_BAR_SIZE, "Scroll HSlider"))
+		Group(ui, x_, y_, w_, h_, label_),
+		newChildCr(false),
+		childCr(0x0),
+		scrollX_(0),
+		scrollY_(0),
+		scrollV_(false),
+		scrollH_(false),
+		setCtrlZoom_(false),
+		
+		vSlider(new Avtk::Slider(ui, x_ + w_ - AVTK_SCROLL_BAR_SIZE, y_,
+		AVTK_SCROLL_BAR_SIZE, h_, "Scroll VSlider")),
+		hSlider(
+				new Avtk::Slider(ui, x_, y_ - w_ - AVTK_SCROLL_BAR_SIZE, w_,
+						AVTK_SCROLL_BAR_SIZE, "Scroll HSlider"))
 {
 	// deal with sliders: they're a unique case where they're owned by the scroll,
 	// but they are *not* part of the group. First remove the widget from the UI

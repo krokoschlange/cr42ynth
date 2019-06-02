@@ -36,12 +36,19 @@
 namespace cr42y
 {
 
-LFOController::LFOController()
+LFOController::LFOController(LFO* l) :
+		lfo(l),
+		position(0)
 {
 }
 
 LFOController::~LFOController()
 {
+}
+
+void LFOController::nextFrame()
+{
+	lfo->getSample(&position, )
 }
 
 } /* namespace cr42y */

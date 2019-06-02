@@ -44,19 +44,19 @@ int Widget::widgetCounter = 0;
 
 // constructor for top-level windows only
 Widget::Widget(Avtk::UI* ui_, int w, int h) :
-				ui(ui_),
-				noHandle_(false),
-				label_("avtk-top-level"),
-				x_(0),
-				y_(0),
-				w_(w),
-				h_(h),
-				initX(0),
-				initY(0),
-				initW(w),
-				initH(h),
-				visible_(true),
-				parent_(0x0) // top levels don't have a parent
+		ui(ui_),
+		noHandle_(false),
+		label_("avtk-top-level"),
+		x_(0),
+		y_(0),
+		w_(w),
+		h_(h),
+		initX(0),
+		initY(0),
+		initW(w),
+		initH(h),
+		visible_(true),
+		parent_(0x0) // top levels don't have a parent
 {
 #ifdef AVTK_DEBUG
 	widgetCounter++;
@@ -64,47 +64,47 @@ Widget::Widget(Avtk::UI* ui_, int w, int h) :
 }
 
 Widget::Widget(Avtk::UI* ui_, int x, int y, int w, int h, std::string label__) :
-				ui(ui_),
-				parent_(0),
-				theme_(ui->theme()),
-				
-				noHandle_(false),
-				groupChild(false),
-				groupItemNumber_(-1),
-				
-				x_(x),
-				y_(y),
-				w_(w),
-				h_(h),
-				initX(x),
-				initY(y),
-				initW(w),
-				initH(h),
-				
-				label_(label__),
-				label_visible(true),
-				visible_(true),
-				
-				value_(0),
-				defaultValue_(0),
-				auditionValue_(0),
-				
-				callback(Avtk::UI::staticWidgetValueCB),
-				callbackUD(ui_),
-				
-				mouseButtonPressed_(0),
-				
-				cm(CLICK_NONE),
-				dm(DM_NONE),
-				vm(VALUE_FLOAT_0_1),
-				rcm(RCLICK_VALUE_DEFAULT),
-				
-				mX(0),
-				mY(0),
-				scrollDisable(1),
-				scrollInvert(0),
-				// actual scroll in PX / number == delta
-				scrollDeltaAmount(10)
+		ui(ui_),
+		parent_(0),
+		theme_(ui->theme()),
+		
+		noHandle_(false),
+		groupChild(false),
+		groupItemNumber_(-1),
+		
+		x_(x),
+		y_(y),
+		w_(w),
+		h_(h),
+		initX(x),
+		initY(y),
+		initW(w),
+		initH(h),
+		
+		label_(label__),
+		label_visible(true),
+		visible_(true),
+		
+		value_(0),
+		defaultValue_(0),
+		auditionValue_(0),
+		
+		callback(Avtk::UI::staticWidgetValueCB),
+		callbackUD(ui_),
+		
+		mouseButtonPressed_(0),
+		
+		cm(CLICK_NONE),
+		dm(DM_NONE),
+		vm(VALUE_FLOAT_0_1),
+		rcm(RCLICK_VALUE_DEFAULT),
+		
+		mX(0),
+		mY(0),
+		scrollDisable(1),
+		scrollInvert(0),
+		// actual scroll in PX / number == delta
+		scrollDeltaAmount(10)
 {
 #ifdef AVTK_DEBUG
 	widgetCounter++;

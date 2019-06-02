@@ -35,6 +35,7 @@
 #define SRC_DSP_CONTROLLERS_LFOCONTROLLER_H_
 
 #include "Controller.h"
+#include "../Generators/LFO.h"
 
 namespace cr42y
 {
@@ -42,8 +43,14 @@ namespace cr42y
 class LFOController : public Controller
 {
 public:
-	LFOController();
+	LFOController(LFO* l);
 	virtual ~LFOController();
+
+	void nextFrame();
+
+private:
+	LFO* lfo;
+	float position;
 };
 
 } /* namespace cr42y */

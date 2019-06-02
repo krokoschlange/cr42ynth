@@ -40,9 +40,9 @@ namespace cr42y
 
 BoolControl::BoolControl(int msgType, PortCommunicator* comm, bool val,
 		LV2_URID dKey) :
-				MessageReceiver(msgType, comm),
-				dataKey(dKey),
-				value(val)
+		MessageReceiver(msgType, comm),
+		dataKey(dKey),
+		value(val)
 {
 }
 
