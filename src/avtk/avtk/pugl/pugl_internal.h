@@ -1,80 +1,62 @@
-/*******************************************************************************
- * Copyright (c) 2019 krokoschlange and contributors.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- * 1. Redistributions of source code must retain the above copyright
- *     notice, this list of conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form must reproduce the above copyright
- *     notice, this list of conditions and the following disclaimer in
- *     the documentation and/or other materials provided with the
- *     distribution.
- *
- * 3. Neither the name of the copyright holder nor the
- *     names of its contributors may be used to endorse or promote
- *     products derived from this software without specific prior
- *     written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
- * PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER
- * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
- * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
- * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *******************************************************************************/
+/*
+  Copyright 2012-2014 David Robillard <http://drobilla.net>
+
+  Permission to use, copy, modify, and/or distribute this software for any
+  purpose with or without fee is hereby granted, provided that the above
+  copyright notice and this permission notice appear in all copies.
+
+  THIS SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+  WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+  MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+  ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+  WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+  ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+  OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+*/
 
 /**
- @file pugl_internal.h Private platform-independent definitions.
+   @file pugl_internal.h Private platform-independent definitions.
 
- Note this file contains function definitions, so it must be compiled into
- the final binary exactly once.  Each platform specific implementation file
- including it once should achieve this.
+   Note this file contains function definitions, so it must be compiled into
+   the final binary exactly once.  Each platform specific implementation file
+   including it once should achieve this.
 
- If you are copying the pugl code into your source tree, the following
- symbols can be defined to tweak pugl behaviour:
+   If you are copying the pugl code into your source tree, the following
+   symbols can be defined to tweak pugl behaviour:
 
- PUGL_HAVE_CAIRO: Include Cairo support code.
- PUGL_HAVE_GL:    Include OpenGL support code.
- */
+   PUGL_HAVE_CAIRO: Include Cairo support code.
+   PUGL_HAVE_GL:    Include OpenGL support code.
+*/
 
 #include "pugl/pugl.h"
 #include "pugl/event.h"
 
 typedef struct PuglInternalsImpl PuglInternals;
 
-struct PuglViewImpl
-{
-	PuglHandle handle;
-	PuglEventFunc eventFunc;
-	PuglCloseFunc closeFunc;
-	PuglDisplayFunc displayFunc;
+struct PuglViewImpl {
+	PuglHandle       handle;
+	PuglEventFunc    eventFunc;
+	PuglCloseFunc    closeFunc;
+	PuglDisplayFunc  displayFunc;
 	PuglKeyboardFunc keyboardFunc;
-	PuglMotionFunc motionFunc;
-	PuglMouseFunc mouseFunc;
-	PuglReshapeFunc reshapeFunc;
-	PuglScrollFunc scrollFunc;
-	PuglSpecialFunc specialFunc;
+	PuglMotionFunc   motionFunc;
+	PuglMouseFunc    mouseFunc;
+	PuglReshapeFunc  reshapeFunc;
+	PuglScrollFunc   scrollFunc;
+	PuglSpecialFunc  specialFunc;
 
 	PuglInternals* impl;
 
 	PuglNativeWindow parent;
-	PuglContextType ctx_type;
+	PuglContextType  ctx_type;
 
-	int width;
-	int height;
-	int mods;
-	bool mouse_in_view;
-	bool ignoreKeyRepeat;
-	bool redisplay;
-	bool resizable;
+	int      width;
+	int      height;
+	int      mods;
+	bool     mouse_in_view;
+	bool     ignoreKeyRepeat;
+	bool     redisplay;
+	bool     resizable;
 	uint32_t event_timestamp_ms;
 };
 
@@ -83,112 +65,128 @@ PuglInternals* puglInitInternals();
 PuglView*
 puglInit(int* pargc, char** argv)
 {
-	PuglView* view = (PuglView*) calloc(1, sizeof(PuglView));
-	if (!view)
-	{
+	PuglView* view = (PuglView*)calloc(1, sizeof(PuglView));
+	if (!view) {
 		return NULL;
 	}
-	
+
 	PuglInternals* impl = puglInitInternals();
-	if (!impl)
-	{
+	if (!impl) {
 		return NULL;
 	}
-	
-	view->impl = impl;
-	view->width = 640;
+
+	view->impl   = impl;
+	view->width  = 640;
 	view->height = 480;
-	
+
 	return view;
 }
 
-void puglInitWindowSize(PuglView* view, int width, int height)
+void
+puglInitWindowSize(PuglView* view, int width, int height)
 {
-	view->width = width;
+	view->width  = width;
 	view->height = height;
 }
 
-void puglInitWindowParent(PuglView* view, PuglNativeWindow parent)
+void
+puglInitWindowParent(PuglView* view, PuglNativeWindow parent)
 {
 	view->parent = parent;
 }
 
-void puglInitResizable(PuglView* view, bool resizable)
+void
+puglInitResizable(PuglView* view, bool resizable)
 {
 	view->resizable = resizable;
 }
 
-void puglInitContextType(PuglView* view, PuglContextType type)
+void
+puglInitContextType(PuglView* view, PuglContextType type)
 {
 	view->ctx_type = type;
 }
 
-void puglSetHandle(PuglView* view, PuglHandle handle)
+void
+puglSetHandle(PuglView* view, PuglHandle handle)
 {
 	view->handle = handle;
 }
 
-PuglHandle puglGetHandle(PuglView* view)
+PuglHandle
+puglGetHandle(PuglView* view)
 {
 	return view->handle;
 }
 
-uint32_t puglGetEventTimestamp(PuglView* view)
+uint32_t
+puglGetEventTimestamp(PuglView* view)
 {
 	return view->event_timestamp_ms;
 }
 
-int puglGetModifiers(PuglView* view)
+int
+puglGetModifiers(PuglView* view)
 {
 	return view->mods;
 }
 
-void puglIgnoreKeyRepeat(PuglView* view, bool ignore)
+void
+puglIgnoreKeyRepeat(PuglView* view, bool ignore)
 {
 	view->ignoreKeyRepeat = ignore;
 }
 
-void puglSetEventFunc(PuglView* view, PuglEventFunc eventFunc)
+void
+puglSetEventFunc(PuglView* view, PuglEventFunc eventFunc)
 {
 	view->eventFunc = eventFunc;
 }
 
-void puglSetCloseFunc(PuglView* view, PuglCloseFunc closeFunc)
+void
+puglSetCloseFunc(PuglView* view, PuglCloseFunc closeFunc)
 {
 	view->closeFunc = closeFunc;
 }
 
-void puglSetDisplayFunc(PuglView* view, PuglDisplayFunc displayFunc)
+void
+puglSetDisplayFunc(PuglView* view, PuglDisplayFunc displayFunc)
 {
 	view->displayFunc = displayFunc;
 }
 
-void puglSetKeyboardFunc(PuglView* view, PuglKeyboardFunc keyboardFunc)
+void
+puglSetKeyboardFunc(PuglView* view, PuglKeyboardFunc keyboardFunc)
 {
 	view->keyboardFunc = keyboardFunc;
 }
 
-void puglSetMotionFunc(PuglView* view, PuglMotionFunc motionFunc)
+void
+puglSetMotionFunc(PuglView* view, PuglMotionFunc motionFunc)
 {
 	view->motionFunc = motionFunc;
 }
 
-void puglSetMouseFunc(PuglView* view, PuglMouseFunc mouseFunc)
+void
+puglSetMouseFunc(PuglView* view, PuglMouseFunc mouseFunc)
 {
 	view->mouseFunc = mouseFunc;
 }
 
-void puglSetReshapeFunc(PuglView* view, PuglReshapeFunc reshapeFunc)
+void
+puglSetReshapeFunc(PuglView* view, PuglReshapeFunc reshapeFunc)
 {
 	view->reshapeFunc = reshapeFunc;
 }
 
-void puglSetScrollFunc(PuglView* view, PuglScrollFunc scrollFunc)
+void
+puglSetScrollFunc(PuglView* view, PuglScrollFunc scrollFunc)
 {
 	view->scrollFunc = scrollFunc;
 }
 
-void puglSetSpecialFunc(PuglView* view, PuglSpecialFunc specialFunc)
+void
+puglSetSpecialFunc(PuglView* view, PuglSpecialFunc specialFunc)
 {
 	view->specialFunc = specialFunc;
 }
@@ -199,76 +197,72 @@ puglEnterContext(PuglView* view);
 void
 puglLeaveContext(PuglView* view, bool flush);
 
+
 const char*
-puglEventGetTypeString(PuglEventType type)
+puglEventGetTypeString( PuglEventType type )
 {
-	switch (type)
-	{
+	switch( type ) {
 	case PUGL_BUTTON_PRESS:
-		return "button_press";
+		return "button_press"   ;
 		break;
 	case PUGL_BUTTON_RELEASE:
-		return "button_release";
+		return "button_release" ;
 		break;
 	case PUGL_CONFIGURE:
-		return "configure";
+		return "configure"      ;
 		break;
 	case PUGL_EXPOSE:
-		return "expose";
+		return "expose"         ;
 		break;
 	case PUGL_KEY_PRESS:
-		return "key_press";
+		return "key_press"      ;
 		break;
 	case PUGL_KEY_RELEASE:
-		return "key_release";
+		return "key_release"    ;
 		break;
 	case PUGL_ENTER_NOTIFY:
-		return "enter_notify";
+		return "enter_notify"   ;
 		break;
 	case PUGL_LEAVE_NOTIFY:
-		return "leave_notify";
+		return "leave_notify"   ;
 		break;
 	case PUGL_MOTION_NOTIFY:
-		return "motion_notify";
+		return "motion_notify"  ;
 		break;
 	case PUGL_NOTHING:
-		return "nothing";
+		return "nothing"        ;
 		break;
 	case PUGL_SCROLL:
-		return "scroll";
+		return "scroll"         ;
 		break;
 	default:
-		return 0;
+		return 0                ;
 		break;
 	}
 	return 0;
 }
 
-static void puglDispatchEvent(PuglView* view, const PuglEvent* event)
+static void
+puglDispatchEvent(PuglView* view, const PuglEvent* event)
 {
-	if (view->eventFunc)
-	{
+	if (view->eventFunc) {
 		view->eventFunc(view, event);
 	}
-	
-	switch (event->type)
-	{
+
+	switch (event->type) {
 	case PUGL_CONFIGURE:
 		puglEnterContext(view);
-		view->width = event->configure.width;
+		view->width  = event->configure.width;
 		view->height = event->configure.height;
-		if (view->reshapeFunc)
-		{
+		if (view->reshapeFunc) {
 			view->reshapeFunc(view, view->width, view->height);
 		}
 		puglLeaveContext(view, false);
 		break;
 	case PUGL_EXPOSE:
-		if (event->expose.count == 0)
-		{
+		if (event->expose.count == 0) {
 			puglEnterContext(view);
-			if (view->displayFunc)
-			{
+			if (view->displayFunc) {
 				view->displayFunc(view);
 			}
 			view->redisplay = false;
@@ -277,43 +271,42 @@ static void puglDispatchEvent(PuglView* view, const PuglEvent* event)
 		break;
 	case PUGL_MOTION_NOTIFY:
 		view->event_timestamp_ms = event->motion.time;
-		view->mods = event->motion.state;
-		if (view->motionFunc)
-		{
+		view->mods               = event->motion.state;
+		if (view->motionFunc) {
 			view->motionFunc(view, event->motion.x, event->motion.y);
 		}
 		break;
 	case PUGL_SCROLL:
-		if (view->scrollFunc)
-		{
-			view->scrollFunc(view, event->scroll.x, event->scroll.y,
-					event->scroll.dx, event->scroll.dy);
+		if (view->scrollFunc) {
+			view->scrollFunc(view,
+			                 event->scroll.x, event->scroll.y,
+			                 event->scroll.dx, event->scroll.dy);
 		}
 		break;
 	case PUGL_BUTTON_PRESS:
 	case PUGL_BUTTON_RELEASE:
 		view->event_timestamp_ms = event->button.time;
-		view->mods = event->button.state;
-		if (view->mouseFunc)
-		{
-			view->mouseFunc(view, event->button.button,
-					event->type == PUGL_BUTTON_PRESS, event->button.x,
-					event->button.y);
+		view->mods               = event->button.state;
+		if (view->mouseFunc) {
+			view->mouseFunc(view,
+			                event->button.button,
+			                event->type == PUGL_BUTTON_PRESS,
+			                event->button.x,
+			                event->button.y);
 		}
 		break;
 	case PUGL_KEY_PRESS:
 	case PUGL_KEY_RELEASE:
 		view->event_timestamp_ms = event->key.time;
-		view->mods = event->key.state;
-		if (event->key.special && view->specialFunc)
-		{
-			view->specialFunc(view, event->type == PUGL_KEY_PRESS,
-					event->key.special);
-		}
-		else if (event->key.character && view->keyboardFunc)
-		{
-			view->keyboardFunc(view, event->type == PUGL_KEY_PRESS,
-					event->key.character);
+		view->mods               = event->key.state;
+		if (event->key.special && view->specialFunc) {
+			view->specialFunc(view,
+			                  event->type == PUGL_KEY_PRESS,
+			                  event->key.special);
+		} else if (event->key.character && view->keyboardFunc) {
+			view->keyboardFunc(view,
+			                   event->type == PUGL_KEY_PRESS,
+			                   event->key.character);
 		}
 		break;
 	default:

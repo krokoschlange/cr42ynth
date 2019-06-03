@@ -27,7 +27,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+*/
 
 #ifndef OPENAV_AVTK_BUTTON_HXX
 #define OPENAV_AVTK_BUTTON_HXX
@@ -40,14 +40,11 @@ namespace Avtk
 class Button : public Widget
 {
 public:
-	Button(Avtk::UI* ui, int x, int y, int w, int h, std::string label);
-	virtual ~Button()
-	{
-	}
-	virtual void draw(cairo_t* cr);
+	Button( Avtk::UI* ui, int x, int y, int w, int h, std::string label);
+	virtual ~Button() {}
+	virtual void draw( cairo_t* cr );
 };
 
-}
-;
+};
 
 #endif // OPENAV_AVTK_BUTTON_HXX

@@ -36,7 +36,8 @@
 namespace cr42y
 {
 
-MessageReceiver::MessageReceiver(int msgType, PortCommunicator* comm, std::function<bool(LV2_Atom_Object*)>* checkerFunc) :
+MessageReceiver::MessageReceiver(int msgType, PortCommunicator* comm,
+		std::function<bool(LV2_Atom_Object*)>* checkerFunc) :
 		messageType(msgType),
 		communicator(comm),
 		checkerFunction(checkerFunc)
@@ -68,7 +69,8 @@ void MessageReceiver::setMessageType(int msgType)
 	messageType = msgType;
 }
 
-void MessageReceiver::setCheckerFunction(std::function<bool(LV2_Atom_Object*)>* checkerFunc)
+void MessageReceiver::setCheckerFunction(
+		std::function<bool(LV2_Atom_Object*)>* checkerFunc)
 {
 	if (checkerFunction)
 	{

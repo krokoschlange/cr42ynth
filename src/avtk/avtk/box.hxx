@@ -27,7 +27,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+*/
 
 #ifndef OPENAV_AVTK_BOX_HXX
 #define OPENAV_AVTK_BOX_HXX
@@ -40,14 +40,11 @@ namespace Avtk
 class Box : public Widget
 {
 public:
-	Box(Avtk::UI* ui, int x, int y, int w, int h, std::string label);
-	virtual ~Box()
-	{
-	}
-	virtual void draw(cairo_t* cr);
+	Box( Avtk::UI* ui, int x, int y, int w, int h, std::string label);
+	virtual ~Box() {}
+	virtual void draw( cairo_t* cr );
 };
 
-}
-;
+};
 
 #endif // OPENAV_AVTK_BOX_HXX

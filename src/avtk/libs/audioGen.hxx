@@ -56,8 +56,8 @@ void windowBlackmanHarris(int size, float* data)
 	
 	for (int i = 0; i < size; i++)
 	{
-		data[i] = 0.42 - (0.5 * cos(2.0 * M_PI * (float) i / M))
-				+ (0.08 * cos(4.0 * M_PI * (float) i / M));
+		data[i] = 0.42 - (0.5 * cos(2.0 * M_PI * (float) i / M)) + (0.08 * cos(
+				4.0 * M_PI * (float) i / M));
 	}
 }
 

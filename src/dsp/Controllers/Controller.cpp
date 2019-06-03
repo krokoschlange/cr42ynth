@@ -36,8 +36,9 @@
 namespace cr42y
 {
 
-Controller::Controller() :
-		value(new double(0))
+Controller::Controller(Voice* v) :
+		value(new double(0)),
+		voice(v)
 {
 	
 }

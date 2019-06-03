@@ -37,7 +37,9 @@
 #include <vector>
 
 #include "../../common/DoubleControl.h"
+#include "../ModulatableDoubleControl.h"
 #include "../../common/BoolControl.h"
+#include "../../common/IntControl.h"
 
 namespace cr42y
 {
@@ -57,11 +59,17 @@ public:
 	void setDetune(int semi, int cents);
 	void setEnabled(bool state);
 	void setSync(bool state);
+	void setUnisonVoices(int voices);
+	void setUnisonDetune(float det);
+	void setUnisonSpread(float spread);
 
 	bool getSmooth();
 	float getDetune();
 	bool getEnabled();
 	bool getSync();
+	int getUnisonVoices();
+	float getUnisonDetune();
+	float getUnisonSpread();
 
 private:
 	float samplerate;
@@ -70,6 +78,11 @@ private:
 
 	BoolControl enabled;
 	BoolControl smooth;
+
+	IntControl unisonVoices;
+	ModulatableDoubleControl unisonDetune;
+	ModulatableDoubleControl unisonSpread;
+	
 };
 
 } /* namespace cr42y */

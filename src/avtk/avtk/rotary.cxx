@@ -27,7 +27,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+*/
 
 #include "rotary.hxx"
 
@@ -36,45 +36,43 @@
 #include "ui.hxx"
 #include "theme.hxx"
 
+
 using namespace Avtk;
 
-Rotary::Rotary(Avtk::UI* ui, int x_, int y_, int w_, int h_, std::string l) :
-		Widget(ui, x_, y_, w_, h_, l)
+Rotary::Rotary( Avtk::UI* ui, int x_, int y_, int w_, int h_, std::string l) :
+	Widget( ui, x_, y_, w_, h_, l )
 {
-	dragMode(DM_DRAG_VERTICAL);
+	dragMode( DM_DRAG_VERTICAL );
 	scrollDisable = false;
 }
 
-void Rotary::draw(cairo_t* cr)
+void Rotary::draw( cairo_t* cr )
 {
-	cairo_save(cr);
-	
-	theme_->color(cr, FG, 0.5);
-	cairo_new_sub_path(cr);
-	cairo_arc(cr, x_ + w_ / 2, y_ + h_ / 2, w_ / 2.f - 8, 0, 3.1416 * 2);
+	cairo_save( cr );
+
+	theme_->color( cr, FG, 0.5 );
+	cairo_new_sub_path( cr );
+	cairo_arc(cr, x_+w_/2,y_+h_/2,  w_/2.f - 8, 0, 3.1416 * 2 );
 	cairo_set_line_width(cr, w_ / 20.f);
 	cairo_stroke(cr);
-	
-	cairo_new_sub_path(cr);
-	cairo_arc(cr, x_ + w_ / 2, y_ + h_ / 2, w_ / 2.f - 8,
-			3.1416 * 2 * (value() - 0.1 - 0.25), 3.1414 * 2 * (value() - 0.25));
-	cairo_line_to(cr, x_ + w_ / 2, y_ + h_ / 2);
-	
-	theme_->color(cr, HIGHLIGHT, 0.8);
+
+	cairo_new_sub_path( cr );
+	cairo_arc(cr, x_+w_/2,y_+h_/2, w_/2.f - 8, 3.1416 * 2 * (value() - 0.1 - 0.25), 3.1414 * 2 * (value() - 0.25));
+	cairo_line_to(cr, x_+w_/2,y_+h_/2);
+
+	theme_->color( cr, HIGHLIGHT, 0.8 );
 	cairo_set_line_width(cr, w_ / 7.f);
 	cairo_stroke(cr);
-	
-	if (label_visible)
-	{
+
+	if( label_visible ) {
 		cairo_text_extents_t ext;
-		cairo_text_extents(cr, label(), &ext);
-		
-		cairo_move_to(cr, x_ + w_ / 2 - ext.width / 2.,
-				y_ + h_ + ext.height / 2. - 4);
-		cairo_set_source_rgb(cr, 1, 1, 1);
-		cairo_show_text(cr, label());
+		cairo_text_extents( cr, label(), &ext );
+
+		cairo_move_to( cr, x_+w_/2-ext.width/2., y_+h_+ext.height/2.-4);
+		cairo_set_source_rgb( cr, 1,1,1 );
+		cairo_show_text( cr, label() );
 	}
-	
-	cairo_restore(cr);
+
+	cairo_restore( cr );
 }
 

@@ -56,13 +56,13 @@ float Envelope::getSample(float* pos, bool sustain)
 	
 	if (waveform && *pos < 1)
 	{
-		if (sustain && *pos > sustainPoint)
+		if (sustain && *pos > getSustainPoint())
 		{
-			*pos = sustainPoint;
+			*pos = getSustainPoint();
 		}
-
+		
 		float waveSample = *pos * waveform->size();
-
+		
 		if (getSmooth())
 		{
 			float smpl1 = (*waveform)[(int) waveSample];
@@ -75,9 +75,9 @@ float Envelope::getSample(float* pos, bool sustain)
 			{
 				smpl2 = 0;
 			}
-			if (sustain && sustainPoint * waveform->size() < waveSample + 1)
+			if (sustain && getSustainPoint() * waveform->size() < waveSample + 1)
 			{
-				smpl2 = (*waveform)[(int) sustainPoint * waveform->size()];
+				smpl2 = (*waveform)[(int) getSustainPoint() * waveform->size()];
 			}
 			
 			out = smpl1 + (waveSample - (int) waveSample) * (smpl2 - smpl1);

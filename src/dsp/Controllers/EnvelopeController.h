@@ -34,14 +34,23 @@
 #ifndef SRC_DSP_CONTROLLERS_ENVELOPECONTROLLER_H_
 #define SRC_DSP_CONTROLLERS_ENVELOPECONTROLLER_H_
 
+#include "Controller.h"
+#include "../Generators/Envelope.h"
+
 namespace cr42y
 {
 
-class EnvelopeController
+class EnvelopeController : public Controller
 {
 public:
-	EnvelopeController();
+	EnvelopeController(Voice* v, Envelope* env);
 	virtual ~EnvelopeController();
+
+	void nextFrame();
+
+private:
+	Envelope* envelope;
+	float position;
 };
 
 } /* namespace cr42y */

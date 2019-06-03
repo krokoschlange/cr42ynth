@@ -20,8 +20,11 @@ add_executable(cr42ynth.so
 	../common/PortCommunication/PortCommunicator.cpp
 	../common/PortCommunication/MessageReceiver.cpp
 	
-	Controllers/Controller.cpp
 	Controllers/LFOController.cpp
+	Controllers/EnvelopeController.cpp
+	Controllers/OscillatorController.cpp
+	Controllers/Controller.cpp
+	
 	
 	Generators/LFO.cpp
 	Generators/Envelope.cpp
@@ -32,6 +35,7 @@ add_executable(cr42ynth.so
 	ModulatableDoubleControl.cpp
 	ModulatableIntControl.cpp
 	DSPPortCommunicator.cpp
+	Voice.cpp
 	CR42Ynth.cpp
 )
 

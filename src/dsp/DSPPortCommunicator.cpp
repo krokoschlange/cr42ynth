@@ -80,7 +80,7 @@ void DSPPortCommunicator::receiveEvents()
 					{
 						if (receivers[i]->getCheckerFunction())
 						{
-							if (receivers[i]->getCheckerFunction()(data))
+							if ((*(receivers[i]->getCheckerFunction()))(data))
 							{
 								receivers[i]->receive(data);
 							}

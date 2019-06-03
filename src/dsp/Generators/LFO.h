@@ -49,7 +49,7 @@ public:
 	LFO(float rate, PortCommunicator* comm);
 	virtual ~LFO();
 
-	float getSample(float* wavePos, float noteFreq);
+	float getSample(float* wavePos, float note);
 
 	void setLFO(std::vector<float>* lfo, float freq);
 	void setFrequency(float freq);

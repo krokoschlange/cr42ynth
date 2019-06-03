@@ -27,7 +27,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+*/
 
 #ifndef OPENAV_AVTK_COMMON_HXX
 #define OPENAV_AVTK_COMMON_HXX
@@ -38,16 +38,15 @@
 #define NAME "Avtk"
 #endif
 
-enum DEBUG_LEVEL
-{
+enum DEBUG_LEVEL {
 	DEBUG_LEVEL_DEVELOPER = 0, // on #ifdef AVTK_DEBUG at compile time only
 	DEBUG_LEVEL_NOTE,
 	DEBUG_LEVEL_WARN,
 	DEBUG_LEVEL_ERROR,
 };
 
-void avtk_debug(int warnLevel, const char* name, const char* file,
-		const char* func, int line, const char* format = 0, ...);
+void avtk_debug( int warnLevel, const char* name, const char* file, const char* func, int line,
+                 const char* format = 0, ... );
 
 #ifdef AVTK_DEBUG
 #define AVTK_DEV( format, args... ) avtk_debug( DEBUG_LEVEL_DEVELOPER, NAME, __FILE__, __FUNCTION__, __LINE__, format, ## args )

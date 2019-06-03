@@ -35,62 +35,57 @@
 #include "ui.hxx"
 #include "theme.hxx"
 
+
 using namespace Avtk;
 
-Slider::Slider(Avtk::UI* ui, int x_, int y_, int w_, int h_, std::string label_) :
-		Widget(ui, x_, y_, w_, h_, label_)
+Slider::Slider( Avtk::UI* ui, int x_, int y_, int w_, int h_, std::string label_) :
+	Widget( ui, x_, y_, w_, h_, label_ )
 {
-	dragMode(DM_DRAG_VERTICAL);
-	
-	if (w_ > h_)
-	{
-		dragMode(DM_DRAG_HORIZONTAL);
+	dragMode( DM_DRAG_VERTICAL );
+
+	if ( w_ > h_ ) {
+		dragMode( DM_DRAG_HORIZONTAL );
 		scrollInvert = true;
 	}
 	scrollDisable = false;
 }
 
-void Slider::draw(cairo_t* cr)
+void Slider::draw( cairo_t* cr )
 {
 	static const int faderHeight = 16;
-	
-	roundedBox(cr, x_, y_, w_, h_, theme_->cornerRadius_);
-	theme_->color(cr, BG_DARK);
+
+	roundedBox(cr, x_, y_, w_, h_, theme_->cornerRadius_ );
+	theme_->color( cr, BG_DARK );
 	cairo_fill_preserve(cr);
-	theme_->color(cr, FG);
+	theme_->color( cr, FG );
 	cairo_stroke(cr);
-	
-	if (label_visible)
-	{
+
+	if( label_visible ) {
 		cairo_set_font_size(cr, 15.0);
 		{
 			cairo_text_extents_t extents;
 			cairo_text_extents(cr, label(), &extents);
-			cairo_move_to(cr, (x_ + w_ / 2) - extents.width / 2,
-					(y_ + h_ / 2) + extents.height / 2 - 2);
+			cairo_move_to(cr,
+			              (x_ + w_ / 2) - extents.width / 2,
+			              (y_ + h_ / 2) + extents.height / 2 - 2);
 		}
-		cairo_set_source_rgb(cr, 1, 1, 1);
+		cairo_set_source_rgb(cr, 1,1,1);
 		//theme_->color( cr, BG_DARK );
-		cairo_show_text(cr, label());
+		cairo_show_text( cr, label() );
 	}
-	
+
 	// fader
-	if (dragMode() == DM_DRAG_VERTICAL)
-	{
-		const int range = (h_ - faderHeight - 2);
-		roundedBox(cr, x_ + 1, y_ + 1 + range - range * value(), w_ - 2,
-				faderHeight, theme_->cornerRadius_);
+	if( dragMode() == DM_DRAG_VERTICAL ) {
+		const int range = (h_-faderHeight-2);
+		roundedBox(cr, x_+ 1, y_ + 1 + range - range*value(), w_ - 2, faderHeight, theme_->cornerRadius_ );
+	} else {
+		const int range = (w_-faderHeight-2);
+		roundedBox(cr, x_ + 1 + range*value(), y_ + 1, faderHeight, h_ - 2, theme_->cornerRadius_ );
 	}
-	else
-	{
-		const int range = (w_ - faderHeight - 2);
-		roundedBox(cr, x_ + 1 + range * value(), y_ + 1, faderHeight, h_ - 2,
-				theme_->cornerRadius_);
-	}
-	
-	theme_->color(cr, HIGHLIGHT, 0.2);
+
+	theme_->color( cr, HIGHLIGHT, 0.2 );
 	cairo_fill_preserve(cr);
-	theme_->color(cr, HIGHLIGHT);
+	theme_->color( cr, HIGHLIGHT );
 	cairo_set_line_width(cr, 1.2);
 	cairo_stroke(cr);
 }

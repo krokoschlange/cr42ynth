@@ -50,7 +50,7 @@ public:
 
 	double getValue();
 	double* getValueP();
-
+	
 };
 
 } /* namespace cr42y */

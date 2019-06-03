@@ -37,7 +37,7 @@
 unsigned long SeqEventBase::privateID = 0;
 unsigned long SeqEventList::privateID = 0;
 
-SeqEventBase::SeqEventBase(float t, float dur)
+SeqEventBase::SeqEventBase( float t, float dur )
 {
 	ID = privateID++;
 	time = t;
@@ -45,35 +45,35 @@ SeqEventBase::SeqEventBase(float t, float dur)
 }
 
 MidiEvent::MidiEvent() :
-		SeqEventBase(-1, 0)
+	SeqEventBase( -1, 0 )
 {
-	memset(data, 0, sizeof(unsigned char) * 3);
+	memset( data, 0, sizeof(unsigned char) * 3);
 }
 
 MidiEvent::MidiEvent(float time, float duration, unsigned char* srcData) :
-		SeqEventBase(time, duration)
+	SeqEventBase( time, duration )
 {
-	if (srcData)
-		setData(srcData);
-	else
-		// nuke data to zero
-		memset(data, 0, sizeof(unsigned char) * 3);
+	if ( srcData )
+		setData( srcData );
+	else // nuke data to zero
+		memset( data, 0, sizeof(unsigned char) * 3);
 }
 
 void MidiEvent::setData(unsigned char* d)
 {
-	memcpy(data, d, sizeof(unsigned char) * 3);
+	memcpy( data, d, sizeof(unsigned char) * 3 );
 }
+
 
 #define DEFAULT_NUM_EVENTS 1024
 
 SeqEventList::SeqEventList(int s) :
-		ID(privateID++),
-		scene(s),
-		loopLengthBeats(8),
-		eventCount(0),
-		eventIndex(0),
-		eventCapacity( DEFAULT_NUM_EVENTS)
+	ID( privateID++ ),
+	scene( s ),
+	loopLengthBeats( 8 ),
+	eventCount(0),
+	eventIndex(0),
+	eventCapacity( DEFAULT_NUM_EVENTS )
 {
 	events.reserve(DEFAULT_NUM_EVENTS);
 }
@@ -83,45 +83,42 @@ SeqEventList::~SeqEventList()
 	nonRtClear();
 }
 
-void SeqEventList::add(MidiEvent* m)
+void SeqEventList::add( MidiEvent* m )
 {
 	float t = m->getTime();
-	
+
 	// insert the MidiEvent
 	bool inserted = false;
-	for (unsigned int i = 0; i < eventCount; i++)
-	{
-		if (t < events.at(i)->getTime())
-		{
-			events.insert(events.begin() + i, (SeqEventBase*) m);
+	for(unsigned int i = 0; i < eventCount; i++) {
+		if( t < events.at(i)->getTime() ) {
+			events.insert( events.begin() + i, (SeqEventBase*)m );
 			inserted = true;
 			printf("inserted\n");
 			break;
 		}
 	}
-	
+
 	// or append to back
-	if (!inserted)
-		events.push_back(m);
-	
+	if ( !inserted )
+		events.push_back( m );
+
 	eventCount++;
-	
+
 	/*
 
-	 //printf("Event list:\n");
-	 for(unsigned int i = 0; i < eventCount; i++)
-	 {
-	 //printf( "%f\n", events.at(i)->getTime() );
-	 }
-	 //printf("\n");
+	//printf("Event list:\n");
+	for(unsigned int i = 0; i < eventCount; i++)
+	{
+	  //printf( "%f\n", events.at(i)->getTime() );
+	}
+	//printf("\n");
 
-	 */
+	*/
 }
 
 void SeqEventList::nonRtClear()
 {
-	for (unsigned int i = 0; i < eventCount; i++)
-	{
+	for(unsigned int i = 0; i < eventCount; i++) {
 		delete events.at(i);
 	}
 	eventIndex = 0;
@@ -138,9 +135,9 @@ void SeqEventList::setLoopLenght(int l)
 	loopLengthBeats = l;
 }
 
-void SeqEventList::modify(MidiEvent m)
+void SeqEventList::modify( MidiEvent m )
 {
-	
+
 }
 
 int SeqEventList::numEvents()
@@ -155,21 +152,21 @@ void SeqEventList::queueFromStart()
 
 SeqEventBase* SeqEventList::getNext()
 {
-	if (eventIndex < eventCount)
-		return events.at(eventIndex);
-	
+	if ( eventIndex < eventCount )
+		return events.at( eventIndex );
+
 	return 0;
 }
 
 bool SeqEventList::moveToNextEvent()
 {
 	eventIndex++;
-	
-	if (eventIndex < eventCount)
-	{
+
+	if( eventIndex < eventCount ) {
 		return true;
 	}
-	
+
 	return false;
 }
+
 

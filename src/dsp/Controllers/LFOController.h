@@ -43,7 +43,7 @@ namespace cr42y
 class LFOController : public Controller
 {
 public:
-	LFOController(LFO* l);
+	LFOController(Voice* v, LFO* l);
 	virtual ~LFOController();
 
 	void nextFrame();

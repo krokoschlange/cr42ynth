@@ -36,13 +36,21 @@
 namespace cr42y
 {
 
-EnvelopeController::EnvelopeController()
+EnvelopeController::EnvelopeController(Voice* v, Envelope* env) :
+		Controller(v),
+		position(0),
+		envelope(env)
 {
 	
 }
 
 EnvelopeController::~EnvelopeController()
 {
+}
+
+void EnvelopeController::nextFrame()
+{
+	*value = envelope->getSample(&position, voice->getSustain());
 }
 
 } /* namespace cr42y */

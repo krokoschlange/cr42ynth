@@ -55,23 +55,23 @@ class UI;
 class Group : public Widget
 {
 public:
-	Group(Avtk::UI* ui, int x, int y, int w, int h, std::string label);
+	Group( Avtk::UI* ui, int x, int y, int w, int h, std::string label );
 	virtual ~Group();
 
 	/// must be called to pop this group from the parent stack
 	void end();
 
 	/// mark all children too
-	virtual void visible(bool visibile);
+	virtual void visible( bool visibile );
 	/// only returns true if group is visible: not all children in group must
 	/// be visible
 	virtual bool visible();
 
 	/// adds a Widget to this group: its parent pointer is set to this.
-	void add(Widget* child);
+	void add    ( Widget* child );
 
 	/// removes a Widget from this group: its parent pointer is set to 0.
-	virtual void remove(Widget* child);
+	virtual void remove ( Widget* child );
 
 	virtual int x()
 	{
@@ -89,92 +89,92 @@ public:
 	{
 		return Widget::h();
 	}
-	
+
 	virtual void x(int x);
 	virtual void y(int y);
 	virtual void w(int w);
 	virtual void h(int h);
 
 	/// handles an event, propagating it to all children
-	virtual int handle(const PuglEvent* event);
+	virtual int handle( const PuglEvent* event );
 
 	/// when a child resizes itself, it calls the parents resize to inform it.
 	/// The Widget* is of the child that wishes to resize itself
-	virtual void resizeNotify(Widget* w);
+	virtual void resizeNotify( Widget* w );
 
 	/// clears all child widgets
 	virtual void clear();
 
 	/// draws the contents of the group
-	void draw(cairo_t* cr);
+	void draw( cairo_t* cr );
 
 	/// sets the space between widgets
-	void spacing(int s)
+	void spacing( int s )
 	{
 		spacing_ = s;
 	}
-	
+
 	/// should the group all be the same width / height
-	enum GROUP_MODE
-	{
-		NONE, WIDTH_EQUAL, HEIGHT_EQUAL,
+	enum GROUP_MODE {
+		NONE,
+		WIDTH_EQUAL,
+		HEIGHT_EQUAL,
 	};
 
-	void mode(GROUP_MODE gm);
+	void mode( GROUP_MODE gm );
 
-	enum GROUP_VALUE
-	{
-		VALUE_NORMAL, VALUE_SINGLE_CHILD,
+	enum GROUP_VALUE {
+		VALUE_NORMAL,
+		VALUE_SINGLE_CHILD,
 	};
 
-	void valueMode(GROUP_VALUE gv)
+	void valueMode( GROUP_VALUE gv )
 	{
 		valueMode_ = gv;
 	}
-	
+
 	/// when children are added the group can remain its size, or resize to the
 	/// childrens size
-	enum GROUP_RESIZE
-	{
-		RESIZE_NONE, RESIZE_FIT_TO_CHILDREN,
+	enum GROUP_RESIZE {
+		RESIZE_NONE,
+		RESIZE_FIT_TO_CHILDREN,
 	};
 
-	void resizeMode(GROUP_RESIZE gr)
+	void resizeMode( GROUP_RESIZE gr )
 	{
 		resizeMode_ = gr;
 	}
-	
+
 	/// called by child widgets when thier size changes
-	virtual void childResize(Widget* w);
+	virtual void childResize( Widget* w );
 
 	/// virtual so it can be overriden by List and other widgets that want to
 	/// intercept callbacks from a range of widgets
-	virtual void valueCB(Widget* w);
+	virtual void valueCB( Widget* w );
 
 protected:
 	/// constructor for top-level UI only
-	Group(Avtk::UI* ui, int w, int y);
+	Group( Avtk::UI* ui, int w, int y );
 
-	std::vector<Widget*> children;
+	std::vector< Widget* > children;
 
 	int spacing_;
 
-	GROUP_MODE groupMode;
-	GROUP_VALUE valueMode_;
+	GROUP_MODE   groupMode;
+	GROUP_VALUE  valueMode_;
 	GROUP_RESIZE resizeMode_;
 
-	static void staticGroupCB(Widget* w, void* ud)
+	static void staticGroupCB( Widget* w, void* ud )
 	{
-		Group* g = (Group*) ud;
-		g->valueCB(w);
+		Group* g = (Group*)ud;
+		g->valueCB( w );
 	}
-	
+
 private:
 	/// tooltip callback: set it the Group constructor that UI uses
-	
+
 };
 
-}
-;
+};
 
 #endif // OPENAV_AVTK_GROUP_HXX

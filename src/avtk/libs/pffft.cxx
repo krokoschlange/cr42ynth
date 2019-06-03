@@ -279,8 +279,8 @@ void *pffft_aligned_malloc(size_t nb_bytes)
 	void *p, *p0 = malloc(nb_bytes + MALLOC_V4SF_ALIGNMENT);
 	if (!p0)
 		return (void *) 0;
-	p = (void *) (((size_t) p0 + MALLOC_V4SF_ALIGNMENT)
-			& (~((size_t) (MALLOC_V4SF_ALIGNMENT - 1))));
+	p =
+			(void *) (((size_t) p0 + MALLOC_V4SF_ALIGNMENT) & (~((size_t) (MALLOC_V4SF_ALIGNMENT - 1))));
 	*((void **) p - 1) = p0;
 	return p;
 }
@@ -363,8 +363,8 @@ static NEVER_INLINE(void) passf3_ps(int ido, int l1, const v4sf *cc, v4sf *ch,
 			dr3 = VADD(cr2, ci3);
 			di2 = VADD(ci2, cr3);
 			di3 = VSUB(ci2, cr3);
-			wr1 = wa1[i], wi1 = fsign * wa1[i + 1], wr2 = wa2[i], wi2 = fsign
-					* wa2[i + 1];
+			wr1 = wa1[i], wi1 = fsign * wa1[i + 1], wr2 = wa2[i], wi2 =
+					fsign * wa2[i + 1];
 			VCPLXMUL(dr2, di2, LD_PS1(wr1), LD_PS1(wi1));
 			ch[i + l1ido] = dr2;
 			ch[i + l1ido + 1] = di2;
@@ -505,10 +505,10 @@ static NEVER_INLINE(void) passf5_ps(int ido, int l1, const v4sf *cc, v4sf *ch,
 			dr2 = VSUB(cr2, ci5);
 			di5 = VSUB(ci2, cr5);
 			di2 = VADD(ci2, cr5);
-			wr1 = wa1[i], wi1 = fsign * wa1[i + 1], wr2 = wa2[i], wi2 = fsign
-					* wa2[i + 1];
-			wr3 = wa3[i], wi3 = fsign * wa3[i + 1], wr4 = wa4[i], wi4 = fsign
-					* wa4[i + 1];
+			wr1 = wa1[i], wi1 = fsign * wa1[i + 1], wr2 = wa2[i], wi2 =
+					fsign * wa2[i + 1];
+			wr3 = wa3[i], wi3 = fsign * wa3[i + 1], wr4 = wa4[i], wi4 =
+					fsign * wa4[i + 1];
 			VCPLXMUL(dr2, di2, LD_PS1(wr1), LD_PS1(wi1));
 			ch_ref(i - 1, 2)= dr2;
 			ch_ref(i, 2)= di2;

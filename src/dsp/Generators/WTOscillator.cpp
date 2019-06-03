@@ -34,6 +34,7 @@
 #include <cmath>
 
 #include "WTOscillator.h"
+#include "../CR42Ynth.h"
 
 namespace cr42y
 {
@@ -41,9 +42,12 @@ namespace cr42y
 WTOscillator::WTOscillator(float rate, PortCommunicator* comm) :
 		samplerate(rate),
 		wavetable(nullptr),
-		detune(0, comm), //TODO: set constructor values
-		smooth(1, comm),
-		enabled(1, comm)
+		detune(0, CR42Ynth::getInstance()->getControlPort()), //TODO: set constructor values
+		smooth(1, CR42Ynth::getInstance()->getControlPort()),
+		enabled(1, CR42Ynth::getInstance()->getControlPort()),
+		unisonVoices(2, CR42Ynth::getInstance()->getControlPort(), 1, 16),
+		unisonDetune(1, CR42Ynth::getInstance()->getControlPort(), 1, 1, 2),
+		unisonSpread(1, CR42Ynth::getInstance()->getControlPort(), 0, 0, 1)
 {
 }
 
@@ -55,8 +59,8 @@ WTOscillator::~WTOscillator()
 float WTOscillator::getSample(float* wavePos, float WTPos, float note,
 		float deltaFreq, float FM)
 {
-	float frequency = pow(2, (note + getDetune() - 69) / 12) * 440 * deltaFreq
-			* FM;
+	float frequency =
+			pow(2, (note + getDetune() - 69) / 12) * 440 * deltaFreq * FM;
 	float deltaPos = frequency / samplerate;
 	
 	float out = 0;
@@ -122,6 +126,26 @@ void WTOscillator::setEnabled(bool state)
 	enabled.setValue(state);
 }
 
+void WTOscillator::setSync(bool state)
+{
+	//TODO osc sync
+}
+
+void WTOscillator::setUnisonVoices(int voices)
+{
+	unisonVoices.setValue(voices);
+}
+
+void WTOscillator::setUnisonDetune(float det)
+{
+	unisonDetune.setValue(det);
+}
+
+void WTOscillator::setUnisonSpread(float spread)
+{
+	unisonSpread.setValue(spread);
+}
+
 bool WTOscillator::getSmooth()
 {
 	return smooth.getValue();
@@ -136,4 +160,26 @@ bool WTOscillator::getEnabled()
 {
 	return enabled.getValue();
 }
+
+bool WTOscillator::getSync()
+{
+	//TODO osc sync
+	return false;
+}
+
+int WTOscillator::getUnisonVoices()
+{
+	return unisonVoices.getValue();
+}
+
+float WTOscillator::getUnisonDetune()
+{
+	return unisonDetune.getValue();
+}
+
+float WTOscillator::getUnisonSpread()
+{
+	return unisonSpread.getValue();
+}
+
 } /* namespace cr42y */

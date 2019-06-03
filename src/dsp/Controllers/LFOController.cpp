@@ -36,7 +36,8 @@
 namespace cr42y
 {
 
-LFOController::LFOController(LFO* l) :
+LFOController::LFOController(Voice* v, LFO* l) :
+		Controller(v),
 		lfo(l),
 		position(0)
 {
@@ -48,7 +49,7 @@ LFOController::~LFOController()
 
 void LFOController::nextFrame()
 {
-	lfo->getSample(&position, )
+	lfo->getSample(&position, voice->getNote());
 }
 
 } /* namespace cr42y */

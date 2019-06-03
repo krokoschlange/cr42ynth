@@ -41,11 +41,8 @@ class SeqEventBase
 {
 public:
 	/// create new EventBase: optionally specify time and duration
-	SeqEventBase(float time = -1, float duration = -1);
-	virtual ~SeqEventBase()
-	{
-	}
-	;
+	SeqEventBase( float time = -1, float duration = -1 );
+	virtual ~SeqEventBase() {};
 
 	/// get the event's unique ID
 	unsigned long getID();
@@ -59,32 +56,32 @@ public:
 	{
 		time = t;
 	}
-	
+
 	/// returns integer beat from start of loop
 	int getBeat()
 	{
 		return int(time);
 	}
-	
+
 	float getDuration()
 	{
 		return duration;
 	}
-	
+
 	/// returns amount of time from the previous beat as float between 0-1.
 	/// 0 is exactly on the beat, while 0.25 is 25% of the way from the current
 	/// beat towards the next beat
 	float getOffset()
 	{
-		return (time - int(time));
+		return ( time - int(time) );
 	}
-	
+
 protected:
-	void setUniqueID(unsigned long uid)
+	void setUniqueID( unsigned long uid )
 	{
 		ID = uid;
 	}
-	
+
 private:
 	unsigned long ID;
 	static unsigned long privateID;
@@ -106,9 +103,9 @@ public:
 	MidiEvent();
 
 	/// creates a new MidiEvent specifying start time & duration: optional data
-	MidiEvent(float time, float duration, unsigned char* d = 0);
+	MidiEvent( float time, float duration, unsigned char* d = 0);
 
-	void setData(unsigned char* d);
+	void setData( unsigned char* d );
 	unsigned char data[3];
 };
 
@@ -125,8 +122,8 @@ public:
 	int getLoopLength();
 	void setLoopLenght(int l);
 
-	void add(MidiEvent* m);
-	void modify(MidiEvent m);
+	void add( MidiEvent* m );
+	void modify( MidiEvent m );
 
 	int numEvents();
 	SeqEventBase* getNext();
@@ -158,6 +155,8 @@ private:
 	int eventCapacity;
 	std::vector<SeqEventBase*> events;
 };
+
+
 
 #endif // OPENAV_AVTK_MIDI_H
 

@@ -27,7 +27,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+*/
 
 #ifndef OPENAV_AVTK_DIAL_HXX
 #define OPENAV_AVTK_DIAL_HXX
@@ -40,15 +40,12 @@ namespace Avtk
 class Dial : public Widget
 {
 public:
-	Dial(Avtk::UI* ui, int x, int y, int w, int h, std::string label);
-	virtual ~Dial()
-	{
-	}
-	
-	virtual void draw(cairo_t* cr);
+	Dial( Avtk::UI* ui, int x, int y, int w, int h, std::string label);
+	virtual ~Dial() {}
+
+	virtual void draw( cairo_t* cr );
 };
 
-}
-;
+};
 
 #endif // OPENAV_AVTK_DIAL_HXX

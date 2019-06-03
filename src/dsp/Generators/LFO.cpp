@@ -61,8 +61,7 @@ float LFO::getSample(float* wavePos, float noteFreq)
 	float freq =
 			getUseFrequency() ?
 					getFrequency() + (noteFreq * getPitchScale() / 100) :
-					(CR42Ynth::getInstance()->getBPM() / 60)
-							/ (getBeatNumerator() / getBeatDenominator());
+					(CR42Ynth::getInstance()->getBPM() / 60) / (getBeatNumerator() / getBeatDenominator());
 	
 	float deltaPos = freq / samplerate;
 	
@@ -70,9 +69,8 @@ float LFO::getSample(float* wavePos, float noteFreq)
 	if (waveform)
 	{
 		float waveSample =
-				getGlobal() ?
-						globalPos * waveform->size() :
-						*wavePos * waveform->size();
+				getGlobal() ? globalPos * waveform->size() :
+								*wavePos * waveform->size();
 		
 		if (getSmooth())
 		{
