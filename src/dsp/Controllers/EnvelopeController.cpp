@@ -32,6 +32,7 @@
  *******************************************************************************/
 
 #include "EnvelopeController.h"
+#include "../Voice.h"
 
 namespace cr42y
 {

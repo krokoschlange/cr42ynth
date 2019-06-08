@@ -39,6 +39,7 @@
 
 namespace cr42y
 {
+class Voice;
 
 class EnvelopeController : public Controller
 {

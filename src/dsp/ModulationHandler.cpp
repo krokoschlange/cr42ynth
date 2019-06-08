@@ -31,66 +31,65 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_DSP_GENERATORS_WTOSCILLATOR_H_
-#define SRC_DSP_GENERATORS_WTOSCILLATOR_H_
-
-#include <vector>
-
-#include "../../common/DoubleControl.h"
-#include "../ModulatableDoubleControl.h"
-#include "../../common/BoolControl.h"
-#include "../../common/IntControl.h"
+#include "ModulationHandler.h"
+#include "CR42Ynth.h"
 
 namespace cr42y
 {
 
-class WTOscillator
+ModulationHandler::ModulationHandler(Voice* v) :
+		voice(v)
 {
-public:
-	WTOscillator(float rate, PortCommunicator* comm);
-	virtual ~WTOscillator();
+}
 
-	float getSample(float* wavePos, float WTPos, float note, float deltaFreq,
-			float FM);
+ModulationHandler::~ModulationHandler()
+{
+}
 
-	void setWavetable(std::vector<std::vector<float>>* wt);
-	void setSmooth(bool s);
-	void setDetune(float notes);
-	void setDetune(int semi, int cents);
-	void setEnabled(bool state);
-	void setSync(bool state);
-	void setUnisonVoices(int voices);
-	void setUnisonDetune(float det);
-	void setUnisonSpread(float spread);
-	void setPhaseShift(float shift);
-	void setPhaseRand(float fac);
+void ModulationHandler::calculateModulation(int oscIndex,
+		OscillatorController** controllers)
+{
+	if (oscIndex > 0)
+	{
+		float fmMult = 2;
+		std::vector<std::vector<ModulatableDoubleControl>>* fmControls =
+				CR42Ynth::getInstance()->getFMControls();
+		std::vector<std::vector<ModulatableDoubleControl>>* pmControls =
+				CR42Ynth::getInstance()->getPMControls();
+		std::vector<std::vector<ModulatableDoubleControl>>* amControls =
+				CR42Ynth::getInstance()->getAMControls();
+		std::vector<std::vector<ModulatableDoubleControl>>* rmControls =
+				CR42Ynth::getInstance()->getRMControls();
+		float fm = 0;
+		float pm = 0;
+		float am = 0;
+		float rm = 0;
+		for (int i = 0; i < (*fmControls)[oscIndex - 1].size(); i++)
+		{
+			fm +=
+					controllers[i]->getValue() * fmMult * (*fmControls)[oscIndex - 1][i].getValue();
+		}
+		for (int i = 0; i < (*pmControls)[oscIndex - 1].size(); i++)
+		{
+			pm +=
+					controllers[i]->getValue() * (*pmControls)[oscIndex - 1][i].getValue();
+		}
+		for (int i = 0; i < (*amControls)[oscIndex - 1].size(); i++)
+		{
+			am *=
+					(controllers[i]->getValue() * ((*amControls)[oscIndex - 1][i].getValue() / 2)) + 1 - ((*amControls)[oscIndex - 1][i].getValue() / 2);
+		}
+		for (int i = 0; i < (*rmControls)[oscIndex - 1].size(); i++)
+		{
+			rm *=
+					abs(controllers[i]->getValue()) * (*rmControls)[oscIndex - 1][i].getValue() + 1 - (*rmControls)[oscIndex - 1][i].getValue();
+		}
 
-	bool getSmooth();
-	float getDetune();
-	bool getEnabled();
-	bool getSync();
-	int getUnisonVoices();
-	float getUnisonDetune();
-	float getUnisonSpread();
-	float getPhaseShift();
-	float getPhaseRand();
-
-private:
-	float samplerate;
-	DoubleControl detune;
-	std::vector<std::vector<float>>* wavetable;
-
-	BoolControl enabled;
-	BoolControl smooth;
-
-	IntControl unisonVoices;
-	ModulatableDoubleControl unisonDetune;
-	ModulatableDoubleControl unisonSpread;
-	DoubleControl phaseShift;
-	DoubleControl phaseRand;
-	
-};
+		controllers[oscIndex]->setFM(fm);
+		controllers[oscIndex]->setFM(pm);
+		controllers[oscIndex]->setFM(am);
+		controllers[oscIndex]->setFM(rm);
+	}
+}
 
 } /* namespace cr42y */
-
-#endif /* SRC_DSP_GENERATORS_WTOSCILLATOR_H_ */

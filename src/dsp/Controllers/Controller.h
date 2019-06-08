@@ -34,10 +34,9 @@
 #ifndef SRC_DSP_CONTROLLERS_CONTROLLER_H_
 #define SRC_DSP_CONTROLLERS_CONTROLLER_H_
 
-#include "../Voice.h"
-
 namespace cr42y
 {
+class Voice;
 
 class Controller
 {

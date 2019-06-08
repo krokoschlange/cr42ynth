@@ -42,7 +42,9 @@ namespace cr42y
 {
 
 Voice::Voice(float n) :
-		note(n)
+		note(n),
+		sustain(true),
+		modHandler(this)
 {
 	WTOscillator** oscs = CR42Ynth::getInstance()->getOscillators();
 	int amount = 0;
@@ -87,7 +89,21 @@ Voice::~Voice()
 
 float Voice::nextFrame()
 {
+	for (int i = 0; envelopes[i]; i++)
+	{
+		envelopes[i]->nextFrame();
+	}
 	
+	for (int i = 0; lfos[i]; i++)
+	{
+		lfos[i]->nextFrame();
+	}
+
+	for (int i = 0; oscillators[i]; i++)
+	{
+		modHandler.calculateModulation(i, oscillators);
+		oscillators[i]->nextFrame();
+	}
 }
 
 float Voice::getNote()

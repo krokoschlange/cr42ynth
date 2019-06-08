@@ -38,6 +38,7 @@
 
 namespace cr42y
 {
+class Controller;
 
 class ModulatableDoubleControl : public DoubleControl, public ModulatableControl
 {

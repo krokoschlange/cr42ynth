@@ -34,8 +34,6 @@
 #ifndef SRC_DSP_MODULATABLECONTROL_H_
 #define SRC_DSP_MODULATABLECONTROL_H_
 
-#include "Controllers/Controller.h"
-
 namespace cr42y
 {
 class Controller;

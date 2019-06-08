@@ -33,6 +33,7 @@
 #ifndef SRC_DSP_CR42YNTH_H_
 #define SRC_DSP_CR42YNTH_H_
 
+#include <lv2/core/lv2.h>
 #include <vector>
 
 #include "DSPPortCommunicator.h"
@@ -47,7 +48,9 @@ namespace cr42y
 class CR42Ynth
 {
 public:
-	static CR42Ynth* getInstance();
+	static CR42Ynth* getInstance(double rate = 41500,
+			const char* bundlePath = nullptr,
+			const LV2_Feature* const * features = nullptr);
 	virtual ~CR42Ynth();
 
 	float getBPM();
@@ -58,19 +61,50 @@ public:
 	DSPPortCommunicator* getInputPort();
 	ExternalPort** getExternalPorts();
 
+	std::vector<std::vector<ModulatableDoubleControl>>* getFMControls();
+	std::vector<std::vector<ModulatableDoubleControl>>* getPMControls();
+	std::vector<std::vector<ModulatableDoubleControl>>* getAMControls();
+	std::vector<std::vector<ModulatableDoubleControl>>* getRMControls();
+
+	static LV2_Handle lv2Instatiate(const LV2_Descriptor* descriptor,
+			double samplerate, const char* bundlePath,
+			const LV2_Feature* const * features);
+	static void lv2Activate(LV2_Handle instance);
+	static void lv2Deactivate(LV2_Handle instance);
+
+	static void lv2ConnectPort(LV2_Handle instance, uint32_t port, void* data);
+	static void lv2Run(LV2_Handle instance, uint32_t n_samples);
+
+	static void lv2Cleanup(LV2_Handle instance);
+	static const void* lv2ExtensionData(const char* uri);
+
 private:
-	CR42Ynth();
+	CR42Ynth(double rate, const char* bundlePath,
+			const LV2_Feature* const * features);
 	static CR42Ynth* instance;
 
+	LV2_URID_Map* map;
+
+	float samplerate;
 	float bpm;
 
 	DSPPortCommunicator* control;
 	DSPPortCommunicator* input;
 
+	LV2_Atom_Sequence* ctrlIn;
+	LV2_Atom_Sequence* ctrlOut;
+
+	LV2_Atom_Sequence* midiIn;
+
 	WTOscillator** oscillators;
 	std::vector<LFO*> lfos;
 	std::vector<Envelope*> envelopes;
 	ExternalPort** externalPorts;
+
+	std::vector<std::vector<ModulatableDoubleControl>> fmControls;
+	std::vector<std::vector<ModulatableDoubleControl>> pmControls;
+	std::vector<std::vector<ModulatableDoubleControl>> amControls;
+	std::vector<std::vector<ModulatableDoubleControl>> rmControls;
 };
 
 } /* namespace cr42y */

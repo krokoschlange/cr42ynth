@@ -45,9 +45,11 @@ WTOscillator::WTOscillator(float rate, PortCommunicator* comm) :
 		detune(0, CR42Ynth::getInstance()->getControlPort()), //TODO: set constructor values
 		smooth(1, CR42Ynth::getInstance()->getControlPort()),
 		enabled(1, CR42Ynth::getInstance()->getControlPort()),
-		unisonVoices(2, CR42Ynth::getInstance()->getControlPort(), 1, 16),
+		unisonVoices(2, CR42Ynth::getInstance()->getControlPort(), 1, 1, 16),
 		unisonDetune(1, CR42Ynth::getInstance()->getControlPort(), 1, 1, 2),
-		unisonSpread(1, CR42Ynth::getInstance()->getControlPort(), 0, 0, 1)
+		unisonSpread(1, CR42Ynth::getInstance()->getControlPort(), 0, 0, 1),
+		phaseShift(1, CR42Ynth::getInstance()->getControlPort(), 0, -1, 1),
+		phaseRand(1, CR42Ynth::getInstance()->getControlPort(), 0, 0, 1)
 {
 }
 
@@ -146,6 +148,16 @@ void WTOscillator::setUnisonSpread(float spread)
 	unisonSpread.setValue(spread);
 }
 
+void WTOscillator::setPhaseShift(float shift)
+{
+	phaseShift.setValue(shift);
+}
+
+void WTOscillator::setPhaseRand(float fac)
+{
+	phaseRand.setValue(fac);
+}
+
 bool WTOscillator::getSmooth()
 {
 	return smooth.getValue();
@@ -180,6 +192,16 @@ float WTOscillator::getUnisonDetune()
 float WTOscillator::getUnisonSpread()
 {
 	return unisonSpread.getValue();
+}
+
+float WTOscillator::getPhaseShift()
+{
+	return phaseShift.getValue();
+}
+
+float WTOscillator::getPhaseRand()
+{
+	return phaseRand.getValue();
 }
 
 } /* namespace cr42y */

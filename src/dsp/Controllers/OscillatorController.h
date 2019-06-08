@@ -56,12 +56,23 @@ public:
 	void setVolume(float vol);
 	void setPan(float p);
 	void setFrequencyShift(float fShift);
+	void setFM(float fm);
+	void setPM(float pm);
+	void setAM(float am);
+	void setRM(float rm);
 
 	float getWTPos();
 	float getVolume();
 	float getPan();
 	float getFrequencyShift();
 	float getUnisonSpreadFactor();
+	float getFM();
+	float getPM();
+	float getAM();
+	float getRM();
+	float getValueL();
+	float getValueR();
+
 private:
 	WTOscillator* oscillator;
 	float wavePos;
@@ -74,6 +85,13 @@ private:
 	OscillatorController** unison;
 	float unisonSpreadFactor;
 	
+	float FM;
+	float AM;
+	float RM;
+	float PM;
+
+	float valueL; //other output
+	float valueR;
 };
 
 } /* namespace cr42y */

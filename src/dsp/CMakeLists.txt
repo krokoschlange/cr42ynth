@@ -31,9 +31,10 @@ add_executable(cr42ynth.so
 	Generators/WTOscillator.cpp
 	
 	lv2_dsp.cpp
-	ModulatableControl.cpp
 	ModulatableDoubleControl.cpp
 	ModulatableIntControl.cpp
+	ModulatableControl.cpp
+	ModulationHandler.cpp
 	DSPPortCommunicator.cpp
 	Voice.cpp
 	CR42Ynth.cpp

@@ -30,22 +30,73 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
+
+#include <lv2/core/lv2_util.h>
+
 #include "CR42Ynth.h"
 
 namespace cr42y
 {
 
 CR42Ynth* CR42Ynth::instance;
-CR42Ynth::CR42Ynth() :
-		bpm(140)
+CR42Ynth::CR42Ynth(double rate, const char* bundlePath,
+		const LV2_Feature* const * features) :
+		bpm(140),
+		samplerate(rate),
+		ctrlIn(nullptr),
+		ctrlOut(nullptr),
+		midiIn(nullptr)
 {
+	const char* missing = lv2_features_query(features,
+	LV2_URID__map, &map, true,
+	NULL);
+
+	control = new DSPPortCommunicator(ctrlIn, ctrlOut, map);
+
+	int oscAmount = 8;
+	oscillators = new WTOscillator*[oscAmount];
+	for (int i = 0; i < oscAmount; i++)
+	{
+		oscillators[i] = new WTOscillator(rate, getControlPort());
+	}
+	for (int i = 0; i < oscAmount - 1; i++)
+	{
+		std::vector<ModulatableDoubleControl>* fmRow = new std::vector<
+				ModulatableDoubleControl>;
+		std::vector<ModulatableDoubleControl>* pmRow = new std::vector<
+				ModulatableDoubleControl>;
+		std::vector<ModulatableDoubleControl>* amRow = new std::vector<
+				ModulatableDoubleControl>;
+		std::vector<ModulatableDoubleControl>* rmRow = new std::vector<
+				ModulatableDoubleControl>;
+		fmControls.push_back(*fmRow);
+		pmControls.push_back(*pmRow);
+		amControls.push_back(*amRow);
+		rmControls.push_back(*rmRow);
+		for (int j = 0; j <= i; j++)
+		{
+			ModulatableDoubleControl* fmCtrl = new ModulatableDoubleControl(1,
+					getControlPort(), 0, 0, 1); //TODO: msg_type & checker func
+			ModulatableDoubleControl* pmCtrl = new ModulatableDoubleControl(1,
+								getControlPort(), 0, 0, 1);
+			ModulatableDoubleControl* amCtrl = new ModulatableDoubleControl(1,
+								getControlPort(), 0, 0, 1);
+			ModulatableDoubleControl* rmCtrl = new ModulatableDoubleControl(1,
+								getControlPort(), 0, 0, 1);
+			fmRow->push_back(*fmCtrl);
+			pmRow->push_back(*pmCtrl);
+			amRow->push_back(*amCtrl);
+			rmRow->push_back(*rmCtrl);
+		}
+	}
 }
 
-CR42Ynth* CR42Ynth::getInstance()
+CR42Ynth* CR42Ynth::getInstance(double rate, const char* bundlePath,
+		const LV2_Feature* const * features)
 {
 	if (!instance)
 	{
-		instance = new CR42Ynth();
+		instance = new CR42Ynth(rate, bundlePath, features);
 	}
 	return instance;
 }
@@ -87,6 +138,64 @@ DSPPortCommunicator* CR42Ynth::getInputPort()
 ExternalPort** CR42Ynth::getExternalPorts()
 {
 	return externalPorts;
+}
+
+std::vector<std::vector<ModulatableDoubleControl>>* CR42Ynth::getFMControls()
+{
+	return &fmControls;
+}
+
+std::vector<std::vector<ModulatableDoubleControl>>* CR42Ynth::getPMControls()
+{
+	return &pmControls;
+}
+
+std::vector<std::vector<ModulatableDoubleControl>>* CR42Ynth::getAMControls()
+{
+	return &amControls;
+}
+
+std::vector<std::vector<ModulatableDoubleControl>>* CR42Ynth::getRMControls()
+{
+	return &rmControls;
+}
+
+LV2_Handle CR42Ynth::lv2Instatiate(const LV2_Descriptor* descriptor,
+		double samplerate, const char* bundlePath,
+		const LV2_Feature* const * features)
+{
+	CR42Ynth* c = CR42Ynth::getInstance(samplerate, bundlePath, features);
+	return (LV2_Handle) c;
+}
+
+void CR42Ynth::lv2Activate(LV2_Handle instance)
+{
+
+}
+
+void CR42Ynth::lv2Deactivate(LV2_Handle instance)
+{
+
+}
+
+void CR42Ynth::lv2ConnectPort(LV2_Handle instance, uint32_t port, void* data)
+{
+
+}
+
+void CR42Ynth::lv2Run(LV2_Handle instance, uint32_t n_samples)
+{
+
+}
+
+void CR42Ynth::lv2Cleanup(LV2_Handle instance)
+{
+
+}
+
+const void* CR42Ynth::lv2ExtensionData(const char* uri)
+{
+
 }
 
 } /* namespace cr42y */

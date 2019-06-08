@@ -37,6 +37,7 @@
 //#include "Controllers/OscillatorController.h"
 //#include "Controllers/LFOController.h"
 //#include "Controllers/EnvelopeController.h"
+#include "ModulationHandler.h"
 
 namespace cr42y
 {
@@ -62,6 +63,8 @@ private:
 
 	float note;
 	bool sustain;
+
+	ModulationHandler modHandler;
 };
 
 } /* namespace cr42y */

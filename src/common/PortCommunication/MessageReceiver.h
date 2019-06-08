@@ -34,8 +34,8 @@
 #ifndef SRC_COMMON_PORTCOMMUNICATION_MESSAGERECEIVER_H_
 #define SRC_COMMON_PORTCOMMUNICATION_MESSAGERECEIVER_H_
 
-#include <functional>
 #include <lv2/atom/atom.h>
+#include <functional>
 
 #include "PortCommunicator.h"
 

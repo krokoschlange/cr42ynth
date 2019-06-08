@@ -31,66 +31,30 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_DSP_GENERATORS_WTOSCILLATOR_H_
-#define SRC_DSP_GENERATORS_WTOSCILLATOR_H_
+#ifndef SRC_DSP_MODULATIONHANDLER_H_
+#define SRC_DSP_MODULATIONHANDLER_H_
 
-#include <vector>
-
-#include "../../common/DoubleControl.h"
-#include "../ModulatableDoubleControl.h"
-#include "../../common/BoolControl.h"
-#include "../../common/IntControl.h"
+#include "ModulatableDoubleControl.h"
+#include "Controllers/OscillatorController.h"
 
 namespace cr42y
 {
+class Voice;
 
-class WTOscillator
+class ModulationHandler
 {
 public:
-	WTOscillator(float rate, PortCommunicator* comm);
-	virtual ~WTOscillator();
+	ModulationHandler(Voice* v);
+	virtual ~ModulationHandler();
 
-	float getSample(float* wavePos, float WTPos, float note, float deltaFreq,
-			float FM);
-
-	void setWavetable(std::vector<std::vector<float>>* wt);
-	void setSmooth(bool s);
-	void setDetune(float notes);
-	void setDetune(int semi, int cents);
-	void setEnabled(bool state);
-	void setSync(bool state);
-	void setUnisonVoices(int voices);
-	void setUnisonDetune(float det);
-	void setUnisonSpread(float spread);
-	void setPhaseShift(float shift);
-	void setPhaseRand(float fac);
-
-	bool getSmooth();
-	float getDetune();
-	bool getEnabled();
-	bool getSync();
-	int getUnisonVoices();
-	float getUnisonDetune();
-	float getUnisonSpread();
-	float getPhaseShift();
-	float getPhaseRand();
+	void calculateModulation(int oscIndex, OscillatorController** controllers);
 
 private:
-	float samplerate;
-	DoubleControl detune;
-	std::vector<std::vector<float>>* wavetable;
 
-	BoolControl enabled;
-	BoolControl smooth;
 
-	IntControl unisonVoices;
-	ModulatableDoubleControl unisonDetune;
-	ModulatableDoubleControl unisonSpread;
-	DoubleControl phaseShift;
-	DoubleControl phaseRand;
-	
+	Voice* voice;
 };
 
 } /* namespace cr42y */
 
-#endif /* SRC_DSP_GENERATORS_WTOSCILLATOR_H_ */
+#endif /* SRC_DSP_MODULATIONHANDLER_H_ */
