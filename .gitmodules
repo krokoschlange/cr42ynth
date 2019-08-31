@@ -1,0 +1,9 @@
+[submodule "avtk"]
+	path = avtk
+	url = https://github.com/openAVproductions/openAV-AVTK.git
+[submodule "exprtk"]
+	path = exprtk
+	url = https://github.com/ArashPartow/exprtk.git
+[submodule "rtosc"]
+	path = rtosc
+	url = https://github.com/fundamental/rtosc.git
