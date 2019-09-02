@@ -31,73 +31,51 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_COMMON_WAVEFORMPART_H_
-#define SRC_COMMON_WAVEFORMPART_H_
+#include <iostream>
 
-#include <string>
-#include <vector>
-
+#include "SinHalfTool.h"
+#include "WavetableEditData.h"
+#include "WPFunction.h"
 
 namespace cr42y
 {
 
-class WavetableEditData;
-
-class WaveformPart
+SinHalfTool::SinHalfTool(WavetableEditData* eData, int wtPos, float x, float y) :
+		WTTool(eData, wtPos, x, y)
 {
-public:
-	enum WaveformPartType {
-		SAMPLES,
-		FUNCTION,
-		HARMONICS
-	};
+	part = new WPFunction(x, x + 0.0001, std::to_string(y));
+	eData->addPart(wtPos, part);
+}
+
+SinHalfTool::~SinHalfTool()
+{
 	
-	typedef struct {
-		float start;
-		float end;
-		int type;
-		int size;
-	} PartDataHead;
-	
-	//WaveformPart(float s, float e, WaveformPartType t, std::string* func = nullptr, std::vector<float>* sam = nullptr);
-	WaveformPart(float s, float e, WaveformPartType t);
-	//WaveformPart(char** data);
-	//WaveformPart(WaveformPart* part, float newStart, int size);
-	virtual ~WaveformPart();
-	static WaveformPart* getFromData(char** data);
+}
 
-	PartDataHead* getDataHead();
-	virtual int getData(void** buffer) = 0;
+void SinHalfTool::motion(float x, float y)
+{
+	if (x != startX)
+	{
+		//func = a*sin(2pi*b(x-d))+c
+		float a = (startY - y);
+		float b = 0.5 / (startX - x);
+		float c = startY;
+		float d = startX;
+		std::string func = std::to_string(a) + "*sin(2pi*" + std::to_string(b) + "(x-" + std::to_string(d) + "))+" + std::to_string(c);
+		((WPFunction*) part)->setFunction(func);
+		//std::cout << func << "\n";
+		if (x < startX)
+		{
+			part->setStart(x);
+			part->setEnd(startX);
+		}
+		else
+		{
+			part->setStart(startX);
+			part->setEnd(x);
+		}
+	}
+}
 
-	virtual float getSample(int size, int pos) = 0;
-
-	void setStart(float s);
-	void setEnd(float e);
-	//void setFunction(std::string* func);
-
-
-	float getStart();
-	float getEnd();
-	int getType();
-	//std::string* getFunction();
-	//std::vector<float>* getSamples();
-
-	virtual std::string to_string();
-
-private:
-	float start;
-	float end;
-	WaveformPartType type;
-	/*std::string* function;
-	std::vector<float>* samples;
-
-	exprtk::symbol_table<float>* symTable;
-	exprtk::expression<float>* funcExpr;
-	exprtk::parser<float>* parser;
-	float var;*/
-
-};
 
 } /* namespace cr42y */
-
-#endif /* SRC_COMMON_WAVEFORMPART_H_ */

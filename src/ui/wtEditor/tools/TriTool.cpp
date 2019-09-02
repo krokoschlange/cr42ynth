@@ -31,73 +31,46 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_COMMON_WAVEFORMPART_H_
-#define SRC_COMMON_WAVEFORMPART_H_
+#include <iostream>
 
-#include <string>
-#include <vector>
-
+#include "TriTool.h"
+#include "WavetableEditData.h"
+#include "WPFunction.h"
 
 namespace cr42y
 {
 
-class WavetableEditData;
-
-class WaveformPart
+TriTool::TriTool(WavetableEditData* eData, int wtPos, float x, float y) :
+		WTTool(eData, wtPos, x, y)
 {
-public:
-	enum WaveformPartType {
-		SAMPLES,
-		FUNCTION,
-		HARMONICS
-	};
+	part = new WPFunction(x, x + 0.0001, std::to_string(y));
+	eData->addPart(wtPos, part);
+}
+
+TriTool::~TriTool()
+{
 	
-	typedef struct {
-		float start;
-		float end;
-		int type;
-		int size;
-	} PartDataHead;
-	
-	//WaveformPart(float s, float e, WaveformPartType t, std::string* func = nullptr, std::vector<float>* sam = nullptr);
-	WaveformPart(float s, float e, WaveformPartType t);
-	//WaveformPart(char** data);
-	//WaveformPart(WaveformPart* part, float newStart, int size);
-	virtual ~WaveformPart();
-	static WaveformPart* getFromData(char** data);
+}
 
-	PartDataHead* getDataHead();
-	virtual int getData(void** buffer) = 0;
+void TriTool::motion(float x, float y)
+{
+	if (x != startX)
+	{
+		float m = (y - startY) / (x - startX);
+		float c = - x * m + y;
+		((WPFunction*) part)->setFunction(std::to_string(m) + "*x+" + std::to_string(c));
+		if (x < startX)
+		{
+			part->setStart(x);
+			part->setEnd(startX);
+		}
+		else
+		{
+			part->setStart(startX);
+			part->setEnd(x);
+		}
+	}
+}
 
-	virtual float getSample(int size, int pos) = 0;
-
-	void setStart(float s);
-	void setEnd(float e);
-	//void setFunction(std::string* func);
-
-
-	float getStart();
-	float getEnd();
-	int getType();
-	//std::string* getFunction();
-	//std::vector<float>* getSamples();
-
-	virtual std::string to_string();
-
-private:
-	float start;
-	float end;
-	WaveformPartType type;
-	/*std::string* function;
-	std::vector<float>* samples;
-
-	exprtk::symbol_table<float>* symTable;
-	exprtk::expression<float>* funcExpr;
-	exprtk::parser<float>* parser;
-	float var;*/
-
-};
 
 } /* namespace cr42y */
-
-#endif /* SRC_COMMON_WAVEFORMPART_H_ */

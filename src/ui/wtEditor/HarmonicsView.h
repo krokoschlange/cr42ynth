@@ -31,73 +31,34 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_COMMON_WAVEFORMPART_H_
-#define SRC_COMMON_WAVEFORMPART_H_
+#ifndef SRC_UI_WTEDITOR_HARMONICSVIEW_H_
+#define SRC_UI_WTEDITOR_HARMONICSVIEW_H_
 
-#include <string>
-#include <vector>
-
+#include "widget.hxx"
 
 namespace cr42y
 {
 
-class WavetableEditData;
+class WTEditor;
 
-class WaveformPart
+class HarmonicsView : public Avtk::Widget
 {
 public:
-	enum WaveformPartType {
-		SAMPLES,
-		FUNCTION,
-		HARMONICS
-	};
+	HarmonicsView(WTEditor* ed, int x, int y, int w, int h, std::string label);
+	virtual ~HarmonicsView();
 	
-	typedef struct {
-		float start;
-		float end;
-		int type;
-		int size;
-	} PartDataHead;
+	virtual void draw(cairo_t* cr);
 	
-	//WaveformPart(float s, float e, WaveformPartType t, std::string* func = nullptr, std::vector<float>* sam = nullptr);
-	WaveformPart(float s, float e, WaveformPartType t);
-	//WaveformPart(char** data);
-	//WaveformPart(WaveformPart* part, float newStart, int size);
-	virtual ~WaveformPart();
-	static WaveformPart* getFromData(char** data);
-
-	PartDataHead* getDataHead();
-	virtual int getData(void** buffer) = 0;
-
-	virtual float getSample(int size, int pos) = 0;
-
-	void setStart(float s);
-	void setEnd(float e);
-	//void setFunction(std::string* func);
-
-
-	float getStart();
-	float getEnd();
-	int getType();
-	//std::string* getFunction();
-	//std::vector<float>* getSamples();
-
-	virtual std::string to_string();
-
-private:
-	float start;
-	float end;
-	WaveformPartType type;
-	/*std::string* function;
-	std::vector<float>* samples;
-
-	exprtk::symbol_table<float>* symTable;
-	exprtk::expression<float>* funcExpr;
-	exprtk::parser<float>* parser;
-	float var;*/
-
+	void requestRedraw();
+	
+protected:
+	WTEditor* editor;
+	
+	bool redraw;
+	cairo_surface_t* surfCache;
+	cairo_t* cairoCache;
 };
 
 } /* namespace cr42y */
 
-#endif /* SRC_COMMON_WAVEFORMPART_H_ */
+#endif /* SRC_UI_WTEDITOR_HARMONICSVIEW_H_ */

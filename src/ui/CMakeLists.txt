@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 2.6)
-project(cr42ynth_ui.so)
+
+add_subdirectory(wtEditor/)
+
+#project(cr42ynth_ui.so)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/../../bin)
 
 find_package(PkgConfig)
@@ -16,12 +19,12 @@ pkg_check_modules(X11 x11 REQUIRED)
 include_directories( ${X11_INCLUDE_DIRS} )
 link_directories   ( ${X11_LIBRARY_DIRS} )
 
-include_directories ("${PROJECT_SOURCE_DIR}/../../rtosc/include/rtosc/")
-include_directories ("${PROJECT_SOURCE_DIR}/../../avtk/avtk/")
-include_directories ("${PROJECT_SOURCE_DIR}/Generators/")
-include_directories ("${PROJECT_SOURCE_DIR}/../common/")
-include_directories ("${PROJECT_SOURCE_DIR}/lv2/")
-include_directories ("${PROJECT_SOURCE_DIR}/")
+include_directories ("${PROJECT_SOURCE_DIR}/../rtosc/include/")
+include_directories ("${PROJECT_SOURCE_DIR}/../avtk/avtk/")
+include_directories ("${PROJECT_SOURCE_DIR}/dsp/Generators/")
+include_directories ("${PROJECT_SOURCE_DIR}/common/")
+include_directories ("${PROJECT_SOURCE_DIR}/ui/lv2/")
+include_directories ("${PROJECT_SOURCE_DIR}/ui/")
 
 add_executable(cr42ynth_ui.so
 	../common/OSCEvent.cpp
@@ -33,8 +36,8 @@ add_executable(cr42ynth_ui.so
 	CR42YnthUI.cpp
 )
 
-target_link_libraries(cr42ynth_ui.so ${PROJECT_BINARY_DIR}/../../rtosc/librtosc.a)
-target_link_libraries(cr42ynth_ui.so ${PROJECT_BINARY_DIR}/../../avtk/libavtk.a)
+target_link_libraries(cr42ynth_ui.so ${PROJECT_BINARY_DIR}/../rtosc/librtosc.a)
+target_link_libraries(cr42ynth_ui.so ${PROJECT_BINARY_DIR}/../avtk/libavtk.a)
 target_link_libraries(cr42ynth_ui.so ${LIBSNDFILE_LIBRARIES})
 target_link_libraries(cr42ynth_ui.so ${CAIRO_LIBRARIES})
 target_link_libraries(cr42ynth_ui.so ${X11_LIBRARIES})

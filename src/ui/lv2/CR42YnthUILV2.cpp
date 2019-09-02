@@ -35,7 +35,7 @@
 #include <lv2/time/time.h>
 #include <lv2/midi/midi.h>
 
-#include "rtosc.h"
+#include "rtosc/rtosc.h"
 #include "avtk.hxx"
 
 #include "CR42YnthUILV2.h"

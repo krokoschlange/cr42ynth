@@ -31,73 +31,30 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_COMMON_WAVEFORMPART_H_
-#define SRC_COMMON_WAVEFORMPART_H_
+#include <iostream>
 
-#include <string>
-#include <vector>
-
+#include "TestUI.h"
+#include "themes.hxx"
 
 namespace cr42y
 {
 
-class WavetableEditData;
-
-class WaveformPart
+TestUI::TestUI(PuglNativeWindow parent) :
+		Avtk::UI(1000, 600, parent, "TEST"),
+		editor(nullptr)
 {
-public:
-	enum WaveformPartType {
-		SAMPLES,
-		FUNCTION,
-		HARMONICS
-	};
-	
-	typedef struct {
-		float start;
-		float end;
-		int type;
-		int size;
-	} PartDataHead;
-	
-	//WaveformPart(float s, float e, WaveformPartType t, std::string* func = nullptr, std::vector<float>* sam = nullptr);
-	WaveformPart(float s, float e, WaveformPartType t);
-	//WaveformPart(char** data);
-	//WaveformPart(WaveformPart* part, float newStart, int size);
-	virtual ~WaveformPart();
-	static WaveformPart* getFromData(char** data);
+	themes.push_back(new Avtk::Theme(this, AVTK_RED));
+	editor = new WTEditor(this, 0, 0, w_, h_, "EDITOR");
+}
 
-	PartDataHead* getDataHead();
-	virtual int getData(void** buffer) = 0;
+TestUI::~TestUI()
+{
+}
 
-	virtual float getSample(int size, int pos) = 0;
+void TestUI::widgetValueCB(Avtk::Widget* widget)
+{
 
-	void setStart(float s);
-	void setEnd(float e);
-	//void setFunction(std::string* func);
-
-
-	float getStart();
-	float getEnd();
-	int getType();
-	//std::string* getFunction();
-	//std::vector<float>* getSamples();
-
-	virtual std::string to_string();
-
-private:
-	float start;
-	float end;
-	WaveformPartType type;
-	/*std::string* function;
-	std::vector<float>* samples;
-
-	exprtk::symbol_table<float>* symTable;
-	exprtk::expression<float>* funcExpr;
-	exprtk::parser<float>* parser;
-	float var;*/
-
-};
+	return;
+}
 
 } /* namespace cr42y */
-
-#endif /* SRC_COMMON_WAVEFORMPART_H_ */

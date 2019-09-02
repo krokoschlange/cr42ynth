@@ -31,7 +31,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#include "rtosc.h"
+#include "rtosc/rtosc.h"
 
 #include "CR42YnthUI.h"
 

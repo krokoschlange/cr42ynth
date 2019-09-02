@@ -31,73 +31,76 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_COMMON_WAVEFORMPART_H_
-#define SRC_COMMON_WAVEFORMPART_H_
+#include <iostream>
+#include <cstring>
 
-#include <string>
-#include <vector>
-
+#include "WPSamples.h"
 
 namespace cr42y
 {
 
-class WavetableEditData;
-
-class WaveformPart
+WPSamples::WPSamples(float s, float e, std::vector<float> sam) :
+		WaveformPart(s, e, WaveformPart::SAMPLES),
+		samples(sam)
 {
-public:
-	enum WaveformPartType {
-		SAMPLES,
-		FUNCTION,
-		HARMONICS
-	};
+}
+
+WPSamples::WPSamples(float s, float e, char** data, int size) :
+		WaveformPart(s, e, WaveformPart::SAMPLES)
+{
+	for (int i = 0; i < size; i += sizeof(float))
+	{
+		samples.push_back(*(float*) *data);
+		*data += sizeof(float);
+	}
+}
+
+WPSamples::~WPSamples()
+{
+}
+
+int WPSamples::getData(void** buffer)
+{
+	PartDataHead* head = WaveformPart::getDataHead();
+	int size = samples.size() * sizeof(float);
+	head->size = size;
 	
-	typedef struct {
-		float start;
-		float end;
-		int type;
-		int size;
-	} PartDataHead;
+	int totalSize = sizeof(PartDataHead) + size;
 	
-	//WaveformPart(float s, float e, WaveformPartType t, std::string* func = nullptr, std::vector<float>* sam = nullptr);
-	WaveformPart(float s, float e, WaveformPartType t);
-	//WaveformPart(char** data);
-	//WaveformPart(WaveformPart* part, float newStart, int size);
-	virtual ~WaveformPart();
-	static WaveformPart* getFromData(char** data);
+	char* mem = new char[totalSize];
+	*buffer = mem;
+	
+	memcpy(mem, head, sizeof(PartDataHead));
+	mem += sizeof(PartDataHead);
+	
+	for (int i = 0; i < samples.size(); *(float*) mem = samples[i], mem += sizeof(float), i++) {}
+	
+	delete head;
+	
+	return totalSize;
+}
 
-	PartDataHead* getDataHead();
-	virtual int getData(void** buffer) = 0;
+float WPSamples::getSample(int size, int pos)
+{
+	int startPos = size * getStart();
+	int relPos = pos - startPos;
+	if (relPos >= 0 && relPos < samples.size())
+	{
+		return samples[relPos];
+	}
+	return 0;
+}
 
-	virtual float getSample(int size, int pos) = 0;
+std::string WPSamples::to_string()
+{
+	std::string str = WaveformPart::to_string();
+	str += " (SAMPLES)";
+	return str;
+}
 
-	void setStart(float s);
-	void setEnd(float e);
-	//void setFunction(std::string* func);
-
-
-	float getStart();
-	float getEnd();
-	int getType();
-	//std::string* getFunction();
-	//std::vector<float>* getSamples();
-
-	virtual std::string to_string();
-
-private:
-	float start;
-	float end;
-	WaveformPartType type;
-	/*std::string* function;
-	std::vector<float>* samples;
-
-	exprtk::symbol_table<float>* symTable;
-	exprtk::expression<float>* funcExpr;
-	exprtk::parser<float>* parser;
-	float var;*/
-
-};
+std::vector<float>* WPSamples::getSamples()
+{
+	return &samples;
+}
 
 } /* namespace cr42y */
-
-#endif /* SRC_COMMON_WAVEFORMPART_H_ */

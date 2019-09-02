@@ -35,7 +35,7 @@
 #include <lv2/core/lv2_util.h>
 #include <lv2/time/time.h>
 
-#include "rtosc.h"
+#include "rtosc/rtosc.h"
 
 #include "CR42YnthLV2.h"
 #include "OSCEvent.h"

@@ -1,56 +1,65 @@
-/*
- * WaveformPart.cpp
+/*******************************************************************************
+ * Copyright (c) 2019 krokoschlange and contributors.
  *
- *  Created on: 07.08.2019
- *      Author: fabian
- */
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in
+ *     the documentation and/or other materials provided with the
+ *     distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the
+ *     names of its contributors may be used to endorse or promote
+ *     products derived from this software without specific prior
+ *     written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+ * PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER
+ * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *******************************************************************************/
 
-#include "WaveformPart.h"
+#include "WavetableEditData.h"
+#include "WPFunction.h"
+#include "WPHarmonics.h"
+#include "WPSamples.h"
 
 namespace cr42y
 {
 
-WaveformPart::WaveformPart(float s, int t, bool b, std::string* func,
-		std::vector<float>* sam) :
-		base(b),
+WaveformPart::WaveformPart(float s, float e, WaveformPartType t) :
 		start(s),
-		type(t),
-		function(func),
-		samples(sam),
-		symTable(nullptr),
-		funcExpr(nullptr),
-		parser(nullptr),
-		var(0)
+		end(e),
+		type(t)
 {
-	if (func)
-	{
-		symTable = new exprtk::symbol_table<float>();
-		funcExpr = new exprtk::expression<float>();
-		parser = new exprtk::parser<float>();
-
-		symTable->add_variable("x", var);
-		symTable->add_constants();
-
-		funcExpr->register_symbol_table(*symTable);
-
-		parser->compile(*func, *funcExpr);
-	}
 }
 
-WaveformPart::WaveformPart(char** data) :
+/*WaveformPart::WaveformPart(char** data) :
 		samples(nullptr),
 		function(nullptr),
-		base(false),
 		symTable(nullptr),
 		funcExpr(nullptr),
 		parser(nullptr),
-		var(0)
+		var(0),
+		end(0)
 {
 	start = *(float*) *data;
 	*data += sizeof(float);
-	base = *(bool*) *data;
-	*data += sizeof(bool);
-	type = *(int*) *data;
+	end = *(float*) *data;
+	*data += sizeof(float);
+	type = *(WaveformPartType*) *data;
 	*data += sizeof(int);
 	int size = *(int*) *data;
 	*data += sizeof(int);
@@ -67,6 +76,7 @@ WaveformPart::WaveformPart(char** data) :
 		function = new std::string((char*) *data);
 		*data += function->size() + 1;
 
+
 		symTable = new exprtk::symbol_table<float>();
 		funcExpr = new exprtk::expression<float>();
 		parser = new exprtk::parser<float>();
@@ -75,15 +85,16 @@ WaveformPart::WaveformPart(char** data) :
 		symTable->add_constants();
 
 		funcExpr->register_symbol_table(*symTable);
-
+		
 		parser->compile(*function, *funcExpr);
+
 		break;
 	default:
 		break;
 	}
-}
+}*/
 
-WaveformPart::WaveformPart(WaveformPart* part, float newStart, int size) :
+/*WaveformPart::WaveformPart(WaveformPart* part, float newStart, int size) :
 		base(part->getBase()),
 		start(newStart),
 		type(part->getType()),
@@ -92,7 +103,8 @@ WaveformPart::WaveformPart(WaveformPart* part, float newStart, int size) :
 		symTable(nullptr),
 		funcExpr(nullptr),
 		parser(nullptr),
-		var(0)
+		var(0),
+		end(0)
 {
 	if (getBase())
 	{
@@ -113,7 +125,7 @@ WaveformPart::WaveformPart(WaveformPart* part, float newStart, int size) :
 		samples = newSamples;
 	}
 
-	if (getFunction())
+	if (getFunction() && getFunction()->compare("base()"))
 	{
 		symTable = new exprtk::symbol_table<float>();
 		funcExpr = new exprtk::expression<float>();
@@ -126,89 +138,63 @@ WaveformPart::WaveformPart(WaveformPart* part, float newStart, int size) :
 
 		parser->compile(*getFunction(), *funcExpr);
 	}
+}*/
+
+WaveformPart* WaveformPart::getFromData(char** data)
+{
+	PartDataHead* head = (PartDataHead*) *data;
+	*data += sizeof(PartDataHead);
+	switch (head->type)
+	{
+	case SAMPLES:
+	{
+		//return new WPSamples(head->start, head->end, data, head->size);
+		return new WPSamples(head->start, head->end, data, head->size);
+		break;
+	}
+	case FUNCTION:
+	{
+		return new WPFunction(head->start, head->end, data, head->size);
+	}
+	case HARMONICS:
+	{
+		return new WPHarmonics(head->start, head->end, data, head->size);
+	}
+	default:
+		return nullptr;
+	}
 }
 
 WaveformPart::~WaveformPart()
 {
-	if (function)
-	{
-		delete function;
-		function = nullptr;
-	}
-	if (samples)
-	{
-		delete samples;
-		samples = nullptr;
-	}
-	if (symTable)
-	{
-		delete symTable;
-		symTable = nullptr;
-	}
-	if (funcExpr)
-	{
-		delete funcExpr;
-		funcExpr = nullptr;
-	}
-	if (parser)
-	{
-		delete parser;
-		parser = nullptr;
-	}
 }
 
+/*
 int WaveformPart::getData(void** buffer)
 {
-	int totalSize = sizeof(float) + 2 * sizeof(int) + sizeof(bool);
-	switch (type)
-	{
-	case SAMPLES:
-		totalSize += samples->size() * sizeof(float);
-		break;
-	case FUNCTION:
-		totalSize += function->size() + 1;
-		break;
-	default:
-		return 0;
-	}
-	char* mem = new char[totalSize];
+	int size = 2 * sizeof(float) + sizeof(int);
+
+	char* mem = new char[size];
 	*buffer = mem;
 
 	*(float*) mem = start;
 	mem += sizeof(float);
-	*(bool*) mem = base;
-	mem += sizeof(bool);
+	*(float*) mem = end;
+	mem += sizeof(float);
 	*(int*) mem = type;
 	mem += sizeof(int);
-	*(int*) mem = totalSize - sizeof(float) - 2 * sizeof(int) - sizeof(bool);
-	mem += sizeof(int);
 
-	switch (type)
-	{
-	case SAMPLES:
-		for (int i = 0; i < samples->size(); i++)
-		{
-			*(float*) mem = (*samples)[i];
-			mem += sizeof(float);
-		}
-		break;
-	case FUNCTION:
-	{
-		const char* c = function->c_str();
-		for (int i = 0; c[i]; *mem = c[i], mem++, i++)
-		{
-		}
-		break;
-	}
-	default:
-		return 0;
-	}
-	return totalSize;
-}
+	return size;
+}*/
 
-void WaveformPart::setType(int t)
+WaveformPart::PartDataHead* WaveformPart::getDataHead()
 {
-	type = t;
+	PartDataHead* head = new PartDataHead();
+	head->start = start;
+	head->end = end;
+	head->type = type;
+	head->size = sizeof(PartDataHead) - sizeof(int);
+	return head;
 }
 
 void WaveformPart::setStart(float s)
@@ -216,13 +202,9 @@ void WaveformPart::setStart(float s)
 	start = s;
 }
 
-void WaveformPart::setFunction(std::string* func)
+void WaveformPart::setEnd(float e)
 {
-	if (function)
-	{
-		delete function;
-	}
-	function = func;
+	end = e;
 }
 
 int WaveformPart::getType()
@@ -235,60 +217,17 @@ float WaveformPart::getStart()
 	return start;
 }
 
-std::string* WaveformPart::getFunction()
+float WaveformPart::getEnd()
 {
-	return function;
-}
-
-std::vector<float>* WaveformPart::getSamples()
-{
-	return samples;
-}
-
-float WaveformPart::getSample(int size, int pos)
-{
-	switch (type)
-	{
-	case SAMPLES:
-	{
-		int startsample = (int) (size * start);
-		int smpl = pos - startsample;
-		if (samples && smpl >= 0 && smpl < samples->size())
-		{
-			return (*samples)[smpl];
-		}
-		break;
-	}
-	case FUNCTION:
-		var = pos / (float) size;
-		return funcExpr->value();
-		break;
-	default:
-		break;
-	}
-	return 0;
-}
-
-bool WaveformPart::getBase()
-{
-	return base;
+	return end;
 }
 
 std::string WaveformPart::to_string()
 {
-	std::string str = "WFP: [";
-	str += "base = " + std::to_string(base);
-	str += ", start = " + std::to_string(start);
-	str += ", type = ";
-	if (type == FUNCTION)
-	{
-		str += "FUNCTION: func = " + *function;
-	}
-	else if (type == SAMPLES)
-	{
-		str += "SAMPLES";
-	}
-	str += "]";
+	std::string str = "WFP: ";
+	str += "start = " + std::to_string(start);
+	str += ", end = " + std::to_string(end);
+	str += ", type = " + std::to_string(type);
 	return str;
 }
 

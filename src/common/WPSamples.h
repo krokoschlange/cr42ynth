@@ -31,73 +31,34 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_COMMON_WAVEFORMPART_H_
-#define SRC_COMMON_WAVEFORMPART_H_
+#ifndef SRC_COMMON_WPSAMPLES_H_
+#define SRC_COMMON_WPSAMPLES_H_
 
-#include <string>
-#include <vector>
-
+#include "WaveformPart.h"
 
 namespace cr42y
 {
 
-class WavetableEditData;
-
-class WaveformPart
+class WPSamples : public WaveformPart
 {
 public:
-	enum WaveformPartType {
-		SAMPLES,
-		FUNCTION,
-		HARMONICS
-	};
+	WPSamples(float s, float e, std::vector<float> sam);
+	WPSamples(float s, float e, char** data, int size);
+	virtual ~WPSamples();
 	
-	typedef struct {
-		float start;
-		float end;
-		int type;
-		int size;
-	} PartDataHead;
+	virtual int getData(void** buffer);
 	
-	//WaveformPart(float s, float e, WaveformPartType t, std::string* func = nullptr, std::vector<float>* sam = nullptr);
-	WaveformPart(float s, float e, WaveformPartType t);
-	//WaveformPart(char** data);
-	//WaveformPart(WaveformPart* part, float newStart, int size);
-	virtual ~WaveformPart();
-	static WaveformPart* getFromData(char** data);
-
-	PartDataHead* getDataHead();
-	virtual int getData(void** buffer) = 0;
-
-	virtual float getSample(int size, int pos) = 0;
-
-	void setStart(float s);
-	void setEnd(float e);
-	//void setFunction(std::string* func);
-
-
-	float getStart();
-	float getEnd();
-	int getType();
-	//std::string* getFunction();
-	//std::vector<float>* getSamples();
-
+	virtual float getSample(int size, int pos);
+	
 	virtual std::string to_string();
-
+	
+	std::vector<float>* getSamples();
+	
 private:
-	float start;
-	float end;
-	WaveformPartType type;
-	/*std::string* function;
-	std::vector<float>* samples;
-
-	exprtk::symbol_table<float>* symTable;
-	exprtk::expression<float>* funcExpr;
-	exprtk::parser<float>* parser;
-	float var;*/
-
+	std::vector<float> samples;
 };
 
 } /* namespace cr42y */
 
-#endif /* SRC_COMMON_WAVEFORMPART_H_ */
+
+#endif /* SRC_COMMON_WPSAMPLES_H_ */

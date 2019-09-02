@@ -1,14 +1,42 @@
-/*
- * WavetableEditData.cpp
+/*******************************************************************************
+ * Copyright (c) 2019 krokoschlange and contributors.
  *
- *  Created on: 07.08.2019
- *      Author: fabian
- */
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in
+ *     the documentation and/or other materials provided with the
+ *     distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the
+ *     names of its contributors may be used to endorse or promote
+ *     products derived from this software without specific prior
+ *     written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+ * PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER
+ * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *******************************************************************************/
 
 #include <map>
 #include <cstring>
+#include <iostream>
 
 #include "WavetableEditData.h"
+#include "WPFunction.h"
 
 namespace cr42y
 {
@@ -16,7 +44,7 @@ namespace cr42y
 WavetableEditData::WavetableEditData(int w) :
 		width(w)
 {
-	addWaveform(-1);
+	addWaveform();
 }
 
 WavetableEditData::WavetableEditData(char* data)
@@ -31,12 +59,14 @@ WavetableEditData::WavetableEditData(char* data)
 
 	while (size > data - start)
 	{
-		WaveformPart* part = new WaveformPart(dataPtr);
-		if (part->getStart() == 0 && part->getBase())
+		int amount = *(int*) data;
+		data += sizeof(int);
+		parts.push_back(std::vector<WaveformPart*>());
+		for (int i = 0; i < amount; i++)
 		{
-			parts.push_back(std::vector<WaveformPart*>());
+			WaveformPart* part = WaveformPart::getFromData(dataPtr);
+			parts[parts.size() - 1].push_back(part);
 		}
-		parts[parts.size() - 1].push_back(part);
 	}
 }
 
@@ -58,11 +88,99 @@ int WavetableEditData::getWidth()
 	return width;
 }
 
+WaveformPart* WavetableEditData::getPartByIndex(int row, int idx)
+{
+	std::vector<WaveformPart*>* wf = getWaveform(row);
+	if (wf)
+	{
+		if (0 <= idx && idx < wf->size())
+		{
+			return (*wf)[idx];
+		}
+	}
+	return nullptr;
+}
+
+int WavetableEditData::getIndexOfPart(int row, WaveformPart* part)
+{
+	std::vector<WaveformPart*>* wf = getWaveform(row);
+	if (wf)
+	{
+		for (int i = 0; i < wf->size(); i++)
+		{
+			if ((*wf)[i] == part)
+			{
+				return i;
+			}
+		}
+	}
+	return -1;
+}
+
+std::vector<std::pair<float, float>> WavetableEditData::getVisibleAreas(int row, WaveformPart* part)
+{
+	std::vector<std::pair<float, float>> ret;
+	int idx = getIndexOfPart(row, part);
+	if (idx != -1)
+	{
+		ret.push_back(std::pair<float, float>(part->getStart(), part->getEnd()));
+		std::vector<WaveformPart*>* wf = getWaveform(row);
+		for (idx++; idx < wf->size(); idx++)
+		{
+			for (int i = 0; i < ret.size(); i++)
+			{
+				if ((*wf)[idx]->getStart() <= ret[i].first)
+				{
+					if ((*wf)[idx]->getEnd() > ret[i].first && (*wf)[idx]->getEnd() < ret[i].second)
+					{
+						ret[i].first = (*wf)[idx]->getEnd();
+					}
+					else if ((*wf)[idx]->getEnd() >= ret[i].second)
+					{
+						ret.erase(ret.begin()+ i);
+						i--;
+					}
+				}
+				else if ((*wf)[idx]->getStart() < ret[i].second)
+				{
+					if ((*wf)[idx]->getEnd() > ret[i].first && (*wf)[idx]->getEnd() < ret[i].second)
+					{
+						ret.push_back(std::pair<float, float>((*wf)[idx]->getEnd(), ret[i].second));
+						ret[i].second = (*wf)[idx]->getStart();
+					}
+					else if ((*wf)[idx]->getEnd() >= ret[i].second)
+					{
+						ret[i].second = (*wf)[idx]->getStart();
+					}
+				}
+			}
+		}
+	}
+	return ret;
+}
+
+WaveformPart* WavetableEditData::getVisiblePartAtPos(int row, float pos)
+{
+	std::vector<WaveformPart*>* wf = getWaveform(row);
+	WaveformPart* part = nullptr;
+	if (wf)
+	{
+		for (int i = 0; i < wf->size(); i++)
+		{
+			if (!part || ((*wf)[i]->getStart() <= pos && (*wf)[i]->getEnd() >= pos))
+			{
+				part = (*wf)[i];
+			}
+		}
+	}
+	return part;
+}
+
 void WavetableEditData::addWaveform(int idx)
 {
-	std::string* func = new std::string("sin(2pi*x)");
 	std::vector<WaveformPart*> row;
-	row.push_back(new WaveformPart(0, FUNCTION, true, func));
+	row.push_back(new WPFunction(0, 1, "sin(2pi*x)"));
+	row[0]->setEnd(1);
 	if (idx == -1 || idx >= parts.size())
 	{
 		parts.push_back(row);
@@ -73,79 +191,30 @@ void WavetableEditData::addWaveform(int idx)
 	}
 }
 
-void WavetableEditData::setBase(int row, WaveformPart* part)
+void WavetableEditData::removeWaveform(int idx)
 {
-	std::vector<WaveformPart*>* wf = getWaveform(row);
-	if (wf)
+	if (idx >= 0 && idx < parts.size())
 	{
-		for (int i = 0; i < wf->size(); i++)
+		for (int i = 0; i < parts[idx].size(); i++)
 		{
-			if ((*wf)[i]->getBase())
-			{
-				if (!((*wf)[i]->getFunction() && !(*wf)[i]->getFunction()->compare("base()")))
-				{
-					removePart(row, (*wf)[i]);
-					addPart(row, part, 0);
-					return;
-				}
-			}
+			delete parts[idx][i];
 		}
-		addPart(row, part, 0);
+		parts.erase(parts.begin() + idx);
 	}
 }
 
-void WavetableEditData::addPart(int row, WaveformPart* part, float end)
+void WavetableEditData::addPart(int row, WaveformPart* part, int idx)
 {
 	std::vector<WaveformPart*>* wf = getWaveform(row);
 	if (wf)
 	{
-		int idx = 0;
-		for (; idx < wf->size() && (*wf)[idx]->getStart() < part->getStart();
-				idx++)
+		if (idx >= 0)
 		{
-		}
-		wf->insert(wf->begin() + idx, part);
-
-		float currentEnd = 1;
-		if (idx < wf->size() - 1)
-		{
-			currentEnd = (*wf)[idx + 1]->getStart();
-		}
-		if (currentEnd > end)
-		{
-			if (idx > 0)
-			{
-				WaveformPart* p = new WaveformPart((*wf)[idx - 1], end, getWidth());
-				wf->insert(wf->begin() + idx + 1, p);
-			}
-			else
-			{
-				if (wf->size() > 1)
-				{
-					(*wf)[idx + 1]->setStart(end);
-				}
-			}
+			wf->insert(wf->begin() + idx, part);
 		}
 		else
 		{
-			for (idx++; idx < wf->size(); idx++)
-			{
-				currentEnd = 1;
-				if (idx < wf->size() - 1)
-				{
-					currentEnd = (*wf)[idx + 1]->getStart();
-				}
-				if (currentEnd < end)
-				{
-					delete (*wf)[idx];
-					wf->erase(wf->begin() + idx);
-					idx--;
-				}
-				else
-				{
-					(*wf)[idx]->setStart(end);
-				}
-			}
+			wf->push_back(part);
 		}
 	}
 }
@@ -159,61 +228,30 @@ void WavetableEditData::removePart(int row, WaveformPart* part)
 		{
 			if ((*wf)[i] == part)
 			{
+				delete (*wf)[i];
 				wf->erase(wf->begin() + i);
 				i--;
 			}
 		}
+	}
+}
 
-		for (int i = 1; i < wf->size(); i++)
+void WavetableEditData::removePart(int row, int idx)
+{
+	std::vector<WaveformPart*>* wf = getWaveform(row);
+	if (wf)
+	{
+		if (0 <= idx && idx < wf->size())
 		{
-			if ((*wf)[i]->getBase())
-			{
-				if ((*wf)[i - 1]->getBase())
-				{
-					if ((*wf)[i]->getFunction() && !(*wf)[i]->getFunction()->compare("base()"))
-					{
-						delete (*wf)[i];
-						wf->erase(wf->begin() + i);
-						i--;
-					}
-					else
-					{
-						delete (*wf)[i - 1];
-						wf->erase(wf->begin() + i - 1);
-						i--;
-					}
-				}
-			}
-			else
-			{
-				if ((*wf)[i]->getType() == (*wf)[i - 1]->getType())
-				{
-					switch ((*wf)[i]->getType())
-					{
-					case FUNCTION:
-						if (!(*wf)[i]->getFunction()->compare(*(*wf)[i - 1]->getFunction()))
-						{
-							delete (*wf)[i];
-							wf->erase(wf->begin() + i);
-							i--;
-						}
-						break;
-					case SAMPLES:
-						for (int j = 0; j < (*wf)[i]->getSamples()->size(); j++)
-						{
-							(*wf)[i - 1]->getSamples()->push_back((*(*wf)[i]->getSamples())[j]);
-						}
-						delete (*wf)[i];
-						wf->erase(wf->begin() + i);
-						i--;
-						break;
-					default:
-						break;
-					}
-				}
-			}
+			delete (*wf)[idx];
+			wf->erase(wf->begin() + idx);
 		}
 	}
+}
+
+std::vector<std::vector<WaveformPart*>>* WavetableEditData::getWaveforms()
+{
+	return &parts;
 }
 
 std::vector<WaveformPart*>* WavetableEditData::getWaveform(int row)
@@ -225,41 +263,13 @@ std::vector<WaveformPart*>* WavetableEditData::getWaveform(int row)
 	return nullptr;
 }
 
-WaveformPart* WavetableEditData::getBase(int row)
-{
-	std::vector<WaveformPart*>* wf = getWaveform(row);
-	if (wf)
-	{
-		for (int i = 0; i < wf->size(); i++)
-		{
-			if ((*wf)[i]->getBase() && !((*wf)[i]->getFunction() && !(*wf)[i]->getFunction()->compare("base()")))
-			{
-				return (*wf)[i];
-			}
-		}
-	}
-	return nullptr;
-}
-
 float WavetableEditData::getSample(int row, int smpl)
 {
-	std::vector<WaveformPart*>* wf = getWaveform(row);
 	float ret = 0;
-	if (wf)
+	WaveformPart* part = getVisiblePartAtPos(row, (float) smpl / getWidth());
+	if (part)
 	{
-		float pos = (float) smpl / getWidth();
-		WaveformPart* part = nullptr;
-		for (int i = 0; i < wf->size(); i++)
-		{
-			if (!part || ((*wf)[i]->getStart() > part->getStart() && (*wf)[i]->getStart() < pos))
-			{
-				part = (*wf)[i];
-			}
-		}
-		if (part)
-		{
-			ret = part->getSample(width, smpl);
-		}
+		ret = part->getSample(width, smpl);
 	}
 	return ret;
 }
@@ -287,14 +297,16 @@ std::vector<std::vector<float>>* WavetableEditData::getSamples()
 int WavetableEditData::getData(void** buffer)
 {
 	int totalsize = 0;
-	std::map<void*, int> partdata;
+	std::vector<std::vector<std::pair<void*, int>>> partdata;
 	for (int i = 0; i < parts.size(); i++)
 	{
+		totalsize += sizeof(int);
+		partdata.push_back(std::vector<std::pair<void*, int>>());
 		for (int j = 0; j < parts[i].size(); j++)
 		{
 			void* data = nullptr;
 			int size = parts[i][j]->getData(&data);
-			partdata.insert(std::pair<void*, int>(data, size));
+			partdata[i].push_back(std::pair<void*, int>(data, size));
 			totalsize += size;
 		}
 	}
@@ -305,12 +317,17 @@ int WavetableEditData::getData(void** buffer)
 	mem += sizeof(int);
 	*(int*) mem = width;
 	mem += sizeof(int);
-	for (std::map<void*, int>::iterator it = partdata.begin();
-			it != partdata.end(); it++)
+	
+	for (int i = 0; i < partdata.size(); i++)
 	{
-		memcpy(mem, it->first, it->second);
-		mem += it->second;
-		delete[] (char*) it->first;
+		*(int*) mem = partdata[i].size();
+		mem += sizeof(int);
+		for (int j = 0; j < partdata[i].size(); j++)
+		{
+			memcpy(mem, partdata[i][j].first, partdata[i][j].second);
+			mem += partdata[i][j].second;
+			delete[] (char*) partdata[i][j].first;
+		}
 	}
 	return totalsize;
 }
@@ -343,7 +360,7 @@ void WavetableEditData::update(char* data)
 
 	while (size > data - start)
 	{
-		WaveformPart* part = new WaveformPart(dataPtr);
+		WaveformPart* part = WaveformPart::getFromData(dataPtr);
 		parts[row].push_back(part);
 	}
 }
@@ -390,7 +407,7 @@ std::string WavetableEditData::to_string()
 		str += "[";
 		for (int j = 0; j < parts[i].size(); j++)
 		{
-			str += parts[i][j]->to_string() + ", ";
+			str += parts[i][j]->to_string() + " ; ";
 		}
 		str += "]\n";
 	}

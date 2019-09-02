@@ -31,73 +31,46 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_COMMON_WAVEFORMPART_H_
-#define SRC_COMMON_WAVEFORMPART_H_
 
-#include <string>
-#include <vector>
+#ifndef SRC_UI_WTEDITOR_WTVIEV_H_
+#define SRC_UI_WTEDITOR_WTVIEV_H_
 
+#include "group.hxx"
 
 namespace cr42y
 {
 
-class WavetableEditData;
+class WTEditor;
+class CustomScroll;
+class CRSurfaceButton;
 
-class WaveformPart
+class WTView : public Avtk::Group
 {
 public:
-	enum WaveformPartType {
-		SAMPLES,
-		FUNCTION,
-		HARMONICS
-	};
+	WTView(WTEditor* ed, int x, int y, int w, int h, std::string label);
+	virtual ~WTView();
 	
-	typedef struct {
-		float start;
-		float end;
-		int type;
-		int size;
-	} PartDataHead;
+	virtual void draw(cairo_t* cr);
+	virtual int handle(const PuglEvent* event);
+	virtual void valueCB(Avtk::Widget* widget);
 	
-	//WaveformPart(float s, float e, WaveformPartType t, std::string* func = nullptr, std::vector<float>* sam = nullptr);
-	WaveformPart(float s, float e, WaveformPartType t);
-	//WaveformPart(char** data);
-	//WaveformPart(WaveformPart* part, float newStart, int size);
-	virtual ~WaveformPart();
-	static WaveformPart* getFromData(char** data);
-
-	PartDataHead* getDataHead();
-	virtual int getData(void** buffer) = 0;
-
-	virtual float getSample(int size, int pos) = 0;
-
-	void setStart(float s);
-	void setEnd(float e);
-	//void setFunction(std::string* func);
-
-
-	float getStart();
-	float getEnd();
-	int getType();
-	//std::string* getFunction();
-	//std::vector<float>* getSamples();
-
-	virtual std::string to_string();
-
+	void updateRemoveButtons();
+	
+	void requestRedraw();
+	
 private:
-	float start;
-	float end;
-	WaveformPartType type;
-	/*std::string* function;
-	std::vector<float>* samples;
-
-	exprtk::symbol_table<float>* symTable;
-	exprtk::expression<float>* funcExpr;
-	exprtk::parser<float>* parser;
-	float var;*/
-
+	WTEditor* editor;
+	CustomScroll* scroll;
+	int boxSize;
+	
+	bool redraw;
+	cairo_surface_t* surfCache;
+	cairo_t* cairoCache;
+	
+	std::vector<CRSurfaceButton*> removeBtns;
+	CRSurfaceButton* addBtn;
 };
 
 } /* namespace cr42y */
 
-#endif /* SRC_COMMON_WAVEFORMPART_H_ */
+#endif /* SRC_UI_WTEDITOR_WTVIEV_H_ */

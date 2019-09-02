@@ -31,73 +31,82 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_COMMON_WAVEFORMPART_H_
-#define SRC_COMMON_WAVEFORMPART_H_
+#include <iostream>
 
-#include <string>
-#include <vector>
-
+#include "WPFunction.h"
 
 namespace cr42y
 {
 
-class WavetableEditData;
-
-class WaveformPart
+WPFunction::WPFunction(float s, float e, std::string func) :
+		WaveformPart(s, e, WaveformPart::FUNCTION),
+		function(func)
 {
-public:
-	enum WaveformPartType {
-		SAMPLES,
-		FUNCTION,
-		HARMONICS
-	};
+	symTable.add_variable("x", var);
+	symTable.add_constants();
 	
-	typedef struct {
-		float start;
-		float end;
-		int type;
-		int size;
-	} PartDataHead;
+	funcExpr.register_symbol_table(symTable);
 	
-	//WaveformPart(float s, float e, WaveformPartType t, std::string* func = nullptr, std::vector<float>* sam = nullptr);
-	WaveformPart(float s, float e, WaveformPartType t);
-	//WaveformPart(char** data);
-	//WaveformPart(WaveformPart* part, float newStart, int size);
-	virtual ~WaveformPart();
-	static WaveformPart* getFromData(char** data);
+	parser.compile(function, funcExpr);
+}
 
-	PartDataHead* getDataHead();
-	virtual int getData(void** buffer) = 0;
+WPFunction::WPFunction(float s, float e, char** data, int size) :
+		WaveformPart(s, e, WaveformPart::FUNCTION),
+		function(*data)
+{
+	*data += size;
+}
 
-	virtual float getSample(int size, int pos) = 0;
+WPFunction::~WPFunction()
+{
+}
 
-	void setStart(float s);
-	void setEnd(float e);
-	//void setFunction(std::string* func);
+int WPFunction::getData(void** buffer)
+{
+	PartDataHead* head = WaveformPart::getDataHead();
+	int size = function.size() + 1;
+	head->size = size;
+	
+	int totalSize = sizeof(PartDataHead) + size;
+	
+	char* mem = new char[totalSize];
+	*buffer = mem;
+	
+	memcpy(mem, head, sizeof(PartDataHead));
+	mem += sizeof(PartDataHead);
+	
+	const char* c = function.c_str();
+	for (int i = 0; c[i]; *mem = c[i], mem++, i++) {}
+	*mem = 0;
+	mem++;
+	
+	delete head;
+	
+	return totalSize;
+}
 
+float WPFunction::getSample(int size, int pos)
+{
+	var = (float) pos / size;
+	return funcExpr.value();
+}
 
-	float getStart();
-	float getEnd();
-	int getType();
-	//std::string* getFunction();
-	//std::vector<float>* getSamples();
+std::string WPFunction::to_string()
+{
+	std::string str = WaveformPart::to_string();
+	str += " (FUNCTION): " + function;
+	return str;
+}
 
-	virtual std::string to_string();
+void WPFunction::setFunction(std::string func)
+{
+	function = func;
+	parser.compile(function, funcExpr);
+}
 
-private:
-	float start;
-	float end;
-	WaveformPartType type;
-	/*std::string* function;
-	std::vector<float>* samples;
-
-	exprtk::symbol_table<float>* symTable;
-	exprtk::expression<float>* funcExpr;
-	exprtk::parser<float>* parser;
-	float var;*/
-
-};
+std::string WPFunction::getFunction()
+{
+	return function;
+}
 
 } /* namespace cr42y */
-
-#endif /* SRC_COMMON_WAVEFORMPART_H_ */

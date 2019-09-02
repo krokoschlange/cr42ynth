@@ -31,73 +31,36 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_COMMON_WAVEFORMPART_H_
-#define SRC_COMMON_WAVEFORMPART_H_
+#ifndef SRC_UI_WTEDITOR_WTTOOL_H_
+#define SRC_UI_WTEDITOR_WTTOOL_H_
 
-#include <string>
 #include <vector>
 
 
 namespace cr42y
 {
 
+class WaveformPart;
 class WavetableEditData;
 
-class WaveformPart
+class WTTool
 {
 public:
-	enum WaveformPartType {
-		SAMPLES,
-		FUNCTION,
-		HARMONICS
-	};
+	WTTool(WavetableEditData* eData, int wtPos, float x, float y);
+	virtual ~WTTool();
 	
-	typedef struct {
-		float start;
-		float end;
-		int type;
-		int size;
-	} PartDataHead;
+	virtual void motion(float x, float y) = 0;
 	
-	//WaveformPart(float s, float e, WaveformPartType t, std::string* func = nullptr, std::vector<float>* sam = nullptr);
-	WaveformPart(float s, float e, WaveformPartType t);
-	//WaveformPart(char** data);
-	//WaveformPart(WaveformPart* part, float newStart, int size);
-	virtual ~WaveformPart();
-	static WaveformPart* getFromData(char** data);
-
-	PartDataHead* getDataHead();
-	virtual int getData(void** buffer) = 0;
-
-	virtual float getSample(int size, int pos) = 0;
-
-	void setStart(float s);
-	void setEnd(float e);
-	//void setFunction(std::string* func);
-
-
-	float getStart();
-	float getEnd();
-	int getType();
-	//std::string* getFunction();
-	//std::vector<float>* getSamples();
-
-	virtual std::string to_string();
-
-private:
-	float start;
-	float end;
-	WaveformPartType type;
-	/*std::string* function;
-	std::vector<float>* samples;
-
-	exprtk::symbol_table<float>* symTable;
-	exprtk::expression<float>* funcExpr;
-	exprtk::parser<float>* parser;
-	float var;*/
-
+	WaveformPart* getPart();
+	
+protected:
+	WaveformPart* part;
+	std::vector<WaveformPart*>* parts;
+	WavetableEditData* editData;
+	float startX;
+	float startY;
 };
 
 } /* namespace cr42y */
 
-#endif /* SRC_COMMON_WAVEFORMPART_H_ */
+#endif /* SRC_UI_WTEDITOR_WTTOOL_H_ */

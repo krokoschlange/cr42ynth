@@ -31,73 +31,88 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_COMMON_WAVEFORMPART_H_
-#define SRC_COMMON_WAVEFORMPART_H_
+#include <iostream>
 
-#include <string>
-#include <vector>
-
+#include "FreeTool.h"
+#include "WavetableEditData.h"
+#include "WPSamples.h"
 
 namespace cr42y
 {
 
-class WavetableEditData;
-
-class WaveformPart
+FreeTool::FreeTool(WavetableEditData* eData, int wtPos, float x, float y) :
+		WTTool(eData, wtPos, x, y),
+		lastX(x),
+		lastY(y)
 {
-public:
-	enum WaveformPartType {
-		SAMPLES,
-		FUNCTION,
-		HARMONICS
-	};
+	std::vector<float> v;
+	v.push_back(y);
+	part = new WPSamples(x, x + 0.0001, v);
+	eData->addPart(wtPos, part);
+}
+
+FreeTool::~FreeTool()
+{
+}
+
+void FreeTool::motion(float x, float y)
+{
+	int startPos = lastX * editData->getWidth();
+	int endPos = x * editData->getWidth();
 	
-	typedef struct {
-		float start;
-		float end;
-		int type;
-		int size;
-	} PartDataHead;
+	bool switched = false;
 	
-	//WaveformPart(float s, float e, WaveformPartType t, std::string* func = nullptr, std::vector<float>* sam = nullptr);
-	WaveformPart(float s, float e, WaveformPartType t);
-	//WaveformPart(char** data);
-	//WaveformPart(WaveformPart* part, float newStart, int size);
-	virtual ~WaveformPart();
-	static WaveformPart* getFromData(char** data);
+	if (startPos > endPos)
+	{
+		switched = true;
+		int tmp = startPos;
+		startPos = endPos;
+		endPos = tmp;
+	}
+	
+	std::vector<float>* samples = ((WPSamples*) part)->getSamples();
+	int vStart = part->getStart() * editData->getWidth();
+	int vEnd = vStart + samples->size();
+	
+	if (startPos < vStart)
+	{
+		float arr[vStart - startPos];
+		samples->insert(samples->begin(), arr, arr + (vStart - startPos));
+		part->setStart(x < lastX ? x : lastX);
+		vStart = startPos;
+	}
+	if (endPos > vEnd)
+	{
+		float arr[endPos - vEnd];
+		samples->insert(samples->end(), arr, arr + (endPos - vEnd));
+		if (part->getEnd() < (x > lastX ? x : lastX))
+		{
+			part->setEnd(x > lastX ? x : lastX);
+		}
+		vEnd = endPos;
+	}
+	
+	int relStartPos = startPos - vStart;
+	int relEndPos = relStartPos + (endPos - startPos);
+	
+	if (switched)
+	{
+		for (int i = relStartPos; i < relEndPos; i++)
+		{
+			(*samples)[i] = y + (float) (i - relStartPos) / (relStartPos - relEndPos) * (y - lastY);
+		}
+	}
+	else
+	{
+		for (int i = relStartPos; i < relEndPos; i++)
+		{
+			(*samples)[i] = lastY + (float) (i - relStartPos) / (relEndPos - relStartPos) * (y - lastY);
+		}
+	}
+	
+	lastX = x;
+	lastY = y;
+}
 
-	PartDataHead* getDataHead();
-	virtual int getData(void** buffer) = 0;
-
-	virtual float getSample(int size, int pos) = 0;
-
-	void setStart(float s);
-	void setEnd(float e);
-	//void setFunction(std::string* func);
-
-
-	float getStart();
-	float getEnd();
-	int getType();
-	//std::string* getFunction();
-	//std::vector<float>* getSamples();
-
-	virtual std::string to_string();
-
-private:
-	float start;
-	float end;
-	WaveformPartType type;
-	/*std::string* function;
-	std::vector<float>* samples;
-
-	exprtk::symbol_table<float>* symTable;
-	exprtk::expression<float>* funcExpr;
-	exprtk::parser<float>* parser;
-	float var;*/
-
-};
 
 } /* namespace cr42y */
-
-#endif /* SRC_COMMON_WAVEFORMPART_H_ */

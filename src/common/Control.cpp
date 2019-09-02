@@ -33,7 +33,7 @@
 
 #include <cstring>
 
-#include "rtosc.h"
+#include "rtosc/rtosc.h"
 
 #include "Control.h"
 #include "CR42YnthDSP.h"

@@ -34,7 +34,7 @@
 #include <cmath>
 #include <cstring>
 
-#include "rtosc.h"
+#include "rtosc/rtosc.h"
 
 #include "WTOscillator.h"
 #include "CR42YnthDSP.h"
