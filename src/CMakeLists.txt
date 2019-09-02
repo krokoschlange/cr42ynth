@@ -11,5 +11,5 @@
 #include_directories( ${X11_INCLUDE_DIRS} )
 #link_directories   ( ${X11_LIBRARY_DIRS} )
 
-#add_subdirectory(ui/)
+add_subdirectory(ui/)
 add_subdirectory(dsp/)

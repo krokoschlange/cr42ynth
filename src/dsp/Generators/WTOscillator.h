@@ -31,64 +31,77 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
+
 #ifndef SRC_DSP_GENERATORS_WTOSCILLATOR_H_
 #define SRC_DSP_GENERATORS_WTOSCILLATOR_H_
 
-#include <vector>
-
-#include "../../common/DoubleControl.h"
-#include "../ModulatableDoubleControl.h"
-#include "../../common/BoolControl.h"
-#include "../../common/IntControl.h"
+#include "Generator.h"
+#include "OscillatorVoiceData.h"
+#include "WavetableEditData.h"
 
 namespace cr42y
 {
 
-class WTOscillator
+class WTOscillator : public Generator
 {
 public:
-	WTOscillator(float rate, PortCommunicator* comm);
+	WTOscillator(std::vector<Voice*>* vce, int id, float rate);
 	virtual ~WTOscillator();
 
-	float getSample(float* wavePos, float WTPos, float note, float deltaFreq,
-			float FM);
-
 	void setWavetable(std::vector<std::vector<float>>* wt);
-	void setSmooth(bool s);
-	void setDetune(float notes);
-	void setDetune(int semi, int cents);
-	void setEnabled(bool state);
-	void setSync(bool state);
-	void setUnisonVoices(int voices);
-	void setUnisonDetune(float det);
-	void setUnisonSpread(float spread);
-	void setPhaseShift(float shift);
-	void setPhaseRand(float fac);
 
-	bool getSmooth();
-	float getDetune();
-	bool getEnabled();
-	bool getSync();
-	int getUnisonVoices();
-	float getUnisonDetune();
-	float getUnisonSpread();
-	float getPhaseShift();
-	float getPhaseRand();
+	void setEditData(WavetableEditData* ed);
+
+	virtual void nextSample();
+	virtual void voiceAdded(Voice* vce);
+	virtual void voiceRemoved(Voice* vce);
+
+	virtual void sendState();
+
+	bool receiveOSCMessage(OSCEvent* event);
+
+
+	void midiPanic();
+
+	std::vector<float> getOutput(Voice* vce);
+
+	Control* getActiveCtrl();
+	Control* getSmoothCtrl();
+	Control* getVolumeCtrl();
+	Control* getPanCtrl();
+	Control* getNoteShiftCtrl();
+	Control* getWTPosCtrl();
+	Control* getUnisonAmountCtrl();
+	Control* getUnisonDetuneCtrl();
+	Control* getUnisonSpreadCtrl();
+	Control* getPhaseShiftCtrl();
+	Control* getPhaseRandCtrl();
 
 private:
+	int number;
+
 	float samplerate;
-	DoubleControl detune;
+
+	WavetableEditData* editData;
+
 	std::vector<std::vector<float>>* wavetable;
+	std::map<Voice*, std::vector<float>> output;
 
-	BoolControl enabled;
-	BoolControl smooth;
+	std::vector<OscillatorVoiceData*> voiceData;
 
-	IntControl unisonVoices;
-	ModulatableDoubleControl unisonDetune;
-	ModulatableDoubleControl unisonSpread;
-	DoubleControl phaseShift;
-	DoubleControl phaseRand;
-	
+	Control active;
+	Control smooth;
+	Control noise;
+	Control volume;
+	Control detune;
+	Control pan;
+	Control noteShift;
+	Control wtPos;
+	Control unisonAmount;
+	Control unisonDetune;
+	Control unisonSpread;
+	Control phaseShift;
+	Control phaseRand;
 };
 
 } /* namespace cr42y */

@@ -31,179 +31,121 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
+#include <string>
+
 #include "LFO.h"
-#include "../CR42Ynth.h"
+#include "CR42YnthDSP.h"
 
 namespace cr42y
 {
 
-LFO::LFO(float rate, PortCommunicator* comm) :
+LFO::LFO(std::vector<Voice*>* vce, int id, float rate) :
+		Generator(vce),
+		number(id),
 		samplerate(rate),
-		waveform(nullptr), //TODO
-		smooth(2, comm),
-		global(2, comm),
-		sync(2, comm),
-		useFrequency(2, comm),
-		frequency(1, comm, 1, 0, 0),
-		pitchScale(2, comm),
-		beatNumerator(2, comm),
-		beatDenominator(2, comm),
-		globalPos(0)
+		waveform(nullptr),
+		syncedPhase(0), //TODO fix this
+		unsyncedPhase(0),
+		synced("/lfos/" + std::to_string(id) + "/sync", CR42YnthDSP::getInstance()->getCommunicator(), 1),
+		retrigger("/lfos/" + std::to_string(id) + "/retrigger", CR42YnthDSP::getInstance()->getCommunicator(), 1),
+		smooth("/lfos/" + std::to_string(id) + "/smooth", CR42YnthDSP::getInstance()->getCommunicator(), 1),
+		useFrequency("/lfos/" + std::to_string(id) + "/use_freq", CR42YnthDSP::getInstance()->getCommunicator()),
+		frequency("/lfos/" + std::to_string(id) + "/frequency", CR42YnthDSP::getInstance()->getCommunicator(), 1, 0, 10000),
+		lenghtInNotes("/lfos/" + std::to_string(id) + "/lenght", CR42YnthDSP::getInstance()->getCommunicator(), 1, 0, 20)
 {
+	phases.insert(std::pair<Voice*, float>(CR42YnthDSP::getInstance()->getGlobalVoice(), 0));
+	phases.insert(std::pair<Voice*, float>(CR42YnthDSP::getInstance()->getFreeVoice(), 0));
 }
 
 LFO::~LFO()
-{
-}
-
-float LFO::getSample(float* wavePos, float noteFreq)
-{
-	float freq =
-			getUseFrequency() ?
-					getFrequency() + (noteFreq * getPitchScale() / 100) :
-					(CR42Ynth::getInstance()->getBPM() / 60) / (getBeatNumerator() / getBeatDenominator());
-	
-	float deltaPos = freq / samplerate;
-	
-	float out = 0;
-	if (waveform)
-	{
-		float waveSample =
-				getGlobal() ? globalPos * waveform->size() :
-								*wavePos * waveform->size();
-		
-		if (getSmooth())
-		{
-			float waveSample2 = waveSample + 1;
-			if (waveSample2 > waveform->size())
-			{
-				waveSample2 -= waveform->size();
-			}
-			
-			float smpl1 = (*waveform)[(int) waveSample];
-			float smpl2 = (*waveform)[(int) waveSample2];
-			
-			out = smpl1 + (waveSample - (int) waveSample) * (smpl2 - smpl1);
-		}
-		else
-		{
-			out = (*waveform)[(int) waveSample];
-		}
-	}
-	if (getGlobal())
-	{
-		globalPos += deltaPos;
-	}
-	else
-	{
-		*wavePos += deltaPos;
-	}
-	return out;
-}
-
-void LFO::setLFO(std::vector<float>* lfo, float freq)
 {
 	if (waveform)
 	{
 		delete waveform;
 	}
-	waveform = lfo;
-	setFrequency(freq);
 }
 
-void LFO::setFrequency(float freq)
+void LFO::nextSample()
 {
-	frequency.setValue(freq);
+	for (std::map<Voice*, float>::iterator it = phases.begin(); it != phases.end(); it++)
+	{
+
+	}
 }
 
-void LFO::setSmooth(bool state)
+void LFO::voiceAdded(Voice* vce)
 {
-	smooth.setValue(state);
+	phases.insert(std::pair<Voice*, float>(vce, 0));
 }
 
-void LFO::setGlobal(bool state)
+void LFO::voiceRemoved(Voice* vce)
 {
-	global.setValue(state);
+	std::map<Voice*, float>::iterator it = phases.find(vce);
+	while (it != phases.end())
+	{
+		phases.erase(it);
+		std::map<Voice*, float>::iterator it = phases.find(vce);
+	}
 }
 
-void LFO::setSync(bool state)
+void LFO::sendState()
 {
-	sync.setValue(state);
+
 }
 
-void LFO::setUseFrequency(bool state)
+bool LFO::receiveOSCMessage(OSCEvent* event)
 {
-	useFrequency.setValue(state);
+
+	return false;
 }
 
-void LFO::setPitchScale(float scale)
+float LFO::getSample(Voice* vce)
 {
-	pitchScale.setValue(scale);
+	if (retrigger.getValue())
+	{
+		std::map<Voice*, float>::iterator it = values.find(vce);
+		if (it != values.end())
+		{
+			return it->second;
+		}
+	}
+	else
+	{
+		if (synced.getValue())
+		{
+			std::map<Voice*, float>::iterator it = values.find(CR42YnthDSP::getInstance()->getGlobalVoice());
+			if (it != values.end())
+			{
+				return it->second;
+			}
+		}
+		else
+		{
+			std::map<Voice*, float>::iterator it = values.find(CR42YnthDSP::getInstance()->getFreeVoice());
+			if (it != values.end())
+			{
+				return it->second;
+			}
+		}
+	}
+	return 0;
 }
 
-void LFO::setBeatNumerator(int num)
+void LFO::midiPanic()
 {
-	beatNumerator.setValue(num);
-}
-
-void LFO::setBeatDenominator(int den)
-{
-	beatDenominator.setValue(den);
-}
-
-void LFO::setGlobalPos(float pos)
-{
-	globalPos = pos;
-}
-
-void LFO::updateSamplerate(float rate)
-{
-	samplerate = rate;
-}
-
-float LFO::getFrequency()
-{
-	return frequency.getValue();
-}
-
-bool LFO::getSmooth()
-{
-	return smooth.getValue();
-}
-
-bool LFO::getGlobal()
-{
-	return global.getValue();
-}
-
-bool LFO::getSync()
-{
-	return sync.getValue();
-}
-
-bool LFO::getUseFrequency()
-{
-	return useFrequency.getValue();
-}
-
-float LFO::getPitchScale()
-{
-	return pitchScale.getValue();
-}
-
-int LFO::getBeatNumerator()
-{
-	return beatNumerator.getValue();
-}
-
-int LFO::getBeatDenominator()
-{
-	return beatDenominator.getValue();
-}
-
-float LFO::getGlobalPos()
-{
-	return globalPos;
+	float glphase = 0;
+	if (phases.find(CR42YnthDSP::getInstance()->getGlobalVoice()) != phases.end())
+	{
+		glphase = phases.find(CR42YnthDSP::getInstance()->getGlobalVoice())->second;
+	}
+	float fphase = 0;
+	if (phases.find(CR42YnthDSP::getInstance()->getFreeVoice()) != phases.end())
+	{
+		fphase = phases.find(CR42YnthDSP::getInstance()->getFreeVoice())->second;
+	}
+	phases.clear();
+	phases.insert(std::pair<Voice*, float>(CR42YnthDSP::getInstance()->getGlobalVoice(), glphase));
+	phases.insert(std::pair<Voice*, float>(CR42YnthDSP::getInstance()->getFreeVoice(), fphase));
 }
 
 } /* namespace cr42y */

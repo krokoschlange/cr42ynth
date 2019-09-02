@@ -34,37 +34,25 @@
 #ifndef SRC_DSP_VOICE_H_
 #define SRC_DSP_VOICE_H_
 
-//#include "Controllers/OscillatorController.h"
-//#include "Controllers/LFOController.h"
-//#include "Controllers/EnvelopeController.h"
-#include "ModulationHandler.h"
+#include "OSCEvent.h"
 
 namespace cr42y
 {
-class LFOController;
-class EnvelopeController;
-class OscillatorController;
 
 class Voice
 {
 public:
-	Voice(float n);
+	Voice(int n, int midivel);
 	virtual ~Voice();
 
-	float nextFrame();
-
-	float getNote();
-	bool getSustain();
+	int getNote();
+	float getVelocity();
 
 private:
-	OscillatorController** oscillators;
-	LFOController** lfos;
-	EnvelopeController** envelopes;
+	int note;
+	float start;
+	float velocity;
 
-	float note;
-	bool sustain;
-
-	ModulationHandler modHandler;
 };
 
 } /* namespace cr42y */

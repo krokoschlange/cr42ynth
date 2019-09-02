@@ -34,63 +34,52 @@
 #ifndef SRC_DSP_GENERATORS_LFO_H_
 #define SRC_DSP_GENERATORS_LFO_H_
 
-#include <vector>
-
-#include "../ModulatableDoubleControl.h"
-#include "../ModulatableIntControl.h"
-#include "../../common/BoolControl.h"
+#include "Generator.h"
+#include "Control.h"
 
 namespace cr42y
 {
 
-class LFO
+class LFO : public Generator
 {
 public:
-	LFO(float rate, PortCommunicator* comm);
+	LFO(std::vector<Voice*>* vce, int id, float rate);
 	virtual ~LFO();
 
-	float getSample(float* wavePos, float note);
+	void nextSample();
+	virtual void voiceAdded(Voice* vce);
+	virtual void voiceRemoved(Voice* vce);
 
-	void setLFO(std::vector<float>* lfo, float freq);
-	void setFrequency(float freq);
-	void setSmooth(bool state);
-	void setGlobal(bool state);
-	void setSync(bool state);
-	void setUseFrequency(bool state);
-	void setPitchScale(float scale);
-	void setBeatNumerator(int num);
-	void setBeatDenominator(int den);
-	void setGlobalPos(float pos);
-	void updateSamplerate(float rate);
+	virtual void sendState();
 
-	float getFrequency();
-	bool getSmooth();
-	bool getGlobal();
-	bool getSync();
-	bool getUseFrequency();
-	float getPitchScale();
-	int getBeatNumerator();
-	int getBeatDenominator();
-	float getGlobalPos();
+	virtual bool receiveOSCMessage(OSCEvent* event);
+
+	float getSample(Voice* vce);
+
+	void sync(float pos);
+
+	void setWaveform(std::vector<float>* wf);
+
+	void midiPanic();
 
 private:
+	int number;
 	float samplerate;
+
+	float unsyncedPhase;
+	float syncedPhase;
+
+	Control synced;
+	Control retrigger;
+	Control smooth;
+
+	Control useFrequency;
+	Control frequency;
+	Control lenghtInNotes;
+
 	std::vector<float>* waveform;
-	BoolControl smooth;
+	std::map<Voice*, float> phases;
 
-	BoolControl global;
-	BoolControl sync;
-
-	BoolControl useFrequency;
-
-	ModulatableDoubleControl frequency;
-	DoubleControl pitchScale;
-
-	IntControl beatNumerator;
-	ModulatableIntControl beatDenominator;
-
-	float globalPos;
-	
 };
 
 } /* namespace cr42y */

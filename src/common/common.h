@@ -31,16 +31,33 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef COMMON_H_
-#define COMMON_H_
 
-#define CR42YnthURI "https://github.com/krokoschlange/cr42ynth"
-#define CR42YnthUIURI CR42YnthURI "#ui"
-#define CR42YnthMSG CR42YnthURI "/msg#"
+#ifndef SRC_COMMON_COMMON_H_
+#define SRC_COMMON_COMMON_H_
 
-#define MSG_TYPE CR42YnthMSG "type"
-#define MSG_KEY CR42YnthMSG "data"
-#define MSG_OBJECT CR42YnthMSG "data_object"
-#define MSG_OBJECT_TYPE CR42YnthMSG "data_object_type"
+#define CR42Ynth__URI "https://github.com/krokoschlange/cr42ynth"
+#define CR42Ynth__DSP CR42Ynth__URI "#dsp"
+#define CR42Ynth__UI CR42Ynth__URI "#ui"
 
-#endif /* COMMON_H_ */
+namespace cr42y
+{
+
+enum CR42YnthPort
+{
+	AUDIO_OUT_L,
+	AUDIO_OUT_R,
+	NOTIFY,
+	CONTROL,
+	EXT1,
+	EXT2,
+	EXt3,
+	EXT4,
+	EXT5,
+	EXT6,
+	EXT7,
+	EXT8
+};
+
+} /* namespace cr42y */
+
+#endif /* SRC_COMMON_COMMON_H_ */

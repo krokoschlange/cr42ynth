@@ -31,89 +31,31 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
+
 #include "Voice.h"
-#include "CR42Ynth.h"
-#include "Generators/WTOscillator.h"
-#include "Controllers/OscillatorController.h"
-#include "Controllers/EnvelopeController.h"
-#include "Controllers/LFOController.h"
 
 namespace cr42y
 {
 
-Voice::Voice(float n) :
+Voice::Voice(int n, int midivel) :
 		note(n),
-		sustain(true),
-		modHandler(this)
+		velocity(midivel / 127.),
+		start(0) //TODO: Voice start time
 {
-	WTOscillator** oscs = CR42Ynth::getInstance()->getOscillators();
-	int amount = 0;
-	for (; oscs[amount]; amount++)
-	{
-	}
-	oscillators = new OscillatorController*[amount + 1];
-	for (int i = 0; i <= amount; i++)
-	{
-		oscillators[i] = new OscillatorController(this, oscs[i]);
-	}
-	
-	Envelope** envs = CR42Ynth::getInstance()->getEnvelopes();
-	amount = 0;
-	for (; envs[amount]; amount++)
-	{
-	}
-	envelopes = new EnvelopeController*[amount + 1];
-	for (int i = 0; i <= amount; i++)
-	{
-		envelopes[i] = new EnvelopeController(this, envs[i]);
-	}
-	
-	LFO** ls = CR42Ynth::getInstance()->getLFOs();
-	amount = 0;
-	for (; ls[amount]; amount++)
-	{
-	}
-	lfos = new LFOController*[amount + 1];
-	for (int i = 0; i <= amount; i++)
-	{
-		lfos[i] = new LFOController(this, ls[i]);
-	}
 }
 
 Voice::~Voice()
 {
-	delete[] lfos;
-	delete[] envelopes;
-	delete[] oscillators;
 }
 
-float Voice::nextFrame()
-{
-	for (int i = 0; envelopes[i]; i++)
-	{
-		envelopes[i]->nextFrame();
-	}
-	
-	for (int i = 0; lfos[i]; i++)
-	{
-		lfos[i]->nextFrame();
-	}
-
-	for (int i = 0; oscillators[i]; i++)
-	{
-		modHandler.calculateModulation(i, oscillators);
-		oscillators[i]->nextFrame();
-	}
-}
-
-float Voice::getNote()
+int Voice::getNote()
 {
 	return note;
 }
 
-bool Voice::getSustain()
+float Voice::getVelocity()
 {
-	return sustain;
+	return velocity;
 }
 
 } /* namespace cr42y */
