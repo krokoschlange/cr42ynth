@@ -1,0 +1,8 @@
+build*/
+*.un~
+planning/*
+*.so
+*.cxx~
+*.hxx~
+*.orig
+*.swp

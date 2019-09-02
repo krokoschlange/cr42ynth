@@ -1,0 +1,661 @@
+RT OSC User Manual
+==================
+Mark McCurry
+
+RT OSC a library for simply using Open Sound Control messages in a realtime
+context.
+
+The C Layer
+-----------
+
+For basic use of OSC messages, there is very little reason to complicate things
+more than needed.
+As such each message is simply stored in a buffer and assumed to be contiguous
+and stored properly.
+All manipulations of the OSC packets can be done with fixed sized buffers in a
+real time environment.
+
+The simplest and most useful function is _rtosc_message()_, which allows for the
+generation of OSC messages.
+
+[source,C]
+-----------------------------------------------------------------------
+char buffer[64];
+int len = rtosc_message(buffer, sizeof(buffer), "hello", "s", "world");
+-----------------------------------------------------------------------
+
+In this example _len_ now contains the length of the message and _buffer_
+contains a well formed OSC message (or at minimum one that is self consistent
+within this library).
+To see the message, we can print the buffer and the zeroth argument:
+
+[source,C]
+-------------------------------------------------------
+printf("%s %s!\n", buffer, rtosc_argument(buffer,0).s);
+//hello world!
+-------------------------------------------------------
+
+As the OSC message consists of null delimited path, argument string, and
+arguments, the path can be found at the start of the buffer and the argument can
+be fetched to get the fields.
+
+Other properties of this message can be found with library calls on the message
+buffer.
+
+[source,C]
+-------------------------------
+rtosc_narguments(buffer);
+//1
+rtosc_argument_string(buffer);
+//"s"
+rtosc_type(buffer, 0);
+//'s'
+rtosc_message_length(buffer);
+//same as len from above
+-------------------------------
+
+While this is a fairly simple interface, which may appear restrictive, this
+library's goal is to permit the simple use of basic RT OSC messages, nothing too
+much more, so for more complex construction of messages, I recommend liblo.
+This is not to say that all that all features are currently implemented.
+
+For more complex messages there are also varargs and array versions of message
+
+[source,C]
+--------------------------------------------------------------------
+rtosc_vmessage(buffer, sizeof(buffer), address, args, va_arguments);
+
+rtosc_arg_t args[] = {
+  {.s = "foo"},
+  {.i = 1234},
+  {.f = 1024.2}
+}
+rtosc_amessage(buffer, sizeof(buffer), "/path", "sif", args);
+--------------------------------------------------------------------
+
+//TODO message verification layer
+
+The C++ Layer
+-------------
+
+Once you have an OSC message, that is nice, but not terribly useful.
+As the primary motivation for this project is to ease the use of OSC for RT
+audio, this layer provides several key features:
+
+- A Thread Link, which makes transmitting messages over jack ringbuffers simple.
+- An implementation of Ports for dispatching OSC messages to their destinations.
+- A trivial midi lookup table for use with the Ports implementation
+
+As this library is based upon the concept of using fixed sized buffers to avoid
+memory allocation, and no size universally works, these classes are templates
+with respect to their size.
+
+ThreadLink
+~~~~~~~~~~
+
+For simple usage, calls to _write()_ replace any calls to _rtosc_message()_.
+One thread is intended to call _write()_ when messages are sent and the other is
+expected to periodically _read()_ all of the messages.
+
+[source,cpp]
+-----------------------------------------
+ThreadLink link(1024,128);
+link.write("hello", "s", "world");
+link.hasNext(); //true
+link.read(); //yields the hello:s:world message
+-----------------------------------------
+
+Ports
+~~~~~
+
+Defining all of the possible ways a message can be sent to various parts of an
+audio application is next to impossible, so the implementation of Ports result
+in a description of OSC methods handled by various patterns.
+With trivial programs, one might want to establish one table of ports to
+describe all of the possible connections, but this is not feasible for moderately
+sized to large sized applications.
+As such each set of ports defines one layer of a tree of ports statically.
+As all of the data presented via the Port interface can be statically
+specified, this means that the tree can easily be used as a read only data
+structure by both the frontend and RT backend.
+
+The _Port_ class defines one port which works on a OSC message and value.
+Below is a simple example port.
+
+[source,cpp]
+----------------------------------------------------------------------------------------------
+Port port("a_port:f", ":doc\0=Example port\0", [](const char*, RtData&){puts("port called")});
+----------------------------------------------------------------------------------------------
+
+The verbose way to read this is that this defines a port named "a_port" which
+accepts messages of type "f" (float) with one mapped property which defines the
+doc string "Example port" and a callback which is called at dispatch time.
+The concise way is to state that port maps float messages to "a_port" to the
+given function.
+
+The justification for the use of std::function rather than just plain old function
+is due to the recent addition of C\++11 lambda functions.
+Let's look at how this can be used with classes:
+
+[source,cpp]
+----------------------------------------------------------------
+#include <rtosc/ports.h>
+
+class Foobar
+{
+    float a,b,c,d;
+}
+
+Ports ports = {
+    {"a:f", "", NULL,
+        [](const char *m, void *f){((Foobar*)f)->a = argument(m,0).f;}),
+    {"b:f", "", NULL,
+        [](const char *m, void *f){((Foobar*)f)->b = argument(m,0).f;}),
+    {"c:f", "", NULL,
+        [](const char *m, void *f){((Foobar*)f)->c = argument(m,0).f;}),
+    {"d:f", "", NULL
+        [](const char *m, void *f){((Foobar*)f)->d = argument(m,0).f;})
+};
+----------------------------------------------------------------
+
+This is however quite verbose mainly due to the associated setter functions.
+As this field is a std::function and not just a simple function pointer it is
+possible to abstract this with a generated function (or a macro, though
+generated functions lead to more _interesting_ possibilities).
+
+One option is to use the included syntax sugar which simplifies the port
+definitions massively.
+
+
+[source,cpp]
+----------------------------------------------------------------
+#include <rtosc/ports.h>
+#include <rtosc/port-sugar.h>
+
+class Foobar
+{
+    float a,b,c,d;
+};
+
+#define rObject Foobar
+
+Ports ports = {
+    rParamF(a, "doc str"),
+    rParamF(b, "doc str"),
+    rParamF(c, "doc str"),
+    rParamF(d, "doc str"),
+};
+----------------------------------------------------------------
+
+There, that is a concise representation of those parameters.
+This can be further complicated by adding multiple layers to the process of
+dispatching an event.
+
+[source,cpp]
+----------------------------------------------------------------
+#include <rtosc/ports.h>
+#include <rtosc/port-sugar.h>
+
+class Barfoo
+{
+    float e;
+    static Ports ports;
+};
+
+class Foobar
+{
+    float a,b,c,d;
+    Barfoo baz;
+};
+
+#define rObject Barfoo
+
+Ports Barfoo::ports = {
+    rParamF(e, "doc str"),
+};
+
+#undef  rObject
+#define rObject Foobar
+
+Ports Foobar::ports = {
+    rParamF(a, "doc str"),
+    rParamF(b, "doc str"),
+    rParamF(c, "doc str"),
+    rParamF(d, "doc str"),
+    rRecur(baz, "doc str"),
+};
+----------------------------------------------------------------
+
+For more detail on the exact methods you should see the doxygen output, or for
+the moment the source itself (it doesn't bite much).
+
+While the default syntax sugar might not quite work out, it is possible to
+define any other method of generating ports.
+Notably some C++ templates might help with the definitions though the results
+will likely not be as concise as the provided macros.
+
+Finally as this system is designed to facilitate static inspection of the
+parameter trees, it is very easy to add metadata to the various parameters.
+Consider defining a min and max value for a parameter with an associated midi
+mapping.
+This can be done with several levels of verbosity:
+
+-----------------------------------------------------------------------------
+Ports Foobar::ports = {
+    rParamF(a, ":scale\0=linear\0:min\0=1\0:max\0=15.2\0", "a verbose port"),
+    rParamF(b, rMap(scale,linear),
+               rMap(min, 0),
+               rMap(max, 15.2), "a macro mapped port"),
+    rParamF(c, rLinear(0,15.2), "a concise port"),
+};
+-----------------------------------------------------------------------------
+
+Based upon this basic decomposition it should not be difficult to see how
+similar macros could be constructed to define port metadata which can be used
+within the callback or anything that might want to reflect on the ports.
+
+Path Specifiers
+^^^^^^^^^^^^^^^
+
+The rough specification for the grammar of the path specifiers is:
+
+---------------------------------------------------------
+argument_specializer_delimiter := ':'
+range_specifier   := '#'
+subport_specifier := '/'
+
+path      := location subport
+           | location subport arguments
+
+subport   :=
+           | '/'
+
+location  := text
+           | text '#' number
+
+arguments :=
+           | ':' types arguments
+
+types     :=
+           | type types
+---------------------------------------------------------
+
+A brief justification of this grammar can be summarized in a few points which
+echo the sentiment make 99% of code simple and the 1% possible:
+
+* Array fields are common in signal processing and the '#' specifier is a
+  simple means of explaining the ranges
+* While paths could be denoted outside of this string, it is concise to label
+  them with '/' which is disallowed from the subpaths from the OSC 1.0 spec
+* Type checking arguments is a PITA that can be reduced by formally specifying
+  all possible argument types. This also provides information when the tree is
+  statically traversed
+* All other edge cases can be either explained in the metadata or via the
+  behavior of the handling function
+
+Metadata
+^^^^^^^^
+
+Looking at all of this you may notice that the metadata field of the port is
+left blank every time.
+This field is not shown as it would complicate the above examples and it is only
+really useful when attaching other code to this idiom of a series of ports.
+The roughly established grammar for this specifier is:
+
+---------------------------------------------------------
+property_start := ':'
+value_start    := '='
+text           := [^\0]
+
+entry       :=
+            | ':' text '\0'
+            | ':' text '\0' '=' text '\0'
+
+metadata    :=
+            | entry
+            | entry metadata
+---------------------------------------------------------
+
+Most of this data has been structured s.t. it is easy to allow some UI to hook
+onto the data to eliminate some data redundancy and to permit documenting
+parameters where they are defined rather than in the mist of some horribly
+convoluted UI code.
+This field does not necessarily need to conform to the above structure, though
+port based extensions will expect the strings to roughly conform and all
+examples should conform.
+
+For an example of code using this format, see the Fl_Osc_* collection of widgets
+and meta-widgets in the complex example.
+
+MidiTable
+~~~~~~~~~
+
+As this system is designed to be fairly lightweight and the ports expose plenty
+of metadata about what arguments are accepted by each port, a logical next step
+is to enable some form of midi integration.
+The miditable is designed to allow for midi learning and general midi mapping of
+controllers.
+All this really amounts to is mapping a <controller id, channel id> to <path,
+type, conversion-function?>.
+
+SubTree-Serialization
+~~~~~~~~~~~~~~~~~~~~~
+
+While loading new modules without interrupting the realtime thread is easy
+enough through techniques like pointer swaps, saving a running set of parameters
+can be trickier.
+Through some port reflection and a lot of c string manipulation it is possible
+to serialize arbitrary subtrees of the graph formed by the rtosc::Ports
+structures.
+This currently transforms a readable set of ports into a bundle which contains
+all of the values needed to restore the state of the underlying structures.
+As with most things with this library, this feature is still experimental.
+
+NOTE:: Problems may exist with array fields
+
+Pretty-printing Messages
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+rtosc comes with a human readable format for messages. Transforming a "raw"
+message into a human readable one is called "pretty-printing", the adverse is
+called "pretty-scanning". Both transformations are reversible.
+
+The format for these messages is:
+
+-------------------------------
+<portname> <argument_values...>
+-------------------------------
+
+Note that no argument types are specified, since they can be inferred from the
+argument values. The following depicts the different types of argument values.
+Whitespace can be added and removed at sane places. Comments are introduced
+with a percent sign ('%') and end on the current line's end. The following
+examples show the preferred whitespace layout.
+
+* For argument types without argument values, there are still argument values
+  being printed:
+-----
+true
+false
+nil
+inf
+-----
+* For accepting numeric literals, rtosc first calculates the end of the
+  literal by searching for an end of the string, a space character or a
+  closing paranthesis (')'). Then, it behaves like trying out a number of
+  scanf format strings in the order shown below.
+  The first format string that matched exactly from the beginning to the
+  previously calculated end is being used for scanning, and the corresponding
+  type is being assumed. Except for the integer suffixes, the behaviour should
+  be identical to the behaviour of a C99 parser. For the exact meanings of the
+  format strings, consider your fscanf(3p) man page.
+  One extension to C99 is that the user can specify the exact value of a float
+  or double inside parantheses using the hex notation.
+---------------
+"%*"PRIi32"i%n"  % assume 'i' (4 byte int)
+"%*"PRIi64"h%n"  % assume 'h' (8 byte int)
+"%*"PRIi32"%n"   % assume 'i'
+"%*lfd%n"        % assume 'd' (double)
+"%*ff%n"         % assume 'f' (float)
+"%*f%n"          % assume 'f'
+---------------
+-------------
+42                    % 'i'
+0xdeadbeef            % 'i'
+077                   % 'i'
+123i                  % 'i'
+0xffffffffffh         % 'h'
+1.                    % 'f'
+1e10                  % 'f'
+1e-10                 % 'f'
+10f                   % 'f'
+10d                   % 'd'
+0xf                   % 'i' (no float!, value is 15)
+0xfp+0                % 'f' (if you wanted the above to be a float, =15.0f)
+0x1f                  % 'i' (no float!, value is 31)
+1f                    % 'f' (1.0f)
+0.000061 (0x0.1p-10)  % 'f' (the exact value is inside of parantheses)
+-------------
+* ANSII strings and characters are also used like in C99, which includes
+escape sequences. Strings can also be concatenated by appending a backslash
+after the first string's ending quote.
+----------
+"\"Hello\nworld!\""
+"this is..."\
+  "...one string"
+'#'
+'\''
+----------
+* MIDI messages are printed as four hex numbers:
+----------
+MIDI [0xff 0xff 0xff 0xff]
+----------
+* Blobs are being printed as an integer "n" folled by "n" hex numbers:
+----------
+[6 0x72 0x74 0x6f 0x73 0x63 0x00]
+[0]
+----------
+* Colors are 8 hex bytes, preceded by a '#' sign:
+----------
+#8badf00d
+----------
+* Timestamps are written as the UTC date in the ISO 8601
+  standard (the conversions are equal to using `localtime(3p)` and
+  `mktime(3p)`)
+  with an optional, appended time, which contains an optional 'seconds' part
+  and an optional appended fractional part separated by a period. There are
+  two special timestamps called 'now' and 'immediately' with the same
+  meaning.
+----------
+2017-22-03 20:29:59.125
+2016-11-16 19:44:06
+2000-01-01 00:00         % beginning of the day 2000-01-01
+2000-01-01               % same date as above
+now
+immediately
+----------
+* Identifiers (aka. Symbols, they have the capital 'S' as type letter) follow
+  the C convention, i.e. "[A-Za-z_][A-Za-z0-9_]*". Unlike strings, identifiers
+  are not surrounded by quotes. A typical use are enumerations like in combo
+  boxes. If the C convention does not suffice to represent an identifier, it
+  can be written using the string convention mentioned above, with a capital
+  'S' directly appended to the closing quote
+----------
+An_Identifier_with_a_Number_12345
+frequency_modulation
+"A more \"complicated\" identifier!"S
+----------
+* Ranges can be used for repeated or linearly increasing values.
+** If the element shall be repeated, the syntax "nxa" with "n" being a
+   *decimal* integer and "a" being an element, expands to "a a ... a", where "a"
+   is used "n" times. All element types except ranges are allowed.
+** Otherwise, the syntax "a b ... c", where "d:=b-a" and a natural number "n"
+   exists such that "a+nd = c", evaluates to "a b b+d b+2d b+3d ... c". If "a"
+   is not given or of different type than "b", "d" is being computed as
+   "d:=sgn(c-b)",
+     i.e d:= 1 if c>b
+     and d:=-1 if b>c.
+   For floating point numbers, "a+nd" does not need match "c", but an "n" must
+   exist such that "|a+nd-c| <= 0.001".
+   Restrictions:
+   * "a" and "b" must not be equal and must be of the same type
+   * Only simple numeric types, i.e. one of "cihfd", are allowed.
+   * Ranges may not overlap, i.e. no "2x1 ... 3" and no "1 ... 3 ... 5"
+----------
+10 8 ... 2                % 10 8 6 4 2
+0.000 0.333 ... 1.000     % 0.000 0.333 0.667 1.000
+3x["bad" "luck"]          % ["bad" "luck"] ["bad" "luck"] ["bad" "luck"]
+----------
+* Arrays are written as multiple, space separated elements of the same type,
+  encapsulated by brackets. They can contain any types of elements. There is a
+  special range type only valid at the end of arrays: "a b ...". The missing
+  right-hand-sign means that the range is infinite. If there's no suiting
+  left-of-left-hand-sign, or it exists and equals the left-hand-sign the range
+  is delta-less, e.g. the same element is being repeated.
+----------
+[ "Multiple" "strings" ]
+[ 1 ... 5 ]
+[ 1 2 ... ]               % 1 2 3 4 ...
+[ 0.1 1 ... ]             % 0.1 1 1 1 ...
+[ 1 1 ... ]               % 1 1 1 1 1 ...
+% not allowed: [ 1 1 ... 1]
+----------
+
+Here are a few examples of full messages:
+----------
+% expects three ints: channel, note and volume
+/noteOn 0 60 64
+% expects side lengths, fill color, text inside the rectangle, and
+% whether a line should be drawn around the rectangle
+/drawRectangle 5f 2.4 #ff0000ff "I am a\nrectangle" true
+----------
+
+Default Values
+~~~~~~~~~~~~~~
+
+Default values usually describe what an app can answer best if it currently has
+no valid data, or if it is in an initial or resetted state. The datatypes and
+the values which the ports reply as such a default response should be passed to
+the rDefault macro family in the <<Pretty-printing Messages, "pretty format">>.
+
+A single, simple default value is being noted using the rDefault macro. Note
+that rParameter must present if the parameter shall be saved into OSC savefiles.
+----------
+rParamI(panning, rParameter, rDefault(64), "Panning");
+----------
+
+Default values can depend on other variables. This can happen
+ 1. if you have the same Ports struct in multiple locations of your tree, where
+    the default values depend on where the Ports struct is located
+ 2. if you have multiple presets with different default values for each preset
+If you already have a variable defining that preset or location of the port you
+are using, you can simply depend on it and define "presets". An additional
+rDefault will match if no preset is specified.
+----------
+rParamI(panning, rParameter,
+        rDefaultDepends(preset), rDefault(64), rPresetsAt(2, 0, 127),
+        "Panning"),
+rOption(preset, rOptions(center1, center2, left, right), "Effect preset")
+----------
+
+Sometimes, you may not already have access to the port you depend on, because
+that information is stored in the runtime object belonging to the parent's
+ports. If you do not want to introduce an additional variable, you can declare
+the port (which depends on the other) in the parent Ports struct, too:
+
+----------
+class Parent
+{
+    bool component_enabled[NUM_COMPONENTS];
+    class Component
+    {
+        // we need a port that tells us if this component is enabled
+    };
+};
+
+// Parent ports:
+rRecurs(components, NUM_COMPONENTS),
+{"component#" STRINGIFY(NUM_COMPONENTS) "/enabled::T:F",
+ rProp(parameter)
+ rDefaultArr("[true]") rDefault(false), // => [true, NUM_COMPONENTSxfalse]
+ NULL, rArrayTCbMember(VoicePar, enabled)},
+----------
+
+Note that it's currently not supported to let a single array element depend on
+other ports; this is only possible for the whole array.
+
+OSC Savefiles
+~~~~~~~~~~~~~
+
+If an app has default values for all parameters, and only the diffs to the
+default values shall be saved (this is typically much less data and much easier
+to read), RT OSC offers savefiles that contain the OSC messages which turn a
+default-initializid app into the state at the time the savefile was created.
+
+Note that only parameters with some <<Default Values, "default notation">> and
+the "rProp(parameter)" are being saved.
+
+There are two situations to omit subtrees when saving. One situation where
+this might be wanted is to save time if you know that the subtree has not yet
+been changed. Use the rEnabled* family to mark a port enabled or disabled. This
+can be either done in the Port containing the Ports structure of the subtree,
+or in the Ports' "rSelf()" macro. Alternatively, if the runtime object belonging
+to the subports is a pointer, rtosc will automatically skip the tree if it's a
+nullptr.
+
+----------
+// enable self by port:
+rSelf(some_parameters, rEnabledBy(i_am_enabled)),
+rToggle(i_am_enabled, "port that returns if these parameters are enabled")
+// enable self by (rBOILed) condition:
+rSelf(some_parameters, rEnabledByCondition(c1)),
+rEnabledCondition(c1, obj->use_count() > 0)
+// enable subports by port
+rRecur(subports, rEnabledBy(subport_is_enabled))
+rToggle(subport_is_enabled, "port that returns if this subtree is enabled")
+----------
+
+Another situation where you may want to skip a subtree is if its data should
+never be saved. This can happen if the subtree ...
+
+* contains parameters of your app that shall not be written into savefiles
+   (e.g. configuration parameters from $HOME/.app)
+* contains parameters that can not be accessed at all or not in reasonable time
+* shall only be synchronized when certain macros are defined
+
+In such a case, simply add the macro "rNoDefaults" to the metadata of the port
+containing these subports (or to the metadata of a single port).
+
+Checking your ports
+~~~~~~~~~~~~~~~~~~~
+
+Once your rtosc app is coded, you can check your ports for common issues.
+Requirements:
+
+* your app has a UDP port for OSC
+* your app provides the "/path-search" port, see the doxygen comment for the
+  "path_search" function in ports.h
+* rtosc was compiled with liblo support
+
+To do so, you need to
+
+* start your app
+* extract the UDP port from it (e.g. via stdout)
+* source the port-checker bash completion: `. completions/port-checker`
+* start the port checker with `test/port-checker <port>`
+
+This can be automated by a ruby script, see test/check-ports.rb, which starts
+a test app which is used to test the port-checker itself.
+
+NOTE:: In order to check all of your ports, make sure that each type of port is
+       being enabled in some path.
+NOTE:: As the port-checker will only always take the first element of a bundle
+       port (e.g. only "multiple0/" of "multiple#16/"), the parent ports of any
+       port you want to test must be a non-bundle port or the first port of a
+       bundle port.
+
+Undo Support
+~~~~~~~~~~~~
+
+As, all mutations are presented to the rtosc dispatcher in a set of ordered
+actions, adding undo support is fairly trivial.
+Upon being presented with a new value, a control can emit (along with its
+update) an undo event, which defines the transition from old to new values.
+These undo events can be used to form a linearized history which can be
+rewound or replayed.
+When a change occurs it is broadcast out to all listeners.
+
+Each undo message consists of some path and a before/after pair of values.
+For example +/undo/handler sff "/volume_dB" 0.7f 20.0f+ would result in an
+event to change +/volume_dB+ from 7dB to 20dB.
+This event can be inserted into the undo history via
+_UndoHistory::recordEvent()_.
+
+By using _UndoHistory::seekHistory(-1)_ this event can be reversed.
+
+NOTE:: UndoHistory instances are NOT realtime safe
+
+
+
+This basic idea is certainly not perfect, as it is very dumb to start with
+
