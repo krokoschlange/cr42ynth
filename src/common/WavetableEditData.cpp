@@ -274,10 +274,10 @@ float WavetableEditData::getSample(int row, int smpl)
 	return ret;
 }
 
-std::vector<float>* WavetableEditData::getSamples(int row)
+std::vector<float>* WavetableEditData::getSamples(int row, int stepSize)
 {
 	std::vector<float>* ret = new std::vector<float>();
-	for (int i = 0; i < getWidth(); i++)
+	for (int i = 0; i < getWidth(); i += stepSize)
 	{
 		ret->push_back(getSample(row, i));
 	}

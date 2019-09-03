@@ -12,7 +12,7 @@
 #link_directories   ( ${X11_LIBRARY_DIRS} )
 
 project(CR42Ynth)
-
+#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/../../bin)
 
 add_subdirectory(dsp/)
 add_subdirectory(ui/)

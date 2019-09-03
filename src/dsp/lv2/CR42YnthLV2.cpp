@@ -148,13 +148,13 @@ void CR42YnthLV2::run(uint32_t n_samples)
 			!lv2_atom_sequence_is_end(&(ctrlIn)->body, ctrlIn->atom.size, event);
 			event = lv2_atom_sequence_next(event))
 	{
-		log("event in ctrlIn");
+		//log("event in ctrlIn");
 		if (lv2_atom_forge_is_object_type(forge, event->body.type))
 		{
 			LV2_Atom_Object* obj = (LV2_Atom_Object*) &event->body;
 			if (obj->body.otype == uris->msgObj)
 			{
-				log("custom msg");
+				//log("custom msg");
 				LV2_Atom* msgAtom = nullptr;
 				LV2_Atom* dataAtom = nullptr;
 				lv2_atom_object_get(obj, uris->msgOSCMsg, &msgAtom, uris->msgData, &dataAtom, 0);
@@ -175,7 +175,7 @@ void CR42YnthLV2::run(uint32_t n_samples)
 			}
 			else if (obj->body.otype == uris->timePosition)
 			{
-				log("time data");
+				//log("time data");
 				LV2_Atom* beat = nullptr, *bpm = nullptr, *speed = nullptr;
 				lv2_atom_object_get(obj, uris->timeBarBeat, &beat, uris->timeBPM, &bpm, uris->timeSpeed, &speed, nullptr);
 				if (bpm && bpm->type == uris->atomFloat)
@@ -203,7 +203,7 @@ void CR42YnthLV2::run(uint32_t n_samples)
 		}
 		if (event->body.type == uris->midiEvent)
 		{
-			log("midi");
+			//log("midi");
 			char buffer[32];
 			char* msg = (char*) (event + 1);
 			char midimsg[] =

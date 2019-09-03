@@ -48,7 +48,7 @@ WTOscillator::WTOscillator(std::vector<Voice*>* vce, int id, float rate) :
 		samplerate(rate),
 		wavetable(nullptr),
 		active("/oscillators/" + std::to_string(id) + "/active", CR42YnthDSP::getInstance()->getCommunicator()),
-		smooth("/oscillators/" + std::to_string(id) + "/smooth", CR42YnthDSP::getInstance()->getCommunicator(), 1),
+		smooth("/oscillators/" + std::to_string(id) + "/smooth", CR42YnthDSP::getInstance()->getCommunicator()),
 		noise("/oscillators/" + std::to_string(id) + "/noise", CR42YnthDSP::getInstance()->getCommunicator()),
 		volume("/oscillators/" + std::to_string(id) + "/volume", CR42YnthDSP::getInstance()->getCommunicator(), 1),
 		detune("/oscillators/" + std::to_string(id) + "/detune", CR42YnthDSP::getInstance()->getCommunicator(), 0, -96, 96),
@@ -89,9 +89,17 @@ void WTOscillator::setEditData(WavetableEditData* ed)
 		delete editData;
 	}
 	editData = ed;
+	CR42YnthDSP::getInstance()->getCommunicator()->log(editData->to_string().c_str());
 	if (editData)
 	{
 		setWavetable(editData->getSamples());
+		std::string str = "";
+		for (int i = 0; i < (*wavetable)[0].size(); i += 400)
+		{
+			str += std::to_string((*wavetable)[0][i]);
+		}
+		CR42YnthDSP::getInstance()->getCommunicator()->log(str.c_str());
+		CR42YnthDSP::getInstance()->getCommunicator()->log(std::to_string(ed->getWidth()).c_str());
 	}
 	else
 	{
@@ -222,15 +230,7 @@ void WTOscillator::sendState()
 	unsigned int bufferSize = address.size() + 32;
 	char buffer[bufferSize];
 
-	int height = 0;
-	int width = 0;
-	if (wavetable)
-	{
-		height = wavetable->size();
-		width = height > 0 ? (*wavetable)[0].size() : 0;
-	}
-
-	int len = rtosc_message(buffer, bufferSize, address.c_str(), "sii", "set", width, height);
+	int len = rtosc_message(buffer, bufferSize, address.c_str(), "s", "set");
 
 	if (editData)
 	{

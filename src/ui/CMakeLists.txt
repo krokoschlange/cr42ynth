@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.6)
 add_subdirectory(wtEditor/)
 
 #project(cr42ynth_ui.so)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/../../bin)
+#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/../../bin)
 
 find_package(PkgConfig)
 
@@ -21,10 +21,13 @@ link_directories   ( ${X11_LIBRARY_DIRS} )
 
 include_directories ("${PROJECT_SOURCE_DIR}/../rtosc/include/")
 include_directories ("${PROJECT_SOURCE_DIR}/../avtk/avtk/")
+include_directories ("${PROJECT_SOURCE_DIR}/../exprtk/")
 include_directories ("${PROJECT_SOURCE_DIR}/dsp/Generators/")
 include_directories ("${PROJECT_SOURCE_DIR}/common/")
 include_directories ("${PROJECT_SOURCE_DIR}/ui/lv2/")
 include_directories ("${PROJECT_SOURCE_DIR}/ui/")
+include_directories ("${PROJECT_SOURCE_DIR}/ui/wtEditor")
+include_directories ("${PROJECT_SOURCE_DIR}/ui/wtEditor/tools")
 
 add_executable(cr42ynth_ui.so
 	../common/OSCEvent.cpp
@@ -32,6 +35,29 @@ add_executable(cr42ynth_ui.so
 	lv2/CR42YnthUILV2.cpp
 	lv2/lv2UI.cpp
 	
+	../common/WaveformPart.cpp
+	../common/WavetableEditData.cpp
+	../common/WPFunction.cpp
+	../common/WPHarmonics.cpp
+	../common/WPSamples.cpp
+	../common/FftRealPair.cpp
+	
+	wtEditor/tools/FreeTool.cpp
+	wtEditor/tools/SinHalfTool.cpp
+	wtEditor/tools/SinSlopeTool.cpp
+	wtEditor/tools/TriTool.cpp
+	wtEditor/tools/WTTool.cpp
+	
+	wtEditor/CRSurfaceButton.cpp
+	wtEditor/CustomScroll.cpp
+	wtEditor/DragBar.cpp
+	
+	wtEditor/HarmonicsEditor.cpp
+	wtEditor/HarmonicsView.cpp
+	wtEditor/ToolPanel.cpp
+	wtEditor/WaveformView.cpp
+	wtEditor/WTEditor.cpp
+	wtEditor/WTView.cpp
 	
 	CR42YnthUI.cpp
 )

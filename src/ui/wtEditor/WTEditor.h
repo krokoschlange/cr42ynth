@@ -60,6 +60,7 @@ public:
 
 	void setWTPos(int pos);
 
+	void setEditData(WavetableEditData* eData);
 	WavetableEditData* getEditData();
 	int getWTPos();
 

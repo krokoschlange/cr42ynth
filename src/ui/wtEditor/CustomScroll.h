@@ -60,6 +60,10 @@ public:
 protected:
 	Avtk::Widget* child;
 	
+	cairo_t* cairoCache;
+	cairo_surface_t* surfCache;
+	bool needsNewChildCr;
+	
 	int mx;
 	int my;
 	

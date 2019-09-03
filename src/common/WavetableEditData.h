@@ -65,7 +65,7 @@ public:
 	std::vector<WaveformPart*>* getWaveform(int row);
 
 	float getSample(int row, int smpl);
-	std::vector<float>* getSamples(int row);
+	std::vector<float>* getSamples(int row, int stepSize = 1);
 	std::vector<std::vector<float>>* getSamples();
 
 	void update(char* data);

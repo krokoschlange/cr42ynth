@@ -159,6 +159,19 @@ WTEditor::~WTEditor()
 	return 0;
 }*/
 
+void WTEditor::setEditData(WavetableEditData* eData)
+{
+	if (eData)
+	{
+		if (data)
+		{
+			delete data;
+		}
+		data = eData;
+		requestRedraw();
+	}
+}
+
 WavetableEditData* WTEditor::getEditData()
 {
 	return data;

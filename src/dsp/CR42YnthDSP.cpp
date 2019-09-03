@@ -287,6 +287,7 @@ void CR42YnthDSP::run(uint32_t n_samples)
 		outR[s] = 0;
 		for (int i = 0; i < oscillators.size(); i++)
 		{
+			//getCommunicator()->log(std::to_string(oscillators[i]->getActiveCtrl()->getValue()).c_str());
 			if (oscillators[i]->getActiveCtrl()->getValue())
 			{
 				oscillators[i]->nextSample();

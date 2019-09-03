@@ -48,7 +48,7 @@ public:
 	virtual ~TestUI();
 
 	void widgetValueCB(Avtk::Widget* widget);
-
+	
 private:
 	WTEditor* editor;
 };

@@ -55,6 +55,12 @@ WPFunction::WPFunction(float s, float e, char** data, int size) :
 		function(*data)
 {
 	*data += size;
+	symTable.add_variable("x", var);
+	symTable.add_constants();
+	
+	funcExpr.register_symbol_table(symTable);
+	
+	parser.compile(function, funcExpr);
 }
 
 WPFunction::~WPFunction()

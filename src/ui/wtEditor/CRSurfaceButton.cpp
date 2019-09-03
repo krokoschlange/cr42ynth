@@ -50,7 +50,10 @@ CRSurfaceButton::CRSurfaceButton(Avtk::UI* ui, int x, int y, int w,
 		scaleX(1),
 		scaleY(1),
 		pScaleX(1),
-		pScaleY(1)
+		pScaleY(1),
+		needsNewSurfaces(true),
+		surfInit(surf),
+		pSurfInit(pSurf)
 {
 	label_visible = false;
 	scaleX = sw != 0 ? (float) w / sw : 1;
@@ -58,7 +61,7 @@ CRSurfaceButton::CRSurfaceButton(Avtk::UI* ui, int x, int y, int w,
 	pScaleX = psw != 0 ? (float) w / psw : 1;
 	pScaleY = psh != 0 ? (float) h / psh : 1;
 	
-	if (surf)
+	/*if (surf)
 	{
 		surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, w, h);
 		cairo_t* surfCr = cairo_create(surface);
@@ -75,7 +78,7 @@ CRSurfaceButton::CRSurfaceButton(Avtk::UI* ui, int x, int y, int w,
 		cairo_set_source_surface(surfCr, pSurf, 0, 0);
 		cairo_paint(surfCr);
 		cairo_destroy(surfCr);
-	}
+	}*/
 }
 
 CRSurfaceButton::~CRSurfaceButton()
@@ -105,6 +108,32 @@ void CRSurfaceButton::draw(cairo_t* cr)
 	cairo_save(cr);
 	
 	roundedBox(cr, x(), y(), w(), h(), theme_->cornerRadius_);
+	
+	if (needsNewSurfaces)
+	{
+		if (surfInit)
+		{
+			surface = cairo_surface_create_similar(cairo_get_target(cr),
+					CAIRO_CONTENT_COLOR_ALPHA,
+					w(), h());
+			cairo_t* surfCr = cairo_create(surface);
+			cairo_scale(surfCr, scaleX, scaleY);
+			cairo_set_source_surface(surfCr, surfInit, 0, 0);
+			cairo_paint(surfCr);
+			cairo_destroy(surfCr);
+		}
+		if (pSurfInit)
+		{
+			pressedSurface = cairo_surface_create_similar(cairo_get_target(cr),
+					CAIRO_CONTENT_COLOR_ALPHA,
+					w(), h());
+			cairo_t* surfCr = cairo_create(pressedSurface);
+			cairo_scale(surfCr, scaleX, scaleY);
+			cairo_set_source_surface(surfCr, pSurfInit, 0, 0);
+			cairo_paint(surfCr);
+			cairo_destroy(surfCr);
+		}
+	}
 	
 	if (value())
 	{

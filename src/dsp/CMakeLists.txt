@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 #project(cr42ynth.so)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/../../bin)
+#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/../../bin)
 
 find_package(PkgConfig)
 

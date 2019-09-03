@@ -93,7 +93,7 @@ void HarmonicsEditor::draw(cairo_t* cr)
 	cairo_rectangle(cr, x(), y(), w(), h());
 	theme_->color(cr, Avtk::BG);
 	cairo_fill(cr);
-	Avtk::Group::draw(cr);
+	//Avtk::Group::draw(cr);
 	
 	for (int i = 0; i < 129; i++)
 	{
@@ -133,14 +133,19 @@ int HarmonicsEditor::handle(const PuglEvent* event)
 {
 	if (part)
 	{
-		int g = Avtk::Group::handle(event);
-		if (event->type == PUGL_BUTTON_RELEASE)
+		if (event->type == PUGL_BUTTON_PRESS ||
+				event->type == PUGL_BUTTON_RELEASE ||
+				event->type == PUGL_MOTION_NOTIFY)
 		{
-			editor->requestRedraw();
-		}
-		if (g)
-		{
-			return g;
+			int g = Avtk::Group::handle(event);
+			if (event->type == PUGL_BUTTON_RELEASE)
+			{
+				editor->requestRedraw();
+			}
+			if (g)
+			{
+				return g;
+			}
 		}
 	}
 	return 0;

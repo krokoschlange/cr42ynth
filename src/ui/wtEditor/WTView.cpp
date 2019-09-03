@@ -50,13 +50,15 @@ WTView::WTView(WTEditor* ed, int x, int y, int w, int h, std::string label) :
 		editor(ed),
 		scroll(new CustomScroll(ed->ui, x, y, w, h, label + "_scroll")),
 		boxSize(50),
-		redraw(true)
+		redraw(true),
+		surfCache(nullptr),
+		cairoCache(nullptr)
 {
 	ed->add(scroll);
 	scroll->setChild(this);
 	
-	surfCache = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, w, h);
-	cairoCache = cairo_create(surfCache);
+	/*surfCache = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, w, h);
+	cairoCache = cairo_create(surfCache);*/
 	updateRemoveButtons();
 	
 	cairo_surface_t* plus = cairo_image_surface_create_from_png("../media/plus.png");
@@ -78,18 +80,20 @@ void WTView::draw(cairo_t* cr)
 	if (redraw)
 	{
 		redraw = false;
-		WavetableEditData* editData = editor->getEditData();
-		std::vector<std::vector<float>>* samples = editData->getSamples();
-		int oldH = h();
-		h(samples->size() * boxSize);
-		if (oldH != h())
+		if (!surfCache)
 		{
-			cairo_surface_destroy(surfCache);
-			cairo_destroy(cairoCache);
-			surfCache = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, w(), h());
+			if (cairoCache)
+			{
+				cairo_destroy(cairoCache);
+			}
+			surfCache = cairo_surface_create_similar(
+					cairo_get_target(cr),
+					CAIRO_CONTENT_COLOR_ALPHA,
+					w(), h());
 			cairoCache = cairo_create(surfCache);
 		}
-		scroll->childResize();
+		WavetableEditData* editData = editor->getEditData();
+		std::vector<std::vector<float>>* samples = editData->getSamples();
 		
 		cairo_rectangle(cairoCache, 0, 0, w(), h());
 		theme_->color(cairoCache, Avtk::BG_DARK);
@@ -128,8 +132,11 @@ void WTView::draw(cairo_t* cr)
 		}
 		delete samples;
 	}
-	cairo_set_source_surface(cr, surfCache, x(), y());
 	cairo_rectangle(cr, x(), y(), w(), h());
+	theme_->color(cr, Avtk::BG_DARK);
+	cairo_fill_preserve(cr);
+	cairo_set_source_surface(cr, surfCache, x(), y());
+	
 	cairo_fill(cr);
 	
 	Avtk::Group::draw(cr);
@@ -156,9 +163,23 @@ int WTView::handle(const PuglEvent* event)
 
 void WTView::valueCB(Avtk::Widget* widget)
 {
+	WavetableEditData* editData = editor->getEditData();
+	std::vector<std::vector<WaveformPart*>>* wf = editData->getWaveforms();
 	if (widget == addBtn)
 	{
 		editor->addWaveform();
+		
+		int oldH = h();
+		h(wf->size() * boxSize);
+		if (oldH != h())
+		{
+			cairo_surface_destroy(surfCache);
+			cairo_destroy(cairoCache);
+			cairoCache = nullptr;
+			surfCache = nullptr;
+			scroll->childResize();
+		}
+		
 		editor->requestRedraw();
 		return;
 	}
@@ -167,6 +188,18 @@ void WTView::valueCB(Avtk::Widget* widget)
 		if (removeBtns[i] == widget && widget->value())
 		{
 			editor->removeWaveform(i);
+			
+			int oldH = h();
+			h(wf->size() * boxSize);
+			if (oldH != h())
+			{
+				cairo_surface_destroy(surfCache);
+				cairo_destroy(cairoCache);
+				cairoCache = nullptr;
+				surfCache = nullptr;
+				scroll->childResize();
+			}
+
 			editor->requestRedraw();
 			return;
 		}

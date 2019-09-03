@@ -50,10 +50,12 @@ namespace cr42y
 HarmonicsView::HarmonicsView(WTEditor* ed, int x, int y, int w, int h, std::string label) :
 		Avtk::Widget(ed->ui, x, y, w, h, label),
 		editor(ed),
-		redraw(true)
+		redraw(true),
+		surfCache(nullptr),
+		cairoCache(nullptr)
 {
-	surfCache = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, w, h);
-	cairoCache = cairo_create(surfCache);
+	//surfCache = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, w, h);
+	//cairoCache = cairo_create(surfCache);
 }
 
 HarmonicsView::~HarmonicsView()
@@ -63,9 +65,22 @@ HarmonicsView::~HarmonicsView()
 
 void HarmonicsView::draw(cairo_t* cr)
 {
+	cairo_save(cr);
 	if (redraw)
 	{
 		redraw = false;
+		if (!surfCache)
+		{
+			if (cairoCache)
+			{
+				cairo_destroy(cairoCache);
+			}
+			surfCache = cairo_surface_create_similar(
+					cairo_get_target(cr),
+					CAIRO_CONTENT_COLOR_ALPHA,
+					w(), h());
+			cairoCache = cairo_create(surfCache);
+		}
 		cairo_save(cairoCache);
 		
 		cairo_rectangle(cairoCache, 0, 0, w(), h());
@@ -79,8 +94,8 @@ void HarmonicsView::draw(cairo_t* cr)
 		
 		Fft::transform(doubleSmpls, doubleEmpty);
 		
-		/*doubleSmpls.erase(doubleSmpls.begin());
-		doubleEmpty.erase(doubleEmpty.begin());*/
+		//doubleSmpls.erase(doubleSmpls.begin());
+		//doubleEmpty.erase(doubleEmpty.begin());
 		
 		float maxAmp = 0;
 		for (int i = 0; i < 129; i++)
@@ -136,11 +151,11 @@ void HarmonicsView::draw(cairo_t* cr)
 		
 		cairo_restore(cairoCache);
 	}
-	cairo_save(cr);
 	
 	cairo_set_source_surface(cr, surfCache, x(), y());
+	//cairo_rectangle(cr, x(), y(), w(), h());
+	cairo_paint(cr);
 	cairo_rectangle(cr, x(), y(), w(), h());
-	cairo_fill_preserve(cr);
 	theme_->color(cr, Avtk::FG);
 	cairo_set_line_width(cairoCache, theme_->lineWidthWide_);
 	cairo_stroke(cr);
@@ -151,7 +166,6 @@ void HarmonicsView::draw(cairo_t* cr)
 void HarmonicsView::requestRedraw()
 {
 	redraw = true;
-	ui->redraw(this);
 }
 
 } /* namespace cr42y */

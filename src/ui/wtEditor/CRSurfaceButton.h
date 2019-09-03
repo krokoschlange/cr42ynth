@@ -56,6 +56,10 @@ public:
 protected:
 	cairo_surface_t* surface;
 	cairo_surface_t* pressedSurface;
+	cairo_surface_t* surfInit;
+	cairo_surface_t* pSurfInit;
+	bool needsNewSurfaces;
+	
 	float scaleX;
 	float scaleY;
 	float pScaleX;

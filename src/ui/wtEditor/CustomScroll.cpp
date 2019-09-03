@@ -57,7 +57,10 @@ CustomScroll::CustomScroll(Avtk::UI* ui, int x, int y, int w, int h, std::string
 		scrollXRange(0),
 		scrollYRange(0),
 		scrollXSize(0),
-		scrollYSize(0)
+		scrollYSize(0),
+		cairoCache(nullptr),
+		surfCache(nullptr),
+		needsNewChildCr(true)
 {
 }
 
@@ -68,21 +71,38 @@ CustomScroll::~CustomScroll()
 
 void CustomScroll::draw(cairo_t* cr)
 {
+	cairo_save(cr);
+	
 	cairo_rectangle(cr, x(), y(), w(), h());
 	theme_->color(cr, Avtk::BG_DARK);
 	cairo_fill(cr);
 	if (child)
 	{
-		cairo_surface_t* childSurf = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, child->w(), child->h());
-		cairo_t* childCairo = cairo_create(childSurf);
-		child->draw(childCairo);
+		if (!surfCache || needsNewChildCr)
+		{
+			needsNewChildCr = false;
+			if (surfCache)
+			{
+				cairo_surface_destroy(surfCache);
+			}
+			if (cairoCache)
+			{
+				cairo_destroy(cairoCache);
+			}
+			surfCache = cairo_surface_create_similar(
+					cairo_get_target(cr),
+					CAIRO_CONTENT_COLOR_ALPHA,
+					child->w(), child->h());
+			cairoCache = cairo_create(surfCache);
+		}
+		//cairo_rectangle(cairoCache, 0, 0, child->w(), child->h());
+		theme_->color(cairoCache, Avtk::FG);
+		cairo_paint(cairoCache);
+		child->draw(cairoCache);
 		
-		cairo_set_source_surface(cr, childSurf, x() - scrollXAmount, y() - scrollYAmount);
 		cairo_rectangle(cr, x(), y(), w(), h());
+		cairo_set_source_surface(cr, surfCache, x() - scrollXAmount, y() - scrollYAmount);
 		cairo_fill(cr);
-		
-		cairo_surface_destroy(childSurf);
-		cairo_destroy(childCairo);
 		
 		if (doScrollX)
 		{
@@ -109,6 +129,8 @@ void CustomScroll::draw(cairo_t* cr)
 	theme_->color(cr, Avtk::FG);
 	cairo_set_line_width(cr, theme_->lineWidthNorm_);
 	cairo_stroke(cr);
+	
+	cairo_restore(cr);
 }
 
 int CustomScroll::handle(const PuglEvent* event)
@@ -322,6 +344,12 @@ void CustomScroll::childResize()
 			scrollYSize = h() * h() / child->h();
 			scrollYRange = h();
 		}
+	}
+	if (surfCache)
+	{
+		//cairo_surface_destroy(surfCache);
+		//surfCache = nullptr;
+		needsNewChildCr = true;
 	}
 	ui->redraw(this);
 }

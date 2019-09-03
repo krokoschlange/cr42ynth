@@ -45,6 +45,7 @@
 #include "WTView.h"
 #include "CRSurfaceButton.h"
 #include "WPHarmonics.h"
+#include "HarmonicsView.h"
 
 #include "FftRealPair.hpp"
 
@@ -62,8 +63,8 @@ WaveformView::WaveformView(WTEditor* ed, int x, int y, int w,
 		gridX(0),
 		gridY(0)
 {
-	surfCache = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, w, h);
-	cairoCache = cairo_create(surfCache);
+	/*surfCache = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, w, h);
+	cairoCache = cairo_create(surfCache);*/
 	
 	cairo_surface_t* nextPNG = cairo_image_surface_create_from_png("../media/right.png");
 	cairo_surface_t* prevPNG = cairo_image_surface_create_from_png("../media/left.png");
@@ -115,14 +116,26 @@ void WaveformView::draw(cairo_t* cr)
 	if (redraw)
 	{
 		redraw = false;
+		if (!surfCache)
+		{
+			if (cairoCache)
+			{
+				cairo_destroy(cairoCache);
+			}
+			surfCache = cairo_surface_create_similar(
+					cairo_get_target(cr),
+					CAIRO_CONTENT_COLOR_ALPHA,
+					w(), h());
+			cairoCache = cairo_create(surfCache);
+		}
 		cairo_rectangle(cairoCache, 0, 0, w(), h());
 		theme_->color(cairoCache, Avtk::BG_DARK);
 		cairo_fill(cairoCache);
 		
 		for (int i = 0; i < gridX; i++)
 		{
-			cairo_move_to(cairoCache, (w() / gridX) * i, 0);
-			cairo_line_to(cairoCache, (w() / gridX) * i, h());
+			cairo_move_to(cairoCache, ((float) w() / gridX) * i, 0);
+			cairo_line_to(cairoCache, ((float) w() / gridX) * i, h());
 		}
 		if (gridX > 0)
 		{
@@ -135,8 +148,8 @@ void WaveformView::draw(cairo_t* cr)
 		
 		for (int i = 0; i < gridY; i++)
 		{
-			cairo_move_to(cairoCache, 0, (h() / gridY) * i);
-			cairo_line_to(cairoCache, w(), (h() / gridY) * i);
+			cairo_move_to(cairoCache, 0, ((float) h() / gridY) * i);
+			cairo_line_to(cairoCache, w(), ((float) h() / gridY) * i);
 		}
 		if (gridY > 0)
 		{
@@ -148,9 +161,13 @@ void WaveformView::draw(cairo_t* cr)
 		}
 
 		std::vector<float>* samples = nullptr;
+		int stepSize = 1;
+		
 		if (editor->getEditData())
 		{
-			samples = editor->getEditData()->getSamples(editor->getWTPos());
+			stepSize = editor->getEditData()->getWidth() / w();
+			stepSize = stepSize > 1 ? stepSize : 1;
+			samples = editor->getEditData()->getSamples(editor->getWTPos(), stepSize);
 		}
 		else
 		{
@@ -161,13 +178,13 @@ void WaveformView::draw(cairo_t* cr)
 
 		float pixelPerSample = (float) w() / samples->size();
 		
-		int stepSize = samples->size() / w();
+		stepSize = samples->size() / w();
 		if (stepSize < 1)
 		{
 			stepSize = 1;
 		}
 
-		for (int i = 1; i < samples->size(); i += stepSize)
+		for (int i = 1; i < samples->size(); i++)
 		{
 			cairo_move_to(cairoCache, pixelPerSample * i, h() * -0.5 * (*samples)[i] + h() / 2);
 			cairo_line_to(cairoCache, pixelPerSample * (i - stepSize), h() * -0.5 * (*samples)[i - stepSize] + h() / 2);
@@ -280,7 +297,7 @@ int WaveformView::handle(const PuglEvent* event)
 		{
 			delete tool;
 			tool = nullptr;
-			editor->getWTView()->requestRedraw();
+			editor->requestRedraw();
 		}
 		else
 		{
@@ -319,7 +336,9 @@ int WaveformView::handle(const PuglEvent* event)
 		tool->motion(snapX, snapY);
 		redraw = true;
 		updateRemoveButtons();
-		editor->requestRedraw();
+		ui->redraw(this);
+		//editor->getHarmonicsView()->requestRedraw();
+		//editor->requestRedraw();
 		return 1;
 	}
 	else if (event->type == PUGL_BUTTON_RELEASE && event->button.button == 1)
@@ -410,6 +429,7 @@ void WaveformView::valueCB(Avtk::Widget* widget)
 		redraw = true;
 		updateRemoveButtons();
 		ui->redraw(this);
+		return;
 	}
 	if (widget == prev)
 	{
@@ -417,30 +437,35 @@ void WaveformView::valueCB(Avtk::Widget* widget)
 		redraw = true;
 		updateRemoveButtons();
 		ui->redraw(this);
+		return;
 	}
 	if (widget == gridXPlus)
 	{
 		gridX++;
 		redraw = true;
 		ui->redraw(this);
+		return;
 	}
 	if (widget == gridXMinus)
 	{
 		gridX = gridX > 1 ? gridX - 1 : 0;
 		redraw = true;
 		ui->redraw(this);
+		return;
 	}
 	if (widget == gridYPlus)
 	{
 		gridY++;
 		redraw = true;
 		ui->redraw(this);
+		return;
 	}
 	if (widget == gridYMinus)
 	{
 		gridY = gridY > 1 ? gridY - 1 : 0;
 		redraw = true;
 		ui->redraw(this);
+		return;
 	}
 	if (widget == toSinBtn)
 	{
@@ -491,13 +516,13 @@ void WaveformView::valueCB(Avtk::Widget* widget)
 		wf->push_back(harm);
 		editor->select(editor->getWTPos(), 0);
 		editor->requestRedraw();
+		return;
 	}
 }
 
 void WaveformView::requestRedraw()
 {
 	redraw = true;
-	ui->redraw(this);
 }
 
 } /* namespace cr42y */

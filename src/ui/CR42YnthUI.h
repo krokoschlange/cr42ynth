@@ -37,17 +37,20 @@
 
 #include "avtk.hxx"
 
-#include "CR42YnthCommunicator.h"
-#include "OSCEvent.h"
-
 namespace cr42y
 {
+
+class CR42YnthCommunicator;
+class OSCEvent;
+class WTEditor;
 
 class CR42YnthUI : public Avtk::UI
 {
 public:
 	CR42YnthUI(CR42YnthCommunicator* comm, PuglNativeWindow parent);
 	virtual ~CR42YnthUI();
+	
+	int handle(const PuglEvent* event);
 
 	void widgetValueCB(Avtk::Widget* widget);
 
@@ -55,8 +58,10 @@ public:
 
 private:
 	CR42YnthCommunicator* communicator;
+	
+	WTEditor* wtEditor;
 
-	Avtk::Dial dial1;
+	//Avtk::Dial dial1;
 };
 
 } /* namespace cr42y */

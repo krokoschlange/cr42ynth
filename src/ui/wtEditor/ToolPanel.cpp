@@ -80,6 +80,7 @@ ToolPanel::ToolPanel(WTEditor* ed, int x, int y, int w, int h, std::string label
 		toolBtns[i]->clickMode(CLICK_TOGGLE);
 		add(toolBtns[i]);
 	}
+	triBtn->value(1);
 }
 
 ToolPanel::~ToolPanel()
@@ -90,8 +91,8 @@ ToolPanel::~ToolPanel()
 int ToolPanel::handle(const PuglEvent* event)
 {
 	int g = Avtk::Group::handle(event);
-	toolBtns[editor->getTool()]->value(1);
-	ui->redraw(this);
+	/*toolBtns[editor->getTool()]->value(1);
+	ui->redraw(this);*/
 	return g;
 }
 
