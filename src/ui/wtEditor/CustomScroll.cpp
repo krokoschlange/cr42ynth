@@ -66,7 +66,14 @@ CustomScroll::CustomScroll(Avtk::UI* ui, int x, int y, int w, int h, std::string
 
 CustomScroll::~CustomScroll()
 {
-	
+	if (surfCache)
+	{
+		cairo_surface_destroy(surfCache);
+	}
+	if (cairoCache)
+	{
+		cairo_destroy(cairoCache);
+	}
 }
 
 void CustomScroll::draw(cairo_t* cr)
@@ -345,12 +352,7 @@ void CustomScroll::childResize()
 			scrollYRange = h();
 		}
 	}
-	if (surfCache)
-	{
-		//cairo_surface_destroy(surfCache);
-		//surfCache = nullptr;
-		needsNewChildCr = true;
-	}
+	needsNewChildCr = true;
 	ui->redraw(this);
 }
 

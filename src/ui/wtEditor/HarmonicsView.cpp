@@ -60,7 +60,14 @@ HarmonicsView::HarmonicsView(WTEditor* ed, int x, int y, int w, int h, std::stri
 
 HarmonicsView::~HarmonicsView()
 {
-	
+	if (surfCache)
+	{
+		cairo_surface_destroy(surfCache);
+	}
+	if (cairoCache)
+	{
+		cairo_destroy(cairoCache);
+	}
 }
 
 void HarmonicsView::draw(cairo_t* cr)
@@ -89,8 +96,8 @@ void HarmonicsView::draw(cairo_t* cr)
 		
 		std::vector<float>* samples = editor->getEditData()->getSamples(editor->getWTPos());
 		std::vector<double> doubleSmpls(samples->begin(), samples->end());
-		delete samples;
 		std::vector<double> doubleEmpty(doubleSmpls.size());
+		delete samples;
 		
 		Fft::transform(doubleSmpls, doubleEmpty);
 		

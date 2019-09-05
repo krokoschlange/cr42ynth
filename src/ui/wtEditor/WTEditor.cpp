@@ -106,6 +106,10 @@ WTEditor::WTEditor(Avtk::UI* ui, int x, int y, int w, int h, std::string label) 
 
 WTEditor::~WTEditor()
 {
+	if (data)
+	{
+		delete data;
+	}
 }
 
 /*int WTEditor::handle(const PuglEvent* event)
@@ -190,7 +194,7 @@ void WTEditor::setWTPos(int pos)
 	wtPos = pos;
 	if ((*data->getWaveform(pos))[getSelected(pos)]->getType() == WaveformPart::HARMONICS)
 	{
-		harmEditor->setPart((WPHarmonics*) (*data->getWaveform(pos))[getSelected(pos)]); 
+		harmEditor->setPart((WPHarmonics*) (*data->getWaveform(pos))[getSelected(pos)]);
 	}
 	else
 	{
@@ -313,7 +317,7 @@ void WTEditor::removeWaveform(int idx)
 
 void WTEditor::requestRedraw()
 {
-	view->updateRemoveButtons();
+	view->updateButtons();
 	view->requestRedraw();
 	wtView->updateRemoveButtons();
 	wtView->requestRedraw();

@@ -71,6 +71,10 @@ private:
 	CustomScroll* scroll;
 	WPHarmonics* part;
 	
+	bool redraw;
+	cairo_surface_t* surfCache;
+	cairo_t* cairoCache;
+	
 	std::vector<DragBar*> amplitudes;
 	std::vector<DragBar*> phases;
 	

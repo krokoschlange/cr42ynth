@@ -53,6 +53,7 @@ public:
 	
 protected:
 	float defaultValue_;
+	float oldValue;
 	bool doubleSided;
 	bool mouseDown;
 	

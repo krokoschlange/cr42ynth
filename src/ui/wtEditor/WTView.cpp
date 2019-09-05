@@ -64,6 +64,7 @@ WTView::WTView(WTEditor* ed, int x, int y, int w, int h, std::string label) :
 	cairo_surface_t* plus = cairo_image_surface_create_from_png("../media/plus.png");
 	addBtn = new CRSurfaceButton(ed->ui, x + 5, y + h - 15, 25, 25,
 			"add", plus, 20, 20, plus, 20, 20);
+	cairo_surface_destroy(plus);
 	ed->add(addBtn);
 	addBtn->callback = staticGroupCB;
 	addBtn->callbackUD = this;
@@ -71,7 +72,14 @@ WTView::WTView(WTEditor* ed, int x, int y, int w, int h, std::string label) :
 
 WTView::~WTView()
 {
-	
+	if (surfCache)
+	{
+		cairo_surface_destroy(surfCache);
+	}
+	if (cairoCache)
+	{
+		cairo_destroy(cairoCache);
+	}
 }
 
 void WTView::draw(cairo_t* cr)
@@ -117,7 +125,7 @@ void WTView::draw(cairo_t* cr)
 			{
 				stepSize = 1;
 			}
-			for (int j = 1; j < (*samples)[i].size(); j += stepSize)
+			for (int j = stepSize; j < (*samples)[i].size(); j += stepSize)
 			{
 				cairo_move_to(cairoCache, ppS * j, boxSize * i + boxSize * 0.5 - (boxSize - theme_->lineWidthWide()) * 0.5 * (*samples)[i][j]);
 				cairo_line_to(cairoCache, ppS * (j - stepSize), boxSize * i + boxSize * 0.5 - (boxSize - theme_->lineWidthWide()) * 0.5 * (*samples)[i][j - stepSize]);
@@ -130,7 +138,12 @@ void WTView::draw(cairo_t* cr)
 			cairo_stroke(cairoCache);
 			cairo_reset_clip(cairoCache);
 		}
-		delete samples;
+		
+		if (samples)
+		{
+			delete samples;
+		}
+		samples = nullptr;
 	}
 	cairo_rectangle(cr, x(), y(), w(), h());
 	theme_->color(cr, Avtk::BG_DARK);
@@ -224,6 +237,7 @@ void WTView::updateRemoveButtons()
 				20, 20);
 		removeBtns.push_back(btn);
 		add(btn);
+		cairo_surface_destroy(min);
 	}
 }
 

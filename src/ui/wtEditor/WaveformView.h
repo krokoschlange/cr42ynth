@@ -62,7 +62,7 @@ public:
 	virtual int handle(const PuglEvent* event);
 	virtual void valueCB(Avtk::Widget* widget);
 	
-	void updateRemoveButtons();
+	void updateButtons();
 	void requestRedraw();
 
 private:
@@ -78,6 +78,9 @@ private:
 	cairo_t* cairoCache;
 
 	std::vector<std::pair<int, CRSurfaceButton*>> removeBtns;
+	CRSurfaceButton* resizeLeft;
+	CRSurfaceButton* resizeRight;
+	
 	CRSurfaceButton* next;
 	CRSurfaceButton* prev;
 	

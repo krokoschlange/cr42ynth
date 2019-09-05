@@ -44,21 +44,31 @@ DragBar::DragBar(Avtk::UI* ui, int x, int y, int w, int h, std::string label, bo
 		Avtk::Widget(ui, x, y, w, h, label),
 		doubleSided(dS),
 		mouseDown(false),
-		redraw(true)
+		redraw(true),
+		surfCache(nullptr),
+		cairoCache(nullptr)
 {
-	surfCache = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, w, h);
-	cairoCache = cairo_create(surfCache);
+	/*surfCache = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, w, h);
+	cairoCache = cairo_create(surfCache);*/
 	
 	if (doubleSided)
 	{
 		defaultValue(0.5);
 		value(0.5);
 	}
+	oldValue = value();
 }
 
 DragBar::~DragBar()
 {
-	
+	if (surfCache)
+	{
+		cairo_surface_destroy(surfCache);
+	}
+	if (cairoCache)
+	{
+		cairo_destroy(cairoCache);
+	}
 }
 
 void DragBar::defaultValue(float dv)
@@ -73,8 +83,22 @@ float DragBar::defaultValue()
 
 void DragBar::draw(cairo_t* cr)
 {
-	if (redraw)
+	if (redraw || value() != oldValue)
 	{
+		redraw = false;
+		oldValue = value();
+		if (!surfCache)
+		{
+			if (cairoCache)
+			{
+				cairo_destroy(cairoCache);
+			}
+			surfCache = cairo_surface_create_similar(
+					cairo_get_target(cr),
+					CAIRO_CONTENT_COLOR_ALPHA,
+					w(), h());
+			cairoCache = cairo_create(surfCache);
+		}
 		cairo_save(cairoCache);
 		
 		cairo_rectangle(cairoCache, 0, 0, w(), h());
@@ -100,7 +124,6 @@ void DragBar::draw(cairo_t* cr)
 			cairo_close_path(cairoCache);
 			theme_->color(cairoCache, Avtk::HIGHLIGHT, 0.2);
 			cairo_fill(cairoCache);
-			
 		}
 		else
 		{
@@ -163,6 +186,7 @@ int DragBar::handle(const PuglEvent* event)
 	if (event->type == PUGL_BUTTON_RELEASE && event->button.button == 1)
 	{
 		mouseDown = false;
+		redraw = true;
 	}
 	return 0;
 }

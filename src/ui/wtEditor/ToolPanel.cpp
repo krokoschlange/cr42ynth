@@ -55,18 +55,22 @@ ToolPanel::ToolPanel(WTEditor* ed, int x, int y, int w, int h, std::string label
 	cairo_surface_t* png = cairo_image_surface_create_from_png("../media/linCurve.png");
 	triBtn = new CRSurfaceButton(ed->ui, x + pad, y + pad, btnW, btnH,
 			"linear", png, 50, 50, png, 50, 50);
+	cairo_surface_destroy(png);
 	
 	png = cairo_image_surface_create_from_png("../media/sinCurve.png");
 	sinRampBtn = new CRSurfaceButton(ed->ui, x + pad * 2 + btnW, y + pad,
 			btnW, btnH, "sin ramp", png, 50, 50, png, 50, 50);
+	cairo_surface_destroy(png);
 	
 	png = cairo_image_surface_create_from_png("../media/sinHalfCurve.png");
 	sinHalfBtn = new CRSurfaceButton(ed->ui, x + pad * 3 + btnW * 2, y + pad,
 			btnW, btnH, "sin half", png, 50, 50, png, 50, 50);
+	cairo_surface_destroy(png);
 	
 	png = cairo_image_surface_create_from_png("../media/freeDraw.png");
 	freeBtn = new CRSurfaceButton(ed->ui, x + pad, y + pad * 2 + btnH,
 			btnW, btnH, "free", png, 50, 50, png, 50, 50);
+	cairo_surface_destroy(png);
 	
 	
 	toolBtns.push_back(triBtn);
@@ -93,6 +97,12 @@ int ToolPanel::handle(const PuglEvent* event)
 	int g = Avtk::Group::handle(event);
 	/*toolBtns[editor->getTool()]->value(1);
 	ui->redraw(this);*/
+	if (event->type == PUGL_BUTTON_PRESS &&
+			touches(event->button.x, event->button.y))
+	{
+		toolBtns[editor->getTool()]->value(1);
+		ui->redraw(this);
+	}
 	return g;
 }
 

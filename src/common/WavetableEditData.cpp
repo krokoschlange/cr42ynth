@@ -289,7 +289,9 @@ std::vector<std::vector<float>>* WavetableEditData::getSamples()
 	std::vector<std::vector<float>>* ret = new std::vector<std::vector<float>>();
 	for (int i = 0; i < parts.size(); i++)
 	{
-		ret->push_back(*getSamples(i));
+		std::vector<float>* smpls = getSamples(i);
+		ret->push_back(*smpls);
+		delete smpls;
 	}
 	return ret;
 }

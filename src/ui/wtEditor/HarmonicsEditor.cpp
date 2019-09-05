@@ -53,7 +53,10 @@ HarmonicsEditor::HarmonicsEditor(WTEditor* ed, int x, int y, int w, int h, std::
 		Avtk::Group(ed->ui, x, y, 129 * 25, h - 10, label),
 		editor(ed),
 		scroll(new CustomScroll(ed->ui, x, y, w, h, label + "_scroll")),
-		part(nullptr)
+		part(nullptr),
+		redraw(true),
+		surfCache(nullptr),
+		cairoCache(nullptr)
 {
 	//h_ = 300;
 	for (int i = 0; i < 129; i++)
@@ -83,49 +86,77 @@ HarmonicsEditor::HarmonicsEditor(WTEditor* ed, int x, int y, int w, int h, std::
 
 HarmonicsEditor::~HarmonicsEditor()
 {
-	
+	if (surfCache)
+	{
+		cairo_surface_destroy(surfCache);
+	}
+	if (cairoCache)
+	{
+		cairo_destroy(cairoCache);
+	}
 }
 
 void HarmonicsEditor::draw(cairo_t* cr)
 {
 	cairo_save(cr);
 	
-	cairo_rectangle(cr, x(), y(), w(), h());
-	theme_->color(cr, Avtk::BG);
-	cairo_fill(cr);
-	//Avtk::Group::draw(cr);
-	
-	for (int i = 0; i < 129; i++)
+	if (redraw)
 	{
-		cairo_text_extents_t extents;
-		std::string str = i != 0 ? std::to_string(i): "DC";
-		cairo_text_extents(cr, str.c_str(), &extents);
-		cairo_move_to(cr, x() + barWidth * i + barWidth / 2 - extents.width / 2,
-				y() + (h() - 15) / 2 + 15 / 2 + extents.height / 2);
-		cairo_select_font_face(cr, "impact", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
-		cairo_set_font_size(cr, 10);
-		theme_->color(cr, Avtk::FG);
-		cairo_show_text(cr, str.c_str());
+		redraw = false;
+		if (!surfCache)
+		{
+			if (cairoCache)
+			{
+				cairo_destroy(cairoCache);
+			}
+			surfCache = cairo_surface_create_similar(
+					cairo_get_target(cr),
+					CAIRO_CONTENT_COLOR_ALPHA,
+					w(), h());
+			cairoCache = cairo_create(surfCache);
+		}
+		cairo_save(cairoCache);
 		
+		
+		//cairo_rectangle(cairoCache, 0, y(), w(), h());
+		theme_->color(cairoCache, Avtk::BG);
+		cairo_paint(cairoCache);
+		
+		Avtk::Group::draw(cairoCache);
+		
+		for (int i = 0; i < 129; i++)
+		{
+			cairo_text_extents_t extents;
+			std::string str = i != 0 ? std::to_string(i): "DC";
+			cairo_text_extents(cairoCache, str.c_str(), &extents);
+			cairo_move_to(cairoCache, barWidth * i + barWidth / 2 - extents.width / 2,
+					(h() - 15) / 2 + 15 / 2 + extents.height / 2);
+			cairo_select_font_face(cairoCache, "impact", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+			cairo_set_font_size(cairoCache, 10);
+			theme_->color(cairoCache, Avtk::FG);
+			cairo_show_text(cairoCache, str.c_str());
+			
+		}
+		
+		if (!part)
+		{
+			normButton->visible(false);
+			cairo_rectangle(cairoCache, x(), y(), w(), h());
+			theme_->color(cairoCache, Avtk::BG, 0.9);
+			cairo_fill(cairoCache);
+		}
+		else
+		{
+			normButton->visible(true);
+		}
+		
+		cairo_restore(cairoCache);
 	}
 	
-	if (!part)
-	{
-		normButton->visible(false);
-		cairo_rectangle(cr, x(), y(), w(), h());
-		theme_->color(cr, Avtk::BG, 0.9);
-		cairo_fill(cr);
-	}
-	else
-	{
-		normButton->visible(true);
-	}
-	/*else
-	{
-		cairo_rectangle(cr, x(), y(), w(), h());
-		theme_->color(cr, Avtk::HIGHLIGHT, 0.3);
-		cairo_fill(cr);
-	}*/
+	cairo_set_source_surface(cr, surfCache, x(), y());
+	cairo_paint(cr);
+	
+	
 	cairo_restore(cr);
 }
 
@@ -162,6 +193,7 @@ void HarmonicsEditor::valueCB(Avtk::Widget* widget)
 		part->normalize();
 		editor->getWFView()->requestRedraw();
 		editor->getHarmonicsView()->requestRedraw();
+		requestRedraw();
 		setPart(part);
 
 		return;
@@ -178,6 +210,7 @@ void HarmonicsEditor::valueCB(Avtk::Widget* widget)
 				//part->normalize();
 				editor->getWFView()->requestRedraw();
 				editor->getHarmonicsView()->requestRedraw();
+				requestRedraw();
 			}
 			//editor->requestRedraw();
 			return;
@@ -195,6 +228,7 @@ void HarmonicsEditor::valueCB(Avtk::Widget* widget)
 				//part->normalize();
 				editor->getWFView()->requestRedraw();
 				editor->getHarmonicsView()->requestRedraw();
+				requestRedraw();
 			}
 			return;
 		}
@@ -220,7 +254,7 @@ void HarmonicsEditor::setPart(WPHarmonics* p)
 
 void HarmonicsEditor::requestRedraw()
 {
-	ui->redraw(scroll);
+	redraw = true;
 }
 
 

@@ -61,7 +61,9 @@ WaveformView::WaveformView(WTEditor* ed, int x, int y, int w,
 		cairoCache(nullptr),
 		tool(nullptr),
 		gridX(0),
-		gridY(0)
+		gridY(0),
+		resizeLeft(nullptr),
+		resizeRight(nullptr)
 {
 	/*surfCache = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, w, h);
 	cairoCache = cairo_create(surfCache);*/
@@ -72,6 +74,8 @@ WaveformView::WaveformView(WTEditor* ed, int x, int y, int w,
 			prevPNG, 20, 50, prevPNG, 20, 50);
 	next = new CRSurfaceButton(ed->ui, x + 20, y + h - 20, 10, 15, "next", 
 			nextPNG, 20, 50, nextPNG, 20, 50);
+	cairo_surface_destroy(nextPNG);
+	cairo_surface_destroy(prevPNG);
 	
 	cairo_surface_t* plus = cairo_image_surface_create_from_png("../media/plus.png");
 	cairo_surface_t* min = cairo_image_surface_create_from_png("../media/minus.png");
@@ -80,9 +84,11 @@ WaveformView::WaveformView(WTEditor* ed, int x, int y, int w,
 	gridXMinus = new CRSurfaceButton(ed->ui, x + w - 75, y + h - 20, 15, 15,
 			"gridXMinus", min, 20, 20, min, 20, 20);
 	gridYPlus = new CRSurfaceButton(ed->ui, x + w - 20, y + h - 40, 15, 15,
-			"gridXPlus", cairo_surface_reference(plus), 20, 20, plus, 20, 20);
+			"gridXPlus", plus, 20, 20, plus, 20, 20);
 	gridYMinus = new CRSurfaceButton(ed->ui, x + w - 75, y + h - 40, 15, 15,
-			"gridXMinus", cairo_surface_reference(min), 20, 20, min, 20, 20);
+			"gridXMinus", min, 20, 20, min, 20, 20);
+	cairo_surface_destroy(plus);
+	cairo_surface_destroy(min);
 			
 	toSinBtn = new Avtk::Button(ed->ui, x + 35, y + h - 20, 70, 15, "to sin");
 	
@@ -94,18 +100,13 @@ WaveformView::WaveformView(WTEditor* ed, int x, int y, int w,
 	add(next);
 	add(toSinBtn);
 
-	updateRemoveButtons();
+	updateButtons();
 }
 
 WaveformView::~WaveformView()
 {
 	cairo_surface_destroy(surfCache);
 	cairo_destroy(cairoCache);
-	if (tool)
-	{
-		delete tool;
-	}
-	tool = nullptr;
 }
 
 void WaveformView::draw(cairo_t* cr)
@@ -255,7 +256,6 @@ void WaveformView::draw(cairo_t* cr)
 		{
 			delete samples;
 		}
-		samples = nullptr;
 	}
 
 	cairo_set_source_surface(cr, surfCache, x(), y());
@@ -286,7 +286,7 @@ int WaveformView::handle(const PuglEvent* event)
 		
 		WaveformPart* part = editor->getEditData()->getVisiblePartAtPos(editor->getWTPos(), rmx);
 		editor->select(editor->getWTPos(), editor->getEditData()->getIndexOfPart(editor->getWTPos(), part));
-		updateRemoveButtons();
+		updateButtons();
 		redraw = true;
 		ui->redraw(this);
 		return 1;
@@ -314,7 +314,7 @@ int WaveformView::handle(const PuglEvent* event)
 			snapY = -2 * snapY + 1;
 			tool = editor->getNewTool(snapX, snapY);
 			editor->select(editor->getWTPos(), editor->getEditData()->getIndexOfPart(editor->getWTPos(), tool->getPart()));
-			updateRemoveButtons();
+			updateButtons();
 			redraw = true;
 			ui->redraw(this);
 		}
@@ -335,7 +335,7 @@ int WaveformView::handle(const PuglEvent* event)
 		snapY = -2 * snapY + 1;
 		tool->motion(snapX, snapY);
 		redraw = true;
-		updateRemoveButtons();
+		updateButtons();
 		ui->redraw(this);
 		//editor->getHarmonicsView()->requestRedraw();
 		//editor->requestRedraw();
@@ -348,7 +348,7 @@ int WaveformView::handle(const PuglEvent* event)
 			delete tool;
 		}
 		tool = nullptr;
-		updateRemoveButtons();
+		updateButtons();
 		editor->requestRedraw();
 		//ui->redraw(editor->getWTView());
 	}
@@ -360,7 +360,7 @@ int WaveformView::handle(const PuglEvent* event)
 	return 0;
 }
 
-void WaveformView::updateRemoveButtons()
+void WaveformView::updateButtons()
 {
 	for (int i = 0; i < removeBtns.size(); i++)
 	{
@@ -369,6 +369,20 @@ void WaveformView::updateRemoveButtons()
 		delete removeBtns[i].second;
 	}
 	removeBtns.clear();
+	if (resizeLeft)
+	{
+		remove(resizeLeft);
+		ui->remove(resizeLeft);
+		delete resizeLeft;
+	}
+	if (resizeRight)
+	{
+		remove(resizeRight);
+		ui->remove(resizeRight);
+		delete resizeRight;
+	}
+	resizeLeft = nullptr;
+	resizeRight = nullptr;
 	
 	std::vector<WaveformPart*>* wf = editor->getEditData()->getWaveform(editor->getWTPos());
 	int sel = editor->getSelected(editor->getWTPos());
@@ -379,19 +393,34 @@ void WaveformView::updateRemoveButtons()
 		if (visAreas.size() > 0)
 		{
 			cairo_surface_t* min = cairo_image_surface_create_from_png("../media/minus.png");
-			int btnX = visAreas[0].first * this->w() + 5;
+			int btnX = visAreas[0].first * w() + 5;
 			if (btnX + 20 > w())
 			{
 				btnX = w() - 20;
 			}
 			CRSurfaceButton* rmvBtn = new CRSurfaceButton(ui,
-					this->x() + btnX,
-					this->y() + 5, 15, 15, "-", min, 20, 20, min, 20, 20);
+					x() + btnX,
+					y() + 5, 15, 15, "-", min, 20, 20, min, 20, 20);
 
 			removeBtns.push_back(std::pair<int, CRSurfaceButton*>(sel, rmvBtn));
 			add(rmvBtn);
 			rmvBtn->theme(ui->theme(1));
+			cairo_surface_destroy(min);
 		}
+		
+		cairo_surface_t* left = cairo_image_surface_create_from_png("../media/left.png");
+		resizeLeft = new CRSurfaceButton(ui,
+				x() + (*wf)[sel]->getStart() * w() - 15,
+				y() + h() / 2 - 15, 15, 30, "<", left, 20, 50, left, 20, 50);
+		add(resizeLeft);
+		cairo_surface_destroy(left);
+		
+		cairo_surface_t* right = cairo_image_surface_create_from_png("../media/right.png");
+		resizeRight = new CRSurfaceButton(ui,
+				x() + (*wf)[sel]->getEnd() * w(),
+				y() + h() / 2 - 15, 15, 30, ">", right, 20, 50, right, 20, 50);
+		add(resizeRight);
+		cairo_surface_destroy(right);
 	}
 }
 
@@ -417,7 +446,7 @@ void WaveformView::valueCB(Avtk::Widget* widget)
 				sel = editor->getEditData()->getWaveform(editor->getWTPos())->size() - 1;
 			}
 			editor->select(editor->getWTPos(), sel);
-			updateRemoveButtons();
+			updateButtons();
 			redraw = true;
 			ui->redraw(this);
 			return;
@@ -427,7 +456,7 @@ void WaveformView::valueCB(Avtk::Widget* widget)
 	{
 		editor->select(editor->getWTPos(), editor->getSelected(editor->getWTPos()) + 1);
 		redraw = true;
-		updateRemoveButtons();
+		updateButtons();
 		ui->redraw(this);
 		return;
 	}
@@ -435,7 +464,7 @@ void WaveformView::valueCB(Avtk::Widget* widget)
 	{
 		editor->select(editor->getWTPos(), editor->getSelected(editor->getWTPos()) - 1);
 		redraw = true;
-		updateRemoveButtons();
+		updateButtons();
 		ui->redraw(this);
 		return;
 	}
@@ -472,7 +501,10 @@ void WaveformView::valueCB(Avtk::Widget* widget)
 		std::vector<float>* samples = editor->getEditData()->getSamples(editor->getWTPos());
 		std::vector<double> realSmpls(samples->begin(), samples->end());
 		std::vector<double> imagSmpls(samples->size());
-		delete samples;
+		if (samples)
+		{
+			delete samples;
+		}
 		samples = nullptr;
 		
 		Fft::transform(realSmpls, imagSmpls);
@@ -511,7 +543,6 @@ void WaveformView::valueCB(Avtk::Widget* widget)
 			ht.push_back(std::pair<float, float>(amp, phase));
 		}
 		WPHarmonics* harm = new WPHarmonics(0, 1, ht, WPHarmonics::SIN);
-		
 		
 		wf->push_back(harm);
 		editor->select(editor->getWTPos(), 0);

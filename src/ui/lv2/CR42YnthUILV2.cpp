@@ -107,7 +107,7 @@ CR42YnthUI_LV2::CR42YnthUI_LV2(const char* bundlePath,
 	*widget = (void*) ui->getNativeHandle();
 	if (resize)
 	{
-		resize->ui_resize(resize->handle, 100, 100);
+		resize->ui_resize(resize->handle, ui->w(), ui->h());
 	}
 	char buffer[32];
 	int len = rtosc_message(buffer, 32, "/global/state", "s", "get");
