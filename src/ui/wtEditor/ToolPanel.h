@@ -37,6 +37,7 @@
 
 #include <vector>
 
+#include "button.hxx"
 #include "group.hxx"
 
 namespace cr42y
@@ -58,11 +59,14 @@ public:
 private:
 	WTEditor* editor;
 	
-	CRSurfaceButton* triBtn;
+	/*CRSurfaceButton* triBtn;
 	CRSurfaceButton* sinRampBtn;
 	CRSurfaceButton* sinHalfBtn;
-	CRSurfaceButton* freeBtn;
+	CRSurfaceButton* freeBtn;*/
 	std::vector<CRSurfaceButton*> toolBtns;
+	
+	std::vector<Avtk::Button*> baseTypeSelector;
+	int baseType;
 };
 
 } /* namespace cr42y */
