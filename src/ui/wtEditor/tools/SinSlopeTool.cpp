@@ -31,13 +31,13 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#include <iostream>
-
 #include "SinSlopeTool.h"
 
 #include "WPFunction.h"
 #include "WaveformPart.h"
 #include "WavetableEditData.h"
+
+#include "common.h"
 
 namespace cr42y
 {
@@ -45,7 +45,7 @@ namespace cr42y
 SinSlopeTool::SinSlopeTool(WavetableEditData* eData, int wtPos, float x, float y) :
 		WTTool(eData, wtPos, x, y)
 {
-	part = new WPFunction(x, x + 0.0001, std::to_string(y));
+	part = new WPFunction(x, x + 0.0001, to_string(y));
 	eData->addPart(wtPos, part);
 }
 
@@ -63,9 +63,8 @@ void SinSlopeTool::motion(float x, float y)
 		float b = 0.5 / (startX - x);
 		float c = (startY + y) / 2;
 		float d = startX;
-		std::string func = std::to_string(a) + "*cos(2pi*" + std::to_string(b) + "(x-" + std::to_string(d) + "))+" + std::to_string(c);
+		std::string func = to_string(a) + "*cos(2pi*" + to_string(b) + "(x-" + to_string(d) + "))+" + to_string(c);
 		((WPFunction*) part)->setFunction(func);
-		//std::cout << func << "\n";
 		if (x < startX)
 		{
 			part->setStart(x);

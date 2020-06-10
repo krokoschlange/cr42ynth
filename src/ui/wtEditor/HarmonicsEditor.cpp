@@ -45,10 +45,14 @@
 #include "WPHarmonics.h"
 #include "CustomScroll.h"
 
+#include "WavetableEditData.h"
+#include "WavetableEditController.h"
+
 namespace cr42y
 {
 
-HarmonicsEditor::HarmonicsEditor(WTEditor* ed, int x, int y, int w, int h, std::string label) :
+HarmonicsEditor::HarmonicsEditor(WTEditor* ed, int x, int y, int w, int h,
+		std::string label) :
 		barWidth(25),
 		Avtk::Group(ed->ui, x, y, 129 * 25, h - 10, label),
 		editor(ed),
@@ -62,8 +66,7 @@ HarmonicsEditor::HarmonicsEditor(WTEditor* ed, int x, int y, int w, int h, std::
 	for (int i = 0; i < 129; i++)
 	{
 		DragBar* aBar = new DragBar(ed->ui, x + i * barWidth, y, barWidth, (h_ - 15) / 2, "", true);
-		DragBar* pBar = new DragBar(ed->ui, x + i * barWidth, y + (h_ - 15) / 2 + 15, barWidth, 
-				(h - 15) / 2, "", true);
+		DragBar* pBar = new DragBar(ed->ui, x + i * barWidth, y + (h_ - 15) / 2 + 15, barWidth, (h - 15) / 2, "", true);
 		amplitudes.push_back(aBar);
 		phases.push_back(pBar);
 		add(aBar);
@@ -71,8 +74,6 @@ HarmonicsEditor::HarmonicsEditor(WTEditor* ed, int x, int y, int w, int h, std::
 	}
 	
 	normButton = new Avtk::Button(ed->ui, x + w - 85, y + 5, 80, 22, "normalize");
-	
-	
 	
 	ed->add(scroll);
 	scroll->setChild(this);
@@ -100,6 +101,23 @@ void HarmonicsEditor::draw(cairo_t* cr)
 {
 	cairo_save(cr);
 	
+	WavetableEditController* controller = editor->getController();
+	WavetableEditData* data = controller->getData();
+	if (data)
+	{
+		WaveformPart* p = data->getPartByIndex(controller->getSelectedWaveform(), controller->getSelectedPart());
+		if (p && p->getType() == WaveformPart::HARMONICS && p != part)
+		{
+			part = (WPHarmonics*) p;
+			requestRedraw();
+		}
+		else if (!p || p->getType() != WaveformPart::HARMONICS)
+		{
+			part = nullptr;
+			requestRedraw();
+		}
+	}
+
 	if (redraw)
 	{
 		redraw = false;
@@ -109,14 +127,10 @@ void HarmonicsEditor::draw(cairo_t* cr)
 			{
 				cairo_destroy(cairoCache);
 			}
-			surfCache = cairo_surface_create_similar(
-					cairo_get_target(cr),
-					CAIRO_CONTENT_COLOR_ALPHA,
-					w(), h());
+			surfCache = cairo_surface_create_similar(cairo_get_target(cr), CAIRO_CONTENT_COLOR_ALPHA, w(), h());
 			cairoCache = cairo_create(surfCache);
 		}
 		cairo_save(cairoCache);
-		
 		
 		//cairo_rectangle(cairoCache, 0, y(), w(), h());
 		theme_->color(cairoCache, Avtk::BG);
@@ -127,10 +141,9 @@ void HarmonicsEditor::draw(cairo_t* cr)
 		for (int i = 0; i < 129; i++)
 		{
 			cairo_text_extents_t extents;
-			std::string str = i != 0 ? std::to_string(i): "DC";
+			std::string str = i != 0 ? std::to_string(i) : "DC";
 			cairo_text_extents(cairoCache, str.c_str(), &extents);
-			cairo_move_to(cairoCache, barWidth * i + barWidth / 2 - extents.width / 2,
-					(h() - 15) / 2 + 15 / 2 + extents.height / 2);
+			cairo_move_to(cairoCache, barWidth * i + barWidth / 2 - extents.width / 2, (h() - 15) / 2 + 15 / 2 + extents.height / 2);
 			cairo_select_font_face(cairoCache, "impact", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
 			cairo_set_font_size(cairoCache, 10);
 			theme_->color(cairoCache, Avtk::FG);
@@ -156,17 +169,18 @@ void HarmonicsEditor::draw(cairo_t* cr)
 	cairo_set_source_surface(cr, surfCache, x(), y());
 	cairo_paint(cr);
 	
-	
 	cairo_restore(cr);
 }
 
 int HarmonicsEditor::handle(const PuglEvent* event)
 {
+	if (!visible())
+	{
+		return 0;
+	}
 	if (part)
 	{
-		if (event->type == PUGL_BUTTON_PRESS ||
-				event->type == PUGL_BUTTON_RELEASE ||
-				event->type == PUGL_MOTION_NOTIFY)
+		if (event->type == PUGL_BUTTON_PRESS || event->type == PUGL_BUTTON_RELEASE || event->type == PUGL_MOTION_NOTIFY)
 		{
 			int g = Avtk::Group::handle(event);
 			if (event->type == PUGL_BUTTON_RELEASE)
@@ -192,6 +206,7 @@ void HarmonicsEditor::valueCB(Avtk::Widget* widget)
 	{
 		part->normalize();
 		editor->getWFView()->requestRedraw();
+		editor->getWTView()->requestRedraw();
 		editor->getHarmonicsView()->requestRedraw();
 		requestRedraw();
 		setPart(part);
@@ -256,6 +271,5 @@ void HarmonicsEditor::requestRedraw()
 {
 	redraw = true;
 }
-
 
 } /* namespace cr42y */

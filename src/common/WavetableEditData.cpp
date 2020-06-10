@@ -36,7 +36,7 @@
 #include <iostream>
 
 #include "WavetableEditData.h"
-#include "WPFunction.h"
+#include "WPHarmonics.h"
 
 namespace cr42y
 {
@@ -179,9 +179,13 @@ WaveformPart* WavetableEditData::getVisiblePartAtPos(int row, float pos)
 void WavetableEditData::addWaveform(int idx)
 {
 	std::vector<WaveformPart*> row;
-	row.push_back(new WPFunction(0, 1, "sin(2pi*x)"));
+	harmonicTable_t ht;
+	ht.push_back(std::pair<float, float>(0, 0));
+	ht.push_back(std::pair<float, float>(1, 0));
+	WPHarmonics* harm = new WPHarmonics(0, 1, ht, WPHarmonics::SIN);
+	row.push_back(harm);//new WPFunction(0, 1, "sin(2pi*x)"));
 	row[0]->setEnd(1);
-	if (idx == -1 || idx >= parts.size())
+	if (idx < 0 || idx >= parts.size())
 	{
 		parts.push_back(row);
 	}

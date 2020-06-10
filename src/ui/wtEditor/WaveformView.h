@@ -67,11 +67,6 @@ public:
 
 private:
 	WTEditor* editor;
-	
-	WTTool* tool;
-	
-	int gridX;
-	int gridY;
 
 	bool redraw;
 	cairo_surface_t* surfCache;

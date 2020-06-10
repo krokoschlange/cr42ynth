@@ -47,16 +47,22 @@ class WTEditor;
 class CR42YnthUI : public Avtk::UI
 {
 public:
-	CR42YnthUI(CR42YnthCommunicator* comm, PuglNativeWindow parent);
+	CR42YnthUI(CR42YnthCommunicator* comm, PuglNativeWindow parent, const char* path);
 	virtual ~CR42YnthUI();
 	
+	const char* getBundlePath();
+
 	int handle(const PuglEvent* event);
 
 	void widgetValueCB(Avtk::Widget* widget);
 
 	void handleOSCEvent(OSCEvent* event);
 
+	CR42YnthCommunicator* getCommunicator();
+
 private:
+	char* bundlePath;
+
 	CR42YnthCommunicator* communicator;
 	
 	WTEditor* wtEditor;

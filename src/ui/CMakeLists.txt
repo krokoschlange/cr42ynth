@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
-add_subdirectory(wtEditor/)
+#add_subdirectory(wtEditor/)
 
 #project(cr42ynth_ui.so)
 #set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/../../bin)
@@ -31,7 +31,9 @@ include_directories ("${PROJECT_SOURCE_DIR}/ui/wtEditor/tools")
 
 add_executable(cr42ynth_ui.so
 	../common/OSCEvent.cpp
+	../common/common.cpp
 	../common/CR42YnthCommunicator.cpp
+	
 	lv2/CR42YnthUILV2.cpp
 	lv2/lv2UI.cpp
 	
@@ -41,6 +43,8 @@ add_executable(cr42ynth_ui.so
 	../common/WPHarmonics.cpp
 	../common/WPSamples.cpp
 	../common/FftRealPair.cpp
+	
+	wtEditor/WavetableEditController.cpp
 	
 	wtEditor/tools/FreeTool.cpp
 	wtEditor/tools/SinHalfTool.cpp
@@ -59,6 +63,9 @@ add_executable(cr42ynth_ui.so
 	wtEditor/WTEditor.cpp
 	wtEditor/WTView.cpp
 	
+	PanelSwitcher.cpp
+	PanelSwitcherEntry.cpp
+	LineEntry.cpp
 	CR42YnthUI.cpp
 )
 

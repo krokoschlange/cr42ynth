@@ -40,7 +40,8 @@
 namespace cr42y
 {
 
-DragBar::DragBar(Avtk::UI* ui, int x, int y, int w, int h, std::string label, bool dS) :
+DragBar::DragBar(Avtk::UI* ui, int x, int y, int w, int h, std::string label,
+		bool dS) :
 		Avtk::Widget(ui, x, y, w, h, label),
 		doubleSided(dS),
 		mouseDown(false),
@@ -49,8 +50,8 @@ DragBar::DragBar(Avtk::UI* ui, int x, int y, int w, int h, std::string label, bo
 		cairoCache(nullptr)
 {
 	/*surfCache = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, w, h);
-	cairoCache = cairo_create(surfCache);*/
-	
+	 cairoCache = cairo_create(surfCache);*/
+
 	if (doubleSided)
 	{
 		defaultValue(0.5);
@@ -93,10 +94,7 @@ void DragBar::draw(cairo_t* cr)
 			{
 				cairo_destroy(cairoCache);
 			}
-			surfCache = cairo_surface_create_similar(
-					cairo_get_target(cr),
-					CAIRO_CONTENT_COLOR_ALPHA,
-					w(), h());
+			surfCache = cairo_surface_create_similar(cairo_get_target(cr), CAIRO_CONTENT_COLOR_ALPHA, w(), h());
 			cairoCache = cairo_create(surfCache);
 		}
 		cairo_save(cairoCache);
@@ -159,8 +157,11 @@ void DragBar::draw(cairo_t* cr)
 
 int DragBar::handle(const PuglEvent* event)
 {
-	if (event->type == PUGL_BUTTON_PRESS && event->button.button == 1 &&
-			touches(event->button.x, event->button.y))
+	if (!visible())
+	{
+		return 0;
+	}
+	if (event->type == PUGL_BUTTON_PRESS && event->button.button == 1 && touches(event->button.x, event->button.y))
 	{
 		value(1 - (float) (event->button.y - y()) / h());
 		callback(this, callbackUD);
@@ -168,8 +169,7 @@ int DragBar::handle(const PuglEvent* event)
 		redraw = true;
 		return 1;
 	}
-	if (event->type == PUGL_BUTTON_PRESS && event->button.button == 3 &&
-			touches(event->button.x, event->button.y))
+	if (event->type == PUGL_BUTTON_PRESS && event->button.button == 3 && touches(event->button.x, event->button.y))
 	{
 		value(defaultValue());
 		callback(this, callbackUD);

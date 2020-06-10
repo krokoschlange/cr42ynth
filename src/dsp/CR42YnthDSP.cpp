@@ -32,6 +32,7 @@
  *******************************************************************************/
 
 #include <cstring>
+#include <iostream>
 
 #include "rtosc/rtosc.h"
 
@@ -249,6 +250,7 @@ void CR42YnthDSP::handleEvent(OSCEvent* event)
 void CR42YnthDSP::sendState()
 {
 	getCommunicator()->log("sending state");
+	//std::cout << "sending state\n";
 	for (int i = 0; i < voices.size(); i++)
 	{
 		char buffer[32];

@@ -40,12 +40,19 @@
 #include "button.hxx"
 #include "group.hxx"
 
+namespace Avtk
+{
+class List;
+}
+
+
 namespace cr42y
 {
 
 class WTEditor;
 class WTTool;
 class CRSurfaceButton;
+class PanelSwitcher;
 
 class ToolPanel : public Avtk::Group
 {
@@ -53,7 +60,7 @@ public:
 	ToolPanel(WTEditor* ed, int x, int y, int w, int h, std::string label);
 	virtual ~ToolPanel();
 	
-	
+	virtual void updateButtons();
 	virtual int handle(const PuglEvent* event);
 	virtual void valueCB(Avtk::Widget* widget);
 private:
@@ -65,8 +72,11 @@ private:
 	CRSurfaceButton* freeBtn;*/
 	std::vector<CRSurfaceButton*> toolBtns;
 	
-	std::vector<Avtk::Button*> baseTypeSelector;
+	//std::vector<Avtk::Button*> baseTypeSelector;
+	PanelSwitcher* basePartSelector;
 	int baseType;
+
+	Avtk::List* harmTypeSelector;
 };
 
 } /* namespace cr42y */

@@ -44,7 +44,7 @@
 #include "WPFunction.h"
 #include "WPHarmonics.h"
 
-#include "WavetableEditData.h"
+#include "WavetableEditController.h"
 #include "WaveformView.h"
 #include "HarmonicsEditor.h"
 #include "HarmonicsView.h"
@@ -57,36 +57,31 @@ namespace cr42y
 
 WTEditor::WTEditor(Avtk::UI* ui, int x, int y, int w, int h, std::string label) :
 		Avtk::Group(ui, x, y, w, h, label),
-		wtPos(0),
-		data(new WavetableEditData(4096)),
 		view(nullptr),
-		tool(TRI_SLOPE)
+		controller(new WavetableEditController())
 {
 	/*data->addPart(0, new WPFunction(0.3, 0.6, "x"));
 	data->addPart(0, new WPFunction(0.4, 0.5, "-x"));
-	
+
 	for (int i = 0; i < 20; i++)
 	{
 		data->addWaveform();
 	}*/
-	
-	data->removePart(0, 0);
-	
+
+	/*data->removePart(0, 0);
+
 	harmonicTable_t ht;
 	ht.push_back(std::pair<float, float>(0, 0));
 	ht.push_back(std::pair<float, float>(1, 0));
-	ht.push_back(std::pair<float, float>(1, 0.5));
-	ht.push_back(std::pair<float, float>(0, 0));
-	ht.push_back(std::pair<float, float>(0, 0));
 	WPHarmonics* hm = new WPHarmonics(0, 1, ht, WPHarmonics::SIN);
 	data->addPart(0, hm);
 
 	for (int i = 0; i < data->getWaveforms()->size(); i++)
 	{
 		selectedParts.push_back(0);
-	}
-	
-	
+	}*/
+
+
 	int pad = w / 100;
 	
 	int usableW = w - 4 * pad;
@@ -101,162 +96,20 @@ WTEditor::WTEditor(Avtk::UI* ui, int x, int y, int w, int h, std::string label) 
 			h - pad * 4 - h * 0.65, "HEDIT");
 	harmView = new HarmonicsView(this, x + usableW / 6 + pad * 2, y + pad, usableW / 1.5, h * 0.15, "HVIEW");
 	add(harmView);
-	setWTPos(0);
+	//setWTPos(0);
 }
 
 WTEditor::~WTEditor()
 {
-	if (data)
+	if (controller)
 	{
-		delete data;
+		delete controller;
 	}
 }
 
-/*int WTEditor::handle(const PuglEvent* event)
+WavetableEditController* WTEditor::getController()
 {
-	if( visible() ) {
-		// reverse iter over the children: top first
-		for(int i = children.size() - 1; i >= 0 ; i-- ) {
-			int ret = children.at( i )->handle( event );
-			if( ret ) {
-				std::cout << children.at(i)->label() << "\n";
-				//AVTK_DEV("widget %s : handles eventType %i ret = 1\n", children.at(i)->label(), event->type );
-				return ret; // child widget ate event: done :)
-			}
-		}
-
-		// if we haven't returned, the event was not consumed by the children, so we
-		// can check for a scroll event, and if yes, highlight the next item
-		if( event->type == PUGL_SCROLL &&
-		    valueMode_ == VALUE_SINGLE_CHILD &&
-		    touches( event->scroll.x, event->scroll.y ) &&
-		    children.size() > 0 ) {
-			// find value() widget
-			int vw = -1;
-			for(int i = children.size() - 1; i >= 0 ; i-- ) {
-				if( children.at(i)->value() > 0.4999 )
-					vw = i;
-			}
-
-			int d = event->scroll.dy;
-			//printf("SCROLL: Value child %i, delta %i\n", vw, d );
-
-			// no widget selected
-			if( vw == -1 ) {
-				children.at(0)->value( true );
-			}
-			// scroll up
-			else if( vw > 0 && d > 0 ) {
-				children.at(vw-1)->value( true  );
-				children.at(vw  )->value( false );
-			}
-			// scroll down
-			else if( vw < children.size()-1 && d < 0 ) {
-				children.at(vw  )->value( false );
-				children.at(vw+1)->value( true  );
-			}
-
-			// handled scroll, so eat event
-			return 1;
-		}
-	}
-	return 0;
-}*/
-
-void WTEditor::setEditData(WavetableEditData* eData)
-{
-	if (eData)
-	{
-		if (data)
-		{
-			delete data;
-		}
-		data = eData;
-		requestRedraw();
-	}
-}
-
-WavetableEditData* WTEditor::getEditData()
-{
-	return data;
-}
-
-int WTEditor::getWTPos()
-{
-	return wtPos;
-}
-
-void WTEditor::setWTPos(int pos)
-{
-	pos = pos < 0 ? 0 : pos;
-	pos = pos >= data->getWaveforms()->size() ? data->getWaveforms()->size() - 1 :
-			pos;
-	wtPos = pos;
-	if ((*data->getWaveform(pos))[getSelected(pos)]->getType() == WaveformPart::HARMONICS)
-	{
-		harmEditor->setPart((WPHarmonics*) (*data->getWaveform(pos))[getSelected(pos)]);
-	}
-	else
-	{
-		harmEditor->setPart(nullptr);
-	}
-	requestRedraw();
-}
-
-int WTEditor::getSelected(int row)
-{
-	if (row >= 0 && row < selectedParts.size())
-	{
-		return selectedParts[row];
-	}
-	return -1;
-}
-
-void WTEditor::select(int row, int sel)
-{
-	if (row >= 0 && row < selectedParts.size())
-	{
-		sel = sel < 0 ? 0 : sel;
-		sel = sel >= data->getWaveform(row)->size() ?
-				data->getWaveform(row)->size() - 1 : sel;
-		selectedParts[row] = sel;
-		if ((*data->getWaveform(row))[sel]->getType() == WaveformPart::HARMONICS)
-		{
-			harmEditor->setPart((WPHarmonics*) (*data->getWaveform(row))[sel]);
-		}
-		else
-		{
-			harmEditor->setPart(nullptr);
-		}
-		requestRedraw();
-	}
-}
-
-void WTEditor::setTool(TOOL t)
-{
-	tool = t;
-}
-
-int WTEditor::getTool()
-{
-	return tool;
-}
-
-WTTool* WTEditor::getNewTool(float x, float y)
-{
-	switch (tool)
-	{
-	case TRI_SLOPE:
-		return new TriTool(data, wtPos, x, y);
-	case SIN_SLOPE:
-		return new SinSlopeTool(data, wtPos, x, y);
-	case SIN_HALF:
-		return new SinHalfTool(data, wtPos, x, y);
-	case FREE:
-		return new FreeTool(data, wtPos, x, y);
-	default:
-		return nullptr;
-	}
+	return controller;
 }
 
 WaveformView* WTEditor::getWFView()
@@ -284,37 +137,6 @@ HarmonicsView* WTEditor::getHarmonicsView()
 	return harmView;
 }
 
-void WTEditor::addWaveform(int idx)
-{
-	data->addWaveform(idx);
-	if (idx == -1 || idx >= selectedParts.size())
-	{
-		selectedParts.push_back(0);
-	}
-	else
-	{
-		selectedParts.insert(selectedParts.begin() + idx, 0);
-		if (wtPos >= idx)
-		{
-			wtPos++;
-			requestRedraw();
-		}
-	}
-}
-
-void WTEditor::removeWaveform(int idx)
-{
-	data->removeWaveform(idx);
-	if (idx >= 0 && idx < selectedParts.size())
-	{
-		selectedParts.erase(selectedParts.begin() + idx);
-		if (wtPos > idx)
-		{
-			wtPos--;
-		}
-	}
-}
-
 void WTEditor::requestRedraw()
 {
 	view->updateButtons();
@@ -323,7 +145,8 @@ void WTEditor::requestRedraw()
 	wtView->requestRedraw();
 	harmEditor->requestRedraw();
 	harmView->requestRedraw();
-	ui->redraw(this);
+	toolPanel->updateButtons();
+	ui->redraw();
 }
 
 } /* namespace cr42y */

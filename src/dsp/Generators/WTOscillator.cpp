@@ -89,17 +89,17 @@ void WTOscillator::setEditData(WavetableEditData* ed)
 		delete editData;
 	}
 	editData = ed;
-	CR42YnthDSP::getInstance()->getCommunicator()->log(editData->to_string().c_str());
+	//CR42YnthDSP::getInstance()->getCommunicator()->log(editData->to_string().c_str());
 	if (editData)
 	{
 		setWavetable(editData->getSamples());
-		std::string str = "";
+		/*std::string str = "";
 		for (int i = 0; i < (*wavetable)[0].size(); i += 400)
 		{
 			str += std::to_string((*wavetable)[0][i]);
 		}
 		CR42YnthDSP::getInstance()->getCommunicator()->log(str.c_str());
-		CR42YnthDSP::getInstance()->getCommunicator()->log(std::to_string(ed->getWidth()).c_str());
+		CR42YnthDSP::getInstance()->getCommunicator()->log(std::to_string(ed->getWidth()).c_str());*/
 	}
 	else
 	{
@@ -225,7 +225,7 @@ void WTOscillator::voiceRemoved(Voice* vce)
 
 void WTOscillator::sendState()
 {
-	std::string address = "oscillators/" + std::to_string(number) + "/wavetable";
+	std::string address = "/oscillators/" + std::to_string(number) + "/wavetable";
 
 	unsigned int bufferSize = address.size() + 32;
 	char buffer[bufferSize];

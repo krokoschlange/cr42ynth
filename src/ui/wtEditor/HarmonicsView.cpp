@@ -41,6 +41,7 @@
 
 #include "WTEditor.h"
 #include "WavetableEditData.h"
+#include "WavetableEditController.h"
 
 #include "FftRealPair.hpp"
 
@@ -94,7 +95,9 @@ void HarmonicsView::draw(cairo_t* cr)
 		theme_->color(cairoCache, Avtk::BG_DARK);
 		cairo_fill(cairoCache);
 		
-		std::vector<float>* samples = editor->getEditData()->getSamples(editor->getWTPos());
+		WavetableEditController* controller = editor->getController();
+
+		std::vector<float>* samples = controller->getSamples(controller->getSelectedWaveform());
 		std::vector<double> doubleSmpls(samples->begin(), samples->end());
 		std::vector<double> doubleEmpty(doubleSmpls.size());
 		delete samples;
@@ -105,7 +108,7 @@ void HarmonicsView::draw(cairo_t* cr)
 		//doubleEmpty.erase(doubleEmpty.begin());
 		
 		float maxAmp = 0;
-		for (int i = 0; i < 129; i++)
+		for (int i = 0; i < 129 && i < doubleSmpls.size(); i++)
 		{
 			float amp = sqrt(doubleSmpls[i] * doubleSmpls[i] +
 					doubleEmpty[i] * doubleEmpty[i]) / (doubleSmpls.size() / 2);
@@ -118,7 +121,7 @@ void HarmonicsView::draw(cairo_t* cr)
 		float ampHeight = h() / 1.5;
 		
 		theme_->color(cairoCache, Avtk::HIGHLIGHT);
-		for (int i = 0; i < 129; i++)
+		for (int i = 0; i < 129 && i < doubleSmpls.size(); i++)
 		{
 			float amp = sqrt(doubleSmpls[i] * doubleSmpls[i] +
 					doubleEmpty[i] * doubleEmpty[i]) / (doubleSmpls.size() / 2) / maxAmp;

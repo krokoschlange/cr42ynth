@@ -42,7 +42,8 @@
 namespace cr42y
 {
 
-CustomScroll::CustomScroll(Avtk::UI* ui, int x, int y, int w, int h, std::string label) :
+CustomScroll::CustomScroll(Avtk::UI* ui, int x, int y, int w, int h,
+		std::string label) :
 		Avtk::Group(ui, x, y, w, h, label),
 		child(nullptr),
 		doScrollX(false),
@@ -96,10 +97,7 @@ void CustomScroll::draw(cairo_t* cr)
 			{
 				cairo_destroy(cairoCache);
 			}
-			surfCache = cairo_surface_create_similar(
-					cairo_get_target(cr),
-					CAIRO_CONTENT_COLOR_ALPHA,
-					child->w(), child->h());
+			surfCache = cairo_surface_create_similar(cairo_get_target(cr), CAIRO_CONTENT_COLOR_ALPHA, child->w(), child->h());
 			cairoCache = cairo_create(surfCache);
 		}
 		//cairo_rectangle(cairoCache, 0, 0, child->w(), child->h());
@@ -116,8 +114,7 @@ void CustomScroll::draw(cairo_t* cr)
 			cairo_rectangle(cr, x(), y() + h() - 10, w(), 10);
 			theme_->color(cr, Avtk::BG);
 			cairo_fill(cr);
-			cairo_rectangle(cr, x() + scrollX * (scrollXRange - scrollXSize),
-					y() + h() - 10, scrollXSize, 10);
+			cairo_rectangle(cr, x() + scrollX * (scrollXRange - scrollXSize), y() + h() - 10, scrollXSize, 10);
 			theme_->color(cr, Avtk::FG);
 			cairo_fill(cr);
 		}
@@ -126,8 +123,7 @@ void CustomScroll::draw(cairo_t* cr)
 			cairo_rectangle(cr, x() + w() - 10, y(), 10, h());
 			theme_->color(cr, Avtk::BG);
 			cairo_fill(cr);
-			cairo_rectangle(cr, x() + w() - 10,
-					y() + scrollY * (scrollYRange - scrollYSize), 10, scrollYSize);
+			cairo_rectangle(cr, x() + w() - 10, y() + scrollY * (scrollYRange - scrollYSize), 10, scrollYSize);
 			theme_->color(cr, Avtk::FG);
 			cairo_fill(cr);
 		}
@@ -142,12 +138,15 @@ void CustomScroll::draw(cairo_t* cr)
 
 int CustomScroll::handle(const PuglEvent* event)
 {
+	if (!visible())
+	{
+		return 0;
+	}
 	if (event->type == PUGL_BUTTON_PRESS && event->button.button == 1)
 	{
 		if (touches(event->button.x, event->button.y))
 		{
-			if (doScrollY && event->button.x > x() + w() - 10 &&
-					event->button.x < x() + w())
+			if (doScrollY && event->button.x > x() + w() - 10 && event->button.x < x() + w())
 			{
 				int deltaY = event->button.y - y();
 				if (deltaY <= scrollYRange && deltaY >= 0)
@@ -155,8 +154,7 @@ int CustomScroll::handle(const PuglEvent* event)
 					grab = GRAB_VERTICAL;
 					mx = event->button.x;
 					my = event->button.y;
-					if (deltaY < scrollY * (scrollYRange - scrollYSize) ||
-							deltaY > scrollY * (scrollYRange - scrollYSize) + scrollYSize)
+					if (deltaY < scrollY * (scrollYRange - scrollYSize) || deltaY > scrollY * (scrollYRange - scrollYSize) + scrollYSize)
 					{
 						scrollY = (float) (deltaY - scrollYSize / 2) / (scrollYRange - scrollYSize);
 					}
@@ -167,8 +165,7 @@ int CustomScroll::handle(const PuglEvent* event)
 					return 1;
 				}
 			}
-			if (doScrollX && event->button.y > y() + h() - 10 &&
-					event->button.y < y() + h())
+			if (doScrollX && event->button.y > y() + h() - 10 && event->button.y < y() + h())
 			{
 				int deltaX = event->button.x - x();
 				if (deltaX <= scrollXRange && deltaX >= 0)
@@ -176,8 +173,7 @@ int CustomScroll::handle(const PuglEvent* event)
 					grab = GRAB_HORIZONTAL;
 					mx = event->button.x;
 					my = event->button.y;
-					if (deltaX < scrollX * (scrollXRange - scrollXSize) ||
-							deltaX > scrollX * (scrollXRange - scrollXSize) + scrollXSize)
+					if (deltaX < scrollX * (scrollXRange - scrollXSize) || deltaX > scrollX * (scrollXRange - scrollXSize) + scrollXSize)
 					{
 						scrollX = (float) (deltaX - scrollXSize / 2) / (scrollXRange - scrollXSize);
 					}
@@ -226,8 +222,8 @@ int CustomScroll::handle(const PuglEvent* event)
 			{
 				scrollYAmount -= 8 * event->scroll.dy;
 				scrollYAmount = scrollYAmount < 0 ? 0 : scrollYAmount;
-				scrollYAmount = scrollYAmount > maxScrollY ? maxScrollY :
-						scrollYAmount;
+				scrollYAmount =
+						scrollYAmount > maxScrollY ? maxScrollY : scrollYAmount;
 				scrollY = (float) scrollYAmount / maxScrollY;
 				ui->redraw(this);
 				ret = 1;
@@ -236,8 +232,8 @@ int CustomScroll::handle(const PuglEvent* event)
 			{
 				scrollXAmount += 8 * event->scroll.dx;
 				scrollXAmount = scrollXAmount < 0 ? 0 : scrollXAmount;
-				scrollXAmount = scrollXAmount > maxScrollX ? maxScrollX :
-						scrollXAmount;
+				scrollXAmount =
+						scrollXAmount > maxScrollX ? maxScrollX : scrollXAmount;
 				scrollX = (float) scrollXAmount / maxScrollX;
 				ui->redraw(this);
 				ret = 1;
@@ -248,13 +244,10 @@ int CustomScroll::handle(const PuglEvent* event)
 	{
 		grab = GRAB_NONE;
 	}
-	if (((event->type == PUGL_BUTTON_PRESS/* || event->type == PUGL_BUTTON_RELEASE*/) &&
-			touches(event->button.x, event->button.y)) ||
-			(event->type == PUGL_SCROLL && touches(event->scroll.x, event->scroll.y)) ||
-			/*(event->type == PUGL_MOTION_NOTIFY &&
-			touches(event->motion.x, event->motion.y)) ||*/
-			(event->type != PUGL_BUTTON_PRESS/* && event->type != PUGL_BUTTON_RELEASE*/ &&
-			event->type != PUGL_SCROLL/* && event->type != PUGL_MOTION_NOTIFY*/))
+	if (((event->type == PUGL_BUTTON_PRESS/* || event->type == PUGL_BUTTON_RELEASE*/) && touches(event->button.x, event->button.y)) || (event->type == PUGL_SCROLL && touches(event->scroll.x, event->scroll.y)) ||
+	/*(event->type == PUGL_MOTION_NOTIFY &&
+	 touches(event->motion.x, event->motion.y)) ||*/
+	(event->type != PUGL_BUTTON_PRESS/* && event->type != PUGL_BUTTON_RELEASE*/&& event->type != PUGL_SCROLL/* && event->type != PUGL_MOTION_NOTIFY*/))
 	{
 		PuglEvent childEvent;
 		offsetEvent(event, &childEvent);
@@ -280,15 +273,15 @@ void CustomScroll::setChild(Avtk::Widget* c)
 	child->y(0);
 	
 	/*if (child->w() > w() || (child->w() > w() - 10 && child->h() > h()))
-	{
-		doScrollX = true;
-		maxScrollX = child->w() - w();
-		if (child->h() > h())
-		{
-			maxScrollX += 10;
-		}
-	}
-	if (child->h() > h() || (child->h() > h() - 10 && child->w()))*/
+	 {
+	 doScrollX = true;
+	 maxScrollX = child->w() - w();
+	 if (child->h() > h())
+	 {
+	 maxScrollX += 10;
+	 }
+	 }
+	 if (child->h() > h() || (child->h() > h() - 10 && child->w()))*/
 	childResize();
 	scrollX = 0;
 	scrollXAmount = 0;

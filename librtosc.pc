@@ -1,0 +1,13 @@
+#
+# pkgconfig for rtosc
+#
+
+prefix=/usr/local
+libdir=/usr/local/lib
+includedir=/usr/local/include
+
+Name: rtosc
+Description: rtosc - a realtime safe open sound control serialization and dispatch system
+Version: 0.2.0
+Libs: -L${libdir} -lrtosc
+Cflags: -I${includedir}

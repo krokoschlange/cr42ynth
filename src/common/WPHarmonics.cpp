@@ -187,7 +187,11 @@ std::string WPHarmonics::to_string()
 
 void WPHarmonics::setFunctionType(functionType t)
 {
-	fType = t;
+	if (t != fType)
+	{
+		fType = t;
+		setUpdate();
+	}
 }
 
 int WPHarmonics::getFunctionType()
@@ -221,11 +225,4 @@ void WPHarmonics::normalize()
 }
 
 } /* namespace cr42y */
-
-
-
-
-
-
-
 

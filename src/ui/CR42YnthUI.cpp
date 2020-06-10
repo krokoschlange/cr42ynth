@@ -40,26 +40,45 @@
 
 #include "WTEditor.h"
 #include "WavetableEditData.h"
+#include "WavetableEditController.h"
 
 namespace cr42y
 {
 
-CR42YnthUI::CR42YnthUI(CR42YnthCommunicator* comm, PuglNativeWindow parent) :
+CR42YnthUI::CR42YnthUI(CR42YnthCommunicator* comm, PuglNativeWindow parent,
+		const char* path) :
 		Avtk::UI(1000, 700, parent, "CR42Ynth"),
 		communicator(comm),
+		bundlePath(new char[strlen(path) + 1]),
 		//dial1(this, 0, 0, 50, 50, "DIAL"),
-		wtEditor(new WTEditor(this, 0, 0, 1000, 700, "EDITOR"))
+		wtEditor(nullptr)
 {
-	add(wtEditor);
+	strcpy(bundlePath, path);
+
+	wtEditor = new WTEditor(this, 0, 0, 1000, 700, "EDITOR");
+
+	//add(wtEditor);
 	std::string addr = "/oscillators/0/active";
 	uint32_t bufferSize = addr.size() + 32;
 	char buffer[bufferSize];
 	int len = rtosc_message(buffer, bufferSize, addr.c_str(), "sf", "set_value", 1.0);
 	comm->writeMessage(buffer, len, nullptr, 0);
+
+	addr = "/global/state";
+	buffer[bufferSize];
+	len = rtosc_message(buffer, bufferSize, addr.c_str(), "s", "get");
+	comm->writeMessage(buffer, len, nullptr, 0);
 }
 
 CR42YnthUI::~CR42YnthUI()
 {
+	delete[] bundlePath;
+	delete wtEditor;
+}
+
+const char* CR42YnthUI::getBundlePath()
+{
+	return bundlePath;
 }
 
 int CR42YnthUI::handle(const PuglEvent* event)
@@ -75,7 +94,8 @@ int CR42YnthUI::handle(const PuglEvent* event)
 
 		int len = rtosc_message(buffer, bufferSize, address.c_str(), "s", "set");
 
-		if (wtEditor->getEditData())
+		WavetableEditController* controller = wtEditor->getController();
+		if (controller->getData())
 		{
 			/*float wtValues[width * height];
 			 for (int i = 0; i < height; i++)
@@ -88,15 +108,15 @@ int CR42YnthUI::handle(const PuglEvent* event)
 			 CR42YnthDSP::getInstance()->getCommunicator()->writeMessage(buffer, len, (void*) wtValues, width * height * sizeof(float));
 			 */
 			void* dataBuffer = nullptr;
-			int dataSize = wtEditor->getEditData()->getData(&dataBuffer);
+			int dataSize = controller->getData()->getData(&dataBuffer);
 			communicator->writeMessage(buffer, len, dataBuffer, dataSize);
 		}
 		/*else
-		{
-			communicator->writeMessage(buffer, len, nullptr, 0);
-		}*/
+		 {
+		 communicator->writeMessage(buffer, len, nullptr, 0);
+		 }*/
 	}
-	return g;
+	return 1; //if we don't do this, Avtk fucks up and tries to handle the event again :/
 }
 
 void CR42YnthUI::widgetValueCB(Avtk::Widget* widget)
@@ -114,15 +134,23 @@ void CR42YnthUI::handleOSCEvent(OSCEvent* event)
 	rtosc_match_path(addr.c_str(), msg, (const char**) &end);
 	if (end && *end == '\0')
 	{
-		communicator->log(msg);
+		//communicator->log(msg);
 		if (rtosc_type(msg, 0) == 's' && !strcmp(rtosc_argument(msg, 0).s, "set"))
 		{
 			if (event->getData())
 			{
-				wtEditor->setEditData(new WavetableEditData((char*) event->getData()));
+				WavetableEditController* controller = wtEditor->getController();
+				controller->setData(new WavetableEditData((char*) event->getData()));
+				wtEditor->requestRedraw();
+
 			}
 		}
 	}
+}
+
+CR42YnthCommunicator* CR42YnthUI::getCommunicator()
+{
+	return communicator;
 }
 
 } /* namespace cr42y */

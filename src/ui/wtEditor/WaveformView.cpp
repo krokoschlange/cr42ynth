@@ -39,57 +39,50 @@
 #include "WaveformView.h"
 
 #include "WTEditor.h"
-#include "WavetableEditData.h"
+#include "WavetableEditController.h"
 #include "WaveformPart.h"
 #include "WTTool.h"
 #include "WTView.h"
 #include "CRSurfaceButton.h"
 #include "WPHarmonics.h"
 #include "HarmonicsView.h"
+#include "CR42YnthUI.h"
 
 #include "FftRealPair.hpp"
 
 namespace cr42y
 {
 
-WaveformView::WaveformView(WTEditor* ed, int x, int y, int w,
-		int h, std::string label) :
+WaveformView::WaveformView(WTEditor* ed, int x, int y, int w, int h,
+		std::string label) :
 		Avtk::Group(ed->ui, x, y, w, h, label),
 		editor(ed),
 		redraw(true),
 		surfCache(nullptr),
 		cairoCache(nullptr),
-		tool(nullptr),
-		gridX(0),
-		gridY(0),
 		resizeLeft(nullptr),
 		resizeRight(nullptr)
 {
 	/*surfCache = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, w, h);
-	cairoCache = cairo_create(surfCache);*/
-	
-	cairo_surface_t* nextPNG = cairo_image_surface_create_from_png("../media/right.png");
-	cairo_surface_t* prevPNG = cairo_image_surface_create_from_png("../media/left.png");
-	prev = new CRSurfaceButton(ed->ui, x + 5, y + h - 20, 10, 15, "previous",
-			prevPNG, 20, 50, prevPNG, 20, 50);
-	next = new CRSurfaceButton(ed->ui, x + 20, y + h - 20, 10, 15, "next", 
-			nextPNG, 20, 50, nextPNG, 20, 50);
+	 cairoCache = cairo_create(surfCache);*/
+
+	std::string path = std::string(((CR42YnthUI*) ui)->getBundlePath());
+	cairo_surface_t* nextPNG = cairo_image_surface_create_from_png((path + "../media/right.png").c_str());
+	cairo_surface_t* prevPNG = cairo_image_surface_create_from_png((path + "../media/left.png").c_str());
+	prev = new CRSurfaceButton(ed->ui, x + 5, y + h - 20, 10, 15, "previous", prevPNG, 20, 50, prevPNG, 20, 50);
+	next = new CRSurfaceButton(ed->ui, x + 20, y + h - 20, 10, 15, "next", nextPNG, 20, 50, nextPNG, 20, 50);
 	cairo_surface_destroy(nextPNG);
 	cairo_surface_destroy(prevPNG);
 	
-	cairo_surface_t* plus = cairo_image_surface_create_from_png("../media/plus.png");
-	cairo_surface_t* min = cairo_image_surface_create_from_png("../media/minus.png");
-	gridXPlus = new CRSurfaceButton(ed->ui, x + w - 20, y + h - 20, 15, 15,
-			"gridXPlus", plus, 20, 20, plus, 20, 20);
-	gridXMinus = new CRSurfaceButton(ed->ui, x + w - 75, y + h - 20, 15, 15,
-			"gridXMinus", min, 20, 20, min, 20, 20);
-	gridYPlus = new CRSurfaceButton(ed->ui, x + w - 20, y + h - 40, 15, 15,
-			"gridXPlus", plus, 20, 20, plus, 20, 20);
-	gridYMinus = new CRSurfaceButton(ed->ui, x + w - 75, y + h - 40, 15, 15,
-			"gridXMinus", min, 20, 20, min, 20, 20);
+	cairo_surface_t* plus = cairo_image_surface_create_from_png((path + "../media/plus.png").c_str());
+	cairo_surface_t* min = cairo_image_surface_create_from_png((path + "../media/minus.png").c_str());
+	gridXPlus = new CRSurfaceButton(ed->ui, x + w - 20, y + h - 20, 15, 15, "gridXPlus", plus, 20, 20, plus, 20, 20);
+	gridXMinus = new CRSurfaceButton(ed->ui, x + w - 75, y + h - 20, 15, 15, "gridXMinus", min, 20, 20, min, 20, 20);
+	gridYPlus = new CRSurfaceButton(ed->ui, x + w - 20, y + h - 40, 15, 15, "gridXPlus", plus, 20, 20, plus, 20, 20);
+	gridYMinus = new CRSurfaceButton(ed->ui, x + w - 75, y + h - 40, 15, 15, "gridXMinus", min, 20, 20, min, 20, 20);
 	cairo_surface_destroy(plus);
 	cairo_surface_destroy(min);
-			
+
 	toSinBtn = new Avtk::Button(ed->ui, x + 35, y + h - 20, 70, 15, "to sin");
 	
 	add(gridXPlus);
@@ -123,16 +116,17 @@ void WaveformView::draw(cairo_t* cr)
 			{
 				cairo_destroy(cairoCache);
 			}
-			surfCache = cairo_surface_create_similar(
-					cairo_get_target(cr),
-					CAIRO_CONTENT_COLOR_ALPHA,
-					w(), h());
+			surfCache = cairo_surface_create_similar(cairo_get_target(cr), CAIRO_CONTENT_COLOR_ALPHA, w(), h());
 			cairoCache = cairo_create(surfCache);
 		}
 		cairo_rectangle(cairoCache, 0, 0, w(), h());
 		theme_->color(cairoCache, Avtk::BG_DARK);
 		cairo_fill(cairoCache);
 		
+		WavetableEditController* controller = editor->getController();
+		int gridX = controller->getGridX();
+		int gridY = controller->getGridY();
+
 		for (int i = 0; i < gridX; i++)
 		{
 			cairo_move_to(cairoCache, ((float) w() / gridX) * i, 0);
@@ -162,20 +156,9 @@ void WaveformView::draw(cairo_t* cr)
 		}
 
 		std::vector<float>* samples = nullptr;
-		int stepSize = 1;
-		
-		if (editor->getEditData())
-		{
-			stepSize = editor->getEditData()->getWidth() / w();
-			stepSize = stepSize > 1 ? stepSize : 1;
-			samples = editor->getEditData()->getSamples(editor->getWTPos(), stepSize);
-		}
-		else
-		{
-			samples = new std::vector<float>();
-			samples->push_back(0);
-			samples->push_back(0);
-		}
+		int stepSize = controller->getWaveformWidth() / w();
+		stepSize = stepSize > 1 ? stepSize : 1;
+		samples = controller->getSamples(controller->getSelectedWaveform(), stepSize);
 
 		float pixelPerSample = (float) w() / samples->size();
 		
@@ -198,13 +181,9 @@ void WaveformView::draw(cairo_t* cr)
 
 		cairo_stroke(cairoCache);
 
-		int sel = editor->getSelected(editor->getWTPos());
-		WaveformPart* part = editor->getEditData()->getPartByIndex(editor->getWTPos(), sel);
+		int sel = editor->getController()->getSelectedPart();
 		std::vector<std::pair<float, float>> parts;
-		if (part)
-		{
-			parts = editor->getEditData()->getVisibleAreas(editor->getWTPos(), part);
-		}
+		parts = editor->getController()->getVisibleAreas(sel);
 		
 		for (int i = 0; i < parts.size(); i++)
 		{
@@ -231,8 +210,7 @@ void WaveformView::draw(cairo_t* cr)
 		}
 		
 		cairo_set_font_size(cairoCache, 15);
-		cairo_select_font_face(cairoCache, "impact", CAIRO_FONT_SLANT_NORMAL,
-				CAIRO_FONT_WEIGHT_BOLD);
+		cairo_select_font_face(cairoCache, "impact", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
 		cairo_text_extents_t extents;
 		theme_->color(cairoCache, Avtk::FG);
 		
@@ -265,27 +243,29 @@ void WaveformView::draw(cairo_t* cr)
 	Avtk::Group::draw(cr);
 
 	/*cairo_rectangle(cr, x(), y(), w(), h());
-	theme_->color(cr, Avtk::FG);
-	cairo_stroke(cr);*/
+	 theme_->color(cr, Avtk::FG);
+	 cairo_stroke(cr);*/
 
 	cairo_restore(cr);
 }
 
 int WaveformView::handle(const PuglEvent* event)
 {
+	if (!visible())
+	{
+		return 0;
+	}
 	int g = Avtk::Group::handle(event);
 	if (g != 0)
 	{
 		return g;
 	}
+	WavetableEditController* controller = editor->getController();
 	if (event->type == PUGL_BUTTON_PRESS && touches(event->button.x, event->button.y) && event->button.button == 3)
 	{
 		int mx = event->button.x - x();
 		int my = event->button.y - y();
-		float rmx = (float) mx / w();
-		
-		WaveformPart* part = editor->getEditData()->getVisiblePartAtPos(editor->getWTPos(), rmx);
-		editor->select(editor->getWTPos(), editor->getEditData()->getIndexOfPart(editor->getWTPos(), part));
+		controller->selectPartAction(mx, my, w(), h());
 		updateButtons();
 		redraw = true;
 		ui->redraw(this);
@@ -293,47 +273,45 @@ int WaveformView::handle(const PuglEvent* event)
 	}
 	else if (event->type == PUGL_BUTTON_PRESS && touches(event->button.x, event->button.y) && event->button.button == 1)
 	{
-		if (tool)
-		{
-			delete tool;
-			tool = nullptr;
-			editor->requestRedraw();
-		}
-		else
-		{
-			float snapX = (float) (event->button.x - x()) / w();
-			if (gridX > 0)
-			{
-				snapX = (float) ((int) (snapX * gridX + 0.5)) / gridX;
-			}
-			float snapY = (float) ((event->button.y - y())) / (h());
-			if (gridY > 0)
-			{
-				snapY = (float) ((int) (snapY * gridY + 0.5)) / gridY;
-			}
-			snapY = -2 * snapY + 1;
-			tool = editor->getNewTool(snapX, snapY);
-			editor->select(editor->getWTPos(), editor->getEditData()->getIndexOfPart(editor->getWTPos(), tool->getPart()));
-			updateButtons();
-			redraw = true;
-			ui->redraw(this);
-		}
+		/*if (tool)
+		 {
+		 delete tool;
+		 tool = nullptr;
+		 editor->requestRedraw();
+		 }
+		 else
+		 {
+
+		 updateButtons();
+		 redraw = true;
+		 ui->redraw(this);
+		 }*/
+		int mx = event->button.x - x();
+		int my = event->button.y - y();
+		controller->useToolAction(mx, my, w(), h());
+		updateButtons();
+		redraw = true;
+		editor->requestRedraw();
 		return 1;
 	}
-	else if (event->type == PUGL_MOTION_NOTIFY && touches(event->button.x, event->button.y) && tool)
+	else if (event->type == PUGL_MOTION_NOTIFY && touches(event->button.x, event->button.y))
 	{
-		float snapX = (float) (event->button.x - x()) / w();
-		if (gridX > 0)
-		{
-			snapX = (float) ((int) (snapX * gridX + 0.5)) / gridX;
-		}
-		float snapY = (float) ((event->button.y - y())) / (h());
-		if (gridY > 0)
-		{
-			snapY = (float) ((int) (snapY * gridY + 0.5)) / gridY;
-		}
-		snapY = -2 * snapY + 1;
-		tool->motion(snapX, snapY);
+		/*float snapX = (float) (event->button.x - x()) / w();
+		 if (gridX > 0)
+		 {
+		 snapX = (float) ((int) (snapX * gridX + 0.5)) / gridX;
+		 }
+		 float snapY = (float) ((event->button.y - y())) / (h());
+		 if (gridY > 0)
+		 {
+		 snapY = (float) ((int) (snapY * gridY + 0.5)) / gridY;
+		 }
+		 snapY = -2 * snapY + 1;
+
+		 tool->motion(snapX, snapY);*/
+		int mx = event->button.x - x();
+		int my = event->button.y - y();
+		controller->toolMoveAction(mx, my, w(), h());
 		redraw = true;
 		updateButtons();
 		ui->redraw(this);
@@ -343,11 +321,7 @@ int WaveformView::handle(const PuglEvent* event)
 	}
 	else if (event->type == PUGL_BUTTON_RELEASE && event->button.button == 1)
 	{
-		if (tool)
-		{
-			delete tool;
-		}
-		tool = nullptr;
+		controller->dropToolAction();
 		updateButtons();
 		editor->requestRedraw();
 		//ui->redraw(editor->getWTView());
@@ -384,23 +358,29 @@ void WaveformView::updateButtons()
 	resizeLeft = nullptr;
 	resizeRight = nullptr;
 	
-	std::vector<WaveformPart*>* wf = editor->getEditData()->getWaveform(editor->getWTPos());
-	int sel = editor->getSelected(editor->getWTPos());
-	if (0 < sel && sel < wf->size())
+	WavetableEditController* controller = editor->getController();
+
+	//std::vector<WaveformPart*>* wf = editor->getEditData()->getWaveform(editor->getWTPos());
+	//int sel = editor->getSelected(editor->getWTPos());
+	int sel = controller->getSelectedPart();
+	//if (0 < sel && sel < wf->size())
+	//{
+	//Avtk::Button* rmvBtn = new Avtk::Button(ui, (*wf)[sel]->getStart() * editor->getEditData()->getWidth() + 5, 5, 10, 10, "X");
+
+	if (sel > 0)
 	{
-		//Avtk::Button* rmvBtn = new Avtk::Button(ui, (*wf)[sel]->getStart() * editor->getEditData()->getWidth() + 5, 5, 10, 10, "X");
-		std::vector<std::pair<float, float>> visAreas = editor->getEditData()->getVisibleAreas(editor->getWTPos(), (*wf)[sel]);
+		std::string path = std::string(((CR42YnthUI*) ui)->getBundlePath());
+
+		std::vector<std::pair<float, float>> visAreas = controller->getVisibleAreas(sel);
 		if (visAreas.size() > 0)
 		{
-			cairo_surface_t* min = cairo_image_surface_create_from_png("../media/minus.png");
+			cairo_surface_t* min = cairo_image_surface_create_from_png((path + "../media/minus.png").c_str());
 			int btnX = visAreas[0].first * w() + 5;
 			if (btnX + 20 > w())
 			{
 				btnX = w() - 20;
 			}
-			CRSurfaceButton* rmvBtn = new CRSurfaceButton(ui,
-					x() + btnX,
-					y() + 5, 15, 15, "-", min, 20, 20, min, 20, 20);
+			CRSurfaceButton* rmvBtn = new CRSurfaceButton(ui, x() + btnX, y() + 5, 15, 15, "-", min, 20, 20, min, 20, 20);
 
 			removeBtns.push_back(std::pair<int, CRSurfaceButton*>(sel, rmvBtn));
 			add(rmvBtn);
@@ -408,17 +388,13 @@ void WaveformView::updateButtons()
 			cairo_surface_destroy(min);
 		}
 		
-		cairo_surface_t* left = cairo_image_surface_create_from_png("../media/left.png");
-		resizeLeft = new CRSurfaceButton(ui,
-				x() + (*wf)[sel]->getStart() * w() - 15,
-				y() + h() / 2 - 15, 15, 30, "<", left, 20, 50, left, 20, 50);
+		cairo_surface_t* left = cairo_image_surface_create_from_png((path + "../media/left.png").c_str());
+		resizeLeft = new CRSurfaceButton(ui, x() + controller->getPartStart(sel) * w() - 15, y() + h() / 2 - 15, 15, 30, "<", left, 20, 50, left, 20, 50);
 		add(resizeLeft);
 		cairo_surface_destroy(left);
-		
-		cairo_surface_t* right = cairo_image_surface_create_from_png("../media/right.png");
-		resizeRight = new CRSurfaceButton(ui,
-				x() + (*wf)[sel]->getEnd() * w(),
-				y() + h() / 2 - 15, 15, 30, ">", right, 20, 50, right, 20, 50);
+
+		cairo_surface_t* right = cairo_image_surface_create_from_png((path + "../media/right.png").c_str());
+		resizeRight = new CRSurfaceButton(ui, x() + controller->getPartEnd(sel) * w(), y() + h() / 2 - 15, 15, 30, ">", right, 20, 50, right, 20, 50);
 		add(resizeRight);
 		cairo_surface_destroy(right);
 	}
@@ -426,26 +402,29 @@ void WaveformView::updateButtons()
 
 void WaveformView::valueCB(Avtk::Widget* widget)
 {
+	WavetableEditController* controller = editor->getController();
 	for (int i = 0; i < removeBtns.size(); i++)
 	{
-		if (widget == removeBtns[i].second && widget->value())//->value())
+		if (widget == removeBtns[i].second && widget->value())		//->value())
 		{
-			if (tool)
-			{
-				delete tool;
-			}
-			tool = nullptr;
-			editor->getEditData()->removePart(editor->getWTPos(), removeBtns[i].first);
-			int sel = editor->getSelected(editor->getWTPos());
-			if (sel < 0)
-			{
-				sel = 0;
-			}
-			else if (sel >= editor->getEditData()->getWaveform(editor->getWTPos())->size())
-			{
-				sel = editor->getEditData()->getWaveform(editor->getWTPos())->size() - 1;
-			}
-			editor->select(editor->getWTPos(), sel);
+			/*if (tool)
+			 {
+			 delete tool;
+			 }
+			 tool = nullptr;
+			 editor->getEditData()->removePart(editor->getWTPos(), removeBtns[i].first);
+			 int sel = editor->getSelected(editor->getWTPos());
+			 if (sel < 0)
+			 {
+			 sel = 0;
+			 }
+			 else if (sel >= editor->getEditData()->getWaveform(editor->getWTPos())->size())
+			 {
+			 sel = editor->getEditData()->getWaveform(editor->getWTPos())->size() - 1;
+			 }
+			 editor->select(editor->getWTPos(), sel);*/
+			controller->dropToolAction();
+			controller->removePart(removeBtns[i].first);
 			updateButtons();
 			redraw = true;
 			ui->redraw(this);
@@ -454,7 +433,7 @@ void WaveformView::valueCB(Avtk::Widget* widget)
 	}
 	if (widget == next)
 	{
-		editor->select(editor->getWTPos(), editor->getSelected(editor->getWTPos()) + 1);
+		controller->selectPart(controller->getSelectedPart() + 1);
 		redraw = true;
 		updateButtons();
 		ui->redraw(this);
@@ -462,7 +441,7 @@ void WaveformView::valueCB(Avtk::Widget* widget)
 	}
 	if (widget == prev)
 	{
-		editor->select(editor->getWTPos(), editor->getSelected(editor->getWTPos()) - 1);
+		controller->selectPart(controller->getSelectedPart() - 1);
 		redraw = true;
 		updateButtons();
 		ui->redraw(this);
@@ -470,83 +449,95 @@ void WaveformView::valueCB(Avtk::Widget* widget)
 	}
 	if (widget == gridXPlus)
 	{
-		gridX++;
+		controller->setGridX(controller->getGridX() + 1);
 		redraw = true;
 		ui->redraw(this);
 		return;
 	}
 	if (widget == gridXMinus)
 	{
-		gridX = gridX > 1 ? gridX - 1 : 0;
+		int g = controller->getGridX();
+		g = g > 1 ? g - 1 : 0;
+		controller->setGridX(g);
 		redraw = true;
 		ui->redraw(this);
 		return;
 	}
 	if (widget == gridYPlus)
 	{
-		gridY++;
+		controller->setGridY(controller->getGridY() + 1);
 		redraw = true;
 		ui->redraw(this);
 		return;
 	}
 	if (widget == gridYMinus)
 	{
-		gridY = gridY > 1 ? gridY - 1 : 0;
+		int g = controller->getGridY();
+		g = g > 1 ? g - 1 : 0;
+		controller->setGridY(g);
 		redraw = true;
 		ui->redraw(this);
 		return;
 	}
 	if (widget == toSinBtn)
 	{
-		std::vector<float>* samples = editor->getEditData()->getSamples(editor->getWTPos());
-		std::vector<double> realSmpls(samples->begin(), samples->end());
-		std::vector<double> imagSmpls(samples->size());
-		if (samples)
-		{
-			delete samples;
-		}
-		samples = nullptr;
-		
-		Fft::transform(realSmpls, imagSmpls);
-		
-		/*realSmpls.erase(realSmpls.begin());
-		imagSmpls.erase(imagSmpls.begin());*/
-		
-		std::vector<WaveformPart*>* wf = editor->getEditData()->getWaveform(editor->getWTPos());
-		
-		for (int i = 0; i < wf->size(); i++)
-		{
-			delete (*wf)[i];
-		}
-		wf->clear();
-		
-		harmonicTable_t ht;
-		
-		for (int i = 0; i < 128; i++)
-		{
-			double real = fabs(realSmpls[i]) < 0.001 ? 0 : realSmpls[i];
-			double imag = fabs(imagSmpls[i]) < 0.001 ? 0 : imagSmpls[i];
-			float amp = sqrt(real * real + imag * imag) / (realSmpls.size() / 2);
-			if (i == 0)
-			{
-				amp = amp / 2;
-			}
-			float phase = atan2(-real, -imag) / (2 * M_PI);
-			if (phase < 0)
-			{
-				phase += 1;
-			}
-			if (amp < 0.001)
-			{
-				phase = 0;
-			}
-			ht.push_back(std::pair<float, float>(amp, phase));
-		}
-		WPHarmonics* harm = new WPHarmonics(0, 1, ht, WPHarmonics::SIN);
-		
-		wf->push_back(harm);
-		editor->select(editor->getWTPos(), 0);
+		/*std::vector<float>* samples = controller->getSamples(controller->getSelectedWaveform());
+		 std::vector<double> realSmpls(samples->begin(), samples->end());
+		 std::vector<double> imagSmpls(samples->size());
+		 if (samples)
+		 {
+		 delete samples;
+		 }
+		 samples = nullptr;
+
+		 Fft::transform(realSmpls, imagSmpls);
+
+
+		 std::vector<WaveformPart*>* wf = editor->getEditData()->getWaveform(editor->getWTPos());
+
+		 for (int i = 0; i < wf->size(); i++)
+		 {
+		 delete (*wf)[i];
+		 }
+		 wf->clear();
+
+		 harmonicTable_t ht;
+
+		 for (int i = 0; i < 128; i++)
+		 {
+		 double real = fabs(realSmpls[i]) < 0.001 ? 0 : realSmpls[i];
+		 double imag = fabs(imagSmpls[i]) < 0.001 ? 0 : imagSmpls[i];
+		 float amp = sqrt(real * real + imag * imag) / (realSmpls.size() / 2);
+		 if (i == 0)
+		 {
+		 amp = amp / 2;
+		 }
+		 float phase = atan2(-real, -imag) / (2 * M_PI);
+		 if (phase < 0)
+		 {
+		 phase += 1;
+		 }
+		 if (amp < 0.001)
+		 {
+		 phase = 0;
+		 }
+		 ht.push_back(std::pair<float, float>(amp, phase));
+		 }
+		 WPHarmonics* harm = new WPHarmonics(0, 1, ht, WPHarmonics::SIN);
+
+		 wf->push_back(harm);*/
+
+		controller->convertToSin();
+		controller->selectPart(0);
 		editor->requestRedraw();
+		return;
+	}
+	if (widget == resizeLeft)
+	{
+		return;
+	}
+	if (widget == resizeRight)
+	{
 		return;
 	}
 }

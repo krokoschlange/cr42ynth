@@ -18,6 +18,7 @@ include_directories ("${PROJECT_SOURCE_DIR}/common/")
 include_directories ("${PROJECT_SOURCE_DIR}/ui/wtEditor/tools/")
 
 add_executable(test.so
+	../../common/common.cpp
 	../../common/WaveformPart.cpp
 	../../common/WavetableEditData.cpp
 	../../common/WPFunction.cpp

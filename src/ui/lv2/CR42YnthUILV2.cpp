@@ -103,15 +103,12 @@ CR42YnthUI_LV2::CR42YnthUI_LV2(const char* bundlePath,
 		}
 	}
 
-	ui = new CR42YnthUI(this, parent);
+	ui = new CR42YnthUI(this, parent, bundlePath);
 	*widget = (void*) ui->getNativeHandle();
 	if (resize)
 	{
 		resize->ui_resize(resize->handle, ui->w(), ui->h());
 	}
-	char buffer[32];
-	int len = rtosc_message(buffer, 32, "/global/state", "s", "get");
-	writeMessage(buffer, len, nullptr, 0);
 }
 
 CR42YnthUI_LV2::~CR42YnthUI_LV2()

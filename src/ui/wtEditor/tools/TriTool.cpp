@@ -37,13 +37,15 @@
 #include "WavetableEditData.h"
 #include "WPFunction.h"
 
+#include "common.h"
+
 namespace cr42y
 {
 
 TriTool::TriTool(WavetableEditData* eData, int wtPos, float x, float y) :
 		WTTool(eData, wtPos, x, y)
 {
-	part = new WPFunction(x, x + 0.0001, std::to_string(y));
+	part = new WPFunction(x, x + 0.0001, to_string(y));
 	eData->addPart(wtPos, part);
 }
 
@@ -58,7 +60,7 @@ void TriTool::motion(float x, float y)
 	{
 		float m = (y - startY) / (x - startX);
 		float c = - x * m + y;
-		((WPFunction*) part)->setFunction(std::to_string(m) + "*x+" + std::to_string(c));
+		((WPFunction*) part)->setFunction(to_string(m) + "*x+" + to_string(c));
 		if (x < startX)
 		{
 			part->setStart(x);

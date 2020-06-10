@@ -18,6 +18,7 @@ include_directories ("${PROJECT_SOURCE_DIR}/../exprtk/")
 
 add_executable(cr42ynth.so
 	../common/CR42YnthCommunicator.cpp
+	../common/common.cpp
 	../common/Control.cpp
 	../common/OSCEvent.cpp
 	../common/ControlListener.cpp

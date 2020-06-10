@@ -40,7 +40,8 @@ namespace cr42y
 
 WPFunction::WPFunction(float s, float e, std::string func) :
 		WaveformPart(s, e, WaveformPart::FUNCTION),
-		function(func)
+		function(func),
+		var(0)
 {
 	symTable.add_variable("x", var);
 	symTable.add_constants();
@@ -107,7 +108,10 @@ std::string WPFunction::to_string()
 void WPFunction::setFunction(std::string func)
 {
 	function = func;
-	parser.compile(function, funcExpr);
+	bool err = parser.compile(function, funcExpr);
+	if (!err) {
+		parser.compile("0", funcExpr);
+	}
 }
 
 std::string WPFunction::getFunction()

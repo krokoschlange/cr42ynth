@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 krokoschlange and contributors.
+ * Copyright (c) 2020 krokoschlange and contributors.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -31,55 +31,15 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-
-#ifndef SRC_UI_WTEDITOR_WTEDITOR_H_
-#define SRC_UI_WTEDITOR_WTEDITOR_H_
-
-#include "group.hxx"
+#include "common.h"
 
 namespace cr42y
 {
 
-class WavetableEditData;
-class WavetableEditController;
-class WaveformView;
-class WTView;
-class WTTool;
-class HarmonicsEditor;
-class HarmonicsView;
-class ToolPanel;
-
-class WTEditor : public Avtk::Group
+std::string to_string(float num)
 {
-public:
-	WTEditor(Avtk::UI* ui, int x, int y, int w, int h, std::string label);
-	virtual ~WTEditor();
-	
-	//virtual int handle(const PuglEvent* event);
-
-	void setOscillator(int num);
-
-	WavetableEditController* getController();
-	
-	WaveformView* getWFView();
-	WTView* getWTView();
-	ToolPanel* getToolPanel();
-	HarmonicsEditor* getHarmonicsEditor();
-	HarmonicsView* getHarmonicsView();
-	
-	void requestRedraw();
-	
-
-private:
-	WavetableEditController* controller;
-
-	WaveformView* view;
-	WTView* wtView;
-	ToolPanel* toolPanel;
-	HarmonicsEditor* harmEditor;
-	HarmonicsView* harmView;
-};
-
+	std::ostringstream ss;
+	ss << num;
+	return std::string(ss.str());
+}
 } /* namespace cr42y */
-
-#endif /* SRC_UI_WTEDITOR_WTEDITOR_H_ */
