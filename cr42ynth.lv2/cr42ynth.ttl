@@ -9,7 +9,7 @@
 @prefix urid: <http://lv2plug.in/ns/ext/urid#> .
 
 <https://github.com/krokoschlange/cr42ynth#ui>
-	a ui:X11UI ;
+	a ui:GtkUI ;
 	lv2:requiredFeature urid:map ;
 	lv2:binary <bin/cr42ynth_ui.so> .
 

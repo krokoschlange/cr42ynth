@@ -37,6 +37,9 @@
 #include "common.h"
 #include "CR42YnthUILV2.h"
 
+#include <gtkmm.h>
+#include "CR42YnthUI.h"
+
 namespace cr42y
 {
 
@@ -100,8 +103,25 @@ LV2_SYMBOL_EXPORT const LV2UI_Descriptor* lv2ui_descriptor(uint32_t index)
 }
 } /* namespace cr42y */
 
-int main()
+int main(int argc, char* argv[])
 {
 	std::cout << "Use as LV2 Plugin";
+
+	Gtk::Main* main = new Gtk::Main(argc, argv);
+
+	Gtk::Window win(Gtk::WINDOW_TOPLEVEL);
+
+	cr42y::CR42YnthUI* ui = new cr42y::CR42YnthUI(nullptr, "build/");
+
+	win.add(*ui);
+	win.show_all();
+	win.present();
+	//main->run(*ui);
+	while (win.is_visible())
+	{
+		main->iteration(false);
+		Glib::usleep(100);
+	}
+
 	return 0;
 }

@@ -36,7 +36,6 @@
 #include <lv2/midi/midi.h>
 
 #include "rtosc/rtosc.h"
-#include "avtk.hxx"
 
 #include "CR42YnthUILV2.h"
 #include "common.h"
@@ -103,11 +102,11 @@ CR42YnthUI_LV2::CR42YnthUI_LV2(const char* bundlePath,
 		}
 	}
 
-	ui = new CR42YnthUI(this, parent, bundlePath);
-	*widget = (void*) ui->getNativeHandle();
+	ui = new CR42YnthUI(this, bundlePath);
+	*widget = (void*) ui->gobj();
 	if (resize)
 	{
-		resize->ui_resize(resize->handle, ui->w(), ui->h());
+		resize->ui_resize(resize->handle, ui->get_width(), ui->get_height());
 	}
 }
 
@@ -184,7 +183,8 @@ void CR42YnthUI_LV2::portEvent(uint32_t port, uint32_t bufferSize,
 
 int CR42YnthUI_LV2::idle()
 {
-	return ui->idle();
+	ui->idle();
+	return 0;
 }
 
 } /* namespace cr42y */

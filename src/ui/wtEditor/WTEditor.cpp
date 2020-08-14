@@ -55,8 +55,8 @@
 namespace cr42y
 {
 
-WTEditor::WTEditor(Avtk::UI* ui, int x, int y, int w, int h, std::string label) :
-		Avtk::Group(ui, x, y, w, h, label),
+WTEditor::WTEditor() :
+		Gtk::Table(3, 3, false),
 		view(nullptr),
 		controller(new WavetableEditController())
 {

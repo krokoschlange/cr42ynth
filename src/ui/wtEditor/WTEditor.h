@@ -35,7 +35,7 @@
 #ifndef SRC_UI_WTEDITOR_WTEDITOR_H_
 #define SRC_UI_WTEDITOR_WTEDITOR_H_
 
-#include "group.hxx"
+#include <gtkmm.h>
 
 namespace cr42y
 {
@@ -49,10 +49,10 @@ class HarmonicsEditor;
 class HarmonicsView;
 class ToolPanel;
 
-class WTEditor : public Avtk::Group
+class WTEditor : public Gtk::Table
 {
 public:
-	WTEditor(Avtk::UI* ui, int x, int y, int w, int h, std::string label);
+	WTEditor();
 	virtual ~WTEditor();
 	
 	//virtual int handle(const PuglEvent* event);

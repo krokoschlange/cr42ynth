@@ -25,21 +25,24 @@ public:
 	WavetableEditController();
 	virtual ~WavetableEditController();
 
-	void setData(WavetableEditData* dt);
-	WavetableEditData* getData();
+	void setData(WavetableEditData* data);
+	WavetableEditData* data();
 
 	int getWaveformWidth();
 	int getWavetableHeight();
 	std::vector<float>* getSamples(int row, int stepSize = 1);
 
 	void selectWaveform(int num);
-	int getSelectedWaveform();
+	int selectedWaveform();
 
 	void selectPart(int part);
 	int getSelectedPart();
 
 	void addWaveform(int idx);
 	void removeWaveform(int idx);
+
+	void moveWaveform(int idx, int newIdx);
+
 	bool addPart(WaveformPart* part, int idx = -1);
 	void removePart(int idx);
 
@@ -62,12 +65,12 @@ public:
 	};
 
 	void setTool(TOOL t);
-	int getTool();
+	int tool();
 	WTTool* getNewTool(float x, float y);
 
 
-	int getGridX();
-	int getGridY();
+	int gridX();
+	int gridY();
 	void setGridX(int x);
 	void setGridY(int y);
 
@@ -81,17 +84,17 @@ public:
 	void clean();
 
 private:
-	WavetableEditData* data;
-	bool dirty;
+	WavetableEditData* data_;
+	bool dirty_;
 
-	TOOL tool;
-	WTTool* usedTool;
-	int gridX;
-	int gridY;
+	TOOL tool_;
+	WTTool* usedTool_;
+	int gridX_;
+	int gridY_;
 
 
-	int wtPos;
-	std::vector<int> selectedParts;
+	int wtPos_;
+	std::vector<int> selectedParts_;
 };
 
 } /* namespace cr42y */

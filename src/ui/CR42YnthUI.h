@@ -35,7 +35,8 @@
 #ifndef SRC_UI_CR42YNTHUI_H_
 #define SRC_UI_CR42YNTHUI_H_
 
-#include "avtk.hxx"
+#include <gtkmm.h>
+#include "CR42YUI.h"
 
 namespace cr42y
 {
@@ -44,23 +45,29 @@ class CR42YnthCommunicator;
 class OSCEvent;
 class WTEditor;
 
-class CR42YnthUI : public Avtk::UI
+class CR42YnthUI : public Gtk::VBox, public CR42YUI
 {
 public:
-	CR42YnthUI(CR42YnthCommunicator* comm, PuglNativeWindow parent, const char* path);
+	CR42YnthUI(CR42YnthCommunicator* comm, const char* path);
 	virtual ~CR42YnthUI();
 	
 	const char* getBundlePath();
 
-	int handle(const PuglEvent* event);
+	//int handle(const PuglEvent* event);
 
-	void widgetValueCB(Avtk::Widget* widget);
+	//void widgetValueCB(Avtk::Widget* widget);
 
 	void handleOSCEvent(OSCEvent* event);
 
+	void idle();
+
 	CR42YnthCommunicator* getCommunicator();
 
+	void btnClick();
+
 private:
+	Gtk::Main* gtkMain;
+
 	char* bundlePath;
 
 	CR42YnthCommunicator* communicator;

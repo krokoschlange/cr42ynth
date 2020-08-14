@@ -48,8 +48,8 @@
 namespace cr42y
 {
 
-HarmonicsView::HarmonicsView(WTEditor* ed, int x, int y, int w, int h, std::string label) :
-		Avtk::Widget(ed->ui, x, y, w, h, label),
+HarmonicsView::HarmonicsView(WTEditor* ed) :
+		Gtk::Widget(),
 		editor(ed),
 		redraw(true),
 		surfCache(nullptr),
@@ -71,106 +71,123 @@ HarmonicsView::~HarmonicsView()
 	}
 }
 
-void HarmonicsView::draw(cairo_t* cr)
+bool HarmonicsView::on_expose_event(GdkEventExpose* event)
 {
-	cairo_save(cr);
-	if (redraw)
+	Glib::RefPtr<Gdk::Window> window = get_window();
+	if (window)
 	{
-		redraw = false;
-		if (!surfCache)
-		{
-			if (cairoCache)
+		Cairo::RefPtr<Cairo::Context> cr = window->create_cairo_context();
+		cr->save();
+		if (redraw)
 			{
-				cairo_destroy(cairoCache);
-			}
-			surfCache = cairo_surface_create_similar(
-					cairo_get_target(cr),
-					CAIRO_CONTENT_COLOR_ALPHA,
-					w(), h());
-			cairoCache = cairo_create(surfCache);
-		}
-		cairo_save(cairoCache);
-		
-		cairo_rectangle(cairoCache, 0, 0, w(), h());
-		theme_->color(cairoCache, Avtk::BG_DARK);
-		cairo_fill(cairoCache);
-		
-		WavetableEditController* controller = editor->getController();
+				redraw = false;
+				if (!surfCache)
+				{
+					if (cairoCache)
+					{
+						//cairo_destroy(cairoCache);
+						delete cairoCache;
+					}
+					/*surfCache = cairo_surface_create_similar(
+							cairo_get_target(cr),
+							CAIRO_CONTENT_COLOR_ALPHA,
+							w(), h());*/
+					surfCache = Cairo::Surface::create(cr->get_target(),
+							Cairo::CONTENT_COLOR_ALPHA, get_width(), get_height());
+					//cairoCache = cairo_create(surfCache);
+					cairoCache = Cairo::Context::create(surfCache);
+				}
+				//cairo_save(cairoCache);
+				cairoCache->save();
 
-		std::vector<float>* samples = controller->getSamples(controller->getSelectedWaveform());
-		std::vector<double> doubleSmpls(samples->begin(), samples->end());
-		std::vector<double> doubleEmpty(doubleSmpls.size());
-		delete samples;
-		
-		Fft::transform(doubleSmpls, doubleEmpty);
-		
-		//doubleSmpls.erase(doubleSmpls.begin());
-		//doubleEmpty.erase(doubleEmpty.begin());
-		
-		float maxAmp = 0;
-		for (int i = 0; i < 129 && i < doubleSmpls.size(); i++)
-		{
-			float amp = sqrt(doubleSmpls[i] * doubleSmpls[i] +
-					doubleEmpty[i] * doubleEmpty[i]) / (doubleSmpls.size() / 2);
-			if (amp > maxAmp)
-			{
-				maxAmp = amp;
-			}
-		}
-		
-		float ampHeight = h() / 1.5;
-		
-		theme_->color(cairoCache, Avtk::HIGHLIGHT);
-		for (int i = 0; i < 129 && i < doubleSmpls.size(); i++)
-		{
-			float amp = sqrt(doubleSmpls[i] * doubleSmpls[i] +
-					doubleEmpty[i] * doubleEmpty[i]) / (doubleSmpls.size() / 2) / maxAmp;
+				//cairo_rectangle(cairoCache, 0, 0, w(), h());
+				//theme_->color(cairoCache, Avtk::BG_DARK);
+				//cairo_fill(cairoCache);
+				cairoCache->rectangle(0, 0, get_width(), get_height());
+				Gdk::Cairo::set_source_color(cairoCache, get_style()->get_bg(Gtk::STATE_INSENSITIVE));
+				cairoCache->fill();
+
+				WavetableEditController* controller = editor->getController();
+
+				std::vector<float>* samples = controller->getSamples(controller->getSelectedWaveform());
+				std::vector<double> doubleSmpls(samples->begin(), samples->end());
+				std::vector<double> doubleEmpty(doubleSmpls.size());
+				delete samples;
+
+				Fft::transform(doubleSmpls, doubleEmpty);
+
+				//doubleSmpls.erase(doubleSmpls.begin());
+				//doubleEmpty.erase(doubleEmpty.begin());
+
+				float maxAmp = 0;
+				for (int i = 0; i < 129 && i < doubleSmpls.size(); i++)
+				{
+					float amp = sqrt(doubleSmpls[i] * doubleSmpls[i] +
+							doubleEmpty[i] * doubleEmpty[i]) / (doubleSmpls.size() / 2);
+					if (amp > maxAmp)
+					{
+						maxAmp = amp;
+					}
+				}
+
+				float ampHeight = get_height() / 1.5;
+
+				//theme_->color(cairoCache, Avtk::HIGHLIGHT);
+				Gdk::Cairo::set_source_color(cairoCache, get_style()->get_fg(Gtk::STATE_ACTIVE));
+
+				for (int i = 0; i < 129 && i < doubleSmpls.size(); i++)
+				{
+					float amp = sqrt(doubleSmpls[i] * doubleSmpls[i] +
+							doubleEmpty[i] * doubleEmpty[i]) / (doubleSmpls.size() / 2) / maxAmp;
+
+					if (i == 0)
+					{
+						amp = amp / 2; // idk why but the 0Hz amp is too high
+					}
+					cairoCache->rectangle(i * ((float) get_width() / 129),
+							ampHeight - ampHeight * amp, (float) get_width() / 129,
+							ampHeight * amp);
+					cairoCache->fill();
+
+					double img = fabs(doubleEmpty[i]) < 0.001 ? 0 : doubleEmpty[i];
+					double real = fabs(doubleSmpls[i]) < 0.001 ? 0 : doubleSmpls[i];
 					
-			if (i == 0)
-			{
-				amp = amp / 2; // idk why but the 0Hz amp is too high
+					float phase = atan2(-real, -img) / M_PI;
+					if (phase < 0)
+					{
+						phase += 2;
+					}
+					if (amp < 0.001)
+					{
+						phase = 0;
+					}
+					cairoCache->rectangle(i * ((float) get_width() / 129),
+							get_height() - (get_height() - ampHeight) * phase * 0.5, (float) get_width() / 129,
+							(get_height() - ampHeight) * phase * 0.5);
+					cairoCache->fill();
+				}
+
+				cairoCache->move_to(0, ampHeight);
+				cairoCache->line_to(get_width(), ampHeight);
+				//theme_->color(cairoCache, Avtk::FG);
+				Gdk::Cairo::set_source_color(cairoCache, get_style()->get_fg(Gtk::STATE_NORMAL));
+				//cairo_set_line_width(cairoCache, theme_->lineWidthWide_);
+				cairoCache->set_line_width()
+				cairo_stroke(cairoCache);
+
+				cairo_restore(cairoCache);
 			}
-			cairo_rectangle(cairoCache, i * ((float) w() / 129), 
-					ampHeight - ampHeight * amp, (float) w() / 129,
-					ampHeight * amp);
-			cairo_fill(cairoCache);
 			
-			double img = fabs(doubleEmpty[i]) < 0.001 ? 0 : doubleEmpty[i];
-			double real = fabs(doubleSmpls[i]) < 0.001 ? 0 : doubleSmpls[i];
-			
-			float phase = atan2(-real, -img) / M_PI;
-			if (phase < 0)
-			{
-				phase += 2;
-			}
-			if (amp < 0.001)
-			{
-				phase = 0;
-			}
-			cairo_rectangle(cairoCache, i * ((float) w() / 129),
-					h() - (h() - ampHeight) * phase * 0.5, (float) w() / 129,
-					(h() - ampHeight) * phase * 0.5);
-			cairo_fill(cairoCache);
-		}
-		
-		cairo_move_to(cairoCache, 0, ampHeight);
-		cairo_line_to(cairoCache, w(), ampHeight);
-		theme_->color(cairoCache, Avtk::FG);
-		cairo_set_line_width(cairoCache, theme_->lineWidthWide_);
-		cairo_stroke(cairoCache);
-		
-		cairo_restore(cairoCache);
+			cairo_set_source_surface(cr, surfCache, x(), y());
+			//cairo_rectangle(cr, x(), y(), w(), h());
+			cairo_paint(cr);
+			cairo_rectangle(cr, x(), y(), w(), h());
+			theme_->color(cr, Avtk::FG);
+			cr->set_line_width(get_style()->get_);
+			cr->stroke();
+		cr->restore();
 	}
 	
-	cairo_set_source_surface(cr, surfCache, x(), y());
-	//cairo_rectangle(cr, x(), y(), w(), h());
-	cairo_paint(cr);
-	cairo_rectangle(cr, x(), y(), w(), h());
-	theme_->color(cr, Avtk::FG);
-	cairo_set_line_width(cairoCache, theme_->lineWidthWide_);
-	cairo_stroke(cr);
-	
-	cairo_restore(cr);
 }
 
 void HarmonicsView::requestRedraw()

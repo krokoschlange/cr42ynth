@@ -11,13 +11,9 @@ pkg_check_modules(LIBSNDFILE sndfile REQUIRED)
 include_directories(${LIBSNDFILE_INCLUDE_DIRS})
 link_directories(${LIBSNDFILE_LINK_DIRS})
 
-pkg_check_modules(CAIRO cairo REQUIRED)
-include_directories( ${CAIRO_INCLUDE_DIRS})
-link_directories   ( ${CAIRO_LIBRARY_DIRS})
-
-pkg_check_modules(X11 x11 REQUIRED)
-include_directories( ${X11_INCLUDE_DIRS} )
-link_directories   ( ${X11_LIBRARY_DIRS} )
+pkg_check_modules(GTKMM gtkmm-2.4 REQUIRED)
+include_directories( ${GTKMM_INCLUDE_DIRS})
+link_directories   ( ${GTKMM_LIBRARY_DIRS})
 
 include_directories ("${PROJECT_SOURCE_DIR}/../rtosc/include/")
 include_directories ("${PROJECT_SOURCE_DIR}/../avtk/avtk/")
@@ -33,6 +29,7 @@ add_executable(cr42ynth_ui.so
 	../common/OSCEvent.cpp
 	../common/common.cpp
 	../common/CR42YnthCommunicator.cpp
+	../common/CR42YConfig.cpp
 	
 	lv2/CR42YnthUILV2.cpp
 	lv2/lv2UI.cpp
@@ -52,25 +49,38 @@ add_executable(cr42ynth_ui.so
 	wtEditor/tools/TriTool.cpp
 	wtEditor/tools/WTTool.cpp
 	
-	wtEditor/CRSurfaceButton.cpp
-	wtEditor/CustomScroll.cpp
-	wtEditor/DragBar.cpp
+	#wtEditor/CRSurfaceButton.cpp
+	#wtEditor/CustomScroll.cpp
+	#wtEditor/DragBar.cpp
 	
-	wtEditor/HarmonicsEditor.cpp
-	wtEditor/HarmonicsView.cpp
-	wtEditor/ToolPanel.cpp
-	wtEditor/WaveformView.cpp
-	wtEditor/WTEditor.cpp
-	wtEditor/WTView.cpp
+	#wtEditor/HarmonicsEditor.cpp
+	#wtEditor/HarmonicsView.cpp
+	#wtEditor/ToolPanel.cpp
+	#wtEditor/WaveformView.cpp
+	#wtEditor/WTEditor.cpp
+	#wtEditor/WTView.cpp
 	
-	PanelSwitcher.cpp
-	PanelSwitcherEntry.cpp
-	LineEntry.cpp
+	#PanelSwitcher.cpp
+	#PanelSwitcherEntry.cpp
+	#LineEntry.cpp
 	CR42YnthUI.cpp
+	CR42YWidget.cpp
+	CR42YTheme.cpp
+	CR42YButton.cpp
+	CR42YLabel.cpp
+	CR42YBoxVScale.cpp
+	CR42YRelativeContainer.cpp
+	CR42YUI.cpp
+	CR42YWaveformEditor.cpp
+	CR42YWavetableEditor.cpp
+	CR42YHarmonicsView.cpp
+	CR42YWavetableView.cpp
+	CR42YWavetableViewItem.cpp
+	CR42YEntry.cpp
+	
+	helpers.cpp
 )
 
 target_link_libraries(cr42ynth_ui.so ${PROJECT_BINARY_DIR}/../rtosc/librtosc.a)
-target_link_libraries(cr42ynth_ui.so ${PROJECT_BINARY_DIR}/../avtk/libavtk.a)
 target_link_libraries(cr42ynth_ui.so ${LIBSNDFILE_LIBRARIES})
-target_link_libraries(cr42ynth_ui.so ${CAIRO_LIBRARIES})
-target_link_libraries(cr42ynth_ui.so ${X11_LIBRARIES})
+target_link_libraries(cr42ynth_ui.so ${GTKMM_LIBRARIES})

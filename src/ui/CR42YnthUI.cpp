@@ -35,45 +35,95 @@
 
 #include "CR42YnthUI.h"
 
+#include <iostream>
+#include <fstream>
+
 #include "CR42YnthCommunicator.h"
 #include "OSCEvent.h"
 
-#include "WTEditor.h"
+//#include "WTEditor.h"
 #include "WavetableEditData.h"
 #include "WavetableEditController.h"
+#include "CR42YTheme.h"
+
+#include "CR42YButton.h"
+#include "CR42YLabel.h"
+#include "CR42YBoxVScale.h"
+#include "CR42YRelativeContainer.h"
+#include "CR42YWavetableEditor.h"
 
 namespace cr42y
 {
 
-CR42YnthUI::CR42YnthUI(CR42YnthCommunicator* comm, PuglNativeWindow parent,
-		const char* path) :
-		Avtk::UI(1000, 700, parent, "CR42Ynth"),
+CR42YnthUI::CR42YnthUI(CR42YnthCommunicator* comm, const char* path) :
+		Gtk::VBox(),
+		CR42YUI(),
+		gtkMain(Gtk::Main::instance()),
 		communicator(comm),
 		bundlePath(new char[strlen(path) + 1]),
 		//dial1(this, 0, 0, 50, 50, "DIAL"),
 		wtEditor(nullptr)
 {
-	strcpy(bundlePath, path);
+	set_size_request(1000, 700);
 
-	wtEditor = new WTEditor(this, 0, 0, 1000, 700, "EDITOR");
+	std::ifstream themeConf;
+	themeConf.open("theme.conf");
+	std::string themeStr;
+
+	if (themeConf.is_open())
+	{
+		themeConf.seekg(0, std::ios::end);
+		themeStr.resize(themeConf.tellg());
+		themeConf.seekg(0, std::ios::beg);
+		themeConf.read(&themeStr[0], themeStr.size());
+		themeConf.close();
+	}
+
+	setTheme(new CR42YTheme(themeStr));
+	strcpy(bundlePath, path);
+	setResourceRoot(bundlePath);
+
+	//wtEditor = new WTEditor(this, 0, 0, 1000, 700, "EDITOR");
 
 	//add(wtEditor);
-	std::string addr = "/oscillators/0/active";
-	uint32_t bufferSize = addr.size() + 32;
-	char buffer[bufferSize];
-	int len = rtosc_message(buffer, bufferSize, addr.c_str(), "sf", "set_value", 1.0);
-	comm->writeMessage(buffer, len, nullptr, 0);
 
-	addr = "/global/state";
-	buffer[bufferSize];
-	len = rtosc_message(buffer, bufferSize, addr.c_str(), "s", "get");
-	comm->writeMessage(buffer, len, nullptr, 0);
+	//CR42YRelativeContainer* wdgt = new CR42YRelativeContainer(this);
+
+	//test_ = new Gtk::Button("TEST");
+	//btn->setText("TEST");
+	//test_->signal_clicked().connect(sigc::mem_fun(this, &CR42YnthUI::btnClick));
+
+	//wdgt->put(test_, 0.25, 0.25, 0.5, 0.5);
+	//wdgt->add(*test_);
+
+	CR42YWavetableEditor* editor = new CR42YWavetableEditor(this);
+
+	//btn->setText("TEST");
+	Cairo::RefPtr<Cairo::Surface> s = Cairo::ImageSurface::create_from_png("media/left.png");
+	//btn->setSurfActive(s);
+
+	add(*editor);
+	editor->show();
+
+	if (comm)
+	{
+		std::string addr = "/oscillators/0/active";
+		uint32_t bufferSize = addr.size() + 32;
+		char buffer[bufferSize];
+		int len = rtosc_message(buffer, bufferSize, addr.c_str(), "sf", "set_value", 1.0);
+		comm->writeMessage(buffer, len, nullptr, 0);
+
+		addr = "/global/state";
+		buffer[bufferSize];
+		len = rtosc_message(buffer, bufferSize, addr.c_str(), "s", "get");
+		comm->writeMessage(buffer, len, nullptr, 0);
+	}
 }
 
 CR42YnthUI::~CR42YnthUI()
 {
 	delete[] bundlePath;
-	delete wtEditor;
+	//delete wtEditor;
 }
 
 const char* CR42YnthUI::getBundlePath()
@@ -81,48 +131,48 @@ const char* CR42YnthUI::getBundlePath()
 	return bundlePath;
 }
 
-int CR42YnthUI::handle(const PuglEvent* event)
-{
-	int g = Avtk::Group::handle(event);
-	
-	if (event->type == PUGL_BUTTON_RELEASE)
-	{
-		std::string address = "/oscillators/0/wavetable";
+/*int CR42YnthUI::handle(const PuglEvent* event)
+ {
+ int g = Avtk::Group::handle(event);
 
-		unsigned int bufferSize = address.size() + 32;
-		char buffer[bufferSize];
+ if (event->type == PUGL_BUTTON_RELEASE)
+ {
+ std::string address = "/oscillators/0/wavetable";
 
-		int len = rtosc_message(buffer, bufferSize, address.c_str(), "s", "set");
+ unsigned int bufferSize = address.size() + 32;
+ char buffer[bufferSize];
 
-		WavetableEditController* controller = wtEditor->getController();
-		if (controller->getData())
-		{
-			/*float wtValues[width * height];
-			 for (int i = 0; i < height; i++)
-			 {
-			 for (int j = 0; j < width; j++)
-			 {
-			 wtValues[i * width + j] = (*wavetable)[i][j];
-			 }
-			 }
-			 CR42YnthDSP::getInstance()->getCommunicator()->writeMessage(buffer, len, (void*) wtValues, width * height * sizeof(float));
-			 */
-			void* dataBuffer = nullptr;
-			int dataSize = controller->getData()->getData(&dataBuffer);
-			communicator->writeMessage(buffer, len, dataBuffer, dataSize);
-		}
-		/*else
-		 {
-		 communicator->writeMessage(buffer, len, nullptr, 0);
-		 }*/
-	}
-	return 1; //if we don't do this, Avtk fucks up and tries to handle the event again :/
-}
+ int len = rtosc_message(buffer, bufferSize, address.c_str(), "s", "set");
 
-void CR42YnthUI::widgetValueCB(Avtk::Widget* widget)
-{
+ WavetableEditController* controller = wtEditor->getController();
+ if (controller->getData())
+ {
+ /*float wtValues[width * height];
+ for (int i = 0; i < height; i++)
+ {
+ for (int j = 0; j < width; j++)
+ {
+ wtValues[i * width + j] = (*wavetable)[i][j];
+ }
+ }
+ CR42YnthDSP::getInstance()->getCommunicator()->writeMessage(buffer, len, (void*) wtValues, width * height * sizeof(float));
+ ///
+ void* dataBuffer = nullptr;
+ int dataSize = controller->getData()->getData(&dataBuffer);
+ communicator->writeMessage(buffer, len, dataBuffer, dataSize);
+ }
+ /*else
+ {
+ communicator->writeMessage(buffer, len, nullptr, 0);
+ }//*
+ }
+ return 1; //if we don't do this, Avtk fucks up and tries to handle the event again :/
+ }*/
 
-}
+/*void CR42YnthUI::widgetValueCB(Avtk::Widget* widget)
+ {
+
+ }*/
 
 void CR42YnthUI::handleOSCEvent(OSCEvent* event)
 {
@@ -139,13 +189,18 @@ void CR42YnthUI::handleOSCEvent(OSCEvent* event)
 		{
 			if (event->getData())
 			{
-				WavetableEditController* controller = wtEditor->getController();
-				controller->setData(new WavetableEditData((char*) event->getData()));
-				wtEditor->requestRedraw();
+				//WavetableEditController* controller = wtEditor->getController();
+				//controller->setData(new WavetableEditData((char*) event->getData()));
+				//wtEditor->requestRedraw();
 
 			}
 		}
 	}
+}
+
+void CR42YnthUI::idle()
+{
+	gtkMain->iteration(false);
 }
 
 CR42YnthCommunicator* CR42YnthUI::getCommunicator()

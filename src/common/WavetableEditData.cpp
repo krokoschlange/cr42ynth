@@ -117,7 +117,8 @@ int WavetableEditData::getIndexOfPart(int row, WaveformPart* part)
 	return -1;
 }
 
-std::vector<std::pair<float, float>> WavetableEditData::getVisibleAreas(int row, WaveformPart* part)
+std::vector<std::pair<float, float>> WavetableEditData::getVisibleAreas(int row,
+		WaveformPart* part)
 {
 	std::vector<std::pair<float, float>> ret;
 	int idx = getIndexOfPart(row, part);
@@ -137,7 +138,7 @@ std::vector<std::pair<float, float>> WavetableEditData::getVisibleAreas(int row,
 					}
 					else if ((*wf)[idx]->getEnd() >= ret[i].second)
 					{
-						ret.erase(ret.begin()+ i);
+						ret.erase(ret.begin() + i);
 						i--;
 					}
 				}
@@ -183,7 +184,7 @@ void WavetableEditData::addWaveform(int idx)
 	ht.push_back(std::pair<float, float>(0, 0));
 	ht.push_back(std::pair<float, float>(1, 0));
 	WPHarmonics* harm = new WPHarmonics(0, 1, ht, WPHarmonics::SIN);
-	row.push_back(harm);//new WPFunction(0, 1, "sin(2pi*x)"));
+	row.push_back(harm); //new WPFunction(0, 1, "sin(2pi*x)"));
 	row[0]->setEnd(1);
 	if (idx < 0 || idx >= parts.size())
 	{
@@ -195,13 +196,16 @@ void WavetableEditData::addWaveform(int idx)
 	}
 }
 
-void WavetableEditData::removeWaveform(int idx)
+void WavetableEditData::removeWaveform(int idx, bool erase)
 {
 	if (idx >= 0 && idx < parts.size())
 	{
-		for (int i = 0; i < parts[idx].size(); i++)
+		if (erase)
 		{
-			delete parts[idx][i];
+			for (int i = 0; i < parts[idx].size(); i++)
+			{
+				delete parts[idx][i];
+			}
 		}
 		parts.erase(parts.begin() + idx);
 	}

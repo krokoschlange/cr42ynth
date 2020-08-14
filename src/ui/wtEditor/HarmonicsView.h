@@ -34,20 +34,20 @@
 #ifndef SRC_UI_WTEDITOR_HARMONICSVIEW_H_
 #define SRC_UI_WTEDITOR_HARMONICSVIEW_H_
 
-#include "widget.hxx"
+#include <gtkmm.h>
 
 namespace cr42y
 {
 
 class WTEditor;
 
-class HarmonicsView : public Avtk::Widget
+class HarmonicsView : public Gtk::Widget
 {
 public:
-	HarmonicsView(WTEditor* ed, int x, int y, int w, int h, std::string label);
+	HarmonicsView(WTEditor* ed);
 	virtual ~HarmonicsView();
 	
-	virtual void draw(cairo_t* cr);
+	virtual bool on_expose_event(GdkEventExpose* event);
 	
 	void requestRedraw();
 	
@@ -55,8 +55,8 @@ protected:
 	WTEditor* editor;
 	
 	bool redraw;
-	cairo_surface_t* surfCache;
-	cairo_t* cairoCache;
+	Cairo::RefPtr<Cairo::Surface> surfCache;
+	Cairo::RefPtr<Cairo::Context> cairoCache;
 };
 
 } /* namespace cr42y */

@@ -56,7 +56,7 @@ public:
 	int getData(void** buffer);
 
 	void addWaveform(int idx = -1);
-	void removeWaveform(int idx);
+	void removeWaveform(int idx, bool erase = true);
 	void addPart(int row, WaveformPart* part, int idx = -1);
 	void removePart(int row, WaveformPart* part);
 	void removePart(int row, int idx);

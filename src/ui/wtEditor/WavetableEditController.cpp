@@ -21,14 +21,14 @@ namespace cr42y
 {
 
 WavetableEditController::WavetableEditController() :
-		data(nullptr),
-		wtPos(0),
-		selectedParts(),
-		tool(TRI_SLOPE),
-		dirty(false),
-		usedTool(nullptr),
-		gridX(0),
-		gridY(0)
+		data_(nullptr),
+		wtPos_(0),
+		selectedParts_(),
+		tool_(TRI_SLOPE),
+		dirty_(false),
+		usedTool_(nullptr),
+		gridX_(0),
+		gridY_(0)
 {
 	
 }
@@ -37,91 +37,91 @@ WavetableEditController::~WavetableEditController()
 {
 }
 
-void WavetableEditController::setData(WavetableEditData* dt)
+void WavetableEditController::setData(WavetableEditData* data)
 {
-	if (data != dt)
+	if (data_ != data)
 	{
-		data = dt;
-		if (data)
+		data_ = data;
+		if (data_)
 		{
-			selectedParts.clear();
-			for (int i = 0; i < data->getWaveforms()->size(); i++)
+			selectedParts_.clear();
+			for (int i = 0; i < data_->getWaveforms()->size(); i++)
 			{
-				selectedParts.push_back(0);
+				selectedParts_.push_back(0);
 			}
 		}
 		else
 		{
-			selectedParts.clear();
-			selectedParts.push_back(0);
+			selectedParts_.clear();
+			selectedParts_.push_back(0);
 		}
 		markDirty();
 	}
 }
 
-WavetableEditData* WavetableEditController::getData()
+WavetableEditData* WavetableEditController::data()
 {
-	return data;
+	return data_;
 }
 
 int WavetableEditController::getWaveformWidth()
 {
-	if (data)
+	if (data_)
 	{
-		return data->getWidth();
+		return data_->getWidth();
 	}
 	return 2;
 }
 
 int WavetableEditController::getWavetableHeight()
 {
-	if (data)
+	if (data_)
 	{
-		return data->getWaveforms()->size();
+		return data_->getWaveforms()->size();
 	}
 	return 0;
 }
 
 std::vector<float>* WavetableEditController::getSamples(int row, int stepSize)
 {
-	if (!data)
+	if (!data_)
 	{
 		std::vector<float>* ret = new std::vector<float>;
 		ret->push_back(0);
 		ret->push_back(0);
 		return ret;
 	}
-	return data->getSamples(row, stepSize);
+	return data_->getSamples(row, stepSize);
 }
 
 void WavetableEditController::selectWaveform(int num)
 {
-	num = num >= selectedParts.size() ? selectedParts.size() - 1 : num;
+	num = num >= selectedParts_.size() ? selectedParts_.size() - 1 : num;
 	num = num < 0 ? 0 : num;
-	wtPos = num;
+	wtPos_ = num;
 }
 
-int WavetableEditController::getSelectedWaveform()
+int WavetableEditController::selectedWaveform()
 {
-	return wtPos;
+	return wtPos_;
 }
 
 void WavetableEditController::selectPart(int part)
 {
-	if (data)
+	if (data_)
 	{
-		part = part >= data->getWaveform(wtPos)->size() ?
-				data->getWaveform(wtPos)->size() - 1 : part;
+		part = part >= data_->getWaveform(wtPos_)->size() ?
+				data_->getWaveform(wtPos_)->size() - 1 : part;
 		part = part < 0 ? 0 : part;
-		selectedParts[wtPos] = part;
+		selectedParts_[wtPos_] = part;
 	}
 }
 
 int WavetableEditController::getSelectedPart()
 {
-	if (data)
+	if (data_)
 	{
-		return selectedParts[wtPos];
+		return selectedParts_[wtPos_];
 	}
 	else
 	{
@@ -131,16 +131,16 @@ int WavetableEditController::getSelectedPart()
 
 void WavetableEditController::addWaveform(int idx)
 {
-	if (data)
+	if (data_)
 	{
-		data->addWaveform(idx);
-		if (idx < 0 || idx >= selectedParts.size())
+		data_->addWaveform(idx);
+		if (idx < 0 || idx >= selectedParts_.size())
 		{
-			selectedParts.push_back(0);
+			selectedParts_.push_back(0);
 		}
 		else
 		{
-			selectedParts.insert(selectedParts.begin() + idx, 0);
+			selectedParts_.insert(selectedParts_.begin() + idx, 0);
 		}
 		markDirty();
 	}
@@ -148,23 +148,40 @@ void WavetableEditController::addWaveform(int idx)
 
 void WavetableEditController::removeWaveform(int idx)
 {
-	if (data && idx > 0 && idx < selectedParts.size())
+	if (data_ && idx >= 0 && idx < selectedParts_.size())
 	{
-		data->removeWaveform(idx);
-		selectedParts.erase(selectedParts.begin() + idx);
-		if (wtPos >= data->getWaveforms()->size())
+		data_->removeWaveform(idx);
+		selectedParts_.erase(selectedParts_.begin() + idx);
+		if (wtPos_ >= data_->getWaveforms()->size())
 		{
-			wtPos = data->getWaveforms()->size() - 1;
+			wtPos_ = data_->getWaveforms()->size() - 1;
 		}
 		markDirty();
 	}
 }
 
+void WavetableEditController::moveWaveform(int idx, int newIdx)
+{
+	if (data_ && idx >= 0 && idx < data_->getWaveforms()->size() && newIdx >= 0 && newIdx <= data_->getWaveforms()->size())
+	{
+		int oldIdx = idx + (newIdx < idx);
+		data_->addWaveform(newIdx);
+		data_->removePart(newIdx, 0);
+
+		for (int i = 0; i < data_->getWaveform(oldIdx)->size(); i++)
+		{
+			data_->addPart(newIdx, data_->getPartByIndex(oldIdx, i));
+		}
+
+		data_->removeWaveform(oldIdx, false);
+	}
+}
+
 bool WavetableEditController::addPart(WaveformPart* part, int idx)
 {
-	if (data)
+	if (data_)
 	{
-		data->addPart(wtPos, part, idx);
+		data_->addPart(wtPos_, part, idx);
 		markDirty();
 		return true;
 	}
@@ -173,12 +190,12 @@ bool WavetableEditController::addPart(WaveformPart* part, int idx)
 
 void WavetableEditController::removePart(int idx)
 {
-	if (data && idx > 0 && idx < data->getWaveform(wtPos)->size())
+	if (data_ && idx > 0 && idx < data_->getWaveform(wtPos_)->size())
 	{
-		data->removePart(wtPos, idx);
-		if (selectedParts[wtPos] >= data->getWaveform(wtPos)->size())
+		data_->removePart(wtPos_, idx);
+		if (selectedParts_[wtPos_] >= data_->getWaveform(wtPos_)->size())
 		{
-			selectedParts[wtPos] = data->getWaveform(wtPos)->size() - 1;
+			selectedParts_[wtPos_] = data_->getWaveform(wtPos_)->size() - 1;
 		}
 		markDirty();
 	}
@@ -187,28 +204,28 @@ void WavetableEditController::removePart(int idx)
 std::vector<std::pair<float, float>> WavetableEditController::getVisibleAreas(
 		int part)
 {
-	if (data)
+	if (data_)
 	{
-		WaveformPart* p = data->getPartByIndex(wtPos, part);
-		return data->getVisibleAreas(wtPos, p);
+		WaveformPart* p = data_->getPartByIndex(wtPos_, part);
+		return data_->getVisibleAreas(wtPos_, p);
 	}
 	return std::vector<std::pair<float, float>>();
 }
 
 int WavetableEditController::getVisiblePartAtPos(float p)
 {
-	if (data)
+	if (data_)
 	{
-		return data->getIndexOfPart(wtPos, data->getVisiblePartAtPos(wtPos, p));
+		return data_->getIndexOfPart(wtPos_, data_->getVisiblePartAtPos(wtPos_, p));
 	}
 	return -1;
 }
 
 float WavetableEditController::getPartStart(int part)
 {
-	if (data)
+	if (data_)
 	{
-		WaveformPart* p = data->getPartByIndex(wtPos, part);
+		WaveformPart* p = data_->getPartByIndex(wtPos_, part);
 		if (p)
 		{
 			return p->getStart();
@@ -219,9 +236,9 @@ float WavetableEditController::getPartStart(int part)
 
 float WavetableEditController::getPartEnd(int part)
 {
-	if (data)
+	if (data_)
 	{
-		WaveformPart* p = data->getPartByIndex(wtPos, part);
+		WaveformPart* p = data_->getPartByIndex(wtPos_, part);
 		if (p)
 		{
 			return p->getEnd();
@@ -232,21 +249,21 @@ float WavetableEditController::getPartEnd(int part)
 
 WaveformPart::WaveformPartType WavetableEditController::getBaseType()
 {
-	if (data)
+	if (data_)
 	{
-		return (WaveformPart::WaveformPartType) data->getPartByIndex(wtPos, 0)->getType();
+		return (WaveformPart::WaveformPartType) data_->getPartByIndex(wtPos_, 0)->getType();
 	}
 	return WaveformPart::SAMPLES;
 }
 
 bool WavetableEditController::replaceBase(WaveformPart* part)
 {
-	if (data && part)
+	if (data_ && part)
 	{
-		data->removePart(wtPos, 0);
+		data_->removePart(wtPos_, 0);
 		part->setStart(0);
 		part->setEnd(1);
-		data->addPart(wtPos, part, 0);
+		data_->addPart(wtPos_, part, 0);
 		markDirty();
 	}
 	return false;
@@ -254,7 +271,7 @@ bool WavetableEditController::replaceBase(WaveformPart* part)
 
 void WavetableEditController::convertToSin()
 {
-	std::vector<float>* samples = getSamples(getSelectedWaveform());
+	std::vector<float>* samples = getSamples(selectedWaveform());
 	std::vector<double> realSmpls(samples->begin(), samples->end());
 	std::vector<double> imagSmpls(samples->size());
 	if (samples)
@@ -268,7 +285,7 @@ void WavetableEditController::convertToSin()
 	/*realSmpls.erase(realSmpls.begin());
 	 imagSmpls.erase(imagSmpls.begin());*/
 
-	std::vector<WaveformPart*>* wf = data->getWaveform(wtPos);
+	std::vector<WaveformPart*>* wf = data_->getWaveform(wtPos_);
 
 	for (int i = 0; i < wf->size(); i++)
 	{
@@ -303,11 +320,12 @@ void WavetableEditController::convertToSin()
 	wf->push_back(harm);
 }
 
-void WavetableEditController::setHarmonicsType(int part, WPHarmonics::functionType type)
+void WavetableEditController::setHarmonicsType(int part,
+		WPHarmonics::functionType type)
 {
-	if (data)
+	if (data_)
 	{
-		WaveformPart* p = data->getPartByIndex(getSelectedWaveform(), part);
+		WaveformPart* p = data_->getPartByIndex(selectedWaveform(), part);
 		if (p && p->getType() == WaveformPart::HARMONICS)
 		{
 			WPHarmonics* ph = (WPHarmonics*) p;
@@ -318,49 +336,49 @@ void WavetableEditController::setHarmonicsType(int part, WPHarmonics::functionTy
 
 void WavetableEditController::setTool(TOOL t)
 {
-	tool = t;
+	tool_ = t;
 }
 
-int WavetableEditController::getTool()
+int WavetableEditController::tool()
 {
-	return tool;
+	return tool_;
 }
 
 WTTool* WavetableEditController::getNewTool(float x, float y)
 {
-	switch (tool)
+	switch (tool_)
 	{
 	case TRI_SLOPE:
-		return new TriTool(data, wtPos, x, y);
+		return new TriTool(data_, wtPos_, x, y);
 	case SIN_SLOPE:
-		return new SinSlopeTool(data, wtPos, x, y);
+		return new SinSlopeTool(data_, wtPos_, x, y);
 	case SIN_HALF:
-		return new SinHalfTool(data, wtPos, x, y);
+		return new SinHalfTool(data_, wtPos_, x, y);
 	case FREE:
-		return new FreeTool(data, wtPos, x, y);
+		return new FreeTool(data_, wtPos_, x, y);
 	default:
 		return nullptr;
 	}
 }
 
-int WavetableEditController::getGridX()
+int WavetableEditController::gridX()
 {
-	return gridX;
+	return gridX_;
 }
 
-int WavetableEditController::getGridY()
+int WavetableEditController::gridY()
 {
-	return gridY;
+	return gridY_;
 }
 
 void WavetableEditController::setGridX(int x)
 {
-	gridX = x;
+	gridX_ = x;
 }
 
 void WavetableEditController::setGridY(int y)
 {
-	gridY = y;
+	gridY_ = y;
 }
 
 void WavetableEditController::selectPartAction(int x, int y, int w, int h)
@@ -373,74 +391,78 @@ void WavetableEditController::selectPartAction(int x, int y, int w, int h)
 
 void WavetableEditController::useToolAction(int x, int y, int w, int h)
 {
-	if (usedTool)
+	if (usedTool_)
 	{
-		delete usedTool;
-		usedTool = nullptr;
+		delete usedTool_;
+		usedTool_ = nullptr;
 	}
 	else
 	{
+		x = std::min<int>(w, std::max<int>(x, 0));
+		y = std::min<int>(h, std::max<int>(y, 0));
 		float snapX = (float) x / w;
-		if (gridX > 0)
+		if (gridX_ > 0)
 		{
-			snapX = (float) ((int) (snapX * gridX + 0.5)) / gridX;
+			snapX = (float) ((int) (snapX * gridX_ + 0.5)) / gridX_;
 		}
 		float snapY = (float) y / h;
-		if (gridY > 0)
+		if (gridY_ > 0)
 		{
-			snapY = (float) ((int) (snapY * gridY + 0.5)) / gridY;
+			snapY = (float) ((int) (snapY * gridY_ + 0.5)) / gridY_;
 		}
 		snapY = -2 * snapY + 1;
-		usedTool = getNewTool(snapX, snapY);
-		if (data)
+		usedTool_ = getNewTool(snapX, snapY);
+		if (data_)
 		{
-			selectPart(data->getIndexOfPart(wtPos, usedTool->getPart()));
+			selectPart(data_->getIndexOfPart(wtPos_, usedTool_->getPart()));
 		}
 	}
 }
 
 void WavetableEditController::toolMoveAction(int x, int y, int w, int h)
 {
+	x = std::min<int>(w, std::max<int>(x, 0));
+	y = std::min<int>(h, std::max<int>(y, 0));
 	float snapX = (float) x / w;
-	if (gridX > 0)
+	if (gridX_ > 0)
 	{
-		snapX = (float) ((int) (snapX * gridX + 0.5)) / gridX;
+		snapX = (float) ((int) (snapX * gridX_ + 0.5)) / gridX_;
 	}
 	float snapY = (float) y / h;
-	if (gridY > 0)
+	if (gridY_ > 0)
 	{
-		snapY = (float) ((int) (snapY * gridY + 0.5)) / gridY;
+		snapY = (float) ((int) (snapY * gridY_ + 0.5)) / gridY_;
 	}
 	snapY = -2 * snapY + 1;
 
-	if (usedTool)
+	if (usedTool_)
 	{
-		usedTool->motion(snapX, snapY);
+		usedTool_->motion(snapX, snapY);
 	}
 }
 
 void WavetableEditController::dropToolAction()
 {
-	if (usedTool)
+	if (usedTool_)
 	{
-		delete usedTool;
-		usedTool = nullptr;
+		delete usedTool_;
+		usedTool_ = nullptr;
 	}
 }
 
 bool WavetableEditController::isDirty()
 {
-	return dirty;
+	return dirty_;
 }
 
 void WavetableEditController::markDirty()
 {
-	dirty = true;
+	dirty_ = true;
 }
 
 void WavetableEditController::clean()
 {
-	dirty = false;
+	dirty_ = false;
 }
 
 } /* namespace cr42y */
