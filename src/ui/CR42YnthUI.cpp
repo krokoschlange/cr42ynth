@@ -64,7 +64,7 @@ CR42YnthUI::CR42YnthUI(CR42YnthCommunicator* comm, const char* path) :
 		//dial1(this, 0, 0, 50, 50, "DIAL"),
 		wtEditor(nullptr)
 {
-	set_size_request(1000, 700);
+	set_size_request(500, 350);
 
 	std::ifstream themeConf;
 	themeConf.open("theme.conf");

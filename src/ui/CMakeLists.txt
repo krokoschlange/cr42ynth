@@ -77,6 +77,7 @@ add_executable(cr42ynth_ui.so
 	CR42YWavetableView.cpp
 	CR42YWavetableViewItem.cpp
 	CR42YEntry.cpp
+	CR42YIntegerEntry.cpp
 	
 	helpers.cpp
 )

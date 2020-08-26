@@ -105,7 +105,7 @@ LV2_SYMBOL_EXPORT const LV2UI_Descriptor* lv2ui_descriptor(uint32_t index)
 
 int main(int argc, char* argv[])
 {
-	std::cout << "Use as LV2 Plugin";
+	std::cout << "Use as LV2 Plugin\n";
 
 	Gtk::Main* main = new Gtk::Main(argc, argv);
 

@@ -13,6 +13,7 @@
 #include "WavetableEditData.h"
 #include "CR42YButton.h"
 #include "CR42YEntry.h"
+#include "CR42YIntegerEntry.h"
 
 namespace cr42y
 {
@@ -46,7 +47,11 @@ CR42YWavetableEditor::CR42YWavetableEditor(CR42YUI* ui) :
 
 	CR42YEntry* entry = new CR42YEntry(ui);
 	entry->set_size_request(50, 100);
-	put(entry, 10, 10, 50, 100);
+	
+	CR42YIntegerEntry* ientry = new CR42YIntegerEntry(ui);
+	
+	put(ientry, 0, 0.2, 0.1, 0.2, 5, 5);
+	put(entry, 0, 0, 0.1, 0.2, 10, 10);
 	put(wfEditor_, 0.1, 0.2, 0.8, 0.8, 5, 2, 5, 5);
 	put(harmonicsView_, 0.1, 0, 0.8, 0.2, 5, 5, 5, 3);
 	put(bar, 1, 0, 15, 0.9, -30);

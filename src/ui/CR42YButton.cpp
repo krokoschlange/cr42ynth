@@ -24,6 +24,7 @@ CR42YButton::CR42YButton(CR42YUI* ui) :
 	Gtk::Widget::add_events(Gdk::BUTTON_PRESS_MASK | Gdk::BUTTON_RELEASE_MASK);
 	signal_button_press_event().connect(sigc::mem_fun(this, &CR42YButton::on_button_press));
 	signal_button_release_event().connect(sigc::mem_fun(this, &CR42YButton::on_button_release));
+	set_can_focus();
 }
 
 CR42YButton::~CR42YButton()
@@ -39,6 +40,10 @@ sigc::signal<void> CR42YButton::signalClicked()
 bool CR42YButton::on_button_press(GdkEventButton* event)
 {
 	set_state(Gtk::STATE_ACTIVE);
+	if (!has_focus())
+	{
+		grab_focus();
+	}
 	return true;
 }
 
