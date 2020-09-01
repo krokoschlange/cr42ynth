@@ -8,61 +8,49 @@
 #include "CR42YIntegerEntry.h"
 
 #include "CR42YButton.h"
-#include "CR42YEntry.h"
+#include "CR42YTheme.h"
+#include "helpers.h"
+
+#include <iostream>
 
 namespace cr42y
 {
 
 CR42YIntegerEntry::CR42YIntegerEntry(CR42YUI* ui) :
 		Glib::ObjectBase("CR42YIntegerEntry"),
-		CR42YRelativeContainer(ui),
-		increaseBtn_(nullptr),
-		decreaseBtn_(nullptr),
-		entry_(nullptr),
+		CR42YLabel(ui),
 		value_(0),
 		min_(0),
-		max_(8)
+		max_(8),
+		useMin_(true),
+		useMax_(true)
 {
-	increaseBtn_ = new CR42YButton(ui);
-	decreaseBtn_ = new CR42YButton(ui);
-	entry_ = new CR42YEntry(ui);
-	
-	Cairo::RefPtr<Cairo::ImageSurface> minus = Cairo::ImageSurface::create_from_png("media/minus.png");
-	Cairo::RefPtr<Cairo::ImageSurface> plus = Cairo::ImageSurface::create_from_png("media/plus.png");
-	
-	increaseBtn_->setSurfActive(plus);
-	increaseBtn_->setSurfInactive(plus);
-	
-	decreaseBtn_->setSurfActive(minus);
-	decreaseBtn_->setSurfInactive(minus);
-	
-	entry_->set_text(std::to_string(value_));
-	entry_->setDrawCursor(false);
-	entry_->setDrawSelection(false);
-	
-	increaseBtn_->signalClicked().connect(sigc::mem_fun(this, &CR42YIntegerEntry::increaseCallback));
-	decreaseBtn_->signalClicked().connect(sigc::mem_fun(this, &CR42YIntegerEntry::decreaseCallback));
-	
-	entry_->signal_changed().connect(sigc::mem_fun(this, &CR42YIntegerEntry::editCallback));
-	entry_->signal_button_press_event().connect(sigc::mem_fun(this, &CR42YIntegerEntry::onButtonPress), false);
-	entry_->signal_focus_out_event().connect(sigc::mem_fun(this, &CR42YIntegerEntry::)
-	
-	put(decreaseBtn_, 0, 0, 0.25, 1);
-	put(entry_, 0.25, 0, 0.5, 1);
-	put(increaseBtn_, 0.75, 0, 0.25, 1);
+	setText(std::to_string(value_));
+	add_events(Gdk::BUTTON_PRESS_MASK | Gdk::KEY_PRESS_MASK);
+	set_can_focus();
 }
 
 CR42YIntegerEntry::~CR42YIntegerEntry()
 {
-	delete increaseBtn_;
-	delete decreaseBtn_;
-	delete entry_;
 }
 
 void CR42YIntegerEntry::setValue(int value)
 {
-	value_ = std::min<int>(max_, std::max<int>(min_, value));
-	valueChangeCallback();
+	int old = value_;
+	if (useMin_)
+	{
+		value_ = std::max<int>(min_, value);
+	}
+	if (useMax_)
+	{
+		value_ = std::min<int>(max_, value_);
+	}
+	setText(std::to_string(value_));
+	queue_draw();
+	if (old != value_)
+	{
+		signalChanged_.emit(value_);
+	}
 }
 
 int CR42YIntegerEntry::value()
@@ -70,39 +58,78 @@ int CR42YIntegerEntry::value()
 	return value_;
 }
 
-void CR42YIntegerEntry::editCallback()
+void CR42YIntegerEntry::setMin(int min, bool use)
 {
-	Glib::ustring text = entry_->get_text();
-	
-	
-	std::stringstream sstream;
-	int newVal = 0;
-	
-	sstream << text;
-	sstream >> newVal;
-	
-	setValue(newVal);
+	min_ = min;
+	useMin_ = use;
 }
 
-void CR42YIntegerEntry::valueChangeCallback()
+int CR42YIntegerEntry::min()
 {
-	entry_->set_text(std::to_string(value_));
-	entry_->set_position(entry_->get_text().size());
+	return min_;
 }
 
-void CR42YIntegerEntry::increaseCallback()
+void CR42YIntegerEntry::setMax(int max, bool use)
 {
-	setValue(value() + 1);
+	max_ = max;
+	useMax_ = use;
 }
 
-void CR42YIntegerEntry::decreaseCallback()
+int CR42YIntegerEntry::max()
 {
-	setValue(value() - 1);
+	return max_;
 }
 
-bool CR42YIntegerEntry::onButtonPress(GdkEventButton* event)
+sigc::signal<void, int> CR42YIntegerEntry::signalChanged()
 {
-	entry_->set_position(entry_->get_text().size());
+	return signalChanged_;
+}
+
+bool CR42YIntegerEntry::on_button_press_event(GdkEventButton* event)
+{
+	if (event->button == 1 && event->x > get_width() * 0.25 && event->x < get_width() * 0.75)
+	{
+		setValue(0);
+		if (!has_focus())
+		{
+			grab_focus();
+		}
+		return true;
+	}
+	return false;
+}
+
+bool CR42YIntegerEntry::on_key_press_event(GdkEventKey* event)
+{
+	int keys[] =
+		{GDK_0, GDK_KP_0, GDK_1, GDK_KP_1, GDK_2, GDK_KP_2, GDK_3, GDK_KP_3,
+		GDK_4, GDK_KP_4, GDK_5, GDK_KP_5, GDK_6, GDK_KP_6, GDK_7,
+		GDK_KP_7, GDK_8, GDK_KP_8, GDK_9, GDK_KP_9};
+	for (int k = 0; k < 10; k++)
+	{
+		if (event->keyval == keys[k * 2] || event->keyval == keys[k * 2 + 1])
+		{
+			if (value() < 0)
+			{
+				setValue(value() * 10 - k);
+			}
+			else
+			{
+				setValue(value() * 10 + k);
+			}
+			return true;
+		}
+	}
+	if (event->keyval == GDK_minus || event->keyval == GDK_KP_Subtract)
+	{
+		setValue(value() * -1);
+		return true;
+	}
+	if (event->keyval == GDK_BackSpace)
+	{
+		setValue(value() / 10);
+		return true;
+	}
 	return false;
 }
 

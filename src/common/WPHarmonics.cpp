@@ -40,7 +40,7 @@
 namespace cr42y
 {
 
-WPHarmonics::WPHarmonics(float s, float e, harmonicTable_t ht, functionType t) :
+WPHarmonics::WPHarmonics(float s, float e, std::vector<std::pair<float, float>> ht, functionType t) :
 		WaveformPart(s, e, WaveformPart::HARMONICS),
 		hTable(ht),
 		fType(t),
@@ -199,7 +199,7 @@ int WPHarmonics::getFunctionType()
 	return fType;
 }
 
-harmonicTable_t* WPHarmonics::getHarmonicTable()
+std::vector<std::pair<float, float>>* WPHarmonics::getHarmonicTable()
 {
 	return &hTable;
 }

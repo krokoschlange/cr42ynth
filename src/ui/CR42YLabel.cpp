@@ -72,14 +72,14 @@ bool CR42YLabel::on_expose_event(GdkEventExpose* event)
 
 
 		//cr42y_rounded_rectangle(cr, event->area.x, event->area.y, event->area.width, event->area.height, tm->cornerRadius());
-		cr42y_rounded_rectangle(cr, 0, 0, get_width(), get_height(), tm->cornerRadius());
+		cr42y_rounded_rectangle(cr, 0, 0, get_width(), get_height(), tm->cornerRadius(), tm->lineThick());
 
 		if (get_state() == Gtk::STATE_ACTIVE)
 		{
 			clr = tm->color(HIGHLIGHT);
 			cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3] * 0.2);
 			cr->fill_preserve();
-			cr->set_line_width(tm->lineMiddle());
+			cr->set_line_width(tm->lineThick());
 			cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
 			cr->stroke();
 
@@ -118,7 +118,7 @@ bool CR42YLabel::on_expose_event(GdkEventExpose* event)
 			cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
 			cr->fill_preserve();
 			clr = tm->color(FG);
-			cr->set_line_width(tm->lineMiddle());
+			cr->set_line_width(tm->lineThick());
 			cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
 			cr->stroke();
 

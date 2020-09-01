@@ -8,13 +8,13 @@
 #ifndef SRC_UI_CR42YUI_H_
 #define SRC_UI_CR42YUI_H_
 
-#include "CR42YWidget.h"
+#include "CR42YRelativeContainer.h"
 #include <string>
 
 namespace cr42y
 {
 
-class CR42YUI : public CR42YWidget
+class CR42YUI : public CR42YRelativeContainer
 {
 public:
 	CR42YUI();

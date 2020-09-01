@@ -1,0 +1,161 @@
+/*
+ * CR42YHarmonicsEditor.cpp
+ *
+ *  Created on: 31.08.2020
+ *      Author: fabian
+ */
+
+#include "CR42YHarmonicsEditor.h"
+#include "WavetableEditController.h"
+#include "CR42YBoxVScale.h"
+#include "CR42YTheme.h"
+
+namespace cr42y
+{
+
+CR42YHarmonicsEditor::CR42YHarmonicsEditor(CR42YUI* ui) :
+		Glib::ObjectBase("CR42YHamronicsEditor"),
+		CR42YRelativeContainer(ui),
+		controller_(nullptr),
+		columnWidth_(25),
+		harmTable_(nullptr)
+{
+	CR42YTheme* tm = theme();
+	int txtHeight = tm->fontSizeMiddle() + 2;
+	for (int i = 0; i < 128; i++)
+	{
+		CR42YBoxVScale* scale = new CR42YBoxVScale(ui);
+
+		put(scale, i * columnWidth_, 0, columnWidth_, 0.5);
+		scale->signalChanged().connect(sigc::bind<int, bool>(sigc::mem_fun(this, &CR42YHarmonicsEditor::changedCallback), i, true));
+		ampScales_.push_back(scale);
+
+		scale = new CR42YBoxVScale(ui);
+		scale->setDoubleSided(true);
+		scale->setValue(0.5);
+		put(scale, i * columnWidth_, 0.5, columnWidth_, 0.5, 0, txtHeight);
+		scale->signalChanged().connect(sigc::bind<int, bool>(sigc::mem_fun(this, &CR42YHarmonicsEditor::changedCallback), i, false));
+		phaseScales_.push_back(scale);
+	}
+	set_size_request(128 * columnWidth_, 10);
+}
+
+CR42YHarmonicsEditor::~CR42YHarmonicsEditor()
+{
+	std::vector<Gtk::Widget*> children = get_children();
+
+	for (int i = 0; i < children.size(); i++)
+	{
+		delete children[i];
+	}
+	ampScales_.clear();
+	phaseScales_.clear();
+}
+
+void CR42YHarmonicsEditor::setController(WavetableEditController* controller)
+{
+	controller_ = controller;
+	update();
+}
+
+void CR42YHarmonicsEditor::update()
+{
+	if (controller_ && harmTable_)
+	{
+		int max = harmTable_->size();
+		for (int i = 0; i < max && i < ampScales_.size(); i++)
+		{
+			ampScales_[i]->set_state(Gtk::STATE_NORMAL);
+			ampScales_[i]->setValue(((*harmTable_)[i].first + 1) / 2);
+		}
+		if (max < ampScales_.size())
+		{
+			for (int i = max; i < ampScales_.size(); i++)
+			{
+				ampScales_[i]->set_state(Gtk::STATE_INSENSITIVE);
+				ampScales_[i]->setValue(0);
+			}
+		}
+		for (int i = 0; i < max && i < phaseScales_.size(); i++)
+		{
+			phaseScales_[i]->set_state(Gtk::STATE_NORMAL);
+			phaseScales_[i]->setValue(((*harmTable_)[i].second + 1) / 2);
+		}
+		if (max < phaseScales_.size())
+		{
+			for (int i = max; i < phaseScales_.size(); i++)
+			{
+				phaseScales_[i]->set_state(Gtk::STATE_INSENSITIVE);
+				phaseScales_[i]->setValue(0.5);
+			}
+		}
+	}
+	else
+	{
+		for (int i = 0; i < ampScales_.size(); i++)
+		{
+			ampScales_[i]->set_state(Gtk::STATE_INSENSITIVE);
+			ampScales_[i]->setValue(0);
+		}
+		for (int i = 0; i < phaseScales_.size(); i++)
+		{
+			phaseScales_[i]->set_state(Gtk::STATE_INSENSITIVE);
+			phaseScales_[i]->setValue(0.5);
+		}
+	}
+}
+
+void CR42YHarmonicsEditor::setHarmonicsTable(
+		std::vector<std::pair<float, float>>* harmTable)
+{
+	harmTable_ = harmTable;
+	update();
+}
+
+bool CR42YHarmonicsEditor::on_expose_event(GdkEventExpose* event)
+{
+	CR42YRelativeContainer::on_expose_event(event);
+	Glib::RefPtr<Gdk::Window> win = get_window();
+	if (win)
+	{
+		Cairo::RefPtr<Cairo::Context> cr = win->create_cairo_context();
+		CR42YTheme* tm = theme();
+		float* clr = tm->color(FG);
+		cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
+		Cairo::TextExtents xtents;
+		std::string str;
+		for (int i = 0; i < 128; i++)
+		{
+			str = i > 0 ? std::to_string(i) : "DC";
+			cr->get_text_extents(str, xtents);
+
+			Gtk::Allocation alloc = get_allocation();
+
+			cr->move_to(alloc.get_x() + i * columnWidth_ + (columnWidth_ - xtents.width) / 2, alloc.get_y() + get_height() * 0.5 + (tm->fontSizeMiddle() + 2 + xtents.height) / 2);
+			cr->select_font_face(tm->font(), Cairo::FONT_SLANT_NORMAL, Cairo::FONT_WEIGHT_NORMAL);
+			cr->set_font_size(tm->fontSizeMiddle());
+			cr->show_text(str);
+		}
+	}
+}
+
+void CR42YHarmonicsEditor::changedCallback(double value, int column, bool isAmp)
+{
+	if (controller_ && harmTable_)
+	{
+		if (0 <= column && column < harmTable_->size())
+		{
+			if (isAmp)
+			{
+				(*harmTable_)[column].first = value * 2 - 1;
+			}
+			else
+			{
+				(*harmTable_)[column].second = value * 2 - 1;
+			}
+
+		}
+	}
+}
+
+} /* namespace cr42y */

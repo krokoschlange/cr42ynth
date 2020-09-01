@@ -35,7 +35,7 @@
 #ifndef SRC_UI_CR42YNTHUI_H_
 #define SRC_UI_CR42YNTHUI_H_
 
-#include <gtkmm.h>
+#include "CR42YRelativeContainer.h"
 #include "CR42YUI.h"
 
 namespace cr42y
@@ -45,7 +45,7 @@ class CR42YnthCommunicator;
 class OSCEvent;
 class WTEditor;
 
-class CR42YnthUI : public Gtk::VBox, public CR42YUI
+class CR42YnthUI : public CR42YUI
 {
 public:
 	CR42YnthUI(CR42YnthCommunicator* comm, const char* path);

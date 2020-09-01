@@ -50,7 +50,7 @@ bool CR42YEntry::on_expose_event(GdkEventExpose* event)
 		cr->rectangle(0, 0, get_width(), get_height());
 		cr->fill();
 
-		cr42y_rounded_rectangle(cr, 0, 0, get_width(), get_height(), tm->cornerRadius());
+		cr42y_rounded_rectangle(cr, 0, 0, get_width(), get_height(), tm->cornerRadius(), tm->lineThick());
 		clr = tm->color(FG);
 		cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
 		cr->set_line_width(tm->lineThick());

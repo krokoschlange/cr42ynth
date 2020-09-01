@@ -8,8 +8,6 @@
 #include "CR42YBoxVScale.h"
 #include "CR42YTheme.h"
 
-#include <iostream>
-
 namespace cr42y
 {
 
@@ -17,7 +15,11 @@ CR42YBoxVScale::CR42YBoxVScale(CR42YUI* ui) :
 		Glib::ObjectBase("CR42YBoxVScale"),
 		Gtk::Widget(),
 		CR42YWidget(ui),
-		doubleSided_(false)
+		doubleSided_(false),
+		value_(0),
+		preClickValue_(0),
+		oldValue_(0),
+		defaultValue_(0)
 {
 	set_flags(Gtk::NO_WINDOW);
 	add_events(Gdk::BUTTON_PRESS_MASK | Gdk::BUTTON_RELEASE_MASK | Gdk::BUTTON1_MOTION_MASK);
@@ -38,6 +40,7 @@ bool CR42YBoxVScale::doubleSided()
 void CR42YBoxVScale::setDoubleSided(bool ds)
 {
 	doubleSided_ = ds;
+	defaultValue_ = ds ? 0.5 : 0;
 }
 
 double CR42YBoxVScale::value()
@@ -47,7 +50,18 @@ double CR42YBoxVScale::value()
 
 void CR42YBoxVScale::setValue(double value)
 {
-	value_ = fmax(0, fmin(value, 1));
+	double newVal = fmax(0, fmin(value, 1));
+	if (newVal != value_)
+	{
+		value_ = newVal;
+		signalChanged_.emit(value_);
+		queue_draw();
+	}
+}
+
+sigc::signal<void, double> CR42YBoxVScale::signalChanged()
+{
+	return signalChanged_;
 }
 
 bool CR42YBoxVScale::on_expose_event(GdkEventExpose* event)
@@ -67,9 +81,16 @@ bool CR42YBoxVScale::on_expose_event(GdkEventExpose* event)
 		{
 			cr->move_to(0, get_height() / 2.0);
 			cr->line_to(get_width(), get_height() / 2.0);
-			float* clr = tm->color(FG);
+			if (get_state() != Gtk::STATE_INSENSITIVE)
+			{
+				clr = tm->color(FG);
+			}
+			else
+			{
+				clr = tm->color(FG_DARK);
+			}
 			cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
-			cr->set_line_width(tm->lineMiddle());
+			cr->set_line_width(tm->lineThick());
 			cr->stroke();
 
 			cr->move_to(get_width() / 8.0, get_height() / 2.0);
@@ -77,7 +98,14 @@ bool CR42YBoxVScale::on_expose_event(GdkEventExpose* event)
 			cr->line_to(get_width() - get_width() / 8.0, get_height() * (1 - value()));
 			cr->line_to(get_width() - get_width() / 8.0, get_height() / 2.0);
 			cr->set_line_width(tm->lineThick());
-			clr = tm->color(HIGHLIGHT);
+			if (get_state() != Gtk::STATE_INSENSITIVE)
+			{
+				clr = tm->color(HIGHLIGHT);
+			}
+			else
+			{
+				clr = tm->color(FG);
+			}
 			cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
 			cr->stroke_preserve();
 
@@ -87,11 +115,18 @@ bool CR42YBoxVScale::on_expose_event(GdkEventExpose* event)
 		}
 		else
 		{
-			cr->move_to(0, get_height());
-			cr->line_to(get_width(), get_height());
-			float* clr = tm->color(FG);
+			cr->move_to(0, get_height() - tm->lineThick() / 2);
+			cr->line_to(get_width(), get_height() - tm->lineThick() / 2);
+			if (get_state() != Gtk::STATE_INSENSITIVE)
+			{
+				clr = tm->color(FG);
+			}
+			else
+			{
+				clr = tm->color(FG_DARK);
+			}
 			cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
-			cr->set_line_width(tm->lineMiddle());
+			cr->set_line_width(tm->lineThick());
 			cr->stroke();
 
 			cr->move_to(get_width() / 8.0, get_height());
@@ -99,7 +134,14 @@ bool CR42YBoxVScale::on_expose_event(GdkEventExpose* event)
 			cr->line_to(get_width() - get_width() / 8.0, get_height() * (1 - value()));
 			cr->line_to(get_width() - get_width() / 8.0, get_height());
 			cr->set_line_width(tm->lineThick());
-			clr = tm->color(HIGHLIGHT);
+			if (get_state() != Gtk::STATE_INSENSITIVE)
+			{
+				clr = tm->color(HIGHLIGHT);
+			}
+			else
+			{
+				clr = tm->color(FG);
+			}
 			cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
 			cr->stroke_preserve();
 
@@ -141,13 +183,45 @@ void CR42YBoxVScale::on_realize()
 
 bool CR42YBoxVScale::on_button_press(GdkEventButton* event)
 {
-	if (event->button == 1)
+	if (get_state() == Gtk::STATE_INSENSITIVE)
 	{
+		return false;
+	}
+	if (event->button == 1 && event->type == GDK_BUTTON_PRESS)
+	{
+		prePreClickValue_ = preClickValue_;
+		preClickValue_ = value();
 		setValue(1 - event->y / get_height());
 		gtk_grab_add(gobj());
-		queue_draw();
 		return true;
 	}
+	else if (event->button == 1 && event->type == GDK_2BUTTON_PRESS)
+	{
+		if (fabs(prePreClickValue_ - defaultValue_) < 0.0001)
+		{
+			setValue(oldValue_);
+		}
+		else
+		{
+			oldValue_ = prePreClickValue_;
+			setValue(defaultValue_);
+		}
+		return true;
+	}
+	else if (event->button == 3)
+	{
+		if (fabs(value() - defaultValue_) < 0.0001)
+		{
+			setValue(oldValue_);
+		}
+		else
+		{
+			oldValue_ = value();
+			setValue(defaultValue_);
+		}
+		return true;
+	}
+	return false;
 }
 
 bool CR42YBoxVScale::on_button_release(GdkEventButton* event)
@@ -157,13 +231,17 @@ bool CR42YBoxVScale::on_button_release(GdkEventButton* event)
 		gtk_grab_remove(gobj());
 		return true;
 	}
+	return false;
 }
 
 bool CR42YBoxVScale::on_motion_notify(GdkEventMotion* event)
 {
-	setValue(1 - event->y / get_height());
-	queue_draw();
-	return true;
+	if (get_state() != Gtk::STATE_INSENSITIVE)
+	{
+		setValue(1 - event->y / get_height());
+		return true;
+	}
+	return false;
 }
 
 } /* namespace cr42y */

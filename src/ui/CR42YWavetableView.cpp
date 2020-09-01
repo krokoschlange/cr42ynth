@@ -21,6 +21,8 @@ CR42YWavetableView::CR42YWavetableView(CR42YUI* ui) :
 		controller_(nullptr),
 		boxSize_(50)
 {
+	setDrawBorder(true);
+
 	set_flags(Gtk::NO_WINDOW);
 
 	std::vector<Gtk::TargetEntry> entries;

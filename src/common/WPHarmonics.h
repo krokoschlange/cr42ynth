@@ -38,7 +38,6 @@
 
 namespace cr42y
 {
-typedef std::vector<std::pair<float, float>> harmonicTable_t;
 
 class WPHarmonics : public WaveformPart
 {
@@ -50,7 +49,7 @@ public:
 		SAW,
 		SQR
 	};
-	WPHarmonics(float s, float e, harmonicTable_t ht, functionType t = SIN);
+	WPHarmonics(float s, float e, std::vector<std::pair<float, float>> ht, functionType t = SIN);
 	WPHarmonics(float s, float e, char** data, int size);
 	virtual ~WPHarmonics();
 	
@@ -65,14 +64,14 @@ public:
 	virtual std::string to_string();
 	
 	void setFunctionType(functionType t);
-	harmonicTable_t* getHarmonicTable();
+	std::vector<std::pair<float, float>>* getHarmonicTable();
 	
 	int getFunctionType();
 	
 	void normalize();
 	
 private:
-	harmonicTable_t hTable;
+	std::vector<std::pair<float, float>> hTable;
 	functionType fType;
 	
 	bool needUpdate;

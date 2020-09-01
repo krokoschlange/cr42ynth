@@ -293,7 +293,7 @@ void WavetableEditController::convertToSin()
 	}
 	wf->clear();
 
-	harmonicTable_t ht;
+	std::vector<std::pair<float, float>> ht;
 
 	for (int i = 0; i < 128; i++)
 	{

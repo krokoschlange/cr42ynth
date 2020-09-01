@@ -15,9 +15,11 @@ namespace cr42y
 
 class WavetableEditController;
 class CR42YWaveformEditor;
+class CR42YWaveformEditorControlPanel;
 class CR42YHarmonicsView;
 class CR42YWavetableView;
 class CR42YButton;
+class CR42YHarmonicsEditor;
 
 class CR42YWavetableEditor : public CR42YRelativeContainer
 {
@@ -29,12 +31,18 @@ private:
 	WavetableEditController* controller_;
 
 	CR42YWaveformEditor* wfEditor_;
+	CR42YWaveformEditorControlPanel* wfeControllerPanel_;
 	CR42YHarmonicsView* harmonicsView_;
 	CR42YWavetableView* wtView_;
+	CR42YHarmonicsEditor* harmonicsEditor_;
 	CR42YButton* addWaveformButton_;
 
-	void waveformUpdateCallback();
 	void waveformAddCallback();
+
+	void waveformUpdateCallback();
+	void wavetableUpdateCallback();
+
+	void partSelectCallback();
 };
 
 } /* namespace cr42y */

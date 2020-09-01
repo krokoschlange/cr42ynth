@@ -180,7 +180,7 @@ WaveformPart* WavetableEditData::getVisiblePartAtPos(int row, float pos)
 void WavetableEditData::addWaveform(int idx)
 {
 	std::vector<WaveformPart*> row;
-	harmonicTable_t ht;
+	std::vector<std::pair<float, float>> ht;
 	ht.push_back(std::pair<float, float>(0, 0));
 	ht.push_back(std::pair<float, float>(1, 0));
 	WPHarmonics* harm = new WPHarmonics(0, 1, ht, WPHarmonics::SIN);

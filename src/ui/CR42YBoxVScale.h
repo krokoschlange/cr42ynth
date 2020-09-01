@@ -26,6 +26,8 @@ public:
 	double value();
 	void setValue(double value);
 
+	sigc::signal<void, double> signalChanged();
+
 protected:
 
 	virtual bool on_expose_event(GdkEventExpose* event);
@@ -37,8 +39,15 @@ protected:
 
 private:
 	Glib::RefPtr<Gdk::Window> window_;
+
+	sigc::signal<void, double> signalChanged_;
+
 	bool doubleSided_;
 	double value_;
+	double preClickValue_;
+	double prePreClickValue_;
+	double oldValue_;
+	double defaultValue_;
 };
 
 } /* namespace cr42y */

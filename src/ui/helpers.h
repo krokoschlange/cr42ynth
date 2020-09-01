@@ -15,7 +15,7 @@ namespace cr42y
 {
 
 void cr42y_rounded_rectangle(Cairo::RefPtr<Cairo::Context> cr,
-		double x, double y, double w, double h, double radius);
+		double x, double y, double w, double h, double radius, double lineWidth = 0);
 
 }
 

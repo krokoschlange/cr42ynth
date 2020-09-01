@@ -11,7 +11,7 @@ namespace cr42y
 {
 
 CR42YUI::CR42YUI() :
-		CR42YWidget(nullptr)
+		CR42YRelativeContainer(nullptr)
 {
 	
 }

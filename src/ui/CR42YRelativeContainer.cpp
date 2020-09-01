@@ -7,6 +7,7 @@
 
 #include "CR42YRelativeContainer.h"
 #include "CR42YTheme.h"
+#include "helpers.h"
 
 namespace cr42y
 {
@@ -14,7 +15,9 @@ namespace cr42y
 CR42YRelativeContainer::CR42YRelativeContainer(CR42YUI* ui) :
 		Glib::ObjectBase("CR42YRelativeContainer"),
 		Gtk::Container(),
-		CR42YWidget(ui)
+		CR42YWidget(ui),
+		drawBorder_(false),
+		drawBG_(true)
 {
 	set_flags(Gtk::NO_WINDOW);
 }
@@ -86,13 +89,37 @@ void CR42YRelativeContainer::on_realize()
 bool CR42YRelativeContainer::on_expose_event(GdkEventExpose* event)
 {
 	Glib::RefPtr<Gdk::Window> win = get_window();
-	Cairo::RefPtr<Cairo::Context> cr = win->create_cairo_context();
-	CR42YTheme* tm = theme();
-	float* clr = tm->color(BG_DARK);
-	cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
-	cr->paint();
+	if (win)
+	{
+		Cairo::RefPtr<Cairo::Context> cr = win->create_cairo_context();
+		CR42YTheme* tm = theme();
+		float* clr = tm->color(BG_DARK);
+		if (drawBG_)
+		{
+			cr->rectangle(event->area.x, event->area.y, event->area.width, event->area.height);
+			cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
+			cr->fill();
+		}
 
-	Gtk::Container::on_expose_event(event);
+		if (drawBorder_)
+		{
+			clr = tm->color(FG);
+			cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
+			cr->set_line_width(tm->lineThick());
+
+			if (has_no_window())
+			{
+				cr42y_rounded_rectangle(cr, get_allocation().get_x(), get_allocation().get_y(), get_width(), get_height(), tm->cornerRadius(), tm->lineThick());
+			}
+			else
+			{
+				cr42y_rounded_rectangle(cr, 0, 0, get_width(), get_height(), tm->cornerRadius(), tm->lineThick());
+			}
+			cr->stroke();
+		}
+	}
+
+	return Gtk::Container::on_expose_event(event);
 }
 
 void CR42YRelativeContainer::on_size_allocate(Gtk::Allocation& alloc)
@@ -102,7 +129,7 @@ void CR42YRelativeContainer::on_size_allocate(Gtk::Allocation& alloc)
 
 	set_allocation(alloc);
 
-	if (!has_no_window() && is_realized())
+	if (!has_no_window())
 	{
 		get_window()->move_resize(alloc.get_x(), alloc.get_y(), alloc.get_width(), alloc.get_height());
 	}
@@ -124,9 +151,11 @@ void CR42YRelativeContainer::on_size_allocate(Gtk::Allocation& alloc)
 		int y = (
 				childData.y > 1 ? (int) childData.y :
 									(int) (get_height() * childData.y)) + childData.padTop;
-		int w = (childData.w > 1 ? (int) childData.w :
+		int w = (
+				childData.w > 1 ? (int) childData.w :
 									(int) (get_width() * childData.w)) - childData.padLeft - childData.padRight;
-		int h = (childData.h > 1 ? (int) childData.h :
+		int h = (
+				childData.h > 1 ? (int) childData.h :
 									(int) (get_height() * childData.h)) - childData.padTop - childData.padBottom;
 
 		childAlloc.set_x(childAlloc.get_x() + x);
@@ -176,6 +205,26 @@ void CR42YRelativeContainer::forall_vfunc(gboolean include_internals,
 		}
 	}
 
+}
+
+void CR42YRelativeContainer::setDrawBorder(bool drawBorder)
+{
+	drawBorder_ = drawBorder;
+}
+
+bool CR42YRelativeContainer::drawBorder()
+{
+	return drawBorder_;
+}
+
+void CR42YRelativeContainer::setDrawBG(bool drawBG)
+{
+	drawBG_ = drawBG;
+}
+
+bool CR42YRelativeContainer::drawBG()
+{
+	return drawBG_;
 }
 
 } /* namespace cr42y */

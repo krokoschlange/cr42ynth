@@ -22,6 +22,9 @@ CR42YWaveformEditor::CR42YWaveformEditor(CR42YUI* ui) :
 		CR42YRelativeContainer(ui),
 		controller_(nullptr)
 {
+	setDrawBorder(true);
+	setDrawBG(false);
+
 	Gtk::Widget::add_events(Gdk::BUTTON_PRESS_MASK | Gdk::BUTTON_RELEASE_MASK | Gdk::BUTTON1_MOTION_MASK);
 	signal_button_press_event().connect(sigc::mem_fun(this, &CR42YWaveformEditor::on_button_press));
 	signal_button_release_event().connect(sigc::mem_fun(this, &CR42YWaveformEditor::on_button_release));
@@ -209,7 +212,7 @@ bool CR42YWaveformEditor::on_expose_event(GdkEventExpose* event)
 		}
 	}
 
-	return Gtk::Container::on_expose_event(event);
+	return CR42YRelativeContainer::on_expose_event(event);
 }
 
 bool CR42YWaveformEditor::on_button_press(GdkEventButton* event)

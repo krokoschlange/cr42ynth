@@ -21,12 +21,18 @@ public:
 
 	sigc::signal<void> signalClicked();
 
+	void setAutorepeat(bool autorepeat);
+
 protected:
 	bool on_button_press(GdkEventButton* event);
 	bool on_button_release(GdkEventButton* event);
 
 private:
 	sigc::signal<void> signalClicked_;
+
+	bool autorepeat_;
+
+	void timeout();
 };
 
 } /* namespace cr42y */

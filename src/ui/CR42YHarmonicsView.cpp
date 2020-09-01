@@ -45,10 +45,11 @@ bool CR42YHarmonicsView::on_expose_event(GdkEventExpose* event)
 		cr->paint();
 		clr = tm->color(FG);
 		cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
-		cr42y_rounded_rectangle(cr, 0, 0, get_width(), get_height(), tm->cornerRadius());
-		cr->clip_preserve();
+		cr42y_rounded_rectangle(cr, 0, 0, get_width(), get_height(), tm->cornerRadius(), tm->lineThick());
 		cr->set_line_width(tm->lineThick());
-		cr->stroke();
+		cr->stroke_preserve();
+		cr->clip();
+
 
 		std::vector<float>* samples = controller_->getSamples(controller_->selectedWaveform());
 

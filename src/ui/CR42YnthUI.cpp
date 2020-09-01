@@ -56,7 +56,6 @@ namespace cr42y
 {
 
 CR42YnthUI::CR42YnthUI(CR42YnthCommunicator* comm, const char* path) :
-		Gtk::VBox(),
 		CR42YUI(),
 		gtkMain(Gtk::Main::instance()),
 		communicator(comm),
@@ -102,7 +101,7 @@ CR42YnthUI::CR42YnthUI(CR42YnthCommunicator* comm, const char* path) :
 	Cairo::RefPtr<Cairo::Surface> s = Cairo::ImageSurface::create_from_png("media/left.png");
 	//btn->setSurfActive(s);
 
-	add(*editor);
+	put(editor, 0, 0, 1, 1);
 	editor->show();
 
 	if (comm)

@@ -38,6 +38,11 @@ public:
 	void on_remove(Gtk::Widget* child);
 	void on_add(Gtk::Widget* child);
 
+	void setDrawBorder(bool drawBorder);
+	bool drawBorder();
+	void setDrawBG(bool drawBG);
+	bool drawBG();
+
 
 protected:
 	void on_realize();
@@ -49,8 +54,10 @@ protected:
 	CR42YRelativeChild* getChild(Gtk::Widget* child);
 
 private:
-
 	std::vector<CR42YRelativeChild> children_;
+
+	bool drawBorder_;
+	bool drawBG_;
 };
 
 } /* namespace cr42y */
