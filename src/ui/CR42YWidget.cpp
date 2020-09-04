@@ -35,4 +35,9 @@ void CR42YWidget::setTheme(CR42YTheme* theme)
 	theme_ = theme;
 }
 
+CR42YUI* CR42YWidget::ui()
+{
+	return ui_;
+}
+
 } /* namespace cr42y */

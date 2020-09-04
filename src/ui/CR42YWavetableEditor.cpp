@@ -18,6 +18,7 @@
 #include "CR42YWaveformEditorControlPanel.h"
 #include "CR42YHarmonicsEditor.h"
 #include "CR42YHScrollbar.h"
+#include "CR42YToolSelector.h"
 
 namespace cr42y
 {
@@ -31,7 +32,8 @@ CR42YWavetableEditor::CR42YWavetableEditor(CR42YUI* ui) :
 		harmonicsView_(new CR42YHarmonicsView(ui)),
 		wtView_(new CR42YWavetableView(ui)),
 		addWaveformButton_(new CR42YButton(ui)),
-		harmonicsEditor_(new CR42YHarmonicsEditor(ui))
+		harmonicsEditor_(new CR42YHarmonicsEditor(ui)),
+		toolSelector_(new CR42YToolSelector(ui, controller_))
 {
 	setDrawBorder(true);
 
@@ -44,7 +46,6 @@ CR42YWavetableEditor::CR42YWavetableEditor(CR42YUI* ui) :
 	addWaveformButton_->setText("Add WF");
 	addWaveformButton_->signalClicked().connect(sigc::mem_fun(this, &CR42YWavetableEditor::waveformAddCallback));
 
-
 	wtView_->setController(controller_);
 	CR42YVScrollbar* wtViewBar = new CR42YVScrollbar(ui);
 	Gtk::Adjustment wtViewHadj(0, 0, 0, 0, 0, 0);
@@ -52,7 +53,6 @@ CR42YWavetableEditor::CR42YWavetableEditor(CR42YUI* ui) :
 	wtViewVP->signal_scroll_event().connect(sigc::mem_fun(wtViewBar, &CR42YVScrollbar::scroll_event));
 	wtViewVP->set_shadow_type(Gtk::SHADOW_NONE);
 	wtViewVP->add(*wtView_);
-
 
 	harmonicsEditor_->setController(controller_);
 	CR42YHScrollbar* harmEdBar = new CR42YHScrollbar(ui);
@@ -67,21 +67,24 @@ CR42YWavetableEditor::CR42YWavetableEditor(CR42YUI* ui) :
 	
 	CR42YIntegerEditor* ientry = new CR42YIntegerEditor(ui);
 
-	put(entry,					  0,		   0,		0.1,		 0.2,		  5,		  5);
-	put(ientry,					  0,		 0.2,		0.1,		 0.2,		  5,		  5);
-	put(wfEditor_,				0.1,		 0.2,		0.8,		 0.5,		  5,		  5);
-	put(wfeControllerPanel_,	0.1,		 0.7,		0.8,		  35,		  5,		  5,		 0,		 5);
-	put(harmonicsView_,			0.1,		   0,		0.8,		 0.2,		  5,		  5);
-	put(wtViewBar,				  1,		   0,		  0,		 0.9,		-20,		  5,		 5,		 5);
-	put(wtViewVP,				0.9,		   0,		0.1,		 0.9,		  5,		  5,		20,		 5);
-	put(addWaveformButton_,		0.9,		 0.9,		0.1,		 0.1,		  5,		  5,		 5,		 5);
-	put(harmEdVP,				0.1,		 0.7,		0.8,		 0.3,		  5,		 40,		 0,		20);
-	put(harmEdBar,				0.1,		   1,		0.8,		   0,		  5,		-20,		 0,		 5);
+	put(entry, 0, 0, 0.1, 0.2, 5, 5);
+	put(ientry, 0, 0.2, 0.1, 0.2, 5, 5);
+	put(wfEditor_, 0.1, 0.2, 0.8, 0.5, 5, 5);
+	put(wfeControllerPanel_, 0.1, 0.7, 0.8, 35, 5, 5, 0, 5);
+	put(harmonicsView_, 0.1, 0, 0.8, 0.2, 5, 5);
+	put(wtViewBar, 1, 0, 0, 0.9, -20, 5, 5, 5);
+	put(wtViewVP, 0.9, 0, 0.1, 0.9, 5, 5, 20, 5);
+	put(addWaveformButton_, 0.9, 0.9, 0.1, 0.1, 5, 5, 5, 5);
+	put(harmEdVP, 0.1, 0.7, 0.8, 0.3, 5, 40, 0, 20);
+	put(harmEdBar, 0.1, 1, 0.8, 0, 5, -20, 0, 5);
+	put(toolSelector_, 0, 0, 0.1, 0.15, 5, 5);
 	//put(harmonicsEditor_,		0.1,		 0.7,		0.8,		 0.3,		  5,		 40,		 0,		 5);
 
-	wfEditor_->waveformUpdateSignal().connect(sigc::mem_fun(this, &CR42YWavetableEditor::waveformUpdateCallback));
-	wtView_->waveformRemovedSignal().connect(sigc::mem_fun(this, &CR42YWavetableEditor::waveformUpdateCallback));
+	//wfEditor_->waveformUpdateSignal().connect(sigc::mem_fun(this, &CR42YWavetableEditor::waveformUpdateCallback));
+	//wtView_->waveformRemovedSignal().connect(sigc::mem_fun(this, &CR42YWavetableEditor::waveformUpdateCallback));
 
+	controller_->signalSelectedChanged().connect(sigc::mem_fun(this, &CR42YWavetableEditor::selectionChangedCallback));
+	controller_->signalSelectedChangedDone().connect(sigc::mem_fun(this, &CR42YWavetableEditor::selectionChangedDoneCallback));
 
 }
 
@@ -92,33 +95,51 @@ CR42YWavetableEditor::~CR42YWavetableEditor()
 void CR42YWavetableEditor::waveformAddCallback()
 {
 	controller_->addWaveform(-1);
-	wavetableUpdateCallback();
 }
 
-void CR42YWavetableEditor::waveformUpdateCallback()
+/*void CR42YWavetableEditor::waveformUpdateCallback()
+ {
+ wfEditor_->queue_draw();
+ wfEditor_->updateButtons();
+ harmonicsView_->queue_draw();
+ wtView_->queue_draw();
+ }
+
+ void CR42YWavetableEditor::wavetableUpdateCallback()
+ {
+ wtView_->queue_draw();
+ wtView_->update();
+ }
+
+ void CR42YWavetableEditor::partSelectCallback()
+ {
+ WavetableEditData* data = controller_->data();
+ WaveformPart* part = data->getPartByIndex(controller_->selectedWaveform(), controller_->getSelectedPart());
+
+ if (part->getType() == WaveformPart::HARMONICS)
+ {
+ WPHarmonics* harm = (WPHarmonics*) part;
+ harmonicsEditor_->setHarmonicsTable(harm->getHarmonicTable());
+ }
+ }*/
+
+void CR42YWavetableEditor::selectionChangedCallback()
 {
-	wfEditor_->queue_draw();
 	wfEditor_->updateButtons();
+	wfEditor_->queue_draw();
 	harmonicsView_->queue_draw();
-	wtView_->queue_draw();
 }
 
-void CR42YWavetableEditor::wavetableUpdateCallback()
+void CR42YWavetableEditor::selectionChangedDoneCallback()
 {
-	wtView_->queue_draw();
+	wfEditor_->updateButtons();
+	wfEditor_->queue_draw();
+	harmonicsView_->queue_draw();
 	wtView_->update();
-}
+	wtView_->queue_draw();
 
-void CR42YWavetableEditor::partSelectCallback()
-{
-	WavetableEditData* data = controller_->data();
-	WaveformPart* part = data->getPartByIndex(controller_->selectedWaveform(), controller_->getSelectedPart());
-
-	if (part->getType() == WaveformPart::HARMONICS)
-	{
-		WPHarmonics* harm = (WPHarmonics*) part;
-		harmonicsEditor_->setHarmonicsTable(harm->getHarmonicTable());
-	}
+	harmonicsEditor_->update();
+	harmonicsEditor_->queue_draw();
 }
 
 } /* namespace cr42y */

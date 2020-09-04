@@ -8,6 +8,7 @@
 #include "CR42YIntegerEditor.h"
 #include "CR42YButton.h"
 #include "CR42YIntegerEntry.h"
+#include "CR42YUI.h"
 
 namespace cr42y
 {
@@ -23,8 +24,8 @@ CR42YIntegerEditor::CR42YIntegerEditor(CR42YUI* ui) :
 	decreaseBtn_ = new CR42YButton(ui);
 	entry_ = new CR42YIntegerEntry(ui);
 	
-	Cairo::RefPtr<Cairo::ImageSurface> minus = Cairo::ImageSurface::create_from_png("media/minus.png");
-	Cairo::RefPtr<Cairo::ImageSurface> plus = Cairo::ImageSurface::create_from_png("media/plus.png");
+	Cairo::RefPtr<Cairo::ImageSurface> minus = Cairo::ImageSurface::create_from_png(ui->resourceRoot() + "media/minus.png");
+	Cairo::RefPtr<Cairo::ImageSurface> plus = Cairo::ImageSurface::create_from_png(ui->resourceRoot() + "media/plus.png");
 
 	increaseBtn_->setSurfActive(plus);
 	increaseBtn_->setSurfInactive(plus);

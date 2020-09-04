@@ -25,7 +25,6 @@ WavetableEditController::WavetableEditController() :
 		wtPos_(0),
 		selectedParts_(),
 		tool_(TRI_SLOPE),
-		dirty_(false),
 		usedTool_(nullptr),
 		gridX_(0),
 		gridY_(0)
@@ -55,7 +54,7 @@ void WavetableEditController::setData(WavetableEditData* data)
 			selectedParts_.clear();
 			selectedParts_.push_back(0);
 		}
-		markDirty();
+		signalSelectedChangedDone_.emit();
 	}
 }
 
@@ -98,7 +97,12 @@ void WavetableEditController::selectWaveform(int num)
 {
 	num = num >= selectedParts_.size() ? selectedParts_.size() - 1 : num;
 	num = num < 0 ? 0 : num;
+	int old = wtPos_;
 	wtPos_ = num;
+	if (old != wtPos_)
+	{
+		signalSelectedChangedDone_.emit();
+	}
 }
 
 int WavetableEditController::selectedWaveform()
@@ -113,7 +117,12 @@ void WavetableEditController::selectPart(int part)
 		part = part >= data_->getWaveform(wtPos_)->size() ?
 				data_->getWaveform(wtPos_)->size() - 1 : part;
 		part = part < 0 ? 0 : part;
+		int old = selectedParts_[wtPos_];
 		selectedParts_[wtPos_] = part;
+		if (old != part)
+		{
+			signalSelectedChangedDone_.emit();
+		}
 	}
 }
 
@@ -142,21 +151,22 @@ void WavetableEditController::addWaveform(int idx)
 		{
 			selectedParts_.insert(selectedParts_.begin() + idx, 0);
 		}
-		markDirty();
+		signalSelectedChangedDone_.emit();
 	}
 }
 
-void WavetableEditController::removeWaveform(int idx)
+void WavetableEditController::removeWaveform(int idx, bool erase)
 {
 	if (data_ && idx >= 0 && idx < selectedParts_.size())
 	{
-		data_->removeWaveform(idx);
+		data_->removeWaveform(idx, erase);
 		selectedParts_.erase(selectedParts_.begin() + idx);
 		if (wtPos_ >= data_->getWaveforms()->size())
 		{
 			wtPos_ = data_->getWaveforms()->size() - 1;
 		}
-		markDirty();
+
+		signalSelectedChangedDone_.emit();
 	}
 }
 
@@ -166,14 +176,25 @@ void WavetableEditController::moveWaveform(int idx, int newIdx)
 	{
 		int oldIdx = idx + (newIdx < idx);
 		data_->addWaveform(newIdx);
+		if (newIdx == selectedParts_.size())
+		{
+			selectedParts_.push_back(selectedParts_[idx]);
+		}
+		else
+		{
+			selectedParts_.insert(selectedParts_.begin() + newIdx, selectedParts_[idx]);
+		}
+
 		data_->removePart(newIdx, 0);
 
 		for (int i = 0; i < data_->getWaveform(oldIdx)->size(); i++)
 		{
 			data_->addPart(newIdx, data_->getPartByIndex(oldIdx, i));
 		}
-
 		data_->removeWaveform(oldIdx, false);
+		selectedParts_.erase(selectedParts_.begin() + oldIdx);
+
+		signalSelectedChangedDone_.emit();
 	}
 }
 
@@ -182,7 +203,7 @@ bool WavetableEditController::addPart(WaveformPart* part, int idx)
 	if (data_)
 	{
 		data_->addPart(wtPos_, part, idx);
-		markDirty();
+		signalSelectedChangedDone_.emit();
 		return true;
 	}
 	return false;
@@ -197,7 +218,7 @@ void WavetableEditController::removePart(int idx)
 		{
 			selectedParts_[wtPos_] = data_->getWaveform(wtPos_)->size() - 1;
 		}
-		markDirty();
+		signalSelectedChangedDone_.emit();
 	}
 }
 
@@ -264,9 +285,66 @@ bool WavetableEditController::replaceBase(WaveformPart* part)
 		part->setStart(0);
 		part->setEnd(1);
 		data_->addPart(wtPos_, part, 0);
-		markDirty();
+		signalSelectedChangedDone_.emit();
 	}
 	return false;
+}
+
+void WavetableEditController::setHarmonicsType(int part,
+		WPHarmonics::functionType type)
+{
+	if (data_)
+	{
+		WaveformPart* p = data_->getPartByIndex(selectedWaveform(), part);
+		if (p && p->getType() == WaveformPart::HARMONICS)
+		{
+			WPHarmonics* ph = (WPHarmonics*) p;
+			ph->setFunctionType(type);
+			signalSelectedChangedDone_.emit();
+		}
+	}
+}
+
+std::vector<std::pair<float, float>>* WavetableEditController::getHarmonicsTable()
+{
+	if (data_)
+	{
+		WaveformPart* part = data_->getPartByIndex(selectedWaveform(), getSelectedPart());
+		if (part && part->getType() == WaveformPart::HARMONICS)
+		{
+			return ((WPHarmonics*) part)->getHarmonicTable();
+		}
+	}
+	return nullptr;
+}
+
+void WavetableEditController::setHarmonic(int num, float amp, float phase)
+{
+	if (data_)
+	{
+		WaveformPart* part = data_->getPartByIndex(selectedWaveform(), getSelectedPart());
+		if (part->getType() == WaveformPart::HARMONICS)
+		{
+			std::vector<std::pair<float, float>>* harmTable = ((WPHarmonics*) part)->getHarmonicTable();
+			(*harmTable)[num].first = amp;
+			(*harmTable)[num].second = phase;
+			((WPHarmonics*) part)->setUpdate();
+			signalSelectedChangedDone_.emit();
+		}
+	}
+}
+
+void WavetableEditController::normalizeHarmonic()
+{
+	if (data_)
+	{
+		WaveformPart* part = data_->getPartByIndex(selectedWaveform(), getSelectedPart());
+		if (part->getType() == WaveformPart::HARMONICS)
+		{
+			((WPHarmonics*) part)->normalize();
+			signalSelectedChangedDone_.emit();
+		}
+	}
 }
 
 void WavetableEditController::convertToSin()
@@ -318,20 +396,9 @@ void WavetableEditController::convertToSin()
 	WPHarmonics* harm = new WPHarmonics(0, 1, ht, WPHarmonics::SIN);
 
 	wf->push_back(harm);
-}
 
-void WavetableEditController::setHarmonicsType(int part,
-		WPHarmonics::functionType type)
-{
-	if (data_)
-	{
-		WaveformPart* p = data_->getPartByIndex(selectedWaveform(), part);
-		if (p && p->getType() == WaveformPart::HARMONICS)
-		{
-			WPHarmonics* ph = (WPHarmonics*) p;
-			ph->setFunctionType(type);
-		}
-	}
+	selectedParts_[wtPos_] = 0;
+	signalSelectedChangedDone_.emit();
 }
 
 void WavetableEditController::setTool(TOOL t)
@@ -395,6 +462,7 @@ void WavetableEditController::useToolAction(int x, int y, int w, int h)
 	{
 		delete usedTool_;
 		usedTool_ = nullptr;
+		signalSelectedChangedDone_.emit();
 	}
 	else
 	{
@@ -416,6 +484,7 @@ void WavetableEditController::useToolAction(int x, int y, int w, int h)
 		{
 			selectPart(data_->getIndexOfPart(wtPos_, usedTool_->getPart()));
 		}
+		signalSelectedChanged_.emit();
 	}
 }
 
@@ -438,6 +507,7 @@ void WavetableEditController::toolMoveAction(int x, int y, int w, int h)
 	if (usedTool_)
 	{
 		usedTool_->motion(snapX, snapY);
+		signalSelectedChanged_.emit();
 	}
 }
 
@@ -447,22 +517,18 @@ void WavetableEditController::dropToolAction()
 	{
 		delete usedTool_;
 		usedTool_ = nullptr;
+		signalSelectedChangedDone_.emit();
 	}
 }
 
-bool WavetableEditController::isDirty()
+sigc::signal<void> WavetableEditController::signalSelectedChanged()
 {
-	return dirty_;
+	return signalSelectedChanged_;
 }
 
-void WavetableEditController::markDirty()
+sigc::signal<void> WavetableEditController::signalSelectedChangedDone()
 {
-	dirty_ = true;
-}
-
-void WavetableEditController::clean()
-{
-	dirty_ = false;
+	return signalSelectedChangedDone_;
 }
 
 } /* namespace cr42y */

@@ -83,6 +83,8 @@ add_executable(cr42ynth_ui.so
 	CR42YWaveformEditorControlPanel.cpp
 	CR42YHScrollbar.cpp
 	CR42YHarmonicsEditor.cpp
+	CR42YToolSelector.cpp
+	CR42YToggle.cpp
 	
 	helpers.cpp
 )

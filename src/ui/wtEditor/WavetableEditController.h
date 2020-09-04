@@ -9,6 +9,7 @@
 #define SRC_UI_WTEDITOR_WAVETABLEEDITCONTROLLER_H_
 
 #include <vector>
+#include <sigc++/sigc++.h>
 
 #include "WaveformPart.h"
 #include "WPHarmonics.h"
@@ -39,7 +40,7 @@ public:
 	int getSelectedPart();
 
 	void addWaveform(int idx);
-	void removeWaveform(int idx);
+	void removeWaveform(int idx, bool erase = true);
 
 	void moveWaveform(int idx, int newIdx);
 
@@ -56,6 +57,9 @@ public:
 	bool replaceBase(WaveformPart* part);
 
 	void setHarmonicsType(int part, WPHarmonics::functionType type);
+	std::vector<std::pair<float, float>>* getHarmonicsTable();
+	void setHarmonic(int num, float amp, float phase);
+	void normalizeHarmonic();
 
 	void convertToSin();
 
@@ -79,19 +83,19 @@ public:
 	void toolMoveAction(int x, int y, int w, int h);
 	void dropToolAction();
 
-	bool isDirty();
-	void markDirty();
-	void clean();
+	sigc::signal<void> signalSelectedChanged();
+	sigc::signal<void> signalSelectedChangedDone();
 
 private:
 	WavetableEditData* data_;
-	bool dirty_;
+
+	sigc::signal<void> signalSelectedChanged_;
+	sigc::signal<void> signalSelectedChangedDone_;
 
 	TOOL tool_;
 	WTTool* usedTool_;
 	int gridX_;
 	int gridY_;
-
 
 	int wtPos_;
 	std::vector<int> selectedParts_;

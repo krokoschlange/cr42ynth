@@ -111,7 +111,7 @@ int main(int argc, char* argv[])
 
 	Gtk::Window win(Gtk::WINDOW_TOPLEVEL);
 
-	cr42y::CR42YnthUI* ui = new cr42y::CR42YnthUI(nullptr, "build/");
+	cr42y::CR42YnthUI* ui = new cr42y::CR42YnthUI(nullptr, "");
 
 	win.add(*ui);
 	win.show_all();

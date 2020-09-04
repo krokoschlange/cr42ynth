@@ -25,7 +25,8 @@ CR42YWaveformEditorControlPanel::CR42YWaveformEditorControlPanel(CR42YUI* ui,
 		gridXEditor_(new CR42YIntegerEditor(ui)),
 		gridYLabel_(new CR42YLabel(ui)),
 		gridYEditor_(new CR42YIntegerEditor(ui)),
-		toSinBtn_(new CR42YButton(ui))
+		toSinBtn_(new CR42YButton(ui)),
+		normalizeBtn_(new CR42YButton(ui))
 {
 	setDrawBorder(true);
 
@@ -37,16 +38,19 @@ CR42YWaveformEditorControlPanel::CR42YWaveformEditorControlPanel(CR42YUI* ui,
 	gridYEditor_->setMax(0, false);
 
 	toSinBtn_->setText("TO SIN");
+	normalizeBtn_->setText("NORMALIZE");
 
 	gridXEditor_->signalChanged().connect(sigc::mem_fun(this, &CR42YWaveformEditorControlPanel::gridXCallback));
 	gridYEditor_->signalChanged().connect(sigc::mem_fun(this, &CR42YWaveformEditorControlPanel::gridYCallback));
 	toSinBtn_->signalClicked().connect(sigc::mem_fun(this, &CR42YWaveformEditorControlPanel::toSinCallback));
+	normalizeBtn_->signalClicked().connect(sigc::mem_fun(this, &CR42YWaveformEditorControlPanel::normalizeCallback));
 
-	put(gridXLabel_, 0, 0, 100, 1, 5, 2, 0, 2);
-	put(gridXEditor_, 100, 0, 100, 1, 5, 2, 0, 2);
-	put(gridYLabel_, 200, 0, 100, 1, 5, 2, 0, 2);
-	put(gridYEditor_, 300, 0, 100, 1, 5, 2, 0, 2);
-	put(toSinBtn_, 400, 0, 100, 1, 5, 2, 0, 2);
+	put(gridXLabel_, 0, 0, 97, 1, 2, 2, 0, 2);
+	put(gridXEditor_, 97, 0, 100, 1, 5, 2, 0, 2);
+	put(gridYLabel_, 197, 0, 100, 1, 5, 2, 0, 2);
+	put(gridYEditor_, 297, 0, 100, 1, 5, 2, 0, 2);
+	put(toSinBtn_, 397, 0, 100, 1, 5, 2, 0, 2);
+	put(normalizeBtn_, 497, 0, 100, 1, 5, 2, 0, 2);
 }
 
 CR42YWaveformEditorControlPanel::~CR42YWaveformEditorControlPanel()
@@ -68,8 +72,11 @@ void CR42YWaveformEditorControlPanel::gridYCallback(int val)
 void CR42YWaveformEditorControlPanel::toSinCallback()
 {
 	controller_->convertToSin();
-	wfEditor_->updateButtons();
-	wfEditor_->queue_draw();
+}
+
+void CR42YWaveformEditorControlPanel::normalizeCallback()
+{
+	controller_->normalizeHarmonic();
 }
 
 } /* namespace cr42y */

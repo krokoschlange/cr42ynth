@@ -80,6 +80,10 @@ void CR42YWavetableView::on_realize()
 
 		window_->set_user_data(gobj());
 	}
+	/* update or the first (and only) CR42YWavetableViewItem will show a remove
+	 * Button, which we dont want
+	 */
+	update();
 }
 
 void CR42YWavetableView::on_size_request(Gtk::Requisition* requisition)
@@ -87,70 +91,71 @@ void CR42YWavetableView::on_size_request(Gtk::Requisition* requisition)
 	*requisition = Gtk::Requisition();
 	if (controller_)
 	{
-		requisition->height = boxSize_ * controller_->getWavetableHeight();
+		int height = boxSize_ * controller_->getWavetableHeight();
+		requisition->height = std::max<int>(height, get_parent()->get_height());
 		requisition->width = 10;
 	}
 	else
 	{
-		requisition->height = 10;
+		requisition->height = get_parent()->get_height();
 		requisition->width = 10;
 	}
 }
 
 void CR42YWavetableView::update()
 {
-	std::vector<Gtk::Widget*> children = get_children();
+	/*std::vector<Gtk::Widget*> children = get_children();
 
-	for (int i = 0; i < children.size(); i++)
-	{
-		Gtk::Widget* child = children[i];
-		remove(*child);
-		delete child;
-	}
+	 for (int i = 0; i < children.size(); i++)
+	 {
+	 Gtk::Widget* child = children[i];
+	 remove(*child);
+	 delete child;
+	 }
 
+	 if (controller_)
+	 {
+	 bool removeBtns = controller_->getWavetableHeight() > 1;
+	 for (int i = 0; i < controller_->getWavetableHeight(); i++)
+	 {
+	 CR42YWavetableViewItem* item = new CR42YWavetableViewItem(ui_, removeBtns);
+	 item->setController(controller_);
+	 item->setWaveform(i);
+
+	 if (removeBtns)
+	 {
+	 item->removeButtonClickedSignal().connect(sigc::bind<int>(sigc::mem_fun(this, &CR42YWavetableView::removeWaveformCallback), i));
+	 }
+	 item->waveformSelectedSignal().connect(sigc::bind<int>(sigc::mem_fun(this, &CR42YWavetableView::selectWaveformCallback), i));
+
+	 put(item, 0, boxSize_ * i, 1, boxSize_);
+	 item->show();
+	 }
+	 }*/
 	if (controller_)
 	{
-		bool removeBtns = controller_->getWavetableHeight() > 1;
-		for (int i = 0; i < controller_->getWavetableHeight(); i++)
+		for (int i = items_.size(); i < controller_->getWavetableHeight(); i++)
 		{
-			CR42YWavetableViewItem* item = new CR42YWavetableViewItem(ui_, removeBtns);
+			CR42YWavetableViewItem* item = new CR42YWavetableViewItem(ui_);
 			item->setController(controller_);
 			item->setWaveform(i);
 
-			if (removeBtns)
-			{
-				item->removeButtonClickedSignal().connect(sigc::bind<int>(sigc::mem_fun(this, &CR42YWavetableView::removeWaveformCallback), i));
-			}
-			item->waveformSelectedSignal().connect(sigc::bind<int>(sigc::mem_fun(this, &CR42YWavetableView::selectWaveformCallback), i));
-
 			put(item, 0, boxSize_ * i, 1, boxSize_);
+			items_.push_back(item);
 			item->show();
 		}
-	}
-}
-
-sigc::signal<void> CR42YWavetableView::waveformRemovedSignal()
-{
-	return waveformRemovedSignal_;
-}
-
-void CR42YWavetableView::removeWaveformCallback(int waveform)
-{
-	if (controller_)
-	{
-		controller_->removeWaveform(waveform);
-		update();
-		waveformRemovedSignal_.emit();
-	}
-}
-
-void CR42YWavetableView::selectWaveformCallback(int waveform)
-{
-	if (controller_)
-	{
-		controller_->selectWaveform(waveform);
-		queue_draw();
-		waveformRemovedSignal_.emit();
+		while (controller_->getWavetableHeight() < items_.size())
+		{
+			remove(*(items_[items_.size() - 1]));
+			delete items_[items_.size() - 1];
+			items_.erase(items_.begin() + items_.size() - 1);
+		}
+		bool showBtns = items_.size() > 1;
+		for (int i = 0; i < items_.size(); i++)
+		{
+			items_[i]->queue_draw();
+			items_[i]->setShowButton(showBtns);
+		}
 	}
 }
 
@@ -160,8 +165,23 @@ void CR42YWavetableView::on_drag_data_received(
 {
 	CR42YWavetableViewItem* source = *((CR42YWavetableViewItem**) selection_data.get_data());
 
-	controller_->moveWaveform(source->waveform(), -1);
-	selectWaveformCallback(controller_->getWavetableHeight() - 1);
+	bool isSourceSelected = controller_->selectedWaveform() == source->waveform();
+
+	controller_->moveWaveform(source->waveform(), controller_->getWavetableHeight());
+
+	if (isSourceSelected)
+	{
+		int selectPos = controller_->getWavetableHeight();
+		if (controller_->getWavetableHeight() > source->waveform())
+		{
+			selectPos--;
+		}
+		controller_->selectWaveform(selectPos);
+	}
+	else if (controller_->getWavetableHeight() > controller_->selectedWaveform() && source->waveform() <= controller_->selectedWaveform())
+	{
+		controller_->selectWaveform(controller_->selectedWaveform() - 1);
+	}
 }
 
 }

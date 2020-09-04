@@ -51,6 +51,7 @@
 #include "CR42YBoxVScale.h"
 #include "CR42YRelativeContainer.h"
 #include "CR42YWavetableEditor.h"
+#include "CR42YUI.h"
 
 namespace cr42y
 {
@@ -98,7 +99,7 @@ CR42YnthUI::CR42YnthUI(CR42YnthCommunicator* comm, const char* path) :
 	CR42YWavetableEditor* editor = new CR42YWavetableEditor(this);
 
 	//btn->setText("TEST");
-	Cairo::RefPtr<Cairo::Surface> s = Cairo::ImageSurface::create_from_png("media/left.png");
+	Cairo::RefPtr<Cairo::Surface> s = Cairo::ImageSurface::create_from_png(resourceRoot() + "media/left.png");
 	//btn->setSurfActive(s);
 
 	put(editor, 0, 0, 1, 1);

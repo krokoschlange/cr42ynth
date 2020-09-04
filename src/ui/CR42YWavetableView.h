@@ -14,6 +14,7 @@ namespace cr42y
 {
 
 class WavetableEditController;
+class CR42YWavetableViewItem;
 
 class CR42YWavetableView : public CR42YRelativeContainer
 {
@@ -24,8 +25,6 @@ public:
 	void setController(WavetableEditController* controller);
 	void update();
 
-	sigc::signal<void> waveformRemovedSignal();
-
 protected:
 	void on_realize();
 	void on_size_request(Gtk::Requisition* requisition);
@@ -35,15 +34,11 @@ protected:
 private:
 	WavetableEditController* controller_;
 
+	std::vector<CR42YWavetableViewItem*> items_;
+
 	Glib::RefPtr<Gdk::Window> window_;
 
-	sigc::signal<void> waveformRemovedSignal_;
-
 	int boxSize_;
-
-	void removeWaveformCallback(int waveform);
-
-	void selectWaveformCallback(int waveform);
 };
 
 } /* namespace cr42y */

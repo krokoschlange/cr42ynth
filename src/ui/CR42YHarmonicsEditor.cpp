@@ -10,6 +10,8 @@
 #include "CR42YBoxVScale.h"
 #include "CR42YTheme.h"
 
+#include <iostream>
+
 namespace cr42y
 {
 
@@ -17,22 +19,22 @@ CR42YHarmonicsEditor::CR42YHarmonicsEditor(CR42YUI* ui) :
 		Glib::ObjectBase("CR42YHamronicsEditor"),
 		CR42YRelativeContainer(ui),
 		controller_(nullptr),
-		columnWidth_(25),
-		harmTable_(nullptr)
+		columnWidth_(25)
 {
 	CR42YTheme* tm = theme();
 	int txtHeight = tm->fontSizeMiddle() + 2;
 	for (int i = 0; i < 128; i++)
 	{
 		CR42YBoxVScale* scale = new CR42YBoxVScale(ui);
-
+		scale->setDoubleSided(true);
+		scale->setValue(0.5, false);
 		put(scale, i * columnWidth_, 0, columnWidth_, 0.5);
 		scale->signalChanged().connect(sigc::bind<int, bool>(sigc::mem_fun(this, &CR42YHarmonicsEditor::changedCallback), i, true));
 		ampScales_.push_back(scale);
 
 		scale = new CR42YBoxVScale(ui);
 		scale->setDoubleSided(true);
-		scale->setValue(0.5);
+		scale->setValue(0.5, false);
 		put(scale, i * columnWidth_, 0.5, columnWidth_, 0.5, 0, txtHeight);
 		scale->signalChanged().connect(sigc::bind<int, bool>(sigc::mem_fun(this, &CR42YHarmonicsEditor::changedCallback), i, false));
 		phaseScales_.push_back(scale);
@@ -60,33 +62,37 @@ void CR42YHarmonicsEditor::setController(WavetableEditController* controller)
 
 void CR42YHarmonicsEditor::update()
 {
-	if (controller_ && harmTable_)
+	if (controller_ && controller_->getHarmonicsTable())
 	{
-		int max = harmTable_->size();
-		for (int i = 0; i < max && i < ampScales_.size(); i++)
+		std::vector<std::pair<float, float>>* harmTable = controller_->getHarmonicsTable();
+		if (harmTable)
 		{
-			ampScales_[i]->set_state(Gtk::STATE_NORMAL);
-			ampScales_[i]->setValue(((*harmTable_)[i].first + 1) / 2);
-		}
-		if (max < ampScales_.size())
-		{
-			for (int i = max; i < ampScales_.size(); i++)
+			int max = harmTable->size();
+			for (int i = 0; i < max && i < ampScales_.size(); i++)
 			{
-				ampScales_[i]->set_state(Gtk::STATE_INSENSITIVE);
-				ampScales_[i]->setValue(0);
+				ampScales_[i]->set_sensitive(true);
+				ampScales_[i]->setValue(((*harmTable)[i].first + 1) / 2, false);
 			}
-		}
-		for (int i = 0; i < max && i < phaseScales_.size(); i++)
-		{
-			phaseScales_[i]->set_state(Gtk::STATE_NORMAL);
-			phaseScales_[i]->setValue(((*harmTable_)[i].second + 1) / 2);
-		}
-		if (max < phaseScales_.size())
-		{
-			for (int i = max; i < phaseScales_.size(); i++)
+			if (max < ampScales_.size())
 			{
-				phaseScales_[i]->set_state(Gtk::STATE_INSENSITIVE);
-				phaseScales_[i]->setValue(0.5);
+				for (int i = max; i < ampScales_.size(); i++)
+				{
+					ampScales_[i]->set_sensitive(false);
+					ampScales_[i]->setValue(0.5, false);
+				}
+			}
+			for (int i = 0; i < max && i < phaseScales_.size(); i++)
+			{
+				phaseScales_[i]->set_sensitive(true);
+				phaseScales_[i]->setValue(((*harmTable)[i].second + 1) / 2, false);
+			}
+			if (max < phaseScales_.size())
+			{
+				for (int i = max; i < phaseScales_.size(); i++)
+				{
+					phaseScales_[i]->set_sensitive(false);
+					phaseScales_[i]->setValue(0.5, false);
+				}
 			}
 		}
 	}
@@ -94,22 +100,15 @@ void CR42YHarmonicsEditor::update()
 	{
 		for (int i = 0; i < ampScales_.size(); i++)
 		{
-			ampScales_[i]->set_state(Gtk::STATE_INSENSITIVE);
-			ampScales_[i]->setValue(0);
+			ampScales_[i]->set_sensitive(false);
+			ampScales_[i]->setValue(0.5, false);
 		}
 		for (int i = 0; i < phaseScales_.size(); i++)
 		{
-			phaseScales_[i]->set_state(Gtk::STATE_INSENSITIVE);
-			phaseScales_[i]->setValue(0.5);
+			phaseScales_[i]->set_sensitive(false);
+			phaseScales_[i]->setValue(0.5, false);
 		}
 	}
-}
-
-void CR42YHarmonicsEditor::setHarmonicsTable(
-		std::vector<std::pair<float, float>>* harmTable)
-{
-	harmTable_ = harmTable;
-	update();
 }
 
 bool CR42YHarmonicsEditor::on_expose_event(GdkEventExpose* event)
@@ -141,20 +140,13 @@ bool CR42YHarmonicsEditor::on_expose_event(GdkEventExpose* event)
 
 void CR42YHarmonicsEditor::changedCallback(double value, int column, bool isAmp)
 {
-	if (controller_ && harmTable_)
+	if (controller_)
 	{
-		if (0 <= column && column < harmTable_->size())
-		{
-			if (isAmp)
-			{
-				(*harmTable_)[column].first = value * 2 - 1;
-			}
-			else
-			{
-				(*harmTable_)[column].second = value * 2 - 1;
-			}
-
-		}
+		float amp = isAmp ? value : ampScales_[column]->value();
+		float phase = !isAmp ? value : phaseScales_[column]->value();
+		amp = amp * 2 - 1;
+		phase = phase * 2 - 1;
+		controller_->setHarmonic(column, amp, phase);
 	}
 }
 

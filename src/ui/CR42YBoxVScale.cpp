@@ -48,13 +48,16 @@ double CR42YBoxVScale::value()
 	return value_;
 }
 
-void CR42YBoxVScale::setValue(double value)
+void CR42YBoxVScale::setValue(double value, bool trigger)
 {
 	double newVal = fmax(0, fmin(value, 1));
 	if (newVal != value_)
 	{
 		value_ = newVal;
-		signalChanged_.emit(value_);
+		if (trigger)
+		{
+			signalChanged_.emit(value_);
+		}
 		queue_draw();
 	}
 }
@@ -87,7 +90,7 @@ bool CR42YBoxVScale::on_expose_event(GdkEventExpose* event)
 			}
 			else
 			{
-				clr = tm->color(FG_DARK);
+				clr = tm->color(BG);
 			}
 			cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
 			cr->set_line_width(tm->lineThick());
@@ -123,7 +126,7 @@ bool CR42YBoxVScale::on_expose_event(GdkEventExpose* event)
 			}
 			else
 			{
-				clr = tm->color(FG_DARK);
+				clr = tm->color(BG);
 			}
 			cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
 			cr->set_line_width(tm->lineThick());

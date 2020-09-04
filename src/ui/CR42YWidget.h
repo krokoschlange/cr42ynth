@@ -23,6 +23,8 @@ public:
 	CR42YTheme* theme();
 	void setTheme(CR42YTheme* theme);
 
+	CR42YUI* ui();
+
 protected:
 	CR42YUI* ui_;
 	CR42YTheme* theme_;

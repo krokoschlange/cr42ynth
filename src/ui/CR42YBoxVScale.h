@@ -24,7 +24,7 @@ public:
 	void setDoubleSided(bool ds);
 
 	double value();
-	void setValue(double value);
+	void setValue(double value, bool trigger = true);
 
 	sigc::signal<void, double> signalChanged();
 

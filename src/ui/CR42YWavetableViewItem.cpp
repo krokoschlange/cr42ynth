@@ -10,39 +10,39 @@
 #include "CR42YTheme.h"
 #include "helpers.h"
 #include "WavetableEditController.h"
-#include <gdkmm.h>
+#include "CR42YUI.h"
 
 namespace cr42y
 {
 
-CR42YWavetableViewItem::CR42YWavetableViewItem(CR42YUI* ui, bool button) :
+CR42YWavetableViewItem::CR42YWavetableViewItem(CR42YUI* ui) :
 		Glib::ObjectBase("CR42YWavetableViewItem"),
 		CR42YRelativeContainer(ui),
 		removeBtn_(nullptr),
 		waveform_(0),
 		controller_(nullptr),
-		dropLocation_(-1)
+		dropLocation_(-1),
+		mouseDown_(false),
+		inDnD_(false)
 {
 	set_flags(Gtk::NO_WINDOW);
 
-	add_events(Gdk::BUTTON_RELEASE_MASK | Gdk::BUTTON_PRESS_MASK);
-	signal_button_release_event().connect(sigc::mem_fun(this, &CR42YWavetableViewItem::on_button_release_event));
+	//add_events(Gdk::BUTTON_RELEASE_MASK | Gdk::BUTTON_PRESS_MASK);
+	signal_button_press_event().connect(sigc::mem_fun(this, &CR42YWavetableViewItem::custom_button_press_event));
+	signal_button_release_event().connect(sigc::mem_fun(this, &CR42YWavetableViewItem::custom_button_release_event));
 
 	std::vector<Gtk::TargetEntry> entries;
 	entries.push_back(Gtk::TargetEntry(("CR42YWavtableViewItem"), Gtk::TARGET_SAME_APP, 0));
 	drag_source_set(entries, Gdk::BUTTON1_MASK, Gdk::ACTION_MOVE);
 	drag_dest_set(entries, Gtk::DEST_DEFAULT_ALL, Gdk::ACTION_MOVE);
 
-	if (button)
-	{
-		removeBtn_ = new CR42YButton(ui);
-		Cairo::RefPtr<Cairo::Surface> min = Cairo::ImageSurface::create_from_png("build/../media/minus.png");
-		removeBtn_->setSurfActive(min);
-		removeBtn_->setSurfInactive(min);
+	removeBtn_ = new CR42YButton(ui);
+	Cairo::RefPtr<Cairo::Surface> min = Cairo::ImageSurface::create_from_png(ui->resourceRoot() + "media/minus.png");
+	removeBtn_->setSurfActive(min);
+	removeBtn_->setSurfInactive(min);
+	removeBtn_->signalClicked().connect(sigc::mem_fun(this, &CR42YWavetableViewItem::removeBtnClicked));
 
-		put(removeBtn_, 0, 0, 25, 25, 5, 5);
-		removeBtn_->show();
-	}
+	put(removeBtn_, 0, 0, 25, 25, 5, 5);
 }
 
 CR42YWavetableViewItem::~CR42YWavetableViewItem()
@@ -51,16 +51,6 @@ CR42YWavetableViewItem::~CR42YWavetableViewItem()
 	{
 		delete removeBtn_;
 	}
-}
-
-sigc::signal<void> CR42YWavetableViewItem::removeButtonClickedSignal()
-{
-	return removeBtn_->signalClicked();
-}
-
-sigc::signal<void> CR42YWavetableViewItem::waveformSelectedSignal()
-{
-	return waveformSelectedSignal_;
 }
 
 void CR42YWavetableViewItem::setController(WavetableEditController* controller)
@@ -76,6 +66,21 @@ void CR42YWavetableViewItem::setWaveform(int waveform)
 int CR42YWavetableViewItem::waveform()
 {
 	return waveform_;
+}
+
+void CR42YWavetableViewItem::setShowButton(bool show)
+{
+	if (removeBtn_)
+	{
+		if (show)
+		{
+			removeBtn_->show();
+		}
+		else
+		{
+			removeBtn_->hide();
+		}
+	}
 }
 
 void CR42YWavetableViewItem::on_realize()
@@ -182,14 +187,31 @@ void CR42YWavetableViewItem::draw(Cairo::RefPtr<Cairo::Context> cr)
 	}
 }
 
-bool CR42YWavetableViewItem::on_button_release_event(GdkEventButton* event)
+bool CR42YWavetableViewItem::custom_button_press_event(GdkEventButton* event)
 {
 	if (event->button == 1)
 	{
-		waveformSelectedSignal_.emit();
-		return true;
+		mouseDown_ = true;
 	}
 	return false;
+}
+
+bool CR42YWavetableViewItem::custom_button_release_event(GdkEventButton* event)
+{
+	if (event->button == 1 && mouseDown_ && !inDnD_)
+	{
+		controller_->selectWaveform(waveform_);
+		mouseDown_ = false;
+	}
+	return false;
+}
+
+void CR42YWavetableViewItem::removeBtnClicked()
+{
+	if (controller_)
+	{
+		controller_->removeWaveform(waveform_);
+	}
 }
 
 void CR42YWavetableViewItem::on_drag_begin(
@@ -212,6 +234,8 @@ void CR42YWavetableViewItem::on_drag_begin(
 	Glib::RefPtr<Gdk::Pixbuf> pixbuf = Gdk::Pixbuf::create_from_data(data, Gdk::COLORSPACE_RGB, true, 8, surface->get_width(), surface->get_height(), surface->get_stride());
 	//copy because otherwise contents are lost
 	context->set_icon(pixbuf->copy(), 0, 0);
+
+	inDnD_ = true;
 }
 
 void CR42YWavetableViewItem::on_drag_data_get(
@@ -235,13 +259,32 @@ void CR42YWavetableViewItem::on_drag_data_received(
 	{
 		return;
 	}
+	bool isSourceSelected = controller_->selectedWaveform() == source->waveform_;
+
 	int newPos = waveform_;
 	if (y > get_height() / 2)
 	{
 		newPos++;
 	}
 	controller_->moveWaveform(source->waveform_, newPos);
-	waveformSelectedSignal_.emit();
+
+	if (isSourceSelected)
+	{
+		int selectPos = newPos;
+		if (newPos > source->waveform_)
+		{
+			selectPos--;
+		}
+		controller_->selectWaveform(selectPos);
+	}
+	else if (newPos <= controller_->selectedWaveform() && source->waveform_ > controller_->selectedWaveform())
+	{
+		controller_->selectWaveform(controller_->selectedWaveform() + 1);
+	}
+	else if (newPos > controller_->selectedWaveform() && source->waveform_ <= controller_->selectedWaveform())
+	{
+		controller_->selectWaveform(controller_->selectedWaveform() - 1);
+	}
 }
 
 bool CR42YWavetableViewItem::on_drag_motion(
@@ -259,6 +302,11 @@ void CR42YWavetableViewItem::on_drag_leave(
 {
 	dropLocation_ = -1;
 	queue_draw();
+}
+
+void CR42YWavetableViewItem::on_drag_end(const Glib::RefPtr<Gdk::DragContext>& context)
+{
+	inDnD_ = false;
 }
 
 } /* namespace cr42y */

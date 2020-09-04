@@ -10,6 +10,7 @@
 #include "WavetableEditController.h"
 #include "CR42YUI.h"
 #include "CR42YButton.h"
+#include "CR42YnthUI.h"
 #include "helpers.h"
 
 #include <iostream>
@@ -290,7 +291,7 @@ void CR42YWaveformEditor::updateButtons()
 		std::vector<std::pair<float, float>> visAreas = controller_->getVisibleAreas(sel);
 		if (visAreas.size() > 0)
 		{
-			Cairo::RefPtr<Cairo::Surface> min = Cairo::ImageSurface::create_from_png("build/../media/minus.png");
+			Cairo::RefPtr<Cairo::Surface> min = Cairo::ImageSurface::create_from_png(ui()->resourceRoot() + "media/minus.png");
 			double btnX = visAreas[0].first;
 			if (btnX + padding + buttonSize > get_width())
 			{

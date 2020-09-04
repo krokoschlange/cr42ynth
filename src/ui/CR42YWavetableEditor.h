@@ -20,6 +20,7 @@ class CR42YHarmonicsView;
 class CR42YWavetableView;
 class CR42YButton;
 class CR42YHarmonicsEditor;
+class CR42YToolSelector;
 
 class CR42YWavetableEditor : public CR42YRelativeContainer
 {
@@ -35,14 +36,18 @@ private:
 	CR42YHarmonicsView* harmonicsView_;
 	CR42YWavetableView* wtView_;
 	CR42YHarmonicsEditor* harmonicsEditor_;
+	CR42YToolSelector* toolSelector_;
 	CR42YButton* addWaveformButton_;
 
 	void waveformAddCallback();
 
-	void waveformUpdateCallback();
+	/*void waveformUpdateCallback();
 	void wavetableUpdateCallback();
 
-	void partSelectCallback();
+	void partSelectCallback();*/
+
+	void selectionChangedCallback();
+	void selectionChangedDoneCallback();
 };
 
 } /* namespace cr42y */

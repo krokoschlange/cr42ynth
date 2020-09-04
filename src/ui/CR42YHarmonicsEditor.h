@@ -24,7 +24,6 @@ public:
 	void setController(WavetableEditController* controller);
 
 	void update();
-	void setHarmonicsTable(std::vector<std::pair<float, float>>* harmTable);
 
 protected:
 	bool on_expose_event(GdkEventExpose* event);
@@ -34,7 +33,6 @@ private:
 	std::vector<CR42YBoxVScale*> phaseScales_;
 
 	WavetableEditController* controller_;
-	std::vector<std::pair<float, float>>* harmTable_;
 	int columnWidth_;
 
 	void changedCallback(double value, int column, bool isAmp);
