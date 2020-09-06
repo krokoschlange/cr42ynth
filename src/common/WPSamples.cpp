@@ -80,7 +80,7 @@ int WPSamples::getData(void** buffer)
 	return totalSize;
 }
 
-float WPSamples::getSample(int size, int pos)
+float WPSamples::getSample(int size, int pos, int ypos)
 {
 	int startPos = size * getStart();
 	int relPos = pos - startPos;

@@ -51,7 +51,14 @@ bool CR42YEntry::on_expose_event(GdkEventExpose* event)
 		cr->fill();
 
 		cr42y_rounded_rectangle(cr, 0, 0, get_width(), get_height(), tm->cornerRadius(), tm->lineThick());
-		clr = tm->color(FG);
+		if (get_state() != Gtk::STATE_INSENSITIVE)
+		{
+			clr = tm->color(FG);
+		}
+		else
+		{
+			clr = tm->color(BG);
+		}
 		cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
 		cr->set_line_width(tm->lineThick());
 		cr->stroke();
@@ -83,7 +90,14 @@ void CR42YEntry::drawText()
 
 	Glib::RefPtr<Pango::Layout> layout = get_layout();
 	//cr->set_source_rgba(0, 0, 0, 1);
-	clr = tm->color(FG);
+	if (get_state() != Gtk::STATE_INSENSITIVE)
+	{
+		clr = tm->color(FG);
+	}
+	else
+	{
+		clr = tm->color(BG);
+	}
 	textCr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
 	int x, y;
 	get_layout_offsets(x, y);
@@ -128,7 +142,7 @@ void CR42YEntry::drawText()
 		textCr->move_to(x, y);
 		
 		clr = tm->color(BG);
-		textCr->set_source_rgba(clr[0], clr[1], clr[2],clr[3]);
+		textCr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
 		layout->show_in_cairo_context(textCr);
 	}
 }

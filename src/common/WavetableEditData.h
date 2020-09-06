@@ -59,7 +59,7 @@ public:
 	void removeWaveform(int idx, bool erase = true);
 	void addPart(int row, WaveformPart* part, int idx = -1);
 	void removePart(int row, WaveformPart* part);
-	void removePart(int row, int idx);
+	void removePart(int row, int idx, bool erase = true);
 
 	std::vector<std::vector<WaveformPart*>>* getWaveforms();
 	std::vector<WaveformPart*>* getWaveform(int row);

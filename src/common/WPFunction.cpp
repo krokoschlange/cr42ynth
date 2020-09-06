@@ -38,30 +38,34 @@
 namespace cr42y
 {
 
-WPFunction::WPFunction(float s, float e, std::string func) :
+WPFunction::WPFunction(float s, float e, std::string function) :
 		WaveformPart(s, e, WaveformPart::FUNCTION),
-		function(func),
-		var(0)
+		function_(function),
+		varX_(0),
+		varY_(0)
 {
-	symTable.add_variable("x", var);
-	symTable.add_constants();
+	symTable_.add_variable("x", varX_);
+	symTable_.add_constants();
 	
-	funcExpr.register_symbol_table(symTable);
+	funcExpr_.register_symbol_table(symTable_);
 	
-	parser.compile(function, funcExpr);
+	setFunction(function_);
 }
 
 WPFunction::WPFunction(float s, float e, char** data, int size) :
 		WaveformPart(s, e, WaveformPart::FUNCTION),
-		function(*data)
+		function_(*data),
+		varX_(0),
+		varY_(0)
 {
 	*data += size;
-	symTable.add_variable("x", var);
-	symTable.add_constants();
+	symTable_.add_variable("x", varX_);
+	symTable_.add_variable("y", varY_);
+	symTable_.add_constants();
 	
-	funcExpr.register_symbol_table(symTable);
+	funcExpr_.register_symbol_table(symTable_);
 	
-	parser.compile(function, funcExpr);
+	setFunction(function_);
 }
 
 WPFunction::~WPFunction()
@@ -71,7 +75,7 @@ WPFunction::~WPFunction()
 int WPFunction::getData(void** buffer)
 {
 	PartDataHead* head = WaveformPart::getDataHead();
-	int size = function.size() + 1;
+	int size = function_.size() + 1;
 	head->size = size;
 	
 	int totalSize = sizeof(PartDataHead) + size;
@@ -82,7 +86,7 @@ int WPFunction::getData(void** buffer)
 	memcpy(mem, head, sizeof(PartDataHead));
 	mem += sizeof(PartDataHead);
 	
-	const char* c = function.c_str();
+	const char* c = function_.c_str();
 	for (int i = 0; c[i]; *mem = c[i], mem++, i++) {}
 	*mem = 0;
 	mem++;
@@ -92,31 +96,32 @@ int WPFunction::getData(void** buffer)
 	return totalSize;
 }
 
-float WPFunction::getSample(int size, int pos)
+float WPFunction::getSample(int size, int pos, int ypos)
 {
-	var = (float) pos / size;
-	return funcExpr.value();
+	varX_ = (float) pos / size;
+	varY_ = ypos;
+	return funcExpr_.value();
 }
 
 std::string WPFunction::to_string()
 {
 	std::string str = WaveformPart::to_string();
-	str += " (FUNCTION): " + function;
+	str += " (FUNCTION): " + function_;
 	return str;
 }
 
-void WPFunction::setFunction(std::string func)
+void WPFunction::setFunction(std::string function)
 {
-	function = func;
-	bool err = parser.compile(function, funcExpr);
+	function_ = function;
+	bool err = parser_.compile(function_, funcExpr_);
 	if (!err) {
-		parser.compile("0", funcExpr);
+		parser_.compile("0", funcExpr_);
 	}
 }
 
 std::string WPFunction::getFunction()
 {
-	return function;
+	return function_;
 }
 
 } /* namespace cr42y */

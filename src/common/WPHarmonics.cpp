@@ -106,7 +106,7 @@ int WPHarmonics::getData(void** buffer)
 	return totalSize;
 }
 
-float WPHarmonics::getSample(int size, int pos)
+float WPHarmonics::getSample(int size, int pos, int ypos)
 {
 	if (samples.size() != size || needUpdate)
 	{
@@ -210,7 +210,7 @@ void WPHarmonics::normalize()
 	float maxAmp = 0;
 	for (int i = 0; i < 256; i++)
 	{
-		float smpl = getSample(256, i);
+		float smpl = getSample(256, i, 0);
 		if (fabsf(smpl) > maxAmp)
 		{
 			maxAmp = fabsf(smpl);

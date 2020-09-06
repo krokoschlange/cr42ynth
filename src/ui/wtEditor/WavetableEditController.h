@@ -46,6 +46,7 @@ public:
 
 	bool addPart(WaveformPart* part, int idx = -1);
 	void removePart(int idx);
+	void movePart(int idx, int newIdx);
 
 	std::vector<std::pair<float, float>> getVisibleAreas(int part);
 	int getVisiblePartAtPos(float p);
@@ -60,6 +61,9 @@ public:
 	std::vector<std::pair<float, float>>* getHarmonicsTable();
 	void setHarmonic(int num, float amp, float phase);
 	void normalizeHarmonic();
+
+	bool getFunction(std::string* function);
+	void setFunction(std::string func);
 
 	void convertToSin();
 

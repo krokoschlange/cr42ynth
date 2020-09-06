@@ -216,7 +216,7 @@ void WavetableEditData::addPart(int row, WaveformPart* part, int idx)
 	std::vector<WaveformPart*>* wf = getWaveform(row);
 	if (wf)
 	{
-		if (idx >= 0)
+		if (idx >= 0 || idx >= wf->size())
 		{
 			wf->insert(wf->begin() + idx, part);
 		}
@@ -244,14 +244,17 @@ void WavetableEditData::removePart(int row, WaveformPart* part)
 	}
 }
 
-void WavetableEditData::removePart(int row, int idx)
+void WavetableEditData::removePart(int row, int idx, bool erase)
 {
 	std::vector<WaveformPart*>* wf = getWaveform(row);
 	if (wf)
 	{
 		if (0 <= idx && idx < wf->size())
 		{
-			delete (*wf)[idx];
+			if (erase)
+			{
+				delete (*wf)[idx];
+			}
 			wf->erase(wf->begin() + idx);
 		}
 	}
@@ -277,7 +280,7 @@ float WavetableEditData::getSample(int row, int smpl)
 	WaveformPart* part = getVisiblePartAtPos(row, (float) smpl / getWidth());
 	if (part)
 	{
-		ret = part->getSample(width, smpl);
+		ret = part->getSample(width, smpl, row);
 	}
 	return ret;
 }

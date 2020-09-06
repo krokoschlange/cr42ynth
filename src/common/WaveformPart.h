@@ -69,7 +69,7 @@ public:
 	PartDataHead* getDataHead();
 	virtual int getData(void** buffer) = 0;
 
-	virtual float getSample(int size, int pos) = 0;
+	virtual float getSample(int size, int pos, int ypos) = 0;
 
 	void setStart(float s);
 	void setEnd(float e);

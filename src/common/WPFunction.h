@@ -44,25 +44,26 @@ namespace cr42y
 class WPFunction : public WaveformPart
 {
 public:
-	WPFunction(float s, float e, std::string func);
+	WPFunction(float s, float e, std::string function);
 	WPFunction(float s, float e, char** data, int size);
 	virtual ~WPFunction();
 	
 	virtual int getData(void** buffer);
 	
-	virtual float getSample(int size, int pos);
+	virtual float getSample(int size, int pos, int ypos);
 	
 	virtual std::string to_string();
 	
-	void setFunction(std::string func);
+	void setFunction(std::string function);
 	std::string getFunction();
 	
 private:
-	std::string function;
-	exprtk::symbol_table<float> symTable;
-	exprtk::expression<float> funcExpr;
-	exprtk::parser<float> parser;
-	float var;
+	std::string function_;
+	exprtk::symbol_table<float> symTable_;
+	exprtk::expression<float> funcExpr_;
+	exprtk::parser<float> parser_;
+	float varX_;
+	float varY_;
 };
 
 } /* namespace cr42y */

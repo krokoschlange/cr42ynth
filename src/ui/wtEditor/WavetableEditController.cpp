@@ -8,6 +8,7 @@
 #include "WavetableEditController.h"
 #include "WavetableEditData.h"
 #include "WPHarmonics.h"
+#include "WPFunction.h"
 #include <cmath>
 
 #include "FreeTool.h"
@@ -222,6 +223,17 @@ void WavetableEditController::removePart(int idx)
 	}
 }
 
+void WavetableEditController::movePart(int idx, int newIdx)
+{
+	if (data_ && idx > 0 && idx < data_->getWaveform(wtPos_)->size() && newIdx > 0)
+	{
+		WaveformPart* part = data_->getPartByIndex(wtPos_, idx);
+		data_->removePart(wtPos_, idx, false);
+		data_->addPart(wtPos_, part, newIdx);
+		signalSelectedChangedDone_.emit();
+	}
+}
+
 std::vector<std::pair<float, float>> WavetableEditController::getVisibleAreas(
 		int part)
 {
@@ -342,6 +354,33 @@ void WavetableEditController::normalizeHarmonic()
 		if (part->getType() == WaveformPart::HARMONICS)
 		{
 			((WPHarmonics*) part)->normalize();
+			signalSelectedChangedDone_.emit();
+		}
+	}
+}
+
+bool WavetableEditController::getFunction(std::string* function)
+{
+	if (data_)
+	{
+		WaveformPart* part = data_->getPartByIndex(wtPos_, selectedParts_[wtPos_]);
+		if (part->getType() == WaveformPart::FUNCTION)
+		{
+			*function = ((WPFunction*) part)->getFunction();
+			return true;
+		}
+	}
+	return false;
+}
+
+void WavetableEditController::setFunction(std::string func)
+{
+	if (data_)
+	{
+		WaveformPart* part = data_->getPartByIndex(wtPos_, selectedParts_[wtPos_]);
+		if (part->getType() == WaveformPart::FUNCTION)
+		{
+			((WPFunction*) part)->setFunction(func);
 			signalSelectedChangedDone_.emit();
 		}
 	}

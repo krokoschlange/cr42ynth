@@ -48,7 +48,7 @@ public:
 	
 	virtual int getData(void** buffer);
 	
-	virtual float getSample(int size, int pos);
+	virtual float getSample(int size, int pos, int ypos);
 	
 	virtual std::string to_string();
 	
