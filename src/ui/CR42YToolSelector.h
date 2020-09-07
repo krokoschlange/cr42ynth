@@ -8,23 +8,23 @@
 #ifndef SRC_UI_CR42YTOOLSELECTOR_H_
 #define SRC_UI_CR42YTOOLSELECTOR_H_
 
-#include "CR42YRelativeContainer.h"
+#include "CR42YToggleSelector.h"
 
 namespace cr42y
 {
 
 class WavetableEditController;
-class CR42YToggle;
 
-class CR42YToolSelector : public CR42YRelativeContainer
+class CR42YToolSelector : public CR42YToggleSelector
 {
 public:
 	CR42YToolSelector(CR42YUI* ui, WavetableEditController* controller);
 	virtual ~CR42YToolSelector();
 
-	void selectCallback(CR42YToggle* source, int tool);
+	void selectCallback(int selected);
 
 private:
+	std::vector<int> mapping_;
 	WavetableEditController* controller_;
 };
 

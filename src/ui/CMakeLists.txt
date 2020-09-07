@@ -85,6 +85,7 @@ add_executable(cr42ynth_ui.so
 	CR42YHarmonicsEditor.cpp
 	CR42YToolSelector.cpp
 	CR42YToggle.cpp
+	CR42YToggleSelector.cpp
 	
 	helpers.cpp
 )
