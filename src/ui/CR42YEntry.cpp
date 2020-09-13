@@ -130,7 +130,7 @@ void CR42YEntry::drawText()
 
 		for (int i = 0; i < ranges.size(); i++)
 		{
-			int rectX = x - property_scroll_offset().get_value() + ranges[i].first / Pango::SCALE;
+			int rectX = x /*- property_scroll_offset().get_value()*/ + ranges[i].first / Pango::SCALE;
 			int rectY = y;
 			int rectW = (ranges[i].second - ranges[i].first) / Pango::SCALE;
 			int rectH = logicalRect.get_height() / Pango::SCALE;
@@ -166,10 +166,13 @@ void CR42YEntry::drawCursor()
 	Pango::Rectangle strongPos = layout->get_cursor_strong_pos(idx);
 	
 	Glib::RefPtr<Gdk::Window> textWin = get_text_window();
-	int textWinX, textWinY;
+	int x, y, textWinX, textWinY;
 	textWin->get_position(textWinX, textWinY);
+	get_layout_offsets(x, y);
+	x -= textWinX;
+	y -= textWinY;
 	
-	int cursorX = strongPos.get_x() / Pango::SCALE - property_scroll_offset();
+	int cursorX = strongPos.get_x() / Pango::SCALE + x;//- property_scroll_offset();
 	
 	Cairo::RefPtr<Cairo::Context> textCr = textWin->create_cairo_context();
 	

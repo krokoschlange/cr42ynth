@@ -46,7 +46,7 @@ class WavetableEditData;
 class WTTool
 {
 public:
-	WTTool(WavetableEditData* eData, int wtPos, float x, float y);
+	WTTool(WavetableEditData* editData, int wtPos, float x, float y);
 	virtual ~WTTool();
 	
 	virtual void motion(float x, float y) = 0;
@@ -54,11 +54,11 @@ public:
 	WaveformPart* getPart();
 	
 protected:
-	WaveformPart* part;
-	std::vector<WaveformPart*>* parts;
-	WavetableEditData* editData;
-	float startX;
-	float startY;
+	WaveformPart* part_;
+	std::vector<WaveformPart*>* parts_;
+	WavetableEditData* editData_;
+	float startX_;
+	float startY_;
 };
 
 } /* namespace cr42y */

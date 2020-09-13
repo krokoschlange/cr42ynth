@@ -40,7 +40,8 @@
 namespace cr42y
 {
 
-WPHarmonics::WPHarmonics(float s, float e, std::vector<std::pair<float, float>> ht, functionType t) :
+WPHarmonics::WPHarmonics(float s, float e,
+		std::vector<std::pair<float, float>> ht, functionType t) :
 		WaveformPart(s, e, WaveformPart::HARMONICS),
 		hTable(ht),
 		fType(t),
@@ -135,6 +136,20 @@ void WPHarmonics::update(int size)
 			}
 			break;
 		case TRI:
+			for (int i = 0; i < hTable.size(); i++)
+			{
+				float sawX = (i * x - hTable[i].second);
+				if (sawX < 0)
+				{
+					sawX = 1 + (sawX - (int) sawX);
+				}
+				else if (sawX > 1)
+				{
+					sawX = sawX - (int) sawX;
+				}
+				float sawY = sawX < 0.25 ? sawX * 4 : (sawX < 0.75 ? -4 * sawX + 2 : sawX * 4 - 4);
+				smpl += hTable[i].first * sawY;
+			}
 			break;
 		case SAW:
 			for (int i = 0; i < hTable.size(); i++)

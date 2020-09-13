@@ -104,34 +104,6 @@ void CR42YWavetableView::on_size_request(Gtk::Requisition* requisition)
 
 void CR42YWavetableView::update()
 {
-	/*std::vector<Gtk::Widget*> children = get_children();
-
-	 for (int i = 0; i < children.size(); i++)
-	 {
-	 Gtk::Widget* child = children[i];
-	 remove(*child);
-	 delete child;
-	 }
-
-	 if (controller_)
-	 {
-	 bool removeBtns = controller_->getWavetableHeight() > 1;
-	 for (int i = 0; i < controller_->getWavetableHeight(); i++)
-	 {
-	 CR42YWavetableViewItem* item = new CR42YWavetableViewItem(ui_, removeBtns);
-	 item->setController(controller_);
-	 item->setWaveform(i);
-
-	 if (removeBtns)
-	 {
-	 item->removeButtonClickedSignal().connect(sigc::bind<int>(sigc::mem_fun(this, &CR42YWavetableView::removeWaveformCallback), i));
-	 }
-	 item->waveformSelectedSignal().connect(sigc::bind<int>(sigc::mem_fun(this, &CR42YWavetableView::selectWaveformCallback), i));
-
-	 put(item, 0, boxSize_ * i, 1, boxSize_);
-	 item->show();
-	 }
-	 }*/
 	if (controller_)
 	{
 		for (int i = items_.size(); i < controller_->getWavetableHeight(); i++)
@@ -139,6 +111,7 @@ void CR42YWavetableView::update()
 			CR42YWavetableViewItem* item = new CR42YWavetableViewItem(ui_);
 			item->setController(controller_);
 			item->setWaveform(i);
+			item->setShowButton(true);
 
 			put(item, 0, boxSize_ * i, 1, boxSize_);
 			items_.push_back(item);
@@ -150,11 +123,9 @@ void CR42YWavetableView::update()
 			delete items_[items_.size() - 1];
 			items_.erase(items_.begin() + items_.size() - 1);
 		}
-		bool showBtns = items_.size() > 1;
 		for (int i = 0; i < items_.size(); i++)
 		{
 			items_[i]->queue_draw();
-			items_[i]->setShowButton(showBtns);
 		}
 	}
 }

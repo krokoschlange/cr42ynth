@@ -86,11 +86,11 @@ bool CR42YWaveformEditor::on_expose_event(GdkEventExpose* event)
 		cr->rectangle(0, 0, get_width(), get_height());
 		cr->fill();
 
-		cr42y_rounded_rectangle(cr, 0, 0, get_width(), get_height(), tm->cornerRadius());
-		clr = tm->color(FG);
-		cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
-		cr->set_line_width(tm->lineThick());
-		cr->stroke_preserve();
+		cr42y_rounded_rectangle(cr, 0, 0, get_width(), get_height(), tm->cornerRadius(), tm->lineThick());
+		//clr = tm->color(FG);
+		//cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
+		//cr->set_line_width(tm->lineThick());
+		//cr->stroke_preserve();
 		cr->clip();
 
 		int gridX = controller_->gridX();
@@ -130,21 +130,14 @@ bool CR42YWaveformEditor::on_expose_event(GdkEventExpose* event)
 
 		std::vector<float>* samples = nullptr;
 		int stepSize = controller_->getWaveformWidth() / get_width();
-		stepSize = stepSize > 1 ? stepSize : 1;
 		samples = controller_->getSamples(controller_->selectedWaveform(), stepSize);
 
 		float pixelPerSample = (float) get_width() / samples->size();
 
-		stepSize = samples->size() / get_width();
-		if (stepSize < 1)
-		{
-			stepSize = 1;
-		}
-
 		for (int i = 1; i < samples->size(); i++)
 		{
 			cr->move_to(pixelPerSample * i, get_height() * -0.5 * (*samples)[i] + get_height() / 2);
-			cr->line_to(pixelPerSample * (i - stepSize), get_height() * -0.5 * (*samples)[i - stepSize] + get_height() / 2);
+			cr->line_to(pixelPerSample * (i - 1), get_height() * -0.5 * (*samples)[i - 1] + get_height() / 2);
 		}
 		cr->move_to(pixelPerSample * (samples->size() - 1), get_height() * -0.5 * (*samples)[samples->size() - 1] + get_height() / 2);
 		cr->line_to(get_width(), get_height() * -0.5 * (*samples)[0] + get_height() / 2);
@@ -186,30 +179,32 @@ bool CR42YWaveformEditor::on_expose_event(GdkEventExpose* event)
 			}
 		}
 
-		/*cairo_set_font_size(cairoCache, 15);
-		 cairo_select_font_face(cairoCache, "impact", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
-		 cairo_text_extents_t extents;
-		 theme_->color(cairoCache, Avtk::FG);
-
-		 cairo_text_extents(cairoCache, "grid X", &extents);
-		 cairo_move_to(cairoCache, w() - 80 - extents.width, h() - 5);
-		 cairo_show_text(cairoCache, "gridX");
-
-		 cairo_text_extents(cairoCache, std::to_string(gridX).c_str(), &extents);
-		 cairo_move_to(cairoCache, w() - 40 - extents.width / 2, h() - 5);
-		 cairo_show_text(cairoCache, std::to_string(gridX).c_str());
-
-		 cairo_text_extents(cairoCache, "grid Y", &extents);
-		 cairo_move_to(cairoCache, w() - 80 - extents.width, h() - 25);
-		 cairo_show_text(cairoCache, "gridY");
-
-		 cairo_text_extents(cairoCache, std::to_string(gridY).c_str(), &extents);
-		 cairo_move_to(cairoCache, w() - 40 - extents.width / 2, h() - 25);
-		 cairo_show_text(cairoCache, std::to_string(gridY).c_str());*/
-
 		if (samples)
 		{
 			delete samples;
+		}
+
+		std::vector<float>* selectedSamples = controller_->getPartSamples(stepSize);
+
+		if (selectedSamples)
+		{
+			clr = tm->color(HIGHLIGHT);
+			cr->set_line_width(tm->lineThick());
+			cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3] * 0.2);
+
+			float start = controller_->getPartStart(controller_->getSelectedPart());
+
+			for (int i = 0; i < (int) (selectedSamples->size()) - 8; i += 8)
+			{
+				cr->move_to(start * get_width() + i * pixelPerSample,
+						get_height() * -0.5 * (*selectedSamples)[i] + get_height() / 2);
+				cr->line_to(start * get_width() + (i + 1) * pixelPerSample, get_height() * -0.5 * (*selectedSamples)[i + 1] + get_height() / 2);
+				cr->line_to(start * get_width() + (i + 2) * pixelPerSample, get_height() * -0.5 * (*selectedSamples)[i + 2] + get_height() / 2);
+				cr->line_to(start * get_width() + (i + 3) * pixelPerSample, get_height() * -0.5 * (*selectedSamples)[i + 3] + get_height() / 2);
+
+				cr->stroke();
+			}
+			delete selectedSamples;
 		}
 	}
 
@@ -274,51 +269,38 @@ void CR42YWaveformEditor::updateButtons()
 		remove(*child);
 		delete child;
 	}
-	//std::vector<WaveformPart*>* wf = editor->getEditData()->getWaveform(editor->getWTPos());
-	//int sel = editor->getSelected(editor->getWTPos());
+//std::vector<WaveformPart*>* wf = editor->getEditData()->getWaveform(editor->getWTPos());
+//int sel = editor->getSelected(editor->getWTPos());
 	int sel = controller_->getSelectedPart();
-	//if (0 < sel && sel < wf->size())
-	//{
-	//Avtk::Button* rmvBtn = new Avtk::Button(ui, (*wf)[sel]->getStart() * editor->getEditData()->getWidth() + 5, 5, 10, 10, "X");
+//if (0 < sel && sel < wf->size())
+//{
+//Avtk::Button* rmvBtn = new Avtk::Button(ui, (*wf)[sel]->getStart() * editor->getEditData()->getWidth() + 5, 5, 10, 10, "X");
 
-	if (sel > 0)
+	std::string path = std::string(ui_->resourceRoot());
+
+	int padding = 5;
+	int buttonSize = 25;
+
+	std::vector<std::pair<float, float>> visAreas = controller_->getVisibleAreas(sel);
+	if (visAreas.size() > 0)
 	{
-		std::string path = std::string(ui_->resourceRoot());
-
-		int padding = 5;
-		int buttonSize = 25;
-
-		std::vector<std::pair<float, float>> visAreas = controller_->getVisibleAreas(sel);
-		if (visAreas.size() > 0)
+		Cairo::RefPtr<Cairo::Surface> min = Cairo::ImageSurface::create_from_png(ui()->resourceRoot() + "media/minus.png");
+		double btnX = visAreas[0].first;
+		if (btnX + padding + buttonSize > get_width())
 		{
-			Cairo::RefPtr<Cairo::Surface> min = Cairo::ImageSurface::create_from_png(ui()->resourceRoot() + "media/minus.png");
-			double btnX = visAreas[0].first;
-			if (btnX + padding + buttonSize > get_width())
-			{
-				btnX = get_width() - padding - buttonSize;
-			}
-			//CRSurfaceButton* rmvBtn = new CRSurfaceButton(ui, x() + btnX, y() + 5, 15, 15, "-", min, 20, 20, min, 20, 20);
-			CR42YButton* rmvBtn = new CR42YButton(ui_);
-			//rmvBtn->setText("-");
-			rmvBtn->setSurfActive(min);
-			rmvBtn->setSurfInactive(min);
-			rmvBtn->signalClicked().connect(sigc::bind<int>(sigc::mem_fun(this, &CR42YWaveformEditor::removePartCallback), sel));
-
-			//removeBtns.push_back(std::pair<int, CRSurfaceButton*>(sel, rmvBtn));
-			put(rmvBtn, btnX, 0, buttonSize, buttonSize, padding, padding);
-			rmvBtn->show();
-			//rmvBtn->theme(ui->theme(1));
+			btnX = get_width() - padding - buttonSize;
 		}
+//CRSurfaceButton* rmvBtn = new CRSurfaceButton(ui, x() + btnX, y() + 5, 15, 15, "-", min, 20, 20, min, 20, 20);
+		CR42YButton* rmvBtn = new CR42YButton(ui_);
+//rmvBtn->setText("-");
+		rmvBtn->setSurfActive(min);
+		rmvBtn->setSurfInactive(min);
+		rmvBtn->signalClicked().connect(sigc::bind<int>(sigc::mem_fun(this, &CR42YWaveformEditor::removePartCallback), sel));
 
-		/*cairo_surface_t* left = cairo_image_surface_create_from_png((path + "../media/left.png").c_str());
-		resizeLeft = new CRSurfaceButton(ui, x() + controller->getPartStart(sel) * w() - 15, y() + h() / 2 - 15, 15, 30, "<", left, 20, 50, left, 20, 50);
-		add (resizeLeft);
-		cairo_surface_destroy(left);
-
-		cairo_surface_t* right = cairo_image_surface_create_from_png((path + "../media/right.png").c_str());
-		resizeRight = new CRSurfaceButton(ui, x() + controller->getPartEnd(sel) * w(), y() + h() / 2 - 15, 15, 30, ">", right, 20, 50, right, 20, 50);
-		add (resizeRight);
-		cairo_surface_destroy(right);*/
+//removeBtns.push_back(std::pair<int, CRSurfaceButton*>(sel, rmvBtn));
+		put(rmvBtn, btnX, 0, buttonSize, buttonSize, padding, padding);
+		rmvBtn->show();
+//rmvBtn->theme(ui->theme(1));
 	}
 }
 

@@ -21,12 +21,16 @@ class CR42YWavetableView;
 class CR42YButton;
 class CR42YHarmonicsEditor;
 class CR42YToolSelector;
+class CR42YWFPartEditor;
 
 class CR42YWavetableEditor : public CR42YRelativeContainer
 {
 public:
 	CR42YWavetableEditor(CR42YUI* ui);
 	virtual ~CR42YWavetableEditor();
+
+protected:
+	void on_realize();
 
 private:
 	WavetableEditController* controller_;
@@ -38,6 +42,7 @@ private:
 	CR42YHarmonicsEditor* harmonicsEditor_;
 	CR42YToolSelector* toolSelector_;
 	CR42YButton* addWaveformButton_;
+	CR42YWFPartEditor* wfPartEditor_;
 
 	void waveformAddCallback();
 

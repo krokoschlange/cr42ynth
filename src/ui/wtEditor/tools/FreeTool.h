@@ -41,12 +41,14 @@
 
 namespace cr42y
 {
+class WPSamples;
 class WavetableEditData;
 
 class FreeTool : public WTTool
 {
 public:
 	FreeTool(WavetableEditData* eData, int wtPos, float x, float y);
+	FreeTool(WavetableEditData* eData, WPSamples* part, int wtPos, float x, float y);
 	virtual ~FreeTool();
 	
 	virtual void motion(float x, float y);

@@ -45,7 +45,7 @@ class WavetableEditData;
 class TriTool : public WTTool
 {
 public:
-	TriTool(WavetableEditData* eData, int wtPos, float x, float y);
+	TriTool(WavetableEditData* editData, int wtPos, float x, float y);
 	virtual ~TriTool();
 	
 	virtual void motion(float x, float y);

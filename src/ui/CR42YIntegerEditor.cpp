@@ -18,7 +18,7 @@ CR42YIntegerEditor::CR42YIntegerEditor(CR42YUI* ui) :
 		CR42YRelativeContainer(ui)
 {
 	setDrawBG(false);
-	setDrawBorder(true);
+	setDrawBorder(false);
 
 	increaseBtn_ = new CR42YButton(ui);
 	decreaseBtn_ = new CR42YButton(ui);

@@ -45,7 +45,7 @@ class WavetableEditData;
 class SinSlopeTool : public WTTool
 {
 public:
-	SinSlopeTool(WavetableEditData* eData, int wtPos, float x, float y);
+	SinSlopeTool(WavetableEditData* editData, int wtPos, float x, float y);
 	virtual ~SinSlopeTool();
 	
 	virtual void motion(float x, float y);

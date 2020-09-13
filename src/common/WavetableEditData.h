@@ -68,6 +68,8 @@ public:
 	std::vector<float>* getSamples(int row, int stepSize = 1);
 	std::vector<std::vector<float>>* getSamples();
 
+	std::vector<float>* getPartSamples(int row, int part, int stepSize = 1);
+
 	void update(char* data);
 	int getUpdate(void** buffer, int row);
 

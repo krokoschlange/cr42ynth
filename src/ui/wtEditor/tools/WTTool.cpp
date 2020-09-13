@@ -39,11 +39,12 @@
 namespace cr42y
 {
 
-WTTool::WTTool(WavetableEditData* eData, int wtPos, float x, float y) :
-		editData(eData),
-		startX(x),
-		startY(y),
-		parts(eData->getWaveform(wtPos))
+WTTool::WTTool(WavetableEditData* editData, int wtPos, float x, float y) :
+		editData_(editData),
+		startX_(x),
+		startY_(y),
+		part_(nullptr),
+		parts_(editData->getWaveform(wtPos))
 {
 	
 }
@@ -55,7 +56,7 @@ WTTool::~WTTool()
 
 WaveformPart* WTTool::getPart()
 {
-	return part;
+	return part_;
 }
 
 } /* namespace cr42y */

@@ -42,11 +42,11 @@
 namespace cr42y
 {
 
-SinSlopeTool::SinSlopeTool(WavetableEditData* eData, int wtPos, float x, float y) :
-		WTTool(eData, wtPos, x, y)
+SinSlopeTool::SinSlopeTool(WavetableEditData* editData, int wtPos, float x, float y) :
+		WTTool(editData, wtPos, x, y)
 {
-	part = new WPFunction(x, x + 0.0001, to_string(y));
-	eData->addPart(wtPos, part);
+	part_ = new WPFunction(x, x + 0.0001, to_string(y));
+	editData->addPart(wtPos, part_);
 }
 
 SinSlopeTool::~SinSlopeTool()
@@ -56,24 +56,24 @@ SinSlopeTool::~SinSlopeTool()
 
 void SinSlopeTool::motion(float x, float y)
 {
-	if (x != startX)
+	if (x != startX_)
 		{
 		// a*cos(2pi*(b(x-d)))+c
-		float a = (startY - y) / 2;
-		float b = 0.5 / (startX - x);
-		float c = (startY + y) / 2;
-		float d = startX;
+		float a = (startY_ - y) / 2;
+		float b = 0.5 / (startX_ - x);
+		float c = (startY_ + y) / 2;
+		float d = startX_;
 		std::string func = to_string(a) + "*cos(2pi*" + to_string(b) + "(x-" + to_string(d) + "))+" + to_string(c);
-		((WPFunction*) part)->setFunction(func);
-		if (x < startX)
+		((WPFunction*) part_)->setFunction(func);
+		if (x < startX_)
 		{
-			part->setStart(x);
-			part->setEnd(startX);
+			part_->setStart(x);
+			part_->setEnd(startX_);
 		}
 		else
 		{
-			part->setStart(startX);
-			part->setEnd(x);
+			part_->setStart(startX_);
+			part_->setEnd(x);
 		}
 	}
 }

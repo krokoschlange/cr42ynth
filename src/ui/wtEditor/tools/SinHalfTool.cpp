@@ -42,11 +42,11 @@
 namespace cr42y
 {
 
-SinHalfTool::SinHalfTool(WavetableEditData* eData, int wtPos, float x, float y) :
-		WTTool(eData, wtPos, x, y)
+SinHalfTool::SinHalfTool(WavetableEditData* editData, int wtPos, float x, float y) :
+		WTTool(editData, wtPos, x, y)
 {
-	part = new WPFunction(x, x + 0.0001, to_string(y));
-	eData->addPart(wtPos, part);
+	part_ = new WPFunction(x, x + 0.0001, to_string(y));
+	editData->addPart(wtPos, part_);
 }
 
 SinHalfTool::~SinHalfTool()
@@ -56,24 +56,24 @@ SinHalfTool::~SinHalfTool()
 
 void SinHalfTool::motion(float x, float y)
 {
-	if (x != startX)
+	if (x != startX_)
 	{
 		//func = a*sin(2pi*b(x-d))+c
-		float a = (startY - y);
-		float b = 0.5 / (startX - x);
-		float c = startY;
-		float d = startX;
+		float a = (startY_ - y);
+		float b = 0.5 / (startX_ - x);
+		float c = startY_;
+		float d = startX_;
 		std::string func = to_string(a) + "*sin(2pi*" + to_string(b) + "(x-" + to_string(d) + "))+" + to_string(c);
-		((WPFunction*) part)->setFunction(func);
-		if (x < startX)
+		((WPFunction*) part_)->setFunction(func);
+		if (x < startX_)
 		{
-			part->setStart(x);
-			part->setEnd(startX);
+			part_->setStart(x);
+			part_->setEnd(startX_);
 		}
 		else
 		{
-			part->setStart(startX);
-			part->setEnd(x);
+			part_->setStart(startX_);
+			part_->setEnd(x);
 		}
 	}
 }

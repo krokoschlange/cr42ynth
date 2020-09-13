@@ -45,6 +45,7 @@ WPFunction::WPFunction(float s, float e, std::string function) :
 		varY_(0)
 {
 	symTable_.add_variable("x", varX_);
+	symTable_.add_variable("y", varY_);
 	symTable_.add_constants();
 	
 	funcExpr_.register_symbol_table(symTable_);

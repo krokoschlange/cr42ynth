@@ -33,11 +33,15 @@ public:
 	int getWavetableHeight();
 	std::vector<float>* getSamples(int row, int stepSize = 1);
 
+	std::vector<float>* getPartSamples(int stepSize = 1);
+
 	void selectWaveform(int num);
 	int selectedWaveform();
 
 	void selectPart(int part);
 	int getSelectedPart();
+
+	int getPartAmount();
 
 	void addWaveform(int idx);
 	void removeWaveform(int idx, bool erase = true);
@@ -54,10 +58,10 @@ public:
 	float getPartStart(int part);
 	float getPartEnd(int part);
 
-	WaveformPart::WaveformPartType getBaseType();
-	bool replaceBase(WaveformPart* part);
+	void resizePart(float start, float end);
 
-	void setHarmonicsType(int part, WPHarmonics::functionType type);
+	void setHarmonicsType(WPHarmonics::functionType type);
+	int getHarmonicsType();
 	std::vector<std::pair<float, float>>* getHarmonicsTable();
 	void setHarmonic(int num, float amp, float phase);
 	void normalizeHarmonic();
@@ -66,6 +70,9 @@ public:
 	void setFunction(std::string func);
 
 	void convertToSin();
+
+	void replacePartWithDefault(WaveformPart::WaveformPartType type);
+	int getPartType();
 
 	enum TOOL
 	{
@@ -87,6 +94,9 @@ public:
 	void toolMoveAction(int x, int y, int w, int h);
 	void dropToolAction();
 
+	void setEditSelected(bool editSelected);
+	bool getEditSelected();
+
 	sigc::signal<void> signalSelectedChanged();
 	sigc::signal<void> signalSelectedChangedDone();
 
@@ -98,6 +108,7 @@ private:
 
 	TOOL tool_;
 	WTTool* usedTool_;
+	bool editSelected_;
 	int gridX_;
 	int gridY_;
 

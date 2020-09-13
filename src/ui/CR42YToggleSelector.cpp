@@ -16,7 +16,7 @@ CR42YToggleSelector::CR42YToggleSelector(CR42YUI* ui) :
 		CR42YRelativeContainer(ui),
 		selected_(-1)
 {
-	
+	setDrawBorder(true);
 }
 
 CR42YToggleSelector::~CR42YToggleSelector()
@@ -32,7 +32,7 @@ CR42YToggleSelector::~CR42YToggleSelector()
 	}
 }
 
-void CR42YToggleSelector::select(int selected)
+void CR42YToggleSelector::select(int selected, bool callback)
 {
 	int old = selected_;
 	selected_ = selected;
@@ -48,7 +48,7 @@ void CR42YToggleSelector::select(int selected)
 		}
 	}
 
-	if (old != selected_)
+	if (old != selected_ && callback)
 	{
 		signalSelected_.emit(selected_);
 	}
@@ -64,7 +64,7 @@ void CR42YToggleSelector::putToggle(CR42YToggle* toggle, double x, double y,
 		int padBottom)
 {
 	put(toggle, x, y, w, h, padLeft, padTop, padRight, padBottom);
-	sigc::connection conn = toggle->signalClicked().connect(sigc::bind<int>(sigc::mem_fun(this, &CR42YToggleSelector::select), toggles_.size()));
+	sigc::connection conn = toggle->signalClicked().connect(sigc::bind<int, bool>(sigc::mem_fun(this, &CR42YToggleSelector::select), toggles_.size(), true));
 	toggles_.push_back(std::pair<CR42YToggle*, sigc::connection>(toggle, conn));
 }
 

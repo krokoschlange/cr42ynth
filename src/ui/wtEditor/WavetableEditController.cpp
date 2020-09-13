@@ -9,6 +9,7 @@
 #include "WavetableEditData.h"
 #include "WPHarmonics.h"
 #include "WPFunction.h"
+#include "WPSamples.h"
 #include <cmath>
 
 #include "FreeTool.h"
@@ -28,7 +29,8 @@ WavetableEditController::WavetableEditController() :
 		tool_(TRI_SLOPE),
 		usedTool_(nullptr),
 		gridX_(0),
-		gridY_(0)
+		gridY_(0),
+		editSelected_(false)
 {
 	
 }
@@ -47,13 +49,13 @@ void WavetableEditController::setData(WavetableEditData* data)
 			selectedParts_.clear();
 			for (int i = 0; i < data_->getWaveforms()->size(); i++)
 			{
-				selectedParts_.push_back(0);
+				selectedParts_.push_back(-1);
 			}
 		}
 		else
 		{
 			selectedParts_.clear();
-			selectedParts_.push_back(0);
+			selectedParts_.push_back(-1);
 		}
 		signalSelectedChangedDone_.emit();
 	}
@@ -94,6 +96,15 @@ std::vector<float>* WavetableEditController::getSamples(int row, int stepSize)
 	return data_->getSamples(row, stepSize);
 }
 
+std::vector<float>* WavetableEditController::getPartSamples(int stepSize)
+{
+	if (data_)
+	{
+		return data_->getPartSamples(selectedWaveform(), getSelectedPart(), stepSize);
+	}
+	return nullptr;
+}
+
 void WavetableEditController::selectWaveform(int num)
 {
 	num = num >= selectedParts_.size() ? selectedParts_.size() - 1 : num;
@@ -115,28 +126,44 @@ void WavetableEditController::selectPart(int part)
 {
 	if (data_)
 	{
-		part = part >= data_->getWaveform(wtPos_)->size() ?
-				data_->getWaveform(wtPos_)->size() - 1 : part;
-		part = part < 0 ? 0 : part;
-		int old = selectedParts_[wtPos_];
-		selectedParts_[wtPos_] = part;
-		if (old != part)
+		std::vector<WaveformPart*>* wf = data_->getWaveform(wtPos_);
+		if (wf)
 		{
-			signalSelectedChangedDone_.emit();
+			part = part >= wf->size() ? wf->size() - 1 : part;
+			part = part < -1 ? -1 : part;
+			int old = selectedParts_[wtPos_];
+			selectedParts_[wtPos_] = part;
+			if (old != part)
+			{
+				signalSelectedChangedDone_.emit();
+			}
 		}
 	}
 }
 
 int WavetableEditController::getSelectedPart()
 {
-	if (data_)
+	if (data_ && selectedParts_.size() > 0)
 	{
 		return selectedParts_[wtPos_];
 	}
 	else
 	{
-		return 0;
+		return -1;
 	}
+}
+
+int WavetableEditController::getPartAmount()
+{
+	if (data_)
+	{
+		std::vector<WaveformPart*>* wf = data_->getWaveform(selectedWaveform());
+		if (wf)
+		{
+			return wf->size();
+		}
+	}
+	return 0;
 }
 
 void WavetableEditController::addWaveform(int idx)
@@ -212,7 +239,7 @@ bool WavetableEditController::addPart(WaveformPart* part, int idx)
 
 void WavetableEditController::removePart(int idx)
 {
-	if (data_ && idx > 0 && idx < data_->getWaveform(wtPos_)->size())
+	if (data_ && idx >= 0 && idx < data_->getWaveform(wtPos_)->size())
 	{
 		data_->removePart(wtPos_, idx);
 		if (selectedParts_[wtPos_] >= data_->getWaveform(wtPos_)->size())
@@ -225,12 +252,15 @@ void WavetableEditController::removePart(int idx)
 
 void WavetableEditController::movePart(int idx, int newIdx)
 {
-	if (data_ && idx > 0 && idx < data_->getWaveform(wtPos_)->size() && newIdx > 0)
+	if (data_ && idx >= 0 && idx < data_->getWaveform(wtPos_)->size() && newIdx >= 0)
 	{
 		WaveformPart* part = data_->getPartByIndex(wtPos_, idx);
-		data_->removePart(wtPos_, idx, false);
-		data_->addPart(wtPos_, part, newIdx);
-		signalSelectedChangedDone_.emit();
+		if (part)
+		{
+			data_->removePart(wtPos_, idx, false);
+			data_->addPart(wtPos_, part, newIdx);
+			signalSelectedChangedDone_.emit();
+		}
 	}
 }
 
@@ -240,7 +270,10 @@ std::vector<std::pair<float, float>> WavetableEditController::getVisibleAreas(
 	if (data_)
 	{
 		WaveformPart* p = data_->getPartByIndex(wtPos_, part);
-		return data_->getVisibleAreas(wtPos_, p);
+		if (p)
+		{
+			return data_->getVisibleAreas(wtPos_, p);
+		}
 	}
 	return std::vector<std::pair<float, float>>();
 }
@@ -280,34 +313,37 @@ float WavetableEditController::getPartEnd(int part)
 	return 1;
 }
 
-WaveformPart::WaveformPartType WavetableEditController::getBaseType()
+void WavetableEditController::resizePart(float start, float end)
 {
 	if (data_)
 	{
-		return (WaveformPart::WaveformPartType) data_->getPartByIndex(wtPos_, 0)->getType();
+		WaveformPart* part = data_->getPartByIndex(selectedWaveform(), getSelectedPart());
+		if (part)
+		{
+			part->setStart(start);
+			part->setEnd(end);
+
+			if (part->getType() == WaveformPart::SAMPLES)
+			{
+				WPSamples* wpsmpls = (WPSamples*) part;
+				int neededSamples = std::round((start - end) * getWaveformWidth());
+
+				std::vector<float>* samples = wpsmpls->getSamples();
+
+				if (samples->size() < neededSamples)
+				{
+					samples->resize(neededSamples - samples->size(), 0);
+				}
+			}
+		}
 	}
-	return WaveformPart::SAMPLES;
 }
 
-bool WavetableEditController::replaceBase(WaveformPart* part)
-{
-	if (data_ && part)
-	{
-		data_->removePart(wtPos_, 0);
-		part->setStart(0);
-		part->setEnd(1);
-		data_->addPart(wtPos_, part, 0);
-		signalSelectedChangedDone_.emit();
-	}
-	return false;
-}
-
-void WavetableEditController::setHarmonicsType(int part,
-		WPHarmonics::functionType type)
+void WavetableEditController::setHarmonicsType(WPHarmonics::functionType type)
 {
 	if (data_)
 	{
-		WaveformPart* p = data_->getPartByIndex(selectedWaveform(), part);
+		WaveformPart* p = data_->getPartByIndex(selectedWaveform(), getSelectedPart());
 		if (p && p->getType() == WaveformPart::HARMONICS)
 		{
 			WPHarmonics* ph = (WPHarmonics*) p;
@@ -315,6 +351,19 @@ void WavetableEditController::setHarmonicsType(int part,
 			signalSelectedChangedDone_.emit();
 		}
 	}
+}
+
+int WavetableEditController::getHarmonicsType()
+{
+	if (data_)
+	{
+		WaveformPart* p = data_->getPartByIndex(selectedWaveform(), getSelectedPart());
+		if (p && p->getType() == WaveformPart::HARMONICS)
+		{
+			return ((WPHarmonics*) p)->getFunctionType();
+		}
+	}
+	return -1;
 }
 
 std::vector<std::pair<float, float>>* WavetableEditController::getHarmonicsTable()
@@ -335,7 +384,7 @@ void WavetableEditController::setHarmonic(int num, float amp, float phase)
 	if (data_)
 	{
 		WaveformPart* part = data_->getPartByIndex(selectedWaveform(), getSelectedPart());
-		if (part->getType() == WaveformPart::HARMONICS)
+		if (part && part->getType() == WaveformPart::HARMONICS)
 		{
 			std::vector<std::pair<float, float>>* harmTable = ((WPHarmonics*) part)->getHarmonicTable();
 			(*harmTable)[num].first = amp;
@@ -351,7 +400,7 @@ void WavetableEditController::normalizeHarmonic()
 	if (data_)
 	{
 		WaveformPart* part = data_->getPartByIndex(selectedWaveform(), getSelectedPart());
-		if (part->getType() == WaveformPart::HARMONICS)
+		if (part && part->getType() == WaveformPart::HARMONICS)
 		{
 			((WPHarmonics*) part)->normalize();
 			signalSelectedChangedDone_.emit();
@@ -364,9 +413,12 @@ bool WavetableEditController::getFunction(std::string* function)
 	if (data_)
 	{
 		WaveformPart* part = data_->getPartByIndex(wtPos_, selectedParts_[wtPos_]);
-		if (part->getType() == WaveformPart::FUNCTION)
+		if (part && part->getType() == WaveformPart::FUNCTION)
 		{
-			*function = ((WPFunction*) part)->getFunction();
+			if (function)
+			{
+				*function = ((WPFunction*) part)->getFunction();
+			}
 			return true;
 		}
 	}
@@ -378,7 +430,7 @@ void WavetableEditController::setFunction(std::string func)
 	if (data_)
 	{
 		WaveformPart* part = data_->getPartByIndex(wtPos_, selectedParts_[wtPos_]);
-		if (part->getType() == WaveformPart::FUNCTION)
+		if (part && part->getType() == WaveformPart::FUNCTION)
 		{
 			((WPFunction*) part)->setFunction(func);
 			signalSelectedChangedDone_.emit();
@@ -388,61 +440,126 @@ void WavetableEditController::setFunction(std::string func)
 
 void WavetableEditController::convertToSin()
 {
-	std::vector<float>* samples = getSamples(selectedWaveform());
-	std::vector<double> realSmpls(samples->begin(), samples->end());
-	std::vector<double> imagSmpls(samples->size());
-	if (samples)
+	if (data_)
 	{
-		delete samples;
+		std::vector<float>* samples = getSamples(selectedWaveform());
+		std::vector<double> realSmpls(samples->begin(), samples->end());
+		std::vector<double> imagSmpls(samples->size());
+		if (samples)
+		{
+			delete samples;
+		}
+		samples = nullptr;
+
+		Fft::transform(realSmpls, imagSmpls);
+
+		/*realSmpls.erase(realSmpls.begin());
+		 imagSmpls.erase(imagSmpls.begin());*/
+
+		std::vector<WaveformPart*>* wf = data_->getWaveform(wtPos_);
+		if (!wf)
+		{
+			return;
+		}
+
+		for (int i = 0; i < wf->size(); i++)
+		{
+			delete (*wf)[i];
+		}
+		wf->clear();
+
+		std::vector<std::pair<float, float>> ht;
+
+		for (int i = 0; i < 128; i++)
+		{
+			double real = fabs(realSmpls[i]) < 0.001 ? 0 : realSmpls[i];
+			double imag = fabs(imagSmpls[i]) < 0.001 ? 0 : imagSmpls[i];
+			float amp = sqrt(real * real + imag * imag) / (realSmpls.size() / 2);
+			if (i == 0)
+			{
+				amp = amp / 2;
+			}
+			float phase = atan2(-real, -imag) / (2 * M_PI);
+			if (phase < 0)
+			{
+				phase += 1;
+			}
+			if (amp < 0.001)
+			{
+				phase = 0;
+			}
+			ht.push_back(std::pair<float, float>(amp, phase));
+		}
+		WPHarmonics* harm = new WPHarmonics(0, 1, ht, WPHarmonics::SIN);
+
+		wf->push_back(harm);
+
+		selectedParts_[wtPos_] = 0;
+		signalSelectedChangedDone_.emit();
 	}
-	samples = nullptr;
+}
 
-	Fft::transform(realSmpls, imagSmpls);
-
-	/*realSmpls.erase(realSmpls.begin());
-	 imagSmpls.erase(imagSmpls.begin());*/
-
-	std::vector<WaveformPart*>* wf = data_->getWaveform(wtPos_);
-
-	for (int i = 0; i < wf->size(); i++)
+void WavetableEditController::replacePartWithDefault(
+		WaveformPart::WaveformPartType type)
+{
+	if (data_)
 	{
-		delete (*wf)[i];
+		WaveformPart* old = data_->getPartByIndex(selectedWaveform(), getSelectedPart());
+		if (old)
+		{
+			WaveformPart* newPart = nullptr;
+			switch (type)
+			{
+			case WaveformPart::FUNCTION:
+			{
+				newPart = new WPFunction(old->getStart(), old->getEnd(), "0");
+				break;
+			}
+			case WaveformPart::HARMONICS:
+			{
+				std::vector<std::pair<float, float>> htable;
+				htable.push_back(std::pair<float, float>(0, 0));
+				htable.push_back(std::pair<float, float>(1, 0));
+				newPart = new WPHarmonics(old->getStart(), old->getEnd(), htable);
+				break;
+			}
+			case WaveformPart::SAMPLES:
+			{
+				int n_smpls = (int) std::ceil((old->getEnd() - old->getStart()) * data_->getWidth());
+				std::vector<float> smpls(n_smpls, 0);
+				newPart = new WPSamples(old->getStart(), old->getEnd(), smpls);
+				break;
+			}
+			default:
+				break;
+			}
+			if (newPart)
+			{
+				data_->removePart(selectedWaveform(), getSelectedPart());
+				data_->addPart(selectedWaveform(), newPart, getSelectedPart());
+				signalSelectedChangedDone_.emit();
+			}
+		}
 	}
-	wf->clear();
+}
 
-	std::vector<std::pair<float, float>> ht;
-
-	for (int i = 0; i < 128; i++)
+int WavetableEditController::getPartType()
+{
+	if (data_)
 	{
-		double real = fabs(realSmpls[i]) < 0.001 ? 0 : realSmpls[i];
-		double imag = fabs(imagSmpls[i]) < 0.001 ? 0 : imagSmpls[i];
-		float amp = sqrt(real * real + imag * imag) / (realSmpls.size() / 2);
-		if (i == 0)
+		WaveformPart* part = data_->getPartByIndex(selectedWaveform(), getSelectedPart());
+		if (part)
 		{
-			amp = amp / 2;
+			return part->getType();
 		}
-		float phase = atan2(-real, -imag) / (2 * M_PI);
-		if (phase < 0)
-		{
-			phase += 1;
-		}
-		if (amp < 0.001)
-		{
-			phase = 0;
-		}
-		ht.push_back(std::pair<float, float>(amp, phase));
 	}
-	WPHarmonics* harm = new WPHarmonics(0, 1, ht, WPHarmonics::SIN);
-
-	wf->push_back(harm);
-
-	selectedParts_[wtPos_] = 0;
-	signalSelectedChangedDone_.emit();
+	return -1;
 }
 
 void WavetableEditController::setTool(TOOL t)
 {
 	tool_ = t;
+	editSelected_ = false;
 }
 
 int WavetableEditController::tool()
@@ -452,6 +569,22 @@ int WavetableEditController::tool()
 
 WTTool* WavetableEditController::getNewTool(float x, float y)
 {
+	if (editSelected_)
+	{
+		WaveformPart* part = data_->getPartByIndex(selectedWaveform(), getSelectedPart());
+		if (part)
+		{
+			switch (part->getType())
+			{
+			case WaveformPart::SAMPLES:
+				return new FreeTool(data_, (WPSamples*) part, wtPos_, x, y);
+				//add other types if we want to but i dont see a point atm
+			default:
+				break;
+			}
+		}
+	}
+
 	switch (tool_)
 	{
 	case TRI_SLOPE:
@@ -492,7 +625,14 @@ void WavetableEditController::selectPartAction(int x, int y, int w, int h)
 	float rmx = (float) x / w;
 
 	int part = getVisiblePartAtPos(rmx);
-	selectPart(part);
+	if (getSelectedPart() != part)
+	{
+		selectPart(part);
+	}
+	else
+	{
+		selectPart(-1);
+	}
 }
 
 void WavetableEditController::useToolAction(int x, int y, int w, int h)
@@ -556,8 +696,19 @@ void WavetableEditController::dropToolAction()
 	{
 		delete usedTool_;
 		usedTool_ = nullptr;
+		editSelected_ = false;
 		signalSelectedChangedDone_.emit();
 	}
+}
+
+void WavetableEditController::setEditSelected(bool editSelected)
+{
+	editSelected_ = editSelected;
+}
+
+bool WavetableEditController::getEditSelected()
+{
+	return editSelected_;
 }
 
 sigc::signal<void> WavetableEditController::signalSelectedChanged()

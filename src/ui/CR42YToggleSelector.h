@@ -21,7 +21,7 @@ public:
 	CR42YToggleSelector(CR42YUI* ui);
 	virtual ~CR42YToggleSelector();
 
-	void select(int selected);
+	void select(int selected, bool callback = true);
 	int selected();
 
 	void putToggle(CR42YToggle* toggle, double x, double y, double w, double h,

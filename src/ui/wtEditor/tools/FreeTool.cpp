@@ -40,15 +40,33 @@
 namespace cr42y
 {
 
-FreeTool::FreeTool(WavetableEditData* eData, int wtPos, float x, float y) :
-		WTTool(eData, wtPos, x, y),
+FreeTool::FreeTool(WavetableEditData* editData, int wtPos, float x, float y) :
+		WTTool(editData, wtPos, x, y),
 		lastX(x),
 		lastY(y)
 {
 	std::vector<float> v;
 	v.push_back(y);
-	part = new WPSamples(x, x + 0.0001, v);
-	eData->addPart(wtPos, part);
+	part_ = new WPSamples(x, x + 0.0001, v);
+	editData->addPart(wtPos, part_);
+}
+
+FreeTool::FreeTool(WavetableEditData* editData, WPSamples* part, int wtPos, float x, float y) :
+		WTTool(editData, wtPos, x, y),
+		lastX(x),
+		lastY(y)
+{
+	part_ = part;
+	if (x > part->getEnd())
+	{
+		lastX = part->getEnd();
+		lastY = part->getSamples()->at(part->getSamples()->size() - 1);
+	}
+	else if (x < part->getStart())
+	{
+		lastX = part->getStart();
+		lastY = part->getSamples()->at(0);
+	}
 }
 
 FreeTool::~FreeTool()
@@ -57,8 +75,8 @@ FreeTool::~FreeTool()
 
 void FreeTool::motion(float x, float y)
 {
-	int startPos = lastX * editData->getWidth();
-	int endPos = x * editData->getWidth();
+	int startPos = lastX * editData_->getWidth();
+	int endPos = x * editData_->getWidth();
 	
 	bool switched = false;
 	
@@ -70,24 +88,24 @@ void FreeTool::motion(float x, float y)
 		endPos = tmp;
 	}
 	
-	std::vector<float>* samples = ((WPSamples*) part)->getSamples();
-	int vStart = part->getStart() * editData->getWidth();
+	std::vector<float>* samples = ((WPSamples*) part_)->getSamples();
+	int vStart = part_->getStart() * editData_->getWidth();
 	int vEnd = vStart + samples->size();
 	
 	if (startPos < vStart)
 	{
 		float arr[vStart - startPos];
 		samples->insert(samples->begin(), arr, arr + (vStart - startPos));
-		part->setStart(x < lastX ? x : lastX);
+		part_->setStart(x < lastX ? x : lastX);
 		vStart = startPos;
 	}
 	if (endPos > vEnd)
 	{
 		float arr[endPos - vEnd];
 		samples->insert(samples->end(), arr, arr + (endPos - vEnd));
-		if (part->getEnd() < (x > lastX ? x : lastX))
+		if (part_->getEnd() < (x > lastX ? x : lastX))
 		{
-			part->setEnd(x > lastX ? x : lastX);
+			part_->setEnd(x > lastX ? x : lastX);
 		}
 		vEnd = endPos;
 	}

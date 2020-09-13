@@ -42,11 +42,11 @@
 namespace cr42y
 {
 
-TriTool::TriTool(WavetableEditData* eData, int wtPos, float x, float y) :
-		WTTool(eData, wtPos, x, y)
+TriTool::TriTool(WavetableEditData* editData, int wtPos, float x, float y) :
+		WTTool(editData, wtPos, x, y)
 {
-	part = new WPFunction(x, x + 0.0001, to_string(y));
-	eData->addPart(wtPos, part);
+	part_ = new WPFunction(x, x + 0.0001, to_string(y));
+	editData->addPart(wtPos, part_);
 }
 
 TriTool::~TriTool()
@@ -56,20 +56,20 @@ TriTool::~TriTool()
 
 void TriTool::motion(float x, float y)
 {
-	if (x != startX)
+	if (x != startX_)
 	{
-		float m = (y - startY) / (x - startX);
+		float m = (y - startY_) / (x - startX_);
 		float c = - x * m + y;
-		((WPFunction*) part)->setFunction(to_string(m) + "*x+" + to_string(c));
-		if (x < startX)
+		((WPFunction*) part_)->setFunction(to_string(m) + "*x+" + to_string(c));
+		if (x < startX_)
 		{
-			part->setStart(x);
-			part->setEnd(startX);
+			part_->setStart(x);
+			part_->setEnd(startX_);
 		}
 		else
 		{
-			part->setStart(startX);
-			part->setEnd(x);
+			part_->setStart(startX_);
+			part_->setEnd(x);
 		}
 	}
 }

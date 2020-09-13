@@ -168,7 +168,7 @@ WaveformPart* WavetableEditData::getVisiblePartAtPos(int row, float pos)
 	{
 		for (int i = 0; i < wf->size(); i++)
 		{
-			if (!part || ((*wf)[i]->getStart() <= pos && (*wf)[i]->getEnd() >= pos))
+			if ((*wf)[i]->getStart() <= pos && (*wf)[i]->getEnd() >= pos)
 			{
 				part = (*wf)[i];
 			}
@@ -216,7 +216,7 @@ void WavetableEditData::addPart(int row, WaveformPart* part, int idx)
 	std::vector<WaveformPart*>* wf = getWaveform(row);
 	if (wf)
 	{
-		if (idx >= 0 || idx >= wf->size())
+		if (idx >= 0 && idx < wf->size())
 		{
 			wf->insert(wf->begin() + idx, part);
 		}
@@ -303,6 +303,23 @@ std::vector<std::vector<float>>* WavetableEditData::getSamples()
 		std::vector<float>* smpls = getSamples(i);
 		ret->push_back(*smpls);
 		delete smpls;
+	}
+	return ret;
+}
+
+std::vector<float>* WavetableEditData::getPartSamples(int row, int part,
+		int stepSize)
+{
+	std::vector<float>* ret = new std::vector<float>();
+	WaveformPart* p = getPartByIndex(row, part);
+	if (p)
+	{
+		int start = p->getStart() * getWidth();
+		int end = p->getEnd()* getWidth();
+		for (int i = start; i < end; i += stepSize)
+		{
+			ret->push_back(p->getSample(getWidth(), i, row));
+		}
 	}
 	return ret;
 }

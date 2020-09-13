@@ -46,7 +46,7 @@ class WavetableEditData;
 class SinHalfTool : public WTTool
 {
 public:
-	SinHalfTool(WavetableEditData* eData, int wtPos, float x, float y);
+	SinHalfTool(WavetableEditData* editData, int wtPos, float x, float y);
 	virtual ~SinHalfTool();
 	
 	virtual void motion(float x, float y);

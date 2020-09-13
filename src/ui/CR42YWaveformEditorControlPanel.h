@@ -29,6 +29,9 @@ public:
 	void gridYCallback(int val);
 	void toSinCallback();
 	void normalizeCallback();
+	void nextCallback();
+	void prevCallback();
+	void deleteCallback();
 
 private:
 	CR42YWaveformEditor* wfEditor_;
@@ -40,6 +43,10 @@ private:
 	CR42YIntegerEditor* gridYEditor_;
 	CR42YButton* toSinBtn_;
 	CR42YButton* normalizeBtn_;
+
+	CR42YButton* nextBtn_;
+	CR42YButton* prevBtn_;
+	CR42YButton* deleteBtn_;
 };
 
 } /* namespace cr42y */
