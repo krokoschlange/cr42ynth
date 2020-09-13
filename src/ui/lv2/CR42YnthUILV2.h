@@ -37,7 +37,6 @@
 #include <lv2/ui/ui.h>
 #include <lv2/atom/forge.h>
 #include <lv2/log/logger.h>
-#include <avtk.hxx>
 
 #include "CR42YnthCommunicator.h"
 #include "CR42YnthUI.h"

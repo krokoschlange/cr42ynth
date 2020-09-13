@@ -16,14 +16,12 @@ include_directories( ${GTKMM_INCLUDE_DIRS})
 link_directories   ( ${GTKMM_LIBRARY_DIRS})
 
 include_directories ("${PROJECT_SOURCE_DIR}/../rtosc/include/")
-include_directories ("${PROJECT_SOURCE_DIR}/../avtk/avtk/")
 include_directories ("${PROJECT_SOURCE_DIR}/../exprtk/")
 include_directories ("${PROJECT_SOURCE_DIR}/dsp/Generators/")
 include_directories ("${PROJECT_SOURCE_DIR}/common/")
 include_directories ("${PROJECT_SOURCE_DIR}/ui/lv2/")
 include_directories ("${PROJECT_SOURCE_DIR}/ui/")
-include_directories ("${PROJECT_SOURCE_DIR}/ui/wtEditor")
-include_directories ("${PROJECT_SOURCE_DIR}/ui/wtEditor/tools")
+include_directories ("${PROJECT_SOURCE_DIR}/ui/tools/")
 
 add_executable(cr42ynth_ui.so
 	../common/OSCEvent.cpp
@@ -41,13 +39,13 @@ add_executable(cr42ynth_ui.so
 	../common/WPSamples.cpp
 	../common/FftRealPair.cpp
 	
-	wtEditor/WavetableEditController.cpp
+	WavetableEditController.cpp
 	
-	wtEditor/tools/FreeTool.cpp
-	wtEditor/tools/SinHalfTool.cpp
-	wtEditor/tools/SinSlopeTool.cpp
-	wtEditor/tools/TriTool.cpp
-	wtEditor/tools/WTTool.cpp
+	tools/FreeTool.cpp
+	tools/SinHalfTool.cpp
+	tools/SinSlopeTool.cpp
+	tools/TriTool.cpp
+	tools/WTTool.cpp
 	
 	#wtEditor/CRSurfaceButton.cpp
 	#wtEditor/CustomScroll.cpp

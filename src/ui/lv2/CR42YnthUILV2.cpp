@@ -89,12 +89,12 @@ CR42YnthUI_LV2::CR42YnthUI_LV2(const char* bundlePath,
 
 
 	LV2UI_Resize* resize = nullptr;
-	PuglNativeWindow parent = 0;
+	intptr_t parent = 0;
 	for (int i = 0; features[i]; i++)
 	{
 		if (!strcmp(features[i]->URI, LV2_UI__parent))
 		{
-			parent = (PuglNativeWindow) features[i]->data;
+			parent = (intptr_t) features[i]->data;
 		}
 		else if (!strcmp(features[i]->URI, LV2_UI__resize))
 		{
