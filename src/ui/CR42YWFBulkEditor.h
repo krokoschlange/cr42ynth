@@ -31,45 +31,57 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 /*
- * CR42YWidget.cpp
+ * CR42YWFBulkEditor.h
  *
- *  Created on: 28.06.2020
+ *  Created on: 13.09.2020
  *      Author: fabian
  */
 
-#include "CR42YWidget.h"
-#include "CR42YnthUI.h"
+#ifndef SRC_UI_CR42YWFBULKEDITOR_H_
+#define SRC_UI_CR42YWFBULKEDITOR_H_
+
+#include "CR42YRelativeContainer.h"
 
 namespace cr42y
 {
+class CR42YToggleSelector;
+class CR42YButton;
+class CR42YLabel;
+class CR42YEntry;
+class CR42YIntegerEditor;
 
-CR42YWidget::CR42YWidget(CR42YUI* ui) :
-		ui_(ui),
-		theme_(nullptr)
+class CR42YWFBulkEditor : public CR42YRelativeContainer
 {
-	if (ui)
-	{
-		setTheme(ui->theme());
-	}
-}
+public:
+	CR42YWFBulkEditor();
+	virtual ~CR42YWFBulkEditor();
 
-CR42YWidget::~CR42YWidget()
-{
-}
+private:
+	CR42YToggleSelector* opSelector_;
+	CR42YButton* addBtn_;
 
-CR42YTheme* CR42YWidget::theme()
-{
-	return theme_;
-}
+	CR42YRelativeContainer* mathGroup_;
+	CR42YLabel* mathFuncLabel_;
+	CR42YEntry* mathFuncEntry_;
+	CR42YLabel* mathStartLabel_;
+	CR42YIntegerEditor* mathStartEditor_;
+	CR42YLabel* mathAmntLabel_;
+	CR42YIntegerEditor* mathAmntEditor_;
 
-void CR42YWidget::setTheme(CR42YTheme* theme)
-{
-	theme_ = theme;
-}
+	CR42YRelativeContainer* wavGroup_;
+	CR42YEntry* wavFileEntry_;
+	CR42YButton* wavFileBtn_;
+	CR42YLabel* wavStartLabel_;
+	CR42YIntegerEditor* wavStartEditor_;
 
-CR42YUI* CR42YWidget::ui()
-{
-	return ui_;
-}
+	CR42YRelativeContainer* morphGroup_;
+	CR42YLabel* morphStartLabel_;
+	CR42YIntegerEditor* morphStartEditor_;
+	CR42YToggleSelector* morphTypeSelector_;
+
+
+};
 
 } /* namespace cr42y */
+
+#endif /* SRC_UI_CR42YWFBULKEDITOR_H_ */

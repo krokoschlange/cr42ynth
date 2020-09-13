@@ -31,45 +31,26 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 /*
- * CR42YWidget.cpp
+ * CR42YWFBulkEditor.cpp
  *
- *  Created on: 28.06.2020
+ *  Created on: 13.09.2020
  *      Author: fabian
  */
 
-#include "CR42YWidget.h"
-#include "CR42YnthUI.h"
+#include "CR42YWFBulkEditor.h"
 
 namespace cr42y
 {
 
-CR42YWidget::CR42YWidget(CR42YUI* ui) :
-		ui_(ui),
-		theme_(nullptr)
+CR42YWFBulkEditor::CR42YWFBulkEditor()
 {
-	if (ui)
-	{
-		setTheme(ui->theme());
-	}
+	// TODO Auto-generated constructor stub
+	
 }
 
-CR42YWidget::~CR42YWidget()
+CR42YWFBulkEditor::~CR42YWFBulkEditor()
 {
-}
-
-CR42YTheme* CR42YWidget::theme()
-{
-	return theme_;
-}
-
-void CR42YWidget::setTheme(CR42YTheme* theme)
-{
-	theme_ = theme;
-}
-
-CR42YUI* CR42YWidget::ui()
-{
-	return ui_;
+	// TODO Auto-generated destructor stub
 }
 
 } /* namespace cr42y */
