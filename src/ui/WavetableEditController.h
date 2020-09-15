@@ -80,6 +80,9 @@ public:
 
 	void moveWaveform(int idx, int newIdx);
 
+	void addFunctionWaveforms(int idx, int amnt, std::string function);
+	void addWavWaveforms(int idx, int amnt, int width, std::string filepath);
+
 	bool addPart(WaveformPart* part, int idx = -1);
 	void removePart(int idx);
 	void movePart(int idx, int newIdx);
@@ -101,7 +104,7 @@ public:
 	bool getFunction(std::string* function);
 	void setFunction(std::string func);
 
-	void convertToSin();
+	void convertToSin(bool highQuality);
 
 	void replacePartWithDefault(WaveformPart::WaveformPartType type);
 	int getPartType();

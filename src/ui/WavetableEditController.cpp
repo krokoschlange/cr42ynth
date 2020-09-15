@@ -43,6 +43,9 @@
 #include "WPFunction.h"
 #include "WPSamples.h"
 #include <cmath>
+#include <sndfile.h>
+
+#include <iostream>
 
 #include "FreeTool.h"
 #include "SinHalfTool.h"
@@ -254,6 +257,86 @@ void WavetableEditController::moveWaveform(int idx, int newIdx)
 		data_->removeWaveform(oldIdx, false);
 		selectedParts_.erase(selectedParts_.begin() + oldIdx);
 
+		signalSelectedChangedDone_.emit();
+	}
+}
+
+void WavetableEditController::addFunctionWaveforms(int idx, int amnt,
+		std::string function)
+{
+	for (int i = 0; i < amnt; i++)
+	{
+		data_->addWaveform(idx);
+		if (idx < 0 || idx >= selectedParts_.size())
+		{
+			selectedParts_.push_back(0);
+		}
+		else
+		{
+			selectedParts_.insert(selectedParts_.begin() + idx, 0);
+		}
+
+		WPFunction* part = new WPFunction(0, 1, function);
+		data_->addPart(idx, part);
+	}
+	signalSelectedChangedDone_.emit();
+}
+
+void WavetableEditController::addWavWaveforms(int idx, int amnt, int width,
+		std::string filepath)
+{
+	if (data_)
+	{
+		SF_INFO info =
+			{0, 0, 0, 0, 0, 0};
+		SNDFILE* file = sf_open(filepath.c_str(), SFM_READ, &info);
+		std::cout << "WAV\n";
+		if (sf_error(file) != 0)
+		{
+			std::cout << sf_error(file) << "\n";
+			return;
+		}
+
+		float smpls[info.frames * info.channels];
+		sf_readf_float(file, smpls, info.frames);
+
+		int smplsPerWF(0);
+		if (amnt < 0)
+		{
+			smplsPerWF = width;
+			amnt = info.frames / width;
+		}
+		else
+		{
+			smplsPerWF = (int) ((float) info.frames / amnt);
+		}
+		for (int i = 0; i < amnt; i++)
+		{
+			std::vector<float> wfSamples(getWaveformWidth(), 0);
+			for (int j = 0; j < wfSamples.size(); j++)
+			{
+				float relPos = (float) j / wfSamples.size();
+				float origPos = relPos * smplsPerWF;
+				int totalPos = ((int) origPos + smplsPerWF * i) * info.channels;
+				totalPos = std::min<int>(totalPos, info.channels * info.frames - 1);
+				float smpl1 = smpls[totalPos];
+				totalPos = std::min<int>(totalPos + 1, info.channels * info.frames - 1);
+				float smpl2 = smpls[totalPos];
+				wfSamples[j] = smpl1 + (origPos - (int) origPos) * (smpl2 - smpl1);
+			}
+			int newIdx = idx + i;
+			data_->addWaveform(newIdx);
+			WPSamples* part = new WPSamples(0, 1, wfSamples);
+			if (newIdx < 0 || newIdx >= selectedParts_.size())
+			{
+				selectedParts_.push_back(0);
+			}
+			else
+			{
+				selectedParts_.insert(selectedParts_.begin() + newIdx, 0);
+			}
+			data_->addPart(newIdx, part);
+		}
 		signalSelectedChangedDone_.emit();
 	}
 }
@@ -470,7 +553,7 @@ void WavetableEditController::setFunction(std::string func)
 	}
 }
 
-void WavetableEditController::convertToSin()
+void WavetableEditController::convertToSin(bool highQuality)
 {
 	if (data_)
 	{
@@ -502,24 +585,25 @@ void WavetableEditController::convertToSin()
 
 		std::vector<std::pair<float, float>> ht;
 
-		for (int i = 0; i < 128; i++)
+		int htSize = highQuality ? realSmpls.size() / 2 : 128;
+		for (int i = 0; i < htSize; i++)
 		{
-			double real = fabs(realSmpls[i]) < 0.001 ? 0 : realSmpls[i];
-			double imag = fabs(imagSmpls[i]) < 0.001 ? 0 : imagSmpls[i];
-			float amp = sqrt(real * real + imag * imag) / (realSmpls.size() / 2);
+			double real = /*fabs(realSmpls[i]) < 0.0001 ? 0 :*/ realSmpls[i];
+			double imag = /*fabs(imagSmpls[i]) < 0.0001 ? 0 :*/ imagSmpls[i];
+			float amp = sqrt(real * real + imag * imag) / realSmpls.size() * 2;
+			float phase = atan2(-real, -imag) / (2 * M_PI);
 			if (i == 0)
 			{
-				amp = amp / 2;
+				amp /= 2;
 			}
-			float phase = atan2(-real, -imag) / (2 * M_PI);
 			if (phase < 0)
 			{
 				phase += 1;
 			}
-			if (amp < 0.001)
+			/*if (amp < 0.001)
 			{
 				phase = 0;
-			}
+			}*/
 			ht.push_back(std::pair<float, float>(amp, phase));
 		}
 		WPHarmonics* harm = new WPHarmonics(0, 1, ht, WPHarmonics::SIN);

@@ -59,7 +59,7 @@ public:
 
 	void gridXCallback(int val);
 	void gridYCallback(int val);
-	void toSinCallback();
+	void toSinCallback(bool highQuality);
 	void normalizeCallback();
 	void nextCallback();
 	void prevCallback();
@@ -74,6 +74,7 @@ private:
 	CR42YLabel* gridYLabel_;
 	CR42YIntegerEditor* gridYEditor_;
 	CR42YButton* toSinBtn_;
+	CR42YButton* toSinHQBtn_;
 	CR42YButton* normalizeBtn_;
 
 	CR42YButton* nextBtn_;

@@ -63,6 +63,9 @@ public:
 protected:
 	bool on_button_press_event(GdkEventButton* event);
 	bool on_key_press_event(GdkEventKey* event);
+	bool on_focus_out_event(GdkEventFocus* event);
+
+	void setShowValue(int showValue);
 
 private:
 	Glib::RefPtr<Gdk::Window> window_;
@@ -70,6 +73,7 @@ private:
 	sigc::signal<void, int> signalChanged_;
 
 	int value_;
+	int showValue_;
 	int min_;
 	bool useMin_;
 	int max_;

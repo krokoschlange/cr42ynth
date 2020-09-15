@@ -44,6 +44,7 @@
 
 namespace cr42y
 {
+class WavetableEditController;
 class CR42YToggleSelector;
 class CR42YButton;
 class CR42YLabel;
@@ -53,10 +54,19 @@ class CR42YIntegerEditor;
 class CR42YWFBulkEditor : public CR42YRelativeContainer
 {
 public:
-	CR42YWFBulkEditor();
+	CR42YWFBulkEditor(CR42YUI* ui);
 	virtual ~CR42YWFBulkEditor();
 
+	void setController(WavetableEditController* controller);
+
+	void update();
+
+protected:
+	void on_realize();
+
 private:
+	WavetableEditController* controller_;
+
 	CR42YToggleSelector* opSelector_;
 	CR42YButton* addBtn_;
 
@@ -73,13 +83,19 @@ private:
 	CR42YButton* wavFileBtn_;
 	CR42YLabel* wavStartLabel_;
 	CR42YIntegerEditor* wavStartEditor_;
+	CR42YToggleSelector* wavAmntTypeSelector_;
+	CR42YIntegerEditor* wavAmntEditor_;
 
 	CR42YRelativeContainer* morphGroup_;
 	CR42YLabel* morphStartLabel_;
 	CR42YIntegerEditor* morphStartEditor_;
+	CR42YLabel* morphAmntLabel_;
+	CR42YIntegerEditor* morphAmntEditor_;
 	CR42YToggleSelector* morphTypeSelector_;
 
-
+	void opSelectCallback(int selected);
+	void addCallback();
+	void fileChooseCallback();
 };
 
 } /* namespace cr42y */

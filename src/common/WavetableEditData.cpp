@@ -181,11 +181,11 @@ void WavetableEditData::addWaveform(int idx)
 {
 	std::vector<WaveformPart*> row;
 	std::vector<std::pair<float, float>> ht;
-	ht.push_back(std::pair<float, float>(0, 0));
+	/*ht.push_back(std::pair<float, float>(0, 0));
 	ht.push_back(std::pair<float, float>(1, 0));
 	WPHarmonics* harm = new WPHarmonics(0, 1, ht, WPHarmonics::SIN);
 	row.push_back(harm); //new WPFunction(0, 1, "sin(2pi*x)"));
-	row[0]->setEnd(1);
+	row[0]->setEnd(1);*/
 	if (idx < 0 || idx >= parts.size())
 	{
 		parts.push_back(row);

@@ -159,6 +159,15 @@ void CR42YWavetableView::update()
 		{
 			items_[i]->queue_draw();
 		}
+
+		if (get_parent())
+		{
+			set_size_request(10, std::max<int>(boxSize_ * controller_->getWavetableHeight(), get_parent()->get_height()));
+		}
+		else
+		{
+			set_size_request(10, boxSize_ * controller_->getWavetableHeight());
+		}
 	}
 }
 

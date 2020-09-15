@@ -52,6 +52,7 @@ CR42YIntegerEntry::CR42YIntegerEntry(CR42YUI* ui) :
 		Glib::ObjectBase("CR42YIntegerEntry"),
 		CR42YLabel(ui),
 		value_(0),
+		showValue_(0),
 		min_(0),
 		max_(8),
 		useMin_(true),
@@ -77,8 +78,7 @@ void CR42YIntegerEntry::setValue(int value)
 	{
 		value_ = std::min<int>(max_, value_);
 	}
-	setText(std::to_string(value_));
-	queue_draw();
+	setShowValue(value_);
 	if (old != value_)
 	{
 		signalChanged_.emit(value_);
@@ -121,7 +121,7 @@ bool CR42YIntegerEntry::on_button_press_event(GdkEventButton* event)
 {
 	if (event->button == 1 && event->x > get_width() * 0.25 && event->x < get_width() * 0.75)
 	{
-		setValue(0);
+		setShowValue(0);
 		if (!has_focus())
 		{
 			grab_focus();
@@ -141,28 +141,45 @@ bool CR42YIntegerEntry::on_key_press_event(GdkEventKey* event)
 	{
 		if (event->keyval == keys[k * 2] || event->keyval == keys[k * 2 + 1])
 		{
-			if (value() < 0)
+			int val = 0;
+			if (showValue_ < 0)
 			{
-				setValue(value() * 10 - k);
+				val = showValue_ * 10 - k;
 			}
 			else
 			{
-				setValue(value() * 10 + k);
+				val = showValue_ * 10 + k;
 			}
+			setValue(val);
+			setShowValue(val);
 			return true;
 		}
 	}
 	if (event->keyval == GDK_minus || event->keyval == GDK_KP_Subtract)
 	{
-		setValue(value() * -1);
+		setValue(showValue_ * -1);
+		setShowValue(showValue_ * -1);
 		return true;
 	}
 	if (event->keyval == GDK_BackSpace)
 	{
-		setValue(value() / 10);
+		setValue(showValue_ / 10);
+		setShowValue(showValue_ / 10);
 		return true;
 	}
 	return false;
+}
+
+bool CR42YIntegerEntry::on_focus_out_event(GdkEventFocus* event)
+{
+	setValue(showValue_);
+}
+
+void CR42YIntegerEntry::setShowValue(int showValue)
+{
+	showValue_ = showValue;
+	setText(std::to_string(showValue));
+	queue_draw();
 }
 
 } /* namespace cr42y */

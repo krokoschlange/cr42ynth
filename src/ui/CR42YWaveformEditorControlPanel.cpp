@@ -59,6 +59,7 @@ CR42YWaveformEditorControlPanel::CR42YWaveformEditorControlPanel(CR42YUI* ui,
 		gridYLabel_(new CR42YLabel(ui)),
 		gridYEditor_(new CR42YIntegerEditor(ui)),
 		toSinBtn_(new CR42YButton(ui)),
+		toSinHQBtn_(new CR42YButton(ui)),
 		normalizeBtn_(new CR42YButton(ui)),
 		nextBtn_(new CR42YButton(ui)),
 		prevBtn_(new CR42YButton(ui)),
@@ -74,6 +75,7 @@ CR42YWaveformEditorControlPanel::CR42YWaveformEditorControlPanel(CR42YUI* ui,
 	gridYEditor_->setMax(0, false);
 
 	toSinBtn_->setText("TO SIN");
+	toSinHQBtn_->setText("TO SIN (HQ)");
 	normalizeBtn_->setText("NORMALIZE");
 
 	Cairo::RefPtr<Cairo::ImageSurface> right = Cairo::ImageSurface::create_from_png(ui->resourceRoot() + "media/right.png");
@@ -87,7 +89,8 @@ CR42YWaveformEditorControlPanel::CR42YWaveformEditorControlPanel(CR42YUI* ui,
 
 	gridXEditor_->signalChanged().connect(sigc::mem_fun(this, &CR42YWaveformEditorControlPanel::gridXCallback));
 	gridYEditor_->signalChanged().connect(sigc::mem_fun(this, &CR42YWaveformEditorControlPanel::gridYCallback));
-	toSinBtn_->signalClicked().connect(sigc::mem_fun(this, &CR42YWaveformEditorControlPanel::toSinCallback));
+	toSinBtn_->signalClicked().connect(sigc::bind<bool>(sigc::mem_fun(this, &CR42YWaveformEditorControlPanel::toSinCallback), false));
+	toSinHQBtn_->signalClicked().connect(sigc::bind<bool>(sigc::mem_fun(this, &CR42YWaveformEditorControlPanel::toSinCallback), true));
 	normalizeBtn_->signalClicked().connect(sigc::mem_fun(this, &CR42YWaveformEditorControlPanel::normalizeCallback));
 	nextBtn_->signalClicked().connect(sigc::mem_fun(this, &CR42YWaveformEditorControlPanel::nextCallback));
 	prevBtn_->signalClicked().connect(sigc::mem_fun(this, &CR42YWaveformEditorControlPanel::prevCallback));
@@ -98,7 +101,8 @@ CR42YWaveformEditorControlPanel::CR42YWaveformEditorControlPanel(CR42YUI* ui,
 	put(gridYLabel_, 197, 0, 100, 1, 5, 2, 0, 2);
 	put(gridYEditor_, 297, 0, 100, 1, 5, 2, 0, 2);
 	put(toSinBtn_, 397, 0, 100, 1, 5, 2, 0, 2);
-	put(normalizeBtn_, 497, 0, 100, 1, 5, 2, 0, 2);
+	put(toSinHQBtn_, 497, 0, 100, 1, 5, 2, 0, 2);
+	put(normalizeBtn_, 597, 0, 100, 1, 5, 2, 0, 2);
 
 	put(prevBtn_, 1, 0, 50, 1, -198, 2, 202, 2);
 	put(nextBtn_, 1, 0, 50, 1, -148, 2, 152, 2);
@@ -121,9 +125,9 @@ void CR42YWaveformEditorControlPanel::gridYCallback(int val)
 	wfEditor_->queue_draw();
 }
 
-void CR42YWaveformEditorControlPanel::toSinCallback()
+void CR42YWaveformEditorControlPanel::toSinCallback(bool highQuality)
 {
-	controller_->convertToSin();
+	controller_->convertToSin(highQuality);
 }
 
 void CR42YWaveformEditorControlPanel::normalizeCallback()

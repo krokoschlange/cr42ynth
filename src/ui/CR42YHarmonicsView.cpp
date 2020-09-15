@@ -100,6 +100,10 @@ bool CR42YHarmonicsView::on_expose_event(GdkEventExpose* event)
 				maxAmp = amp;
 			}
 		}
+		if (fabsf(maxAmp) < 0.001)
+		{
+			maxAmp = 1;
+		}
 
 		float ampHeight = get_height() / 1.5;
 
@@ -112,7 +116,7 @@ bool CR42YHarmonicsView::on_expose_event(GdkEventExpose* event)
 
 			if (i == 0)
 			{
-				amp = amp / 2; // idk why but the 0Hz amp is too high
+				amp = amp / 2;
 			}
 			cr->rectangle(i * ((float) get_width() / 129), ampHeight - ampHeight * amp, (float) get_width() / 129, ampHeight * amp);
 			cr->fill();

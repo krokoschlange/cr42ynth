@@ -39,18 +39,222 @@
 
 #include "CR42YWFBulkEditor.h"
 
+#include "WavetableEditController.h"
+#include "CR42YButton.h"
+#include "CR42YEntry.h"
+#include "CR42YIntegerEditor.h"
+#include "CR42YToggleSelector.h"
+#include "CR42YToggle.h"
+
+#include "WPFunction.h"
+
 namespace cr42y
 {
 
-CR42YWFBulkEditor::CR42YWFBulkEditor()
+CR42YWFBulkEditor::CR42YWFBulkEditor(CR42YUI* ui) :
+		Glib::ObjectBase("CR42YWFBulkEditor"),
+		CR42YRelativeContainer(ui),
+		controller_(nullptr),
+		opSelector_(new CR42YToggleSelector(ui)),
+		addBtn_(new CR42YButton(ui)),
+		mathGroup_(new CR42YRelativeContainer(ui)),
+		mathFuncLabel_(new CR42YLabel(ui)),
+		mathFuncEntry_(new CR42YEntry(ui)),
+		mathStartLabel_(new CR42YLabel(ui)),
+		mathStartEditor_(new CR42YIntegerEditor(ui)),
+		mathAmntLabel_(new CR42YLabel(ui)),
+		mathAmntEditor_(new CR42YIntegerEditor(ui)),
+		wavGroup_(new CR42YRelativeContainer(ui)),
+		wavFileEntry_(new CR42YEntry(ui)),
+		wavFileBtn_(new CR42YButton(ui)),
+		wavStartLabel_(new CR42YLabel(ui)),
+		wavStartEditor_(new CR42YIntegerEditor(ui)),
+		wavAmntTypeSelector_(new CR42YToggleSelector(ui)),
+		wavAmntEditor_(new CR42YIntegerEditor(ui)),
+		morphGroup_(new CR42YRelativeContainer(ui)),
+		morphStartLabel_(new CR42YLabel(ui)),
+		morphStartEditor_(new CR42YIntegerEditor(ui)),
+		morphAmntLabel_(new CR42YLabel(ui)),
+		morphAmntEditor_(new CR42YIntegerEditor(ui)),
+		morphTypeSelector_(new CR42YToggleSelector(ui))
 {
-	// TODO Auto-generated constructor stub
-	
+	setDrawBorder(true);
+	CR42YToggle* tgl = new CR42YToggle(ui);
+	tgl->setText("MATH");
+	opSelector_->putToggle(tgl, 0, 0, 0.333, 1, 2, 2, 0, 2);
+	tgl = new CR42YToggle(ui);
+	tgl->setText("WAV");
+	opSelector_->putToggle(tgl, 0.333, 0, 0.333, 1, 0, 2, 0, 2);
+	tgl = new CR42YToggle(ui);
+	tgl->setText("MORPH");
+	opSelector_->putToggle(tgl, 0.666, 0, 0.334, 1, 0, 2, 2, 2);
+
+	opSelector_->select(0);
+
+	opSelector_->signalSelected().connect(sigc::mem_fun(this, &CR42YWFBulkEditor::opSelectCallback));
+
+	addBtn_->setText("Add");
+	addBtn_->signalClicked().connect(sigc::mem_fun(this, &CR42YWFBulkEditor::addCallback));
+
+	mathFuncLabel_->setText("f(x, y)=");
+	mathStartLabel_->setText("Start");
+	mathStartEditor_->setMin(0, true);
+	mathAmntLabel_->setText("Amount");
+	mathAmntEditor_->setMin(1, true);
+	mathAmntEditor_->setMax(1, false);
+	mathAmntEditor_->setValue(1);
+
+	mathGroup_->put(mathFuncLabel_, 0, 0, 0.2, 0.4, 2, 2, 2, 2);
+	mathGroup_->put(mathFuncEntry_, 0.2, 0, 0.8, 0.4, 2, 2, 2, 2);
+	mathGroup_->put(mathStartLabel_, 0, 0.4, 0.4, 0.3, 2, 2, 2, 2);
+	mathGroup_->put(mathStartEditor_, 0.4, 0.4, 0.6, 0.3, 2, 2, 2, 2);
+	mathGroup_->put(mathAmntLabel_, 0, 0.7, 0.4, 0.3, 2, 2, 2, 2);
+	mathGroup_->put(mathAmntEditor_, 0.4, 0.7, 0.6, 0.3, 2, 2, 2, 2);
+
+	wavFileBtn_->setText("...");
+	wavStartLabel_->setText("Start");
+	wavStartEditor_->setMin(0, true);
+
+	wavFileBtn_->signalClicked().connect(sigc::mem_fun(this, &CR42YWFBulkEditor::fileChooseCallback));
+
+	tgl = new CR42YToggle(ui);
+	tgl->setText("Amount");
+	wavAmntTypeSelector_->putToggle(tgl, 0, 0, 0.5, 1, 2, 2, 2, 2);
+	tgl = new CR42YToggle(ui);
+	tgl->setText("Width");
+	wavAmntTypeSelector_->putToggle(tgl, 0.5, 0, 0.5, 1, 2, 2, 2, 2);
+
+	wavAmntTypeSelector_->select(0);
+
+	wavAmntEditor_->setMin(1, true);
+	wavAmntEditor_->setMax(1, false);
+	wavAmntEditor_->setValue(256);
+
+	wavGroup_->put(wavFileEntry_, 0, 0, 0.8, 0.25, 2, 2, 2, 2);
+	wavGroup_->put(wavFileBtn_, 0.8, 0, 0.2, 0.25, 2, 2, 2, 2);
+	wavGroup_->put(wavStartLabel_, 0, 0.25, 0.4, 0.25, 2, 2, 2, 2);
+	wavGroup_->put(wavStartEditor_, 0.4, 0.25, 0.6, 0.25, 2, 2, 2, 2);
+	wavGroup_->put(wavAmntTypeSelector_, 0, 0.5, 1, 0.25, 2, 2, 2, 2);
+	wavGroup_->put(wavAmntEditor_, 0, 0.75, 1, 0.25, 2, 2, 2, 2);
+
+	morphStartLabel_->setText("Start");
+	morphStartEditor_->setMin(0, true);
+	morphAmntLabel_->setText("Amount");
+	morphAmntEditor_->setMin(1, true);
+	morphAmntEditor_->setMax(1, false);
+	morphAmntEditor_->setValue(1);
+
+	tgl = new CR42YToggle(ui);
+	tgl->setText("XFADE");
+	morphTypeSelector_->putToggle(tgl, 0.666, 0, 0.334, 1, 0, 2, 2, 2);
+
+	morphTypeSelector_->select(0);
+
+	morphGroup_->put(morphStartLabel_, 0, 0, 0.4, 0.2, 2, 2, 2, 2);
+	morphGroup_->put(morphStartEditor_, 0.4, 0, 0.6, 0.2, 2, 2, 2, 2);
+	morphGroup_->put(morphAmntLabel_, 0, 0.2, 0.4, 0.2, 2, 2, 2, 2);
+	morphGroup_->put(morphAmntEditor_, 0.4, 0.2, 0.6, 0.2, 2, 2, 2, 2);
+	morphGroup_->put(morphTypeSelector_, 0, 0.4, 1, 0.6, 2, 2, 2, 2);
+
+	put(opSelector_, 0, 0, 1, 0.2, 2, 2, 2, 2);
+	put(mathGroup_, 0, 0.2, 1, 0.65, 2, 2, 2, 2);
+	put(wavGroup_, 0, 0.2, 1, 0.65, 2, 2, 2, 2);
+	put(morphGroup_, 0, 0.2, 1, 0.65, 2, 2, 2, 2);
+	put(addBtn_, 0.7, 0.85, 0.3, 0.15, 2, 2, 2, 2);
 }
 
 CR42YWFBulkEditor::~CR42YWFBulkEditor()
 {
-	// TODO Auto-generated destructor stub
+}
+
+void CR42YWFBulkEditor::setController(WavetableEditController* controller)
+{
+	controller_ = controller;
+}
+
+void CR42YWFBulkEditor::update()
+{
+	if (controller_)
+	{
+		mathStartEditor_->setMax(controller_->getWavetableHeight(), true);
+		wavStartEditor_->setMax(controller_->getWavetableHeight(), true);
+		morphStartEditor_->setMax(controller_->getWavetableHeight() - 1, true);
+
+		mathStartEditor_->setValue(controller_->selectedWaveform() + 1);
+		wavStartEditor_->setValue(controller_->selectedWaveform() + 1);
+		morphStartEditor_->setValue(controller_->selectedWaveform() + 1);
+	}
+}
+
+void CR42YWFBulkEditor::on_realize()
+{
+	CR42YRelativeContainer::on_realize();
+	opSelectCallback(0);
+}
+
+void CR42YWFBulkEditor::opSelectCallback(int selected)
+{
+	mathGroup_->hide();
+	wavGroup_->hide();
+	morphGroup_->hide();
+
+	switch (selected)
+	{
+	case 0:
+		mathGroup_->show();
+		break;
+	case 1:
+		wavGroup_->show();
+		break;
+	case 2:
+		morphGroup_->show();
+		break;
+	default:
+		break;
+	}
+}
+
+void CR42YWFBulkEditor::addCallback()
+{
+	if (controller_)
+	{
+		switch (opSelector_->selected())
+		{
+		case 0:
+			controller_->addFunctionWaveforms(mathStartEditor_->value(), mathAmntEditor_->value(), mathFuncEntry_->get_text());
+			break;
+		case 1:
+			if (wavAmntTypeSelector_->selected() == 0)
+			{
+				controller_->addWavWaveforms(wavStartEditor_->value(), wavAmntEditor_->value(), -1, wavFileEntry_->get_text());
+			}
+			else
+			{
+				controller_->addWavWaveforms(wavStartEditor_->value(), -1, wavAmntEditor_->value(), wavFileEntry_->get_text());
+			}
+			break;
+		case 2:
+
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+void CR42YWFBulkEditor::fileChooseCallback()
+{
+	Gtk::FileChooserDialog chooser("Choose file", Gtk::FILE_CHOOSER_ACTION_OPEN);
+	chooser.set_transient_for(*(Gtk::Window*) get_toplevel());
+	chooser.add_button("Cancel", Gtk::RESPONSE_CANCEL);
+	chooser.add_button("Open", Gtk::RESPONSE_OK);
+
+	int result = chooser.run();
+
+	if (result == Gtk::RESPONSE_OK)
+	{
+		wavFileEntry_->set_text(chooser.get_filename());
+	}
 }
 
 } /* namespace cr42y */

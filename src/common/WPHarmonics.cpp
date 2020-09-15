@@ -120,72 +120,119 @@ void WPHarmonics::update(int size)
 {
 	needUpdate = false;
 	samples.clear();
-	for (int pos = 0; pos < size; pos++)
+	samples.resize(size, 0);
+	float precalc[size];
+	for (int i = 0; i < size; i++)
 	{
-		float x = (float) pos / size;
-		float smpl = 0;
+		float x = (float) i / size;
 		switch (fType)
 		{
 		case SIN:
-			for (int i = 0; i < hTable.size(); i++)
-			{
-				if (hTable[i].first != 0)
-				{
-					smpl += hTable[i].first * sinf(2 * M_PI * (i * x - hTable[i].second));
-				}
-			}
+			precalc[i] = sinf(2 * M_PI * x);
 			break;
 		case TRI:
-			for (int i = 0; i < hTable.size(); i++)
-			{
-				float sawX = (i * x - hTable[i].second);
-				if (sawX < 0)
-				{
-					sawX = 1 + (sawX - (int) sawX);
-				}
-				else if (sawX > 1)
-				{
-					sawX = sawX - (int) sawX;
-				}
-				float sawY = sawX < 0.25 ? sawX * 4 : (sawX < 0.75 ? -4 * sawX + 2 : sawX * 4 - 4);
-				smpl += hTable[i].first * sawY;
-			}
-			break;
-		case SAW:
-			for (int i = 0; i < hTable.size(); i++)
-			{
-				float sawX = (i * x - hTable[i].second);
-				if (sawX < 0)
-				{
-					sawX = 1 + (sawX - (int) sawX);
-				}
-				else if (sawX > 1)
-				{
-					sawX = sawX - (int) sawX;
-				}
-				smpl += hTable[i].first * (2 * sawX - 1);
-			}
+			precalc[i] = x < 0.25 ? 4 * x : (x < 0.75 ? -4 * x + 2 : 4 * x - 4);
 			break;
 		case SQR:
-			for (int i = 0; i < hTable.size(); i++)
-			{
-				float sqrX = (i * x - hTable[i].second);
-				if (sqrX < 0)
-				{
-					sqrX = 1 + (sqrX - (int) sqrX);
-				}
-				else if (sqrX > 1)
-				{
-					sqrX = sqrX - (int) sqrX;
-				}
-				smpl += hTable[i].first * (2 * (sqrX > 0.5) - 1);
-			}
+			precalc[i] = 2 * (x > 0.5) - 1;
+			break;
+		case SAW:
+			precalc[i] = 2 * x - 1;
 			break;
 		default:
 			break;
 		}
-		samples.push_back(smpl);
 	}
+
+	for (int pos = 0; pos < size; pos++)
+	{
+		float x = (float) pos / size;
+		float smpl = 0;
+		for (int htPos = 0; htPos < hTable.size(); htPos++)
+		{
+			float phase = x * htPos - hTable[htPos].second;
+			if (phase < 0)
+			{
+				phase = 1 + (phase - (int) phase);
+			}
+			else if (phase >= 1)
+			{
+				phase = phase - (int) phase;
+			}
+			smpl += precalc[(int) (phase * size)] * hTable[htPos].first;
+		}
+		samples[pos] = smpl;
+	}
+
+	/*for (int pos = 0; pos < size; pos++)
+	 {
+	 float x = (float) pos / size;
+	 float smpl = 0;
+	 switch (fType)
+	 {
+	 case SIN:
+	 for (int i = 0; i < hTable.size(); i++)
+	 {
+	 if (hTable[i].first != 0)
+	 {
+	 smpl += hTable[i].first * sinf(2 * M_PI * (i * x - hTable[i].second));
+	 }
+	 }
+	 break;
+	 case TRI:
+	 for (int i = 0; i < hTable.size(); i++)
+	 {
+	 float sawX = (i * x - hTable[i].second);
+	 if (sawX < 0)
+	 {
+	 sawX = 1 + (sawX - (int) sawX);
+	 }
+	 else if (sawX > 1)
+	 {
+	 sawX = sawX - (int) sawX;
+	 }
+	 float sawY =
+	 sawX < 0.25 ?
+	 sawX * 4 :
+	 (sawX < 0.75 ? -4 * sawX + 2 : sawX * 4 - 4);
+	 smpl += hTable[i].first * sawY;
+	 }
+	 break;
+	 case SAW:
+	 for (int i = 0; i < hTable.size(); i++)
+	 {
+	 float sawX = (i * x - hTable[i].second);
+	 if (sawX < 0)
+	 {
+	 sawX = 1 + (sawX - (int) sawX);
+	 }
+	 else if (sawX > 1)
+	 {
+	 sawX = sawX - (int) sawX;
+	 }
+	 smpl += hTable[i].first * (2 * sawX - 1);
+	 }
+	 break;
+	 case SQR:
+	 for (int i = 0; i < hTable.size(); i++)
+	 {
+	 float sqrX = (i * x - hTable[i].second);
+	 if (sqrX < 0)
+	 {
+	 sqrX = 1 + (sqrX - (int) sqrX);
+	 }
+	 else if (sqrX > 1)
+	 {
+	 sqrX = sqrX - (int) sqrX;
+	 }
+	 smpl += hTable[i].first * (2 * (sqrX > 0.5) - 1);
+	 }
+	 break;
+	 default:
+	 break;
+	 }
+	 samples.push_back(smpl);
+	 }*/
 }
 
 void WPHarmonics::setUpdate()

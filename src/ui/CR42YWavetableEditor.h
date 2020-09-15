@@ -54,6 +54,7 @@ class CR42YButton;
 class CR42YHarmonicsEditor;
 class CR42YToolSelector;
 class CR42YWFPartEditor;
+class CR42YWFBulkEditor;
 
 class CR42YWavetableEditor : public CR42YRelativeContainer
 {
@@ -75,6 +76,7 @@ private:
 	CR42YToolSelector* toolSelector_;
 	CR42YButton* addWaveformButton_;
 	CR42YWFPartEditor* wfPartEditor_;
+	CR42YWFBulkEditor* wfBulkEditor_;
 
 	void waveformAddCallback();
 
