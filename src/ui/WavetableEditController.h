@@ -30,16 +30,12 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
-/*
- * WavetableEditController.h
- *
- *  Created on: 22.05.2020
- *      Author: fabian
- */
+
 
 #ifndef SRC_UI_WTEDITOR_WAVETABLEEDITCONTROLLER_H_
 #define SRC_UI_WTEDITOR_WAVETABLEEDITCONTROLLER_H_
 
+#include <deque>
 #include <vector>
 #include <sigc++/sigc++.h>
 
@@ -58,7 +54,7 @@ public:
 	WavetableEditController();
 	virtual ~WavetableEditController();
 
-	void setData(WavetableEditData* data);
+	void setData(WavetableEditData* data, bool eraseHistory = true);
 	WavetableEditData* data();
 
 	int getWaveformWidth();
@@ -83,6 +79,9 @@ public:
 	void addFunctionWaveforms(int idx, int amnt, std::string function);
 	void addWavWaveforms(int idx, int amnt, int width, std::string filepath);
 
+	void crossfadeWaveforms(int idx, int amnt);
+	void spectralFadeWaveforms(int idx, int amnt, bool zeroAll, bool zeroFundamental);
+
 	bool addPart(WaveformPart* part, int idx = -1);
 	void removePart(int idx);
 	void movePart(int idx, int newIdx);
@@ -98,12 +97,13 @@ public:
 	void setHarmonicsType(WPHarmonics::functionType type);
 	int getHarmonicsType();
 	std::vector<std::pair<float, float>>* getHarmonicsTable();
-	void setHarmonic(int num, float amp, float phase);
+	void setHarmonic(int num, float amp, float phase, bool end);
 	void normalizeHarmonic();
 
 	bool getFunction(std::string* function);
 	void setFunction(std::string func);
 
+	std::vector<std::pair<float, float>> getWFHarmonics(int idx, bool highQuality);
 	void convertToSin(bool highQuality);
 
 	void replacePartWithDefault(WaveformPart::WaveformPartType type);
@@ -134,6 +134,14 @@ public:
 
 	sigc::signal<void> signalSelectedChanged();
 	sigc::signal<void> signalSelectedChangedDone();
+	sigc::signal<std::deque<std::pair<char*, std::vector<int>>>> signalHistoryDelete();
+
+	void addHistoryPoint();
+	void deleteHistory();
+	bool undoPossible();
+	void undo();
+	bool redoPossible();
+	void redo();
 
 private:
 	WavetableEditData* data_;
@@ -149,6 +157,11 @@ private:
 
 	int wtPos_;
 	std::vector<int> selectedParts_;
+
+	std::deque<std::pair<char*, std::vector<int>>> editHistory_;
+	int historyIndex_;
+	int historySize_;
+	sigc::signal<std::deque<std::pair<char*, std::vector<int>>>> signalHistoryDelete_;
 };
 
 } /* namespace cr42y */

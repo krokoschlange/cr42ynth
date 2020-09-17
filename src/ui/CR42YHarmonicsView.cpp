@@ -30,12 +30,6 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
-/*
- * CR42YHarmonicsView.cpp
- *
- *  Created on: 03.08.2020
- *      Author: fabian
- */
 
 #include "CR42YHarmonicsView.h"
 #include "CR42YTheme.h"

@@ -30,12 +30,6 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
-/*
- * CR42YRelativeContainer.cpp
- *
- *  Created on: 30.07.2020
- *      Author: fabian
- */
 
 #include "CR42YRelativeContainer.h"
 #include "CR42YTheme.h"

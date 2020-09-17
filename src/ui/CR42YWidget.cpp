@@ -30,12 +30,7 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
-/*
- * CR42YWidget.cpp
- *
- *  Created on: 28.06.2020
- *      Author: fabian
- */
+
 
 #include "CR42YWidget.h"
 #include "CR42YnthUI.h"

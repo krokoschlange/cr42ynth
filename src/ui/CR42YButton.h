@@ -30,12 +30,6 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
-/*
- * CR42YButton.h
- *
- *  Created on: 25.06.2020
- *      Author: fabian
- */
 
 #ifndef SRC_UI_CR42YBUTTON_H_
 #define SRC_UI_CR42YBUTTON_H_

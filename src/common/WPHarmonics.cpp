@@ -35,6 +35,8 @@
 #include <cstring>
 #include <iostream>
 
+#include "FftRealPair.hpp"
+
 #include "WPHarmonics.h"
 
 namespace cr42y
@@ -121,47 +123,72 @@ void WPHarmonics::update(int size)
 	needUpdate = false;
 	samples.clear();
 	samples.resize(size, 0);
-	float precalc[size];
-	for (int i = 0; i < size; i++)
+	if (fType != SIN)
 	{
-		float x = (float) i / size;
-		switch (fType)
+		float precalc[size];
+		for (int i = 0; i < size; i++)
 		{
-		case SIN:
-			precalc[i] = sinf(2 * M_PI * x);
-			break;
-		case TRI:
-			precalc[i] = x < 0.25 ? 4 * x : (x < 0.75 ? -4 * x + 2 : 4 * x - 4);
-			break;
-		case SQR:
-			precalc[i] = 2 * (x > 0.5) - 1;
-			break;
-		case SAW:
-			precalc[i] = 2 * x - 1;
-			break;
-		default:
-			break;
+			float x = (float) i / size;
+			switch (fType)
+			{
+			case SIN:
+				precalc[i] = sinf(2 * M_PI * x);
+				break;
+			case TRI:
+				precalc[i] =
+						x < 0.25 ? 4 * x : (x < 0.75 ? -4 * x + 2 : 4 * x - 4);
+				break;
+			case SQR:
+				precalc[i] = 2 * (x > 0.5) - 1;
+				break;
+			case SAW:
+				precalc[i] = 2 * x - 1;
+				break;
+			default:
+				break;
+			}
+		}
+
+		for (int pos = 0; pos < size; pos++)
+		{
+			float x = (float) pos / size;
+			float smpl = 0;
+			for (int htPos = 0; htPos < hTable.size(); htPos++)
+			{
+				float phase = x * htPos - hTable[htPos].second;
+				if (phase < 0)
+				{
+					phase = 1 + (phase - (int) phase);
+				}
+				else if (phase >= 1)
+				{
+					phase = phase - (int) phase;
+				}
+				smpl += precalc[(int) (phase * size)] * hTable[htPos].first;
+			}
+			samples[pos] = smpl;
 		}
 	}
-
-	for (int pos = 0; pos < size; pos++)
+	else
 	{
-		float x = (float) pos / size;
-		float smpl = 0;
-		for (int htPos = 0; htPos < hTable.size(); htPos++)
+		std::vector<double> real(size);
+		std::vector<double> imag(size);
+
+		int i;
+		for (i = 0; i < hTable.size(); i++)
 		{
-			float phase = x * htPos - hTable[htPos].second;
-			if (phase < 0)
-			{
-				phase = 1 + (phase - (int) phase);
-			}
-			else if (phase >= 1)
-			{
-				phase = phase - (int) phase;
-			}
-			smpl += precalc[(int) (phase * size)] * hTable[htPos].first;
+			real[i] = -sin(hTable[i].second * 2 * M_PI) * hTable[i].first;
+			imag[i] = -cos(hTable[i].second * 2 * M_PI) * hTable[i].first;
 		}
-		samples[pos] = smpl;
+		for (; i <= size; i++)
+		{
+			real[i] = 0;
+			imag[i] = 0;
+		}
+
+		Fft::inverseTransform(real, imag);
+
+		samples.assign(real.begin(), real.end());
 	}
 
 	/*for (int pos = 0; pos < size; pos++)

@@ -30,15 +30,11 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
-/*
- * CR42YToolSelector.cpp
- *
- *  Created on: 03.09.2020
- *      Author: fabian
- */
+
 
 #include "CR42YToolSelector.h"
 #include "CR42YToggle.h"
+#include "CR42YButton.h"
 #include "CR42YUI.h"
 #include "WavetableEditController.h"
 
@@ -49,7 +45,9 @@ CR42YToolSelector::CR42YToolSelector(CR42YUI* ui,
 		WavetableEditController* controller) :
 		Glib::ObjectBase("CR42YToolSelector"),
 		CR42YToggleSelector(ui),
-		controller_(controller)
+		controller_(controller),
+		undoBtn_(new CR42YButton(ui)),
+		redoBtn_(new CR42YButton(ui))
 {
 	CR42YToggle* tgl = new CR42YToggle(ui);
 	Cairo::RefPtr<Cairo::ImageSurface> surf = Cairo::ImageSurface::create_from_png(ui->resourceRoot() + "media/linCurve.png");
@@ -90,6 +88,15 @@ CR42YToolSelector::CR42YToolSelector(CR42YUI* ui,
 	mapping_.push_back(WavetableEditController::SIN_HALF);
 
 	signalSelected().connect(sigc::mem_fun(this, &CR42YToolSelector::selectCallback));
+
+	undoBtn_->setText("UNDO");
+	redoBtn_->setText("REDO");
+
+	put(undoBtn_, 0.666, 0.5, 0.333, 0.25, 2, 2, 2, 2);
+	put(redoBtn_, 0.666, 0.75, 0.333, 0.25, 2, 2, 2, 2);
+
+	undoBtn_->signalClicked().connect(sigc::mem_fun(this, &CR42YToolSelector::undoCallback));
+	redoBtn_->signalClicked().connect(sigc::mem_fun(this, &CR42YToolSelector::redoCallback));
 }
 
 CR42YToolSelector::~CR42YToolSelector()
@@ -110,6 +117,31 @@ void CR42YToolSelector::selectCallback(int selected)
 	else
 	{
 		controller_->setTool(WavetableEditController::TRI_SLOPE);
+	}
+}
+
+void CR42YToolSelector::update()
+{
+	if (controller_)
+	{
+		undoBtn_->set_sensitive(controller_->undoPossible());
+		redoBtn_->set_sensitive(controller_->redoPossible());
+	}
+}
+
+void CR42YToolSelector::undoCallback()
+{
+	if (controller_)
+	{
+		controller_->undo();
+	}
+}
+
+void CR42YToolSelector::redoCallback()
+{
+	if (controller_)
+	{
+		controller_->redo();
 	}
 }
 

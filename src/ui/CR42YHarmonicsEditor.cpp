@@ -30,12 +30,6 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
-/*
- * CR42YHarmonicsEditor.cpp
- *
- *  Created on: 31.08.2020
- *      Author: fabian
- */
 
 #include "CR42YHarmonicsEditor.h"
 #include "WavetableEditController.h"
@@ -61,14 +55,16 @@ CR42YHarmonicsEditor::CR42YHarmonicsEditor(CR42YUI* ui) :
 		scale->setDoubleSided(true);
 		scale->setValue(0.5, false);
 		put(scale, i * columnWidth_, 0, columnWidth_, 0.5);
-		scale->signalChanged().connect(sigc::bind<int, bool>(sigc::mem_fun(this, &CR42YHarmonicsEditor::changedCallback), i, true));
+		scale->signalChanged().connect(sigc::bind<int, bool>(sigc::mem_fun(this, &CR42YHarmonicsEditor::changedCallback), i, true, false));
+		scale->signalDone().connect(sigc::bind<int, bool>(sigc::mem_fun(this, &CR42YHarmonicsEditor::changedCallback), i, true, true));
 		ampScales_.push_back(scale);
 
 		scale = new CR42YBoxVScale(ui);
 		scale->setDoubleSided(true);
 		scale->setValue(0.5, false);
 		put(scale, i * columnWidth_, 0.5, columnWidth_, 0.5, 0, txtHeight);
-		scale->signalChanged().connect(sigc::bind<int, bool>(sigc::mem_fun(this, &CR42YHarmonicsEditor::changedCallback), i, false));
+		scale->signalChanged().connect(sigc::bind<int, bool>(sigc::mem_fun(this, &CR42YHarmonicsEditor::changedCallback), i, false, false));
+		scale->signalDone().connect(sigc::bind<int, bool>(sigc::mem_fun(this, &CR42YHarmonicsEditor::changedCallback), i, false, true));
 		phaseScales_.push_back(scale);
 	}
 	set_size_request(128 * columnWidth_, 10);
@@ -170,7 +166,7 @@ bool CR42YHarmonicsEditor::on_expose_event(GdkEventExpose* event)
 	}
 }
 
-void CR42YHarmonicsEditor::changedCallback(double value, int column, bool isAmp)
+void CR42YHarmonicsEditor::changedCallback(double value, int column, bool isAmp, bool end)
 {
 	if (controller_)
 	{
@@ -178,7 +174,7 @@ void CR42YHarmonicsEditor::changedCallback(double value, int column, bool isAmp)
 		float phase = !isAmp ? value : phaseScales_[column]->value();
 		amp = amp * 2 - 1;
 		phase = phase * 2 - 1;
-		controller_->setHarmonic(column, amp, phase);
+		controller_->setHarmonic(column, amp, phase, end);
 	}
 }
 

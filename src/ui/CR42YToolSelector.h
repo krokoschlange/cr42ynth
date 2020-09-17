@@ -30,12 +30,7 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
-/*
- * CR42YToolSelector.h
- *
- *  Created on: 03.09.2020
- *      Author: fabian
- */
+
 
 #ifndef SRC_UI_CR42YTOOLSELECTOR_H_
 #define SRC_UI_CR42YTOOLSELECTOR_H_
@@ -46,6 +41,7 @@ namespace cr42y
 {
 
 class WavetableEditController;
+class CR42YButton;
 
 class CR42YToolSelector : public CR42YToggleSelector
 {
@@ -55,9 +51,17 @@ public:
 
 	void selectCallback(int selected);
 
+	void update();
+
 private:
 	std::vector<int> mapping_;
 	WavetableEditController* controller_;
+
+	CR42YButton* undoBtn_;
+	CR42YButton* redoBtn_;
+
+	void undoCallback();
+	void redoCallback();
 };
 
 } /* namespace cr42y */

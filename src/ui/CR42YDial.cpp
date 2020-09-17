@@ -31,30 +31,20 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_UI_CR42YTOGGLE_H_
-#define SRC_UI_CR42YTOGGLE_H_
-
-#include "CR42YLabel.h"
+#include "CR42YDial.h"
 
 namespace cr42y
 {
 
-class CR42YToggle : public CR42YLabel
+CR42YDial::CR42YDial()
 {
-public:
-	CR42YToggle(CR42YUI* ui);
-	virtual ~CR42YToggle();
+	// TODO Auto-generated constructor stub
+	
+}
 
-	sigc::signal<void> signalClicked();
-
-protected:
-	bool on_button_press(GdkEventButton* event);
-	bool on_button_release(GdkEventButton* event);
-
-private:
-	sigc::signal<void> signalClicked_;
-};
+CR42YDial::~CR42YDial()
+{
+	// TODO Auto-generated destructor stub
+}
 
 } /* namespace cr42y */
-
-#endif /* SRC_UI_CR42YTOGGLE_H_ */

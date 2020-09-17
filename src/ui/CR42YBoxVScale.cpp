@@ -30,12 +30,6 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
-/*
- * CR42YBoxVScale.cpp
- *
- *  Created on: 28.07.2020
- *      Author: fabian
- */
 
 #include "CR42YBoxVScale.h"
 #include "CR42YTheme.h"
@@ -97,6 +91,11 @@ void CR42YBoxVScale::setValue(double value, bool trigger)
 sigc::signal<void, double> CR42YBoxVScale::signalChanged()
 {
 	return signalChanged_;
+}
+
+sigc::signal<void, double> CR42YBoxVScale::signalDone()
+{
+	return signalDone_;
 }
 
 bool CR42YBoxVScale::on_expose_event(GdkEventExpose* event)
@@ -254,6 +253,7 @@ bool CR42YBoxVScale::on_button_press(GdkEventButton* event)
 			oldValue_ = value();
 			setValue(defaultValue_);
 		}
+		signalDone_.emit(value_);
 		return true;
 	}
 	return false;
@@ -264,6 +264,7 @@ bool CR42YBoxVScale::on_button_release(GdkEventButton* event)
 	if (event->button == 1)
 	{
 		gtk_grab_remove(gobj());
+		signalDone_.emit(value_);
 		return true;
 	}
 	return false;

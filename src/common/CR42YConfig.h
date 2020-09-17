@@ -30,12 +30,6 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
-/*
- * CR42YConfig.h
- *
- *  Created on: 02.07.2020
- *      Author: fabian
- */
 
 #ifndef SRC_COMMON_CR42YCONFIG_H_
 #define SRC_COMMON_CR42YCONFIG_H_

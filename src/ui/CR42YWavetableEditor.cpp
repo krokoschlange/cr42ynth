@@ -30,12 +30,7 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
-/*
- * CR42YWavetableEditor.cpp
- *
- *  Created on: 05.08.2020
- *      Author: fabian
- */
+
 
 #include "CR42YWavetableEditor.h"
 #include "CR42YWaveformEditor.h"
@@ -155,6 +150,8 @@ void CR42YWavetableEditor::selectionChangedDoneCallback()
 	wfPartEditor_->update();
 
 	wfBulkEditor_->update();
+
+	toolSelector_->update();
 }
 
 } /* namespace cr42y */

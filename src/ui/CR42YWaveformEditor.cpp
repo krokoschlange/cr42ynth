@@ -30,12 +30,7 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
-/*
- * CR42YWaveformEditor.cpp
- *
- *  Created on: 04.08.2020
- *      Author: fabian
- */
+
 
 #include "CR42YWaveformEditor.h"
 #include "CR42YTheme.h"

@@ -30,12 +30,7 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
-/*
- * helpers.h
- *
- *  Created on: 25.06.2020
- *      Author: fabian
- */
+
 
 #ifndef SRC_UI_HELPERS_H_
 #define SRC_UI_HELPERS_H_

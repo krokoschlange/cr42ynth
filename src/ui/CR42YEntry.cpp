@@ -30,12 +30,6 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
-/*
- * CR42YEntry.cpp
- *
- *  Created on: 11.08.2020
- *      Author: fabian
- */
 
 #include "CR42YEntry.h"
 #include "CR42YTheme.h"

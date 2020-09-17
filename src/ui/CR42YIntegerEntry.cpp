@@ -30,12 +30,6 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
-/*
- * CR42YIntegerEntry.cpp
- *
- *  Created on: 11.08.2020
- *      Author: fabian
- */
 
 #include "CR42YIntegerEntry.h"
 
@@ -165,6 +159,11 @@ bool CR42YIntegerEntry::on_key_press_event(GdkEventKey* event)
 	{
 		setValue(showValue_ / 10);
 		setShowValue(showValue_ / 10);
+		return true;
+	}
+	if (event->keyval == GDK_Return)
+	{
+		setValue(showValue_);
 		return true;
 	}
 	return false;

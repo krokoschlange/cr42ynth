@@ -30,12 +30,7 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
-/*
- * CR42YWavetableView.h
- *
- *  Created on: 07.08.2020
- *      Author: fabian
- */
+
 
 #ifndef SRC_UI_CR42YWAVETABLEVIEW_H_
 #define SRC_UI_CR42YWAVETABLEVIEW_H_

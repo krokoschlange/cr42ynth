@@ -30,12 +30,6 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
-/*
- * CR42YButton.cpp
- *
- *  Created on: 25.06.2020
- *      Author: fabian
- */
 
 #include "CR42YButton.h"
 
@@ -77,6 +71,10 @@ void CR42YButton::setAutorepeat(bool autorepeat)
 
 bool CR42YButton::on_button_press(GdkEventButton* event)
 {
+	if (get_state() == Gtk::STATE_INSENSITIVE)
+	{
+		return false;
+	}
 	set_state(Gtk::STATE_ACTIVE);
 	if (!has_focus())
 	{

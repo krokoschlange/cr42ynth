@@ -30,12 +30,7 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
-/*
- * CR42YWavetableView.cpp
- *
- *  Created on: 07.08.2020
- *      Author: fabian
- */
+
 
 #include "CR42YWavetableView.h"
 #include "CR42YTheme.h"

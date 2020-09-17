@@ -30,12 +30,6 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
-/*
- * CR42YIntegerEditor.h
- *
- *  Created on: 29.08.2020
- *      Author: fabian
- */
 
 #ifndef SRC_UI_CR42YINTEGEREDITOR_H_
 #define SRC_UI_CR42YINTEGEREDITOR_H_

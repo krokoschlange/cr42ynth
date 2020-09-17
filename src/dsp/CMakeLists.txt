@@ -17,6 +17,7 @@ include_directories ("${PROJECT_SOURCE_DIR}/../rtosc/include/")
 include_directories ("${PROJECT_SOURCE_DIR}/../exprtk/")
 
 add_executable(cr42ynth.so
+	../common/FftRealPair.cpp
 	../common/CR42YnthCommunicator.cpp
 	../common/common.cpp
 	../common/Control.cpp

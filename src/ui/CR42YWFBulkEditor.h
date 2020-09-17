@@ -30,12 +30,7 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
-/*
- * CR42YWFBulkEditor.h
- *
- *  Created on: 13.09.2020
- *      Author: fabian
- */
+
 
 #ifndef SRC_UI_CR42YWFBULKEDITOR_H_
 #define SRC_UI_CR42YWFBULKEDITOR_H_

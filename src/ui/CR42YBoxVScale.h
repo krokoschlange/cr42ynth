@@ -30,12 +30,6 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
-/*
- * CR42YBoxVScale.h
- *
- *  Created on: 28.07.2020
- *      Author: fabian
- */
 
 #ifndef SRC_UI_CR42YBOXVSCALE_H_
 #define SRC_UI_CR42YBOXVSCALE_H_
@@ -59,6 +53,7 @@ public:
 	void setValue(double value, bool trigger = true);
 
 	sigc::signal<void, double> signalChanged();
+	sigc::signal<void, double> signalDone();
 
 protected:
 
@@ -73,6 +68,7 @@ private:
 	Glib::RefPtr<Gdk::Window> window_;
 
 	sigc::signal<void, double> signalChanged_;
+	sigc::signal<void, double> signalDone_;
 
 	bool doubleSided_;
 	double value_;

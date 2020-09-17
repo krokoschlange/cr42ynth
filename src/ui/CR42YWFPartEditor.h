@@ -30,12 +30,7 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
-/*
- * CR42YWFPartEditor.h
- *
- *  Created on: 05.09.2020
- *      Author: fabian
- */
+
 
 #ifndef SRC_UI_CR42YWFPARTEDITOR_H_
 #define SRC_UI_CR42YWFPARTEDITOR_H_
@@ -82,7 +77,7 @@ private:
 	CR42YRelativeContainer* wfSamplesGroup_;
 	CR42YToggle* wfSamplesEditTgl_;
 
-	bool ignoreTextUpdate_;
+	bool ignoreCallbacks_;
 
 	void typeSelectCallback(int selected);
 	void posEditCallback(int newPos);

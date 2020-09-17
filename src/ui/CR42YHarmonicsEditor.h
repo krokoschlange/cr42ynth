@@ -30,12 +30,6 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
-/*
- * CR42YHarmonicsEditor.h
- *
- *  Created on: 31.08.2020
- *      Author: fabian
- */
 
 #ifndef SRC_UI_CR42YHARMONICSEDITOR_H_
 #define SRC_UI_CR42YHARMONICSEDITOR_H_
@@ -67,7 +61,7 @@ private:
 	WavetableEditController* controller_;
 	int columnWidth_;
 
-	void changedCallback(double value, int column, bool isAmp);
+	void changedCallback(double value, int column, bool isAmp, bool end);
 };
 
 } /* namespace cr42y */

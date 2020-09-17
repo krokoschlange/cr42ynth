@@ -30,12 +30,7 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
-/*
- * CR42YWFBulkEditor.cpp
- *
- *  Created on: 13.09.2020
- *      Author: fabian
- */
+
 
 #include "CR42YWFBulkEditor.h"
 
@@ -146,7 +141,16 @@ CR42YWFBulkEditor::CR42YWFBulkEditor(CR42YUI* ui) :
 
 	tgl = new CR42YToggle(ui);
 	tgl->setText("XFADE");
-	morphTypeSelector_->putToggle(tgl, 0.666, 0, 0.334, 1, 0, 2, 2, 2);
+	morphTypeSelector_->putToggle(tgl, 0, 0, 0.5, 0.5, 2, 2, 0, 0);
+	tgl = new CR42YToggle(ui);
+	tgl->setText("SPECTRAL");
+	morphTypeSelector_->putToggle(tgl, 0.5, 0, 0.5, 0.5, 0, 2, 2, 0);
+	tgl = new CR42YToggle(ui);
+	tgl->setText("SPECTRAL (0 FUND)");
+	morphTypeSelector_->putToggle(tgl, 0, 0.5, 0.5, 0.5, 2, 0, 0, 2);
+	tgl = new CR42YToggle(ui);
+	tgl->setText("SPECTRAL (0 ALL)");
+	morphTypeSelector_->putToggle(tgl, 0.5, 0.5, 0.5, 0.5, 0, 0, 2, 2);
 
 	morphTypeSelector_->select(0);
 
@@ -234,7 +238,25 @@ void CR42YWFBulkEditor::addCallback()
 			}
 			break;
 		case 2:
-
+		{
+			switch (morphTypeSelector_->selected())
+			{
+			case 0:
+				controller_->crossfadeWaveforms(morphStartEditor_->value(), morphAmntEditor_->value());
+				break;
+			case 1:
+				controller_->spectralFadeWaveforms(morphStartEditor_->value(), morphAmntEditor_->value(), false, false);
+				break;
+			case 2:
+				controller_->spectralFadeWaveforms(morphStartEditor_->value(), morphAmntEditor_->value(), false, true);
+				break;
+			case 3:
+				controller_->spectralFadeWaveforms(morphStartEditor_->value(), morphAmntEditor_->value(), true, true);
+				break;
+			default:
+				break;
+			}
+		}
 			break;
 		default:
 			break;

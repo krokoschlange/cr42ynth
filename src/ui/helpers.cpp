@@ -30,12 +30,7 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
-/*
- * helpers.cpp
- *
- *  Created on: 25.06.2020
- *      Author: fabian
- */
+
 
 #include "helpers.h"
 

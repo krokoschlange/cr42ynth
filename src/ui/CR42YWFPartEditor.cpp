@@ -30,12 +30,7 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
-/*
- * CR42YWFPartEditor.cpp
- *
- *  Created on: 05.09.2020
- *      Author: fabian
- */
+
 
 #include "CR42YWFPartEditor.h"
 
@@ -64,7 +59,8 @@ CR42YWFPartEditor::CR42YWFPartEditor(CR42YUI* ui) :
 		wfHarmonicsGroup_(new CR42YRelativeContainer(ui)),
 		wfHarmonicsSelector_(new CR42YToggleSelector(ui)),
 		wfSamplesGroup_(new CR42YRelativeContainer(ui)),
-		wfSamplesEditTgl_(new CR42YToggle(ui))
+		wfSamplesEditTgl_(new CR42YToggle(ui)),
+		ignoreCallbacks_(false)
 {
 	setDrawBorder(true);
 
@@ -138,6 +134,8 @@ void CR42YWFPartEditor::update()
 {
 	if (controller_)
 	{
+		ignoreCallbacks_ = true;
+
 		int newType = controller_->getPartType();
 		if (newType != currentType_)
 		{
@@ -174,14 +172,7 @@ void CR42YWFPartEditor::update()
 		{
 			std::string func;
 			controller_->getFunction(&func);
-			if (!ignoreTextUpdate_)
-			{
-				wfFunctionEditor_->set_text(func);
-			}
-			else
-			{
-				ignoreTextUpdate_ = false;
-			}
+			wfFunctionEditor_->set_text(func);
 			break;
 		}
 
@@ -203,6 +194,8 @@ void CR42YWFPartEditor::update()
 		wfPartPosEditor_->setValue(controller_->getSelectedPart());
 
 		wfSamplesEditTgl_->set_state(controller_->getEditSelected() ? Gtk::STATE_ACTIVE : Gtk::STATE_NORMAL);
+
+		ignoreCallbacks_ = false;
 	}
 }
 
@@ -233,7 +226,7 @@ void CR42YWFPartEditor::typeSelectCallback(int selected)
 
 void CR42YWFPartEditor::posEditCallback(int newPos)
 {
-	if (controller_)
+	if (controller_ && !ignoreCallbacks_)
 	{
 		controller_->movePart(controller_->getSelectedPart(), newPos);
 		controller_->selectPart(newPos);
@@ -242,9 +235,8 @@ void CR42YWFPartEditor::posEditCallback(int newPos)
 
 void CR42YWFPartEditor::functionEditCallback()
 {
-	if (controller_)
+	if (controller_ && !ignoreCallbacks_)
 	{
-		ignoreTextUpdate_ = true;
 		Glib::ustring txt = wfFunctionEditor_->get_text();
 		controller_->setFunction(txt);
 	}
@@ -252,7 +244,7 @@ void CR42YWFPartEditor::functionEditCallback()
 
 void CR42YWFPartEditor::harmSelectCallback(int selected)
 {
-	if (controller_)
+	if (controller_ && !ignoreCallbacks_)
 	{
 		controller_->setHarmonicsType((WPHarmonics::functionType) selected);
 	}
@@ -260,7 +252,7 @@ void CR42YWFPartEditor::harmSelectCallback(int selected)
 
 void CR42YWFPartEditor::sampleEditCallback()
 {
-	if (controller_)
+	if (controller_ && !ignoreCallbacks_)
 	{
 		if (wfSamplesEditTgl_->get_state() == Gtk::STATE_ACTIVE)
 		{
