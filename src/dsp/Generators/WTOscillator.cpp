@@ -39,30 +39,28 @@
 #include "WTOscillator.h"
 #include "CR42YnthDSP.h"
 
+
+#include "CR42YnthCommunicator.h"
+#include "WavetableEditData.h"
+#include "OscillatorVoiceData.h"
+#include "OscillatorControls.h"
+#include "OSCEvent.h"
+#include "Voice.h"
+
 namespace cr42y
 {
 
-WTOscillator::WTOscillator(std::vector<Voice*>* vce, int id, float rate) :
+WTOscillator::WTOscillator(CR42YnthCommunicator* comm, std::vector<Voice*>* vce, int id, float rate) :
 		Generator(vce),
+		communicator_(comm),
 		number(id),
 		samplerate(rate),
 		wavetable(nullptr),
-		active("/oscillators/" + std::to_string(id) + "/active", CR42YnthDSP::getInstance()->getCommunicator()),
-		smooth("/oscillators/" + std::to_string(id) + "/smooth", CR42YnthDSP::getInstance()->getCommunicator()),
-		noise("/oscillators/" + std::to_string(id) + "/noise", CR42YnthDSP::getInstance()->getCommunicator()),
-		volume("/oscillators/" + std::to_string(id) + "/volume", CR42YnthDSP::getInstance()->getCommunicator(), 1),
-		detune("/oscillators/" + std::to_string(id) + "/detune", CR42YnthDSP::getInstance()->getCommunicator(), 0, -96, 96),
-		pan("/oscillators/" + std::to_string(id) + "/pan", CR42YnthDSP::getInstance()->getCommunicator(), 0, -1, 1),
-		noteShift("/oscillators/" + std::to_string(id) + "/note_shift", CR42YnthDSP::getInstance()->getCommunicator(), 0, -24, 24),
-		wtPos("/oscillators/" + std::to_string(id) + "/wt_pos", CR42YnthDSP::getInstance()->getCommunicator()),
-		unisonAmount("/oscillators/" + std::to_string(id) + "/unison_amount", CR42YnthDSP::getInstance()->getCommunicator(), 1, 1, 16),
-		unisonDetune("/oscillators/" + std::to_string(id) + "/unison_detune", CR42YnthDSP::getInstance()->getCommunicator(), 0, -8, 8),
-		unisonSpread("/oscillators/" + std::to_string(id) + "/unison_spread", CR42YnthDSP::getInstance()->getCommunicator()),
-		phaseShift("/oscillators/" + std::to_string(id) + "/phase_shift", CR42YnthDSP::getInstance()->getCommunicator(), 0, -1, 1),
-		phaseRand("/oscillators/" + std::to_string(id) + "/phase_rand", CR42YnthDSP::getInstance()->getCommunicator()),
+
 		editData(new WavetableEditData(4096))
 {
 	setWavetable(editData->getSamples());
+	comm->addOSCEventListener(this);
 }
 
 WTOscillator::~WTOscillator()
@@ -120,7 +118,7 @@ void WTOscillator::nextSample()
 		for (int uni = 0; uni < voice->phases.size(); uni++)
 		{
 			float val = 0;
-			if (noise.getValue())
+			if (controls_.getNoiseCtrl()->getValue())
 			{
 				val = (rand() % 200) / 100. - 1;
 			}
@@ -148,7 +146,7 @@ void WTOscillator::nextSample()
 					{
 						wtSample = 0;
 					}
-					if (smooth.getValue())
+					if (controls_.getSmoothCtrl()->getValue())
 					{
 						float smpl1 = (*wavetable)[wtSample][(int) waveSample];
 						float waveSample2 = waveSample + 1;
@@ -183,7 +181,7 @@ void WTOscillator::nextSample()
 			left += val * voice->volume.getValue() * lPan * voice->AM * voice->RM * voice->voice->getVelocity();
 			right += val * voice->volume.getValue() * rPan * voice->AM * voice->RM * voice->voice->getVelocity();
 
-			float note = voice->voice->getNote() + detune.getValue() + voice->noteShift.getValue();
+			float note = voice->voice->getNote() + controls_.getDetuneCtrl()->getValue() + voice->noteShift.getValue();
 			if (voice->phases.size() > 1)
 			{
 				float uniDet = voice->unisonDetune.getValue();
@@ -246,15 +244,15 @@ void WTOscillator::sendState()
 		 */
 		void* dataBuffer = nullptr;
 		int dataSize = editData->getData(&dataBuffer);
-		CR42YnthDSP::getInstance()->getCommunicator()->writeMessage(buffer, len, dataBuffer, dataSize);
+		communicator_->writeMessage(buffer, len, dataBuffer, dataSize);
 	}
 	else
 	{
-		CR42YnthDSP::getInstance()->getCommunicator()->writeMessage(buffer, len, nullptr, 0);
+		communicator_->writeMessage(buffer, len, nullptr, 0);
 	}
 }
 
-bool WTOscillator::receiveOSCMessage(OSCEvent* event)
+bool WTOscillator::handleOSCEvent(OSCEvent* event)
 {
 	const char* msg = event->getMessage();
 	std::string pattern = "/oscillators/" + std::to_string(number) + "/wavetable";
@@ -305,7 +303,7 @@ std::vector<float> WTOscillator::getOutput(Voice* vce)
 	return std::vector<float>();
 }
 
-Control* WTOscillator::getActiveCtrl()
+/*Control* WTOscillator::getActiveCtrl()
 {
 	return &active;
 }
@@ -358,6 +356,11 @@ Control* WTOscillator::getPhaseShiftCtrl()
 Control* WTOscillator::getPhaseRandCtrl()
 {
 	return &phaseRand;
+}*/
+
+OscillatorControls* WTOscillator::getControls()
+{
+	return &controls_;
 }
 
 } /* namespace cr42y */

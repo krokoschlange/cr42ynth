@@ -31,7 +31,6 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-
 #include "CR42YWavetableView.h"
 #include "CR42YTheme.h"
 #include "helpers.h"
@@ -53,7 +52,9 @@ CR42YWavetableView::CR42YWavetableView(CR42YUI* ui) :
 	set_flags(Gtk::NO_WINDOW);
 
 	std::vector<Gtk::TargetEntry> entries;
-	entries.push_back(Gtk::TargetEntry(("CR42YWavtableViewItem"), Gtk::TARGET_SAME_APP, 0));
+	entries.push_back(
+			Gtk::TargetEntry(("CR42YWavtableViewItem"), Gtk::TARGET_SAME_APP,
+					0));
 	drag_dest_set(entries, Gtk::DEST_DEFAULT_ALL, Gdk::ACTION_MOVE);
 	/*add_events(Gdk::BUTTON_PRESS_MASK | Gdk::BUTTON_RELEASE_MASK | Gdk::BUTTON1_MOTION_MASK);
 	 signal_button_press_event().connect(sigc::mem_fun(this, &CR42YWavetableView::on_button_press_event));
@@ -72,6 +73,13 @@ CR42YWavetableView::CR42YWavetableView(CR42YUI* ui) :
 
 CR42YWavetableView::~CR42YWavetableView()
 {
+	std::vector<Gtk::Widget*> children = get_children();
+
+	for (int i = 0; i < children.size(); i++)
+	{
+		remove(*(children[i]));
+		delete children[i];
+	}
 }
 
 void CR42YWavetableView::setController(WavetableEditController* controller)
@@ -100,7 +108,8 @@ void CR42YWavetableView::on_realize()
 		attributes.window_type = GDK_WINDOW_CHILD;
 		attributes.wclass = GDK_INPUT_OUTPUT;
 
-		window_ = Gdk::Window::create(get_window(), &attributes, GDK_WA_X | GDK_WA_Y);
+		window_ = Gdk::Window::create(get_window(), &attributes,
+				GDK_WA_X | GDK_WA_Y);
 
 		unset_flags(Gtk::NO_WINDOW);
 		set_window(window_);
@@ -119,12 +128,12 @@ void CR42YWavetableView::on_size_request(Gtk::Requisition* requisition)
 	if (controller_)
 	{
 		int height = boxSize_ * controller_->getWavetableHeight();
-		requisition->height = std::max<int>(height, get_parent()->get_height());
+		requisition->height = height; //std::max<int>(height, get_parent()->get_height());
 		requisition->width = 10;
 	}
 	else
 	{
-		requisition->height = get_parent()->get_height();
+		requisition->height = 10; //get_parent()->get_height();
 		requisition->width = 10;
 	}
 }
@@ -155,14 +164,7 @@ void CR42YWavetableView::update()
 			items_[i]->queue_draw();
 		}
 
-		if (get_parent())
-		{
-			set_size_request(10, std::max<int>(boxSize_ * controller_->getWavetableHeight(), get_parent()->get_height()));
-		}
-		else
-		{
-			set_size_request(10, boxSize_ * controller_->getWavetableHeight());
-		}
+		set_size_request(10, boxSize_ * controller_->getWavetableHeight());
 	}
 }
 
@@ -172,9 +174,11 @@ void CR42YWavetableView::on_drag_data_received(
 {
 	CR42YWavetableViewItem* source = *((CR42YWavetableViewItem**) selection_data.get_data());
 
-	bool isSourceSelected = controller_->selectedWaveform() == source->waveform();
+	bool isSourceSelected = controller_->selectedWaveform()
+			== source->waveform();
 
-	controller_->moveWaveform(source->waveform(), controller_->getWavetableHeight());
+	controller_->moveWaveform(source->waveform(),
+			controller_->getWavetableHeight());
 
 	if (isSourceSelected)
 	{
@@ -185,7 +189,8 @@ void CR42YWavetableView::on_drag_data_received(
 		}
 		controller_->selectWaveform(selectPos);
 	}
-	else if (controller_->getWavetableHeight() > controller_->selectedWaveform() && source->waveform() <= controller_->selectedWaveform())
+	else if (controller_->getWavetableHeight() > controller_->selectedWaveform()
+			&& source->waveform() <= controller_->selectedWaveform())
 	{
 		controller_->selectWaveform(controller_->selectedWaveform() - 1);
 	}

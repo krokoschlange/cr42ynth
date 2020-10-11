@@ -41,28 +41,26 @@
 #include "CR42YnthCommunicator.h"
 #include "OSCEvent.h"
 
-//#include "WTEditor.h"
-#include "WavetableEditData.h"
-#include "WavetableEditController.h"
 #include "CR42YTheme.h"
 
-#include "CR42YButton.h"
-#include "CR42YLabel.h"
-#include "CR42YBoxVScale.h"
-#include "CR42YRelativeContainer.h"
 #include "CR42YWavetableEditor.h"
-#include "CR42YUI.h"
+#include "CR42YToggleSelector.h"
+#include "CR42YToggle.h"
+#include "CR42YOSCSettings.h"
 
 namespace cr42y
 {
 
 CR42YnthUI::CR42YnthUI(CR42YnthCommunicator* comm, const char* path) :
+		Glib::ObjectBase("CR42YnthUI"),
 		CR42YUI(),
-		gtkMain(Gtk::Main::instance()),
-		communicator(comm),
-		bundlePath(new char[strlen(path) + 1]),
-		//dial1(this, 0, 0, 50, 50, "DIAL"),
-		wtEditor(nullptr)
+		gtkMain_(Gtk::Main::instance()),
+		communicator_(comm),
+		bundlePath_(new char[strlen(path) + 1]),
+		screenSelector_(nullptr),
+		oscSettings_(nullptr),
+		wtEditor_(nullptr),
+		selectedScreen_(-1)
 {
 	set_size_request(500, 350);
 
@@ -80,30 +78,37 @@ CR42YnthUI::CR42YnthUI(CR42YnthCommunicator* comm, const char* path) :
 	}
 
 	setTheme(new CR42YTheme(themeStr));
-	strcpy(bundlePath, path);
-	setResourceRoot(bundlePath);
+	strcpy(bundlePath_, path);
+	setResourceRoot(bundlePath_);
 
-	//wtEditor = new WTEditor(this, 0, 0, 1000, 700, "EDITOR");
+	screenSelector_ = new CR42YToggleSelector(this);
+	oscSettings_ = new CR42YOSCSettings(this);
+	wtEditor_ = new CR42YWavetableEditor(this);
 
-	//add(wtEditor);
+	CR42YToggle* tgl = new CR42YToggle(this);
+	tgl->setText("OSC");
+	tgl->setFontSize(CR42YTheme::BIG);
+	screenSelector_->putToggle(tgl, 0, 0, 0.25, 1, 2, 2, 0, 2);
+	tgl = new CR42YToggle(this);
+	tgl->setText("MOD");
+	tgl->setFontSize(CR42YTheme::BIG);
+	screenSelector_->putToggle(tgl, 0.25, 0, 0.25, 1, 0, 2, 0, 2);
+	tgl = new CR42YToggle(this);
+	tgl->setText("FX");
+	tgl->setFontSize(CR42YTheme::BIG);
+	screenSelector_->putToggle(tgl, 0.5, 0, 0.25, 1, 0, 2, 0, 2);
+	tgl = new CR42YToggle(this);
+	tgl->setText("WT");
+	tgl->setFontSize(CR42YTheme::BIG);
+	screenSelector_->putToggle(tgl, 0.75, 0, 0.25, 1, 0, 2, 2, 2);
 
-	//CR42YRelativeContainer* wdgt = new CR42YRelativeContainer(this);
+	screenSelector_->select(0);
 
-	//test_ = new Gtk::Button("TEST");
-	//btn->setText("TEST");
-	//test_->signal_clicked().connect(sigc::mem_fun(this, &CR42YnthUI::btnClick));
+	screenSelector_->signalSelected().connect(sigc::mem_fun(this, &CR42YnthUI::screenSelectCallback));
 
-	//wdgt->put(test_, 0.25, 0.25, 0.5, 0.5);
-	//wdgt->add(*test_);
-
-	CR42YWavetableEditor* editor = new CR42YWavetableEditor(this);
-
-	//btn->setText("TEST");
-	Cairo::RefPtr<Cairo::Surface> s = Cairo::ImageSurface::create_from_png(resourceRoot() + "media/left.png");
-	//btn->setSurfActive(s);
-
-	put(editor, 0, 0, 1, 1);
-	editor->show();
+	put(screenSelector_, 0.25, 0, 0.5, 0.15);
+	put(oscSettings_, 0, 0.15, 1, 0.85);
+	put(wtEditor_, 0, 0.15, 1, 0.85);
 
 	if (comm)
 	{
@@ -122,57 +127,14 @@ CR42YnthUI::CR42YnthUI(CR42YnthCommunicator* comm, const char* path) :
 
 CR42YnthUI::~CR42YnthUI()
 {
-	delete[] bundlePath;
+	delete[] bundlePath_;
 	//delete wtEditor;
 }
 
 const char* CR42YnthUI::getBundlePath()
 {
-	return bundlePath;
+	return bundlePath_;
 }
-
-/*int CR42YnthUI::handle(const PuglEvent* event)
- {
- int g = Avtk::Group::handle(event);
-
- if (event->type == PUGL_BUTTON_RELEASE)
- {
- std::string address = "/oscillators/0/wavetable";
-
- unsigned int bufferSize = address.size() + 32;
- char buffer[bufferSize];
-
- int len = rtosc_message(buffer, bufferSize, address.c_str(), "s", "set");
-
- WavetableEditController* controller = wtEditor->getController();
- if (controller->getData())
- {
- /*float wtValues[width * height];
- for (int i = 0; i < height; i++)
- {
- for (int j = 0; j < width; j++)
- {
- wtValues[i * width + j] = (*wavetable)[i][j];
- }
- }
- CR42YnthDSP::getInstance()->getCommunicator()->writeMessage(buffer, len, (void*) wtValues, width * height * sizeof(float));
- ///
- void* dataBuffer = nullptr;
- int dataSize = controller->getData()->getData(&dataBuffer);
- communicator->writeMessage(buffer, len, dataBuffer, dataSize);
- }
- /*else
- {
- communicator->writeMessage(buffer, len, nullptr, 0);
- }//*
- }
- return 1; //if we don't do this, Avtk fucks up and tries to handle the event again :/
- }*/
-
-/*void CR42YnthUI::widgetValueCB(Avtk::Widget* widget)
- {
-
- }*/
 
 void CR42YnthUI::handleOSCEvent(OSCEvent* event)
 {
@@ -200,12 +162,46 @@ void CR42YnthUI::handleOSCEvent(OSCEvent* event)
 
 void CR42YnthUI::idle()
 {
-	gtkMain->iteration(false);
+	gtkMain_->iteration(false);
 }
 
 CR42YnthCommunicator* CR42YnthUI::getCommunicator()
 {
-	return communicator;
+	return communicator_;
+}
+
+void CR42YnthUI::on_realize()
+{
+	CR42YRelativeContainer::on_realize();
+	screenSelectCallback(0);
+}
+
+void CR42YnthUI::screenSelectCallback(int selected)
+{
+	if (selectedScreen_ == selected)
+	{
+		return;
+	}
+	selectedScreen_ = selected;
+
+	oscSettings_->hide_all();
+	wtEditor_->hide_all();
+
+	switch(selected)
+	{
+	case 0:
+		oscSettings_->show_all();
+		break;
+	case 1:
+		break;
+	case 2:
+		break;
+	case 3:
+		wtEditor_->show_all();
+		break;
+	default:
+		break;
+	}
 }
 
 } /* namespace cr42y */

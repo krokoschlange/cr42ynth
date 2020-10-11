@@ -33,6 +33,7 @@
 
 
 #include "CR42YUI.h"
+#include "CR42YTheme.h"
 
 namespace cr42y
 {
@@ -55,6 +56,15 @@ void CR42YUI::setResourceRoot(std::string resourceRoot)
 std::string CR42YUI::resourceRoot()
 {
 	return resourceRoot_;
+}
+
+void CR42YUI::on_size_allocate(Gtk::Allocation& alloc)
+{
+	if (theme())
+	{
+		theme()->setUIHeight(alloc.get_height());
+	}
+	CR42YRelativeContainer::on_size_allocate(alloc);
 }
 
 } /* namespace cr42y */

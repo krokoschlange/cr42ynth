@@ -170,7 +170,8 @@ void CR42YnthLV2::run(uint32_t n_samples)
 					}
 
 					OSCEvent oscevent(msg, data);
-					dsp->handleEvent(&oscevent);
+					//dsp->handleEvent(&oscevent);
+					handleOSCEvent(&oscevent);
 				}
 			}
 			else if (obj->body.otype == uris->timePosition)
@@ -183,21 +184,24 @@ void CR42YnthLV2::run(uint32_t n_samples)
 					char buffer[32];
 					int len = rtosc_message(buffer, 32, "/global/bpm", "f", ((LV2_Atom_Float*) bpm)->body);
 					OSCEvent event(buffer, nullptr);
-					dsp->handleEvent(&event);
+					//dsp->handleEvent(&event);
+					handleOSCEvent(&event);
 				}
 				if (speed && speed->type == uris->atomFloat)
 				{
 					char buffer[32];
 					int len = rtosc_message(buffer, 32, "/global/speed", "f", ((LV2_Atom_Float*) speed)->body);
 					OSCEvent event(buffer, nullptr);
-					dsp->handleEvent(&event);
+					//dsp->handleEvent(&event);
+					handleOSCEvent(&event);
 				}
 				if (beat && beat->type == uris->atomFloat)
 				{
 					char buffer[32];
 					int len = rtosc_message(buffer, 32, "/global/beat", "f", ((LV2_Atom_Float*) beat)->body);
 					OSCEvent event(buffer, nullptr);
-					dsp->handleEvent(&event);
+					//dsp->handleEvent(&event);
+					handleOSCEvent(&event);
 				}
 			}
 		}
@@ -210,7 +214,8 @@ void CR42YnthLV2::run(uint32_t n_samples)
 				{msg[0], msg[1], msg[2], 0};
 			int len = rtosc_message(buffer, 32, "/global/midi", "m", midimsg);
 			OSCEvent oscevent(buffer, nullptr);
-			dsp->handleEvent(&oscevent);
+			//dsp->handleEvent(&oscevent);
+			handleOSCEvent(&oscevent);
 		}
 	}
 

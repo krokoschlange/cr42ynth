@@ -35,7 +35,7 @@
 #ifndef SRC_UI_CR42YWFBULKEDITOR_H_
 #define SRC_UI_CR42YWFBULKEDITOR_H_
 
-#include "CR42YRelativeContainer.h"
+#include "CR42YGrid.h"
 
 namespace cr42y
 {
@@ -46,7 +46,7 @@ class CR42YLabel;
 class CR42YEntry;
 class CR42YIntegerEditor;
 
-class CR42YWFBulkEditor : public CR42YRelativeContainer
+class CR42YWFBulkEditor : public CR42YGrid
 {
 public:
 	CR42YWFBulkEditor(CR42YUI* ui);
@@ -58,6 +58,7 @@ public:
 
 protected:
 	void on_realize();
+	void on_show();
 
 private:
 	WavetableEditController* controller_;
@@ -65,7 +66,7 @@ private:
 	CR42YToggleSelector* opSelector_;
 	CR42YButton* addBtn_;
 
-	CR42YRelativeContainer* mathGroup_;
+	CR42YGrid* mathGroup_;
 	CR42YLabel* mathFuncLabel_;
 	CR42YEntry* mathFuncEntry_;
 	CR42YLabel* mathStartLabel_;
@@ -73,7 +74,7 @@ private:
 	CR42YLabel* mathAmntLabel_;
 	CR42YIntegerEditor* mathAmntEditor_;
 
-	CR42YRelativeContainer* wavGroup_;
+	CR42YGrid* wavGroup_;
 	CR42YEntry* wavFileEntry_;
 	CR42YButton* wavFileBtn_;
 	CR42YLabel* wavStartLabel_;
@@ -81,7 +82,7 @@ private:
 	CR42YToggleSelector* wavAmntTypeSelector_;
 	CR42YIntegerEditor* wavAmntEditor_;
 
-	CR42YRelativeContainer* morphGroup_;
+	CR42YGrid* morphGroup_;
 	CR42YLabel* morphStartLabel_;
 	CR42YIntegerEditor* morphStartEditor_;
 	CR42YLabel* morphAmntLabel_;

@@ -52,8 +52,8 @@ public:
 	int selected();
 
 	void putToggle(CR42YToggle* toggle, double x, double y, double w, double h,
-			int padLeft = 0, int padTop = 0, int padRight = 0,
-			int padBottom = 0);
+			double padLeft = 0, double padTop = 0, double padRight = 0,
+			double padBottom = 0);
 
 	void removeToggle(CR42YToggle* toggle);
 

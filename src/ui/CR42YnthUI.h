@@ -43,7 +43,9 @@ namespace cr42y
 
 class CR42YnthCommunicator;
 class OSCEvent;
-class WTEditor;
+class CR42YToggleSelector;
+class CR42YOSCSettings;
+class CR42YWavetableEditor;
 
 class CR42YnthUI : public CR42YUI
 {
@@ -53,28 +55,31 @@ public:
 	
 	const char* getBundlePath();
 
-	//int handle(const PuglEvent* event);
-
-	//void widgetValueCB(Avtk::Widget* widget);
-
 	void handleOSCEvent(OSCEvent* event);
 
 	void idle();
 
 	CR42YnthCommunicator* getCommunicator();
 
-	void btnClick();
+protected:
+	void on_realize();
 
 private:
-	Gtk::Main* gtkMain;
+	Gtk::Main* gtkMain_;
 
-	char* bundlePath;
+	char* bundlePath_;
 
-	CR42YnthCommunicator* communicator;
+	CR42YnthCommunicator* communicator_;
+
+	CR42YToggleSelector* screenSelector_;
+	int selectedScreen_;
 	
-	WTEditor* wtEditor;
+	CR42YOSCSettings* oscSettings_;
+	CR42YWavetableEditor* wtEditor_;
 
-	//Avtk::Dial dial1;
+
+	void screenSelectCallback(int selected);
+
 };
 
 } /* namespace cr42y */

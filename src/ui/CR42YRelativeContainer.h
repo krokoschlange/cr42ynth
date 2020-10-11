@@ -47,10 +47,10 @@ struct CR42YRelativeChild
 	double y;
 	double w;
 	double h;
-	int padLeft;
-	int padTop;
-	int padRight;
-	int padBottom;
+	double padLeft;
+	double padTop;
+	double padRight;
+	double padBottom;
 };
 
 class CR42YRelativeContainer : public Gtk::Container, public CR42YWidget
@@ -59,8 +59,12 @@ public:
 	CR42YRelativeContainer(CR42YUI* ui);
 	virtual ~CR42YRelativeContainer();
 
-	void put(Gtk::Widget* child, double x, double y, double w, double h, int padLeft = 0, int padTop = 0, int padRight = 0, int padBottom = 0);
-	void move(Gtk::Widget* child, double x, double y, double w, double h, int padLeft = 0, int padTop = 0, int padRight = 0, int padBottom = 0);
+	void put(Gtk::Widget* child, double x, double y, double w, double h,
+			double padLeft = 0, double padTop = 0, double padRight = 0,
+			double padBottom = 0);
+	void move(Gtk::Widget* child, double x, double y, double w, double h,
+			double padLeft = 0, double padTop = 0, double padRight = 0,
+			double padBottom = 0);
 	void on_remove(Gtk::Widget* child);
 	void on_add(Gtk::Widget* child);
 

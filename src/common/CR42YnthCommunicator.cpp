@@ -34,6 +34,8 @@
 
 #include "CR42YnthCommunicator.h"
 
+#include "OSCEventListener.h"
+
 namespace cr42y
 {
 
@@ -43,6 +45,32 @@ CR42YnthCommunicator::CR42YnthCommunicator()
 
 CR42YnthCommunicator::~CR42YnthCommunicator()
 {
+}
+
+void CR42YnthCommunicator::addOSCEventListener(OSCEventListener* listener)
+{
+	listeners_.push_back(listener);
+}
+
+void CR42YnthCommunicator::removeOSCEventListener(OSCEventListener* listener)
+{
+	for (int i = 0; i < listeners_.size(); i++)
+	{
+		if (listener == listeners_[i])
+		{
+			listeners_.erase(listeners_.begin() + i);
+			i--;
+		}
+	}
+}
+
+void CR42YnthCommunicator::handleOSCEvent(OSCEvent* event)
+{
+	bool handled = false;
+	for (int i = 0; i < listeners_.size() && !handled; i++)
+	{
+		handled = listeners_[i]->handleOSCEvent(event);
+	}
 }
 
 } /* namespace cr42y */

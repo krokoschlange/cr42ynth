@@ -31,7 +31,6 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-
 #include "CR42YWaveformEditorControlPanel.h"
 #include "CR42YLabel.h"
 #include "CR42YButton.h"
@@ -73,39 +72,68 @@ CR42YWaveformEditorControlPanel::CR42YWaveformEditorControlPanel(CR42YUI* ui,
 	toSinHQBtn_->setText("TO SIN (HQ)");
 	normalizeBtn_->setText("NORMALIZE");
 
-	Cairo::RefPtr<Cairo::ImageSurface> right = Cairo::ImageSurface::create_from_png(ui->resourceRoot() + "media/right.png");
+	Cairo::RefPtr<Cairo::ImageSurface> right = Cairo::ImageSurface::create_from_png(
+			ui->resourceRoot() + "media/right.png");
 	nextBtn_->setSurfActive(right);
 	nextBtn_->setSurfInactive(right);
-	Cairo::RefPtr<Cairo::ImageSurface> left = Cairo::ImageSurface::create_from_png(ui->resourceRoot() + "media/left.png");
+	Cairo::RefPtr<Cairo::ImageSurface> left = Cairo::ImageSurface::create_from_png(
+			ui->resourceRoot() + "media/left.png");
 	prevBtn_->setSurfActive(left);
 	prevBtn_->setSurfInactive(left);
 
 	deleteBtn_->setText("DELETE");
 
-	gridXEditor_->signalChanged().connect(sigc::mem_fun(this, &CR42YWaveformEditorControlPanel::gridXCallback));
-	gridYEditor_->signalChanged().connect(sigc::mem_fun(this, &CR42YWaveformEditorControlPanel::gridYCallback));
-	toSinBtn_->signalClicked().connect(sigc::bind<bool>(sigc::mem_fun(this, &CR42YWaveformEditorControlPanel::toSinCallback), false));
-	toSinHQBtn_->signalClicked().connect(sigc::bind<bool>(sigc::mem_fun(this, &CR42YWaveformEditorControlPanel::toSinCallback), true));
-	normalizeBtn_->signalClicked().connect(sigc::mem_fun(this, &CR42YWaveformEditorControlPanel::normalizeCallback));
-	nextBtn_->signalClicked().connect(sigc::mem_fun(this, &CR42YWaveformEditorControlPanel::nextCallback));
-	prevBtn_->signalClicked().connect(sigc::mem_fun(this, &CR42YWaveformEditorControlPanel::prevCallback));
-	deleteBtn_->signalClicked().connect(sigc::mem_fun(this, &CR42YWaveformEditorControlPanel::deleteCallback));
+	gridXEditor_->signalChanged().connect(
+			sigc::mem_fun(this,
+					&CR42YWaveformEditorControlPanel::gridXCallback));
+	gridYEditor_->signalChanged().connect(
+			sigc::mem_fun(this,
+					&CR42YWaveformEditorControlPanel::gridYCallback));
+	toSinBtn_->signalClicked().connect(
+			sigc::bind<bool>(
+					sigc::mem_fun(this,
+							&CR42YWaveformEditorControlPanel::toSinCallback),
+					false));
+	toSinHQBtn_->signalClicked().connect(
+			sigc::bind<bool>(
+					sigc::mem_fun(this,
+							&CR42YWaveformEditorControlPanel::toSinCallback),
+					true));
+	normalizeBtn_->signalClicked().connect(
+			sigc::mem_fun(this,
+					&CR42YWaveformEditorControlPanel::normalizeCallback));
+	nextBtn_->signalClicked().connect(
+			sigc::mem_fun(this,
+					&CR42YWaveformEditorControlPanel::nextCallback));
+	prevBtn_->signalClicked().connect(
+			sigc::mem_fun(this,
+					&CR42YWaveformEditorControlPanel::prevCallback));
+	deleteBtn_->signalClicked().connect(
+			sigc::mem_fun(this,
+					&CR42YWaveformEditorControlPanel::deleteCallback));
 
-	put(gridXLabel_, 0, 0, 97, 1, 2, 2, 0, 2);
-	put(gridXEditor_, 97, 0, 100, 1, 5, 2, 0, 2);
-	put(gridYLabel_, 197, 0, 100, 1, 5, 2, 0, 2);
-	put(gridYEditor_, 297, 0, 100, 1, 5, 2, 0, 2);
-	put(toSinBtn_, 397, 0, 100, 1, 5, 2, 0, 2);
-	put(toSinHQBtn_, 497, 0, 100, 1, 5, 2, 0, 2);
-	put(normalizeBtn_, 597, 0, 100, 1, 5, 2, 0, 2);
+	put(gridXLabel_, 0, 0, 0.1, 1, 0.003, 0.003, 0.003, 0.003);
+	put(gridXEditor_, 0.1, 0, 0.1, 1, 0.003, 0.003, 0.003, 0.003);
+	put(gridYLabel_, 0.2, 0, 0.1, 1, 0.003, 0.003, 0.003, 0.003);
+	put(gridYEditor_, 0.3, 0, 0.1, 1, 0.003, 0.003, 0.003, 0.003);
+	put(toSinBtn_, 0.4, 0, 0.1, 1, 0.003, 0.003, 0.003, 0.003);
+	put(toSinHQBtn_, 0.5, 0, 0.1, 1, 0.003, 0.003, 0.003, 0.003);
+	put(normalizeBtn_, 0.6, 0, 0.1, 1, 0.003, 0.003, 0.003, 0.003);
 
-	put(prevBtn_, 1, 0, 50, 1, -198, 2, 202, 2);
-	put(nextBtn_, 1, 0, 50, 1, -148, 2, 152, 2);
-	put(deleteBtn_, 1, 0, 100, 1, -98, 2, 102, 2);
+	put(prevBtn_, 0.8, 0, 0.05, 1, 0.003, 0.003, 0.003, 0.003);
+	put(nextBtn_, 0.85, 0, 0.05, 1, 0.003, 0.003, 0.003, 0.003);
+	put(deleteBtn_, 0.9, 0, 0.1, 1, 0.003, 0.003, 0.003, 0.003);
 }
 
 CR42YWaveformEditorControlPanel::~CR42YWaveformEditorControlPanel()
 {
+	std::vector<Gtk::Widget*> children = get_children();
+
+	for (int i = 0; i < children.size(); i++)
+	{
+		remove(*(children[i]));
+		delete children[i];
+	}
 }
 
 void CR42YWaveformEditorControlPanel::gridXCallback(int val)

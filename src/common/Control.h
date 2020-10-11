@@ -38,22 +38,22 @@
 #include <string>
 #include <vector>
 
-#include "OSCEvent.h"
-#include "CR42YnthCommunicator.h"
+#include "OSCEventListener.h"
 
 namespace cr42y
 {
-
+class OSCEvent;
+class CR42YnthCommunicator;
 class ControlListener;
 
-class Control
+class Control : public OSCEventListener
 {
 public:
 	Control(std::string addr, CR42YnthCommunicator* comm, float val = 0, float mi = 0, float ma = 1, std::string gen = "");
 	virtual ~Control();
 
 	void setValue(float val, bool callback = true);
-	bool receiveOSCMessage(OSCEvent* event);
+	bool handleOSCEvent(OSCEvent* event);
 
 	void sendState(bool sendVal = true, bool sendMin = true, bool sendMax = true, bool sendGen = true);
 

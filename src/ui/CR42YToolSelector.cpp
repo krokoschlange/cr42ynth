@@ -92,8 +92,8 @@ CR42YToolSelector::CR42YToolSelector(CR42YUI* ui,
 	undoBtn_->setText("UNDO");
 	redoBtn_->setText("REDO");
 
-	put(undoBtn_, 0.666, 0.5, 0.333, 0.25, 2, 2, 2, 2);
-	put(redoBtn_, 0.666, 0.75, 0.333, 0.25, 2, 2, 2, 2);
+	put(undoBtn_, 0.666, 0.5, 0.333, 0.25, 0.003, 0.003, 0.003, 0.003);
+	put(redoBtn_, 0.666, 0.75, 0.333, 0.25, 0.003, 0.003, 0.003, 0.003);
 
 	undoBtn_->signalClicked().connect(sigc::mem_fun(this, &CR42YToolSelector::undoCallback));
 	redoBtn_->signalClicked().connect(sigc::mem_fun(this, &CR42YToolSelector::redoCallback));

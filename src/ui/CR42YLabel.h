@@ -54,6 +54,10 @@ public:
 	void setSurfActive(Cairo::RefPtr<Cairo::Surface> surfActive);
 	void setSurfInactive(Cairo::RefPtr<Cairo::Surface> surfInactive);
 
+	void setFontSize(int size);
+
+	void setForcedSizeRatio(double forcedSizeRatio);
+
 protected:
 
 	virtual bool on_expose_event(GdkEventExpose* event);
@@ -66,6 +70,9 @@ private:
 			Cairo::RefPtr<Cairo::Surface> surf);
 
 	std::string text_;
+	int fontSize_;
+
+	double forcedSizeRatio_;
 
 	Cairo::RefPtr<Cairo::Surface> surfActive_;
 	Cairo::RefPtr<Cairo::Surface> surfInactive_;

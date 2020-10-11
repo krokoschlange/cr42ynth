@@ -38,14 +38,15 @@
 #include <vector>
 #include <map>
 
-#include "Voice.h"
+#include "OSCEventListener.h"
 
 namespace cr42y
 {
 
 class Property;
+class Voice;
 
-class Generator
+class Generator : public OSCEventListener
 {
 public:
 	Generator(std::vector<Voice*>* vce);
@@ -61,8 +62,6 @@ public:
 	virtual void voiceRemoved(Voice* vce) = 0;
 
 	virtual void sendState() = 0;
-
-	virtual bool receiveOSCMessage(OSCEvent* event) = 0;
 
 protected:
 	std::vector<Property*> controls;

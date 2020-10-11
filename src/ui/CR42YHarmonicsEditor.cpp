@@ -48,7 +48,7 @@ CR42YHarmonicsEditor::CR42YHarmonicsEditor(CR42YUI* ui) :
 		columnWidth_(25)
 {
 	CR42YTheme* tm = theme();
-	int txtHeight = tm->fontSizeMiddle() + 2;
+	int txtHeight = tm->fontSizeSmall() + 2;
 	for (int i = 0; i < 128; i++)
 	{
 		CR42YBoxVScale* scale = new CR42YBoxVScale(ui);
@@ -76,6 +76,7 @@ CR42YHarmonicsEditor::~CR42YHarmonicsEditor()
 
 	for (int i = 0; i < children.size(); i++)
 	{
+		remove(*(children[i]));
 		delete children[i];
 	}
 	ampScales_.clear();
@@ -154,13 +155,14 @@ bool CR42YHarmonicsEditor::on_expose_event(GdkEventExpose* event)
 		for (int i = 0; i < 128; i++)
 		{
 			str = i > 0 ? std::to_string(i) : "DC";
+			cr->select_font_face(tm->font(), Cairo::FONT_SLANT_NORMAL, Cairo::FONT_WEIGHT_NORMAL);
+			cr->set_font_size(tm->fontSizeSmall());
 			cr->get_text_extents(str, xtents);
 
 			Gtk::Allocation alloc = get_allocation();
 
-			cr->move_to(alloc.get_x() + i * columnWidth_ + (columnWidth_ - xtents.width) / 2, alloc.get_y() + get_height() * 0.5 + (tm->fontSizeMiddle() + 2 + xtents.height) / 2);
-			cr->select_font_face(tm->font(), Cairo::FONT_SLANT_NORMAL, Cairo::FONT_WEIGHT_NORMAL);
-			cr->set_font_size(tm->fontSizeMiddle());
+			cr->move_to(alloc.get_x() + i * columnWidth_ + (columnWidth_ - xtents.width) / 2, alloc.get_y() + get_height() * 0.5 + (tm->fontSizeSmall() + 2 + xtents.height) / 2);
+
 			cr->show_text(str);
 		}
 	}

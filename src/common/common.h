@@ -41,6 +41,8 @@
 #define CR42Ynth__DSP CR42Ynth__URI "#dsp"
 #define CR42Ynth__UI CR42Ynth__URI "#ui"
 
+#define CR42Ynth_OSC_COUNT 8
+
 
 namespace cr42y
 {

@@ -54,8 +54,8 @@ CR42YRelativeContainer::~CR42YRelativeContainer()
 }
 
 void CR42YRelativeContainer::put(Gtk::Widget* child, double x, double y,
-		double w, double h, int padLeft, int padTop, int padRight,
-		int padBottom)
+		double w, double h, double padLeft, double padTop, double padRight,
+		double padBottom)
 {
 	CR42YRelativeChild childData;
 	childData.widget = child;
@@ -73,8 +73,8 @@ void CR42YRelativeContainer::put(Gtk::Widget* child, double x, double y,
 }
 
 void CR42YRelativeContainer::move(Gtk::Widget* child, double x, double y,
-		double w, double h, int padLeft, int padTop, int padRight,
-		int padBottom)
+		double w, double h, double padLeft, double padTop, double padRight,
+		double padBottom)
 {
 	CR42YRelativeChild* childData = getChild(child);
 	if (childData)
@@ -87,10 +87,10 @@ void CR42YRelativeContainer::move(Gtk::Widget* child, double x, double y,
 		childData->padTop = padTop;
 		childData->padRight = padRight;
 		childData->padBottom = padBottom;
-		if (is_visible() && child->is_visible())
+		/*if (is_visible() && child->is_visible())
 		{
 			queue_resize();
-		}
+		}*/
 	}
 }
 
@@ -173,16 +173,43 @@ void CR42YRelativeContainer::on_size_allocate(Gtk::Allocation& alloc)
 
 		int x = (
 				childData.x > 1 ? (int) childData.x :
-									(int) std::round(get_width() * childData.x)) + childData.padLeft;
+									(int) std::round(get_width() * childData.x)); // + childData.padLeft;
 		int y = (
 				childData.y > 1 ? (int) childData.y :
-									(int)  std::round(get_height() * childData.y)) + childData.padTop;
+									(int) std::round(get_height() * childData.y)); // + childData.padTop;
 		int w = (
 				childData.w > 1 ? (int) childData.w :
-									(int)  std::round(get_width() * childData.w)) - childData.padLeft - childData.padRight;
+									(int) std::round(get_width() * childData.w)); // - childData.padLeft - childData.padRight;
 		int h = (
 				childData.h > 1 ? (int) childData.h :
-									(int)  std::round(get_height() * childData.h)) - childData.padTop - childData.padBottom;
+									(int) std::round(get_height() * childData.h)); // - childData.padTop - childData.padBottom;
+
+		if (fabs(childData.padLeft) < 1)
+		{
+			x += std::round(childData.padLeft * get_toplevel()->get_height());
+			w -= std::round(childData.padLeft * get_toplevel()->get_height());
+		}
+		else
+		{
+			x += childData.padLeft;
+			w -= childData.padLeft;
+		}
+		w -= fabs(childData.padRight) > 1 ?
+				childData.padRight :
+				std::round(childData.padRight * get_toplevel()->get_height());
+		if (fabs(childData.padTop) < 1)
+		{
+			y += std::round(childData.padTop * get_toplevel()->get_height());
+			h -= std::round(childData.padTop * get_toplevel()->get_height());
+		}
+		else
+		{
+			y += childData.padTop;
+			h -= childData.padTop;
+		}
+		h -= fabs(childData.padBottom) > 1 ?
+				childData.padBottom :
+				std::round(childData.padBottom * get_toplevel()->get_height());
 
 		childAlloc.set_x(childAlloc.get_x() + x);
 		childAlloc.set_y(childAlloc.get_y() + y);
@@ -195,7 +222,9 @@ void CR42YRelativeContainer::on_size_allocate(Gtk::Allocation& alloc)
 
 void CR42YRelativeContainer::on_size_request(Gtk::Requisition* requisition)
 {
-
+	*requisition = Gtk::Requisition();
+	requisition->width = 0;
+	requisition->height = 0;
 }
 
 void CR42YRelativeContainer::on_remove(Gtk::Widget* child)

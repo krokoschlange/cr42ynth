@@ -35,7 +35,7 @@
 #ifndef SRC_UI_CR42YWAVETABLEEDITOR_H_
 #define SRC_UI_CR42YWAVETABLEEDITOR_H_
 
-#include "CR42YRelativeContainer.h"
+#include "CR42YGrid.h"
 
 namespace cr42y
 {
@@ -51,7 +51,7 @@ class CR42YToolSelector;
 class CR42YWFPartEditor;
 class CR42YWFBulkEditor;
 
-class CR42YWavetableEditor : public CR42YRelativeContainer
+class CR42YWavetableEditor : public CR42YGrid
 {
 public:
 	CR42YWavetableEditor(CR42YUI* ui);

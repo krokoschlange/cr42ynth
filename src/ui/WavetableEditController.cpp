@@ -69,6 +69,7 @@ WavetableEditController::WavetableEditController() :
 
 WavetableEditController::~WavetableEditController()
 {
+	deleteHistory();
 }
 
 void WavetableEditController::setData(WavetableEditData* data,
@@ -168,7 +169,7 @@ void WavetableEditController::selectPart(int part)
 		std::vector<WaveformPart*>* wf = data_->getWaveform(wtPos_);
 		if (wf)
 		{
-			part = part >= wf->size() ? wf->size() - 1 : part;
+			part = part >= (int) wf->size() ? wf->size() - 1 : part;
 			part = part < -1 ? -1 : part;
 			int old = selectedParts_[wtPos_];
 			selectedParts_[wtPos_] = part;

@@ -35,8 +35,12 @@
 #ifndef SRC_COMMON_CR42YNTHCOMMUNICATOR_H_
 #define SRC_COMMON_CR42YNTHCOMMUNICATOR_H_
 
+#include <vector>
+
 namespace cr42y
 {
+class OSCEventListener;
+class OSCEvent;
 
 class CR42YnthCommunicator
 {
@@ -46,6 +50,14 @@ public:
 
 	virtual void writeMessage(char* msg, int size, void* data, int dataSize) = 0;
 	virtual void log(const char* msg) = 0;
+
+	void addOSCEventListener(OSCEventListener* listener);
+	void removeOSCEventListener(OSCEventListener* listener);
+
+	void handleOSCEvent(OSCEvent* event);
+
+protected:
+	std::vector<OSCEventListener*> listeners_;
 };
 
 } /* namespace cr42y */

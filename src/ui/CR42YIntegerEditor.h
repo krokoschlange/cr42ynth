@@ -55,6 +55,8 @@ public:
 	void setMax(int max, bool use = true);
 	int max();
 
+	void setFontSize(int fontSize);
+
 	sigc::signal<void, int> signalChanged();
 
 private:

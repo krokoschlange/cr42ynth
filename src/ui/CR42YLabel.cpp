@@ -44,7 +44,9 @@ CR42YLabel::CR42YLabel(CR42YUI* ui) :
 		Glib::ObjectBase("CR42YLabel"),
 		Gtk::Widget(),
 		CR42YWidget(ui),
-		text_("")
+		text_(""),
+		fontSize_(CR42YTheme::SMALL),
+		forcedSizeRatio_(0)
 {
 	set_flags(Gtk::NO_WINDOW);
 }
@@ -84,12 +86,23 @@ void CR42YLabel::setSurfInactive(Cairo::RefPtr<Cairo::Surface> surfInactive)
 	surfInactive_ = surfInactive;
 }
 
+void CR42YLabel::setFontSize(int size)
+{
+	fontSize_ = size;
+}
+
+void CR42YLabel::setForcedSizeRatio(double forcedSizeRatio)
+{
+	forcedSizeRatio_ = forcedSizeRatio;
+}
+
 bool CR42YLabel::on_expose_event(GdkEventExpose* event)
 {
 	if (window_)
 	{
 		Cairo::RefPtr<Cairo::Context> cr = window_->create_cairo_context();
-		cr->rectangle(event->area.x, event->area.y, event->area.width, event->area.height);
+		cr->rectangle(event->area.x, event->area.y, event->area.width,
+				event->area.height);
 		cr->clip_preserve();
 		CR42YTheme* tm = theme();
 		float* clr = tm->color(BG_DARK);
@@ -97,7 +110,8 @@ bool CR42YLabel::on_expose_event(GdkEventExpose* event)
 		cr->fill();
 
 		//cr42y_rounded_rectangle(cr, event->area.x, event->area.y, event->area.width, event->area.height, tm->cornerRadius());
-		cr42y_rounded_rectangle(cr, 0, 0, get_width(), get_height(), tm->cornerRadius(), tm->lineThick());
+		cr42y_rounded_rectangle(cr, 0, 0, get_width(), get_height(),
+				tm->cornerRadius(), tm->lineThick());
 
 		Gtk::StateType state = get_state();
 
@@ -155,8 +169,9 @@ bool CR42YLabel::on_expose_event(GdkEventExpose* event)
 		if (surf)
 		{
 			drawSurface(cr, surf);
-			cr->select_font_face(tm->font(), Cairo::FONT_SLANT_NORMAL, Cairo::FONT_WEIGHT_NORMAL);
-			cr->set_font_size(tm->fontSizeSmall());
+			cr->select_font_face(tm->font(), Cairo::FONT_SLANT_NORMAL,
+					Cairo::FONT_WEIGHT_NORMAL);
+			cr->set_font_size(tm->fontSize((CR42YTheme::FONT_SIZE) fontSize_));
 
 			Cairo::TextExtents xtents;
 			cr->get_text_extents(text_, xtents);
@@ -168,94 +183,18 @@ bool CR42YLabel::on_expose_event(GdkEventExpose* event)
 		}
 		else
 		{
-			cr->select_font_face(tm->font(), Cairo::FONT_SLANT_NORMAL, Cairo::FONT_WEIGHT_NORMAL);
-			cr->set_font_size(tm->fontSizeMiddle());
+			cr->select_font_face(tm->font(), Cairo::FONT_SLANT_NORMAL,
+					Cairo::FONT_WEIGHT_NORMAL);
+			cr->set_font_size(tm->fontSize((CR42YTheme::FONT_SIZE) fontSize_));
 
 			Cairo::TextExtents xtents;
 			cr->get_text_extents(text_, xtents);
-			cr->move_to((get_width() - xtents.width) / 2., (get_height() + xtents.height) / 2.);
+			cr->move_to((get_width() - xtents.width) / 2.,
+					(get_height() + xtents.height) / 2.);
 			cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
 
 			cr->show_text(text_);
 		}
-
-		/*if (get_state() == Gtk::STATE_ACTIVE)
-		 {
-		 clr = tm->color(HIGHLIGHT);
-		 cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3] * 0.2);
-		 cr->fill_preserve();
-		 cr->set_line_width(tm->lineThick());
-		 cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
-		 cr->stroke();
-
-		 if (surfActive_)
-		 {
-		 drawSurface(cr, surfActive_);
-
-		 cr->select_font_face(tm->font(), Cairo::FONT_SLANT_NORMAL, Cairo::FONT_WEIGHT_NORMAL);
-		 cr->set_font_size(tm->fontSizeSmall());
-
-		 Cairo::TextExtents xtents;
-		 cr->get_text_extents(text_, xtents);
-		 cr->move_to((get_width() - xtents.width) / 2, get_height());
-		 clr = tm->color(BG_DARK);
-		 cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
-
-		 cr->show_text(text_);
-		 }
-		 else
-		 {
-		 cr->select_font_face(tm->font(), Cairo::FONT_SLANT_NORMAL, Cairo::FONT_WEIGHT_NORMAL);
-		 cr->set_font_size(tm->fontSizeMiddle());
-
-		 Cairo::TextExtents xtents;
-		 cr->get_text_extents(text_, xtents);
-		 cr->move_to((get_width() - xtents.width) / 2., (get_height() + xtents.height) / 2.);
-		 clr = tm->color(BG_DARK);
-		 cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
-
-		 cr->show_text(text_);
-		 }
-		 }
-		 else
-		 {
-		 clr = tm->color(BG_DARK);
-		 cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
-		 cr->fill_preserve();
-		 clr = tm->color(FG);
-		 cr->set_line_width(tm->lineThick());
-		 cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
-		 cr->stroke();
-
-		 if (surfInactive_)
-		 {
-		 drawSurface(cr, surfInactive_);
-		 cr->select_font_face(tm->font(), Cairo::FONT_SLANT_NORMAL, Cairo::FONT_WEIGHT_NORMAL);
-		 cr->set_font_size(tm->fontSizeSmall());
-
-		 Cairo::TextExtents xtents;
-		 cr->get_text_extents(text_, xtents);
-		 cr->move_to((get_width() - xtents.width) / 2, get_height());
-		 clr = tm->color(FG);
-		 cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
-
-		 cr->show_text(text_);
-		 }
-		 else
-		 {
-		 cr->select_font_face(tm->font(), Cairo::FONT_SLANT_NORMAL, Cairo::FONT_WEIGHT_NORMAL);
-		 cr->set_font_size(tm->fontSizeMiddle());
-
-		 Cairo::TextExtents xtents;
-		 cr->get_text_extents(text_, xtents);
-		 cr->move_to((get_width() - xtents.width) / 2., (get_height() + xtents.height) / 2.);
-		 clr = tm->color(FG);
-		 cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
-
-		 cr->show_text(text_);
-
-		 }
-		 }*/
 	}
 }
 
@@ -279,7 +218,8 @@ void CR42YLabel::on_realize()
 		attributes.window_type = GDK_WINDOW_CHILD;
 		attributes.wclass = GDK_INPUT_OUTPUT;
 
-		window_ = Gdk::Window::create(get_window(), &attributes, GDK_WA_X | GDK_WA_Y);
+		window_ = Gdk::Window::create(get_window(), &attributes,
+				GDK_WA_X | GDK_WA_Y);
 		unset_flags(Gtk::NO_WINDOW);
 		set_window(window_);
 
@@ -289,10 +229,28 @@ void CR42YLabel::on_realize()
 
 void CR42YLabel::on_size_allocate(Gtk::Allocation& alloc)
 {
+	if (forcedSizeRatio_ > 0)
+	{
+		double allocRatio = (double) alloc.get_width() / alloc.get_height();
+		if (allocRatio > forcedSizeRatio_)
+		{
+			int oldWidth = alloc.get_width();
+			alloc.set_width(alloc.get_height() * forcedSizeRatio_);
+			alloc.set_x(alloc.get_x() + (oldWidth - alloc.get_width()) / 2);
+		}
+		else if (allocRatio < forcedSizeRatio_)
+		{
+			int oldHeight = alloc.get_height();
+			alloc.set_height(alloc.get_width() / forcedSizeRatio_);
+			alloc.set_y(alloc.get_y() + (oldHeight - alloc.get_height()) / 2);
+		}
+	}
+
 	set_allocation(alloc);
 	if (window_)
 	{
-		window_->move_resize(alloc.get_x(), alloc.get_y(), alloc.get_width(), alloc.get_height());
+		window_->move_resize(alloc.get_x(), alloc.get_y(), alloc.get_width(),
+				alloc.get_height());
 	}
 }
 
@@ -322,7 +280,8 @@ void CR42YLabel::drawSurface(Cairo::RefPtr<Cairo::Context> cr,
 						get_width() / (double) surfW;
 
 		cr->save();
-		cr->translate((get_width() - surfW * scale) / 2, (get_height() - surfH * scale) / 2);
+		cr->translate((get_width() - surfW * scale) / 2,
+				(get_height() - surfH * scale) / 2);
 		cr->scale(scale, scale);
 
 		cr->set_source(surf, 0, 0);

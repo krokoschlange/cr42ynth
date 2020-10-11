@@ -38,6 +38,8 @@
 #include "Control.h"
 #include "CR42YnthDSP.h"
 #include "CR42YnthCommunicator.h"
+#include "ControlListener.h"
+#include "OSCEvent.h"
 
 namespace cr42y
 {
@@ -52,12 +54,14 @@ Control::Control(std::string addr, CR42YnthCommunicator* comm, float val, float 
 		value(val)
 {
 	//CR42YnthDSP::getInstance()->getCommunicator()->log(addr.c_str());
-	CR42YnthDSP::getInstance()->addControl(this);
+	//CR42YnthDSP::getInstance()->addControl(this);
+	comm->addOSCEventListener(this);
 }
 
 Control::~Control()
 {
-	CR42YnthDSP::getInstance()->removeControl(this);
+	//CR42YnthDSP::getInstance()->removeControl(this);
+	communicator->removeOSCEventListener(this);
 }
 
 void Control::setValue(float val, bool callback)
@@ -121,7 +125,7 @@ float Control::getValue()
 	return value;
 }
 
-bool Control::receiveOSCMessage(OSCEvent* event)
+bool Control::handleOSCEvent(OSCEvent* event)
 {
 	const char* msg = event->getMessage();
 

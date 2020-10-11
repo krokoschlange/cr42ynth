@@ -50,6 +50,9 @@ public:
 	void setResourceRoot(std::string resourceRoot);
 	std::string resourceRoot();
 
+protected:
+	void on_size_allocate(Gtk::Allocation& alloc);
+
 private:
 	std::string resourceRoot_;
 };

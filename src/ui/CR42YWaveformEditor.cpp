@@ -31,7 +31,6 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-
 #include "CR42YWaveformEditor.h"
 #include "CR42YTheme.h"
 #include "WavetableEditController.h"
@@ -53,13 +52,25 @@ CR42YWaveformEditor::CR42YWaveformEditor(CR42YUI* ui) :
 	setDrawBorder(true);
 	setDrawBG(false);
 
-	Gtk::Widget::add_events(Gdk::BUTTON_PRESS_MASK | Gdk::BUTTON_RELEASE_MASK | Gdk::BUTTON1_MOTION_MASK);
-	signal_button_press_event().connect(sigc::mem_fun(this, &CR42YWaveformEditor::on_button_press));
-	signal_button_release_event().connect(sigc::mem_fun(this, &CR42YWaveformEditor::on_button_release));
-	signal_motion_notify_event().connect(sigc::mem_fun(this, &CR42YWaveformEditor::on_motion_notify));
+	Gtk::Widget::add_events(
+			Gdk::BUTTON_PRESS_MASK | Gdk::BUTTON_RELEASE_MASK
+					| Gdk::BUTTON1_MOTION_MASK);
+	signal_button_press_event().connect(
+			sigc::mem_fun(this, &CR42YWaveformEditor::on_button_press));
+	signal_button_release_event().connect(
+			sigc::mem_fun(this, &CR42YWaveformEditor::on_button_release));
+	signal_motion_notify_event().connect(
+			sigc::mem_fun(this, &CR42YWaveformEditor::on_motion_notify));
 }
 CR42YWaveformEditor::~CR42YWaveformEditor()
 {
+	std::vector<Gtk::Widget*> children = get_children();
+
+	for (int i = 0; i < children.size(); i++)
+	{
+		remove(*(children[i]));
+		delete children[i];
+	}
 }
 
 void CR42YWaveformEditor::setController(WavetableEditController* controller)
@@ -92,7 +103,8 @@ void CR42YWaveformEditor::on_realize()
 		attributes.window_type = GDK_WINDOW_CHILD;
 		attributes.wclass = GDK_INPUT_OUTPUT;
 
-		window_ = Gdk::Window::create(get_window(), &attributes, GDK_WA_X | GDK_WA_Y);
+		window_ = Gdk::Window::create(get_window(), &attributes,
+				GDK_WA_X | GDK_WA_Y);
 
 		unset_flags(Gtk::NO_WINDOW);
 		set_window(window_);
@@ -113,7 +125,8 @@ bool CR42YWaveformEditor::on_expose_event(GdkEventExpose* event)
 		cr->rectangle(0, 0, get_width(), get_height());
 		cr->fill();
 
-		cr42y_rounded_rectangle(cr, 0, 0, get_width(), get_height(), tm->cornerRadius(), tm->lineThick());
+		cr42y_rounded_rectangle(cr, 0, 0, get_width(), get_height(),
+				tm->cornerRadius(), tm->lineThick());
 		//clr = tm->color(FG);
 		//cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
 		//cr->set_line_width(tm->lineThick());
@@ -157,17 +170,23 @@ bool CR42YWaveformEditor::on_expose_event(GdkEventExpose* event)
 
 		std::vector<float>* samples = nullptr;
 		int stepSize = controller_->getWaveformWidth() / get_width();
-		samples = controller_->getSamples(controller_->selectedWaveform(), stepSize);
+		samples = controller_->getSamples(controller_->selectedWaveform(),
+				stepSize);
 
 		float pixelPerSample = (float) get_width() / samples->size();
 
 		for (int i = 1; i < samples->size(); i++)
 		{
-			cr->move_to(pixelPerSample * i, get_height() * -0.5 * (*samples)[i] + get_height() / 2);
-			cr->line_to(pixelPerSample * (i - 1), get_height() * -0.5 * (*samples)[i - 1] + get_height() / 2);
+			cr->move_to(pixelPerSample * i,
+					get_height() * -0.5 * (*samples)[i] + get_height() / 2);
+			cr->line_to(pixelPerSample * (i - 1),
+					get_height() * -0.5 * (*samples)[i - 1] + get_height() / 2);
 		}
-		cr->move_to(pixelPerSample * (samples->size() - 1), get_height() * -0.5 * (*samples)[samples->size() - 1] + get_height() / 2);
-		cr->line_to(get_width(), get_height() * -0.5 * (*samples)[0] + get_height() / 2);
+		cr->move_to(pixelPerSample * (samples->size() - 1),
+				get_height() * -0.5 * (*samples)[samples->size() - 1]
+						+ get_height() / 2);
+		cr->line_to(get_width(),
+				get_height() * -0.5 * (*samples)[0] + get_height() / 2);
 		cr->set_line_join(Cairo::LINE_JOIN_ROUND);
 		cr->set_line_width(tm->lineThick());
 		clr = tm->color(HIGHLIGHT);
@@ -181,18 +200,22 @@ bool CR42YWaveformEditor::on_expose_event(GdkEventExpose* event)
 
 		for (int i = 0; i < parts.size(); i++)
 		{
-			cr->rectangle(parts[i].first * get_width(), 0, (parts[i].second - parts[i].first) * get_width(), get_height());
+			cr->rectangle(parts[i].first * get_width(), 0,
+					(parts[i].second - parts[i].first) * get_width(),
+					get_height());
 
 			clr = tm->color(FG_DARK);
 			cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3] * 0.4);
 
 			cr->fill();
 
-			if (parts[i].second * get_width() - parts[i].first * get_width() < 5)
+			if (parts[i].second * get_width() - parts[i].first * get_width()
+					< 5)
 			{
 				cr->move_to(parts[i].first * get_width() - 10, 5);
 				cr->line_to(parts[i].first * get_width(), get_height() / 2);
-				cr->line_to(parts[i].first * get_width() - 10, get_height() - 5);
+				cr->line_to(parts[i].first * get_width() - 10,
+						get_height() - 5);
 				cr->close_path();
 				clr = tm->color(FG);
 				cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
@@ -200,7 +223,8 @@ bool CR42YWaveformEditor::on_expose_event(GdkEventExpose* event)
 
 				cr->move_to(parts[i].second * get_width() + 10, 5);
 				cr->line_to(parts[i].second * get_width(), get_height() / 2);
-				cr->line_to(parts[i].second * get_width() + 10, get_height() - 5);
+				cr->line_to(parts[i].second * get_width() + 10,
+						get_height() - 5);
 				cr->close_path();
 				cr->fill();
 			}
@@ -211,7 +235,8 @@ bool CR42YWaveformEditor::on_expose_event(GdkEventExpose* event)
 			delete samples;
 		}
 
-		std::vector<float>* selectedSamples = controller_->getPartSamples(stepSize);
+		std::vector<float>* selectedSamples = controller_->getPartSamples(
+				stepSize);
 
 		if (selectedSamples)
 		{
@@ -219,15 +244,23 @@ bool CR42YWaveformEditor::on_expose_event(GdkEventExpose* event)
 			cr->set_line_width(tm->lineThick());
 			cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3] * 0.2);
 
-			float start = controller_->getPartStart(controller_->getSelectedPart());
+			float start = controller_->getPartStart(
+					controller_->getSelectedPart());
 
 			for (int i = 0; i < (int) (selectedSamples->size()) - 8; i += 8)
 			{
 				cr->move_to(start * get_width() + i * pixelPerSample,
-						get_height() * -0.5 * (*selectedSamples)[i] + get_height() / 2);
-				cr->line_to(start * get_width() + (i + 1) * pixelPerSample, get_height() * -0.5 * (*selectedSamples)[i + 1] + get_height() / 2);
-				cr->line_to(start * get_width() + (i + 2) * pixelPerSample, get_height() * -0.5 * (*selectedSamples)[i + 2] + get_height() / 2);
-				cr->line_to(start * get_width() + (i + 3) * pixelPerSample, get_height() * -0.5 * (*selectedSamples)[i + 3] + get_height() / 2);
+						get_height() * -0.5 * (*selectedSamples)[i]
+								+ get_height() / 2);
+				cr->line_to(start * get_width() + (i + 1) * pixelPerSample,
+						get_height() * -0.5 * (*selectedSamples)[i + 1]
+								+ get_height() / 2);
+				cr->line_to(start * get_width() + (i + 2) * pixelPerSample,
+						get_height() * -0.5 * (*selectedSamples)[i + 2]
+								+ get_height() / 2);
+				cr->line_to(start * get_width() + (i + 3) * pixelPerSample,
+						get_height() * -0.5 * (*selectedSamples)[i + 3]
+								+ get_height() / 2);
 
 				cr->stroke();
 			}
@@ -244,7 +277,8 @@ bool CR42YWaveformEditor::on_button_press(GdkEventButton* event)
 	{
 		if (event->button == 1)
 		{
-			controller_->useToolAction(event->x, event->y, get_width(), get_height());
+			controller_->useToolAction(event->x, event->y, get_width(),
+					get_height());
 			updateButtons();
 			gtk_grab_add(Gtk::Widget::gobj());
 			queue_draw();
@@ -252,7 +286,8 @@ bool CR42YWaveformEditor::on_button_press(GdkEventButton* event)
 		}
 		else if (event->button == 3)
 		{
-			controller_->selectPartAction(event->x, event->y, get_width(), get_height());
+			controller_->selectPartAction(event->x, event->y, get_width(),
+					get_height());
 			updateButtons();
 			queue_draw();
 			return true;
@@ -278,7 +313,8 @@ bool CR42YWaveformEditor::on_motion_notify(GdkEventMotion* event)
 {
 	if (controller_)
 	{
-		controller_->toolMoveAction(event->x, event->y, get_width(), get_height());
+		controller_->toolMoveAction(event->x, event->y, get_width(),
+				get_height());
 		updateButtons();
 		queue_draw();
 		return true;
@@ -308,10 +344,12 @@ void CR42YWaveformEditor::updateButtons()
 	int padding = 5;
 	int buttonSize = 25;
 
-	std::vector<std::pair<float, float>> visAreas = controller_->getVisibleAreas(sel);
+	std::vector<std::pair<float, float>> visAreas = controller_->getVisibleAreas(
+			sel);
 	if (visAreas.size() > 0)
 	{
-		Cairo::RefPtr<Cairo::Surface> min = Cairo::ImageSurface::create_from_png(ui()->resourceRoot() + "media/minus.png");
+		Cairo::RefPtr<Cairo::Surface> min = Cairo::ImageSurface::create_from_png(
+				ui()->resourceRoot() + "media/minus.png");
 		double btnX = visAreas[0].first;
 		if (btnX + padding + buttonSize > get_width())
 		{
@@ -322,7 +360,11 @@ void CR42YWaveformEditor::updateButtons()
 //rmvBtn->setText("-");
 		rmvBtn->setSurfActive(min);
 		rmvBtn->setSurfInactive(min);
-		rmvBtn->signalClicked().connect(sigc::bind<int>(sigc::mem_fun(this, &CR42YWaveformEditor::removePartCallback), sel));
+		rmvBtn->signalClicked().connect(
+				sigc::bind<int>(
+						sigc::mem_fun(this,
+								&CR42YWaveformEditor::removePartCallback),
+						sel));
 
 //removeBtns.push_back(std::pair<int, CRSurfaceButton*>(sel, rmvBtn));
 		put(rmvBtn, btnX, 0, buttonSize, buttonSize, padding, padding);

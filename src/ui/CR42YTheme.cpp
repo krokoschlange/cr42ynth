@@ -40,13 +40,19 @@
 namespace cr42y
 {
 
-CR42YTheme::CR42YTheme(std::string theme)
+CR42YTheme::CR42YTheme(std::string theme) :
+		scaleFactor_(1)
 {
 	load(theme);
 }
 
 CR42YTheme::~CR42YTheme()
 {
+}
+
+void CR42YTheme::setUIHeight(int uiHeight)
+{
+	scaleFactor_ = uiHeight / 1000.f;
 }
 
 float* CR42YTheme::color(CR42YCOLORS color)
@@ -56,22 +62,22 @@ float* CR42YTheme::color(CR42YCOLORS color)
 
 float CR42YTheme::lineThin()
 {
-	return lineThin_;
+	return lineThin_ * scaleFactor_;
 }
 
 float CR42YTheme::lineMiddle()
 {
-	return lineMiddle_;
+	return lineMiddle_ * scaleFactor_;
 }
 
 float CR42YTheme::lineThick()
 {
-	return lineThick_;
+	return lineThick_ * scaleFactor_;
 }
 
 float CR42YTheme::cornerRadius()
 {
-	return cornerRadius_;
+	return cornerRadius_ * scaleFactor_;
 }
 
 std::string CR42YTheme::font()
@@ -81,17 +87,22 @@ std::string CR42YTheme::font()
 
 int CR42YTheme::fontSizeSmall()
 {
-	return fontSizeSmall_;
+	return fontSizes_[SMALL] * scaleFactor_;
 }
 
 int CR42YTheme::fontSizeMiddle()
 {
-	return fontSizeMiddle_;
+	return fontSizes_[MIDDLE] * scaleFactor_;
 }
 
 int CR42YTheme::fontSizeBig()
 {
-	return fontSizeBig_;
+	return fontSizes_[BIG] * scaleFactor_;
+}
+
+int CR42YTheme::fontSize(FONT_SIZE size)
+{
+	return fontSizes_[size] * scaleFactor_;
 }
 
 void CR42YTheme::load(std::string theme)
@@ -123,13 +134,13 @@ void CR42YTheme::load(std::string theme)
 	font_ = config.get("font");
 
 	stream << config.get("font_size_small");
-	stream >> fontSizeSmall_;
+	stream >> fontSizes_[SMALL];
 	stream.clear();
 	stream << config.get("font_size_middle");
-	stream >> fontSizeMiddle_;
+	stream >> fontSizes_[MIDDLE];
 	stream.clear();
 	stream << config.get("font_size_big");
-	stream >> fontSizeBig_;
+	stream >> fontSizes_[BIG];
 	stream.clear();
 }
 

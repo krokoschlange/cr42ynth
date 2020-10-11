@@ -31,7 +31,6 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-
 #include "CR42YWFPartEditor.h"
 
 #include "WavetableEditController.h"
@@ -42,32 +41,42 @@
 #include "CR42YButton.h"
 #include "CR42YToggle.h"
 
+#include <iostream>
+
 namespace cr42y
 {
 
 CR42YWFPartEditor::CR42YWFPartEditor(CR42YUI* ui) :
 		Glib::ObjectBase("CR42YWFPartEditor"),
-		CR42YRelativeContainer(ui),
+		CR42YGrid(ui),
 		controller_(nullptr),
 		wfPartPosLabel_(new CR42YLabel(ui)),
 		wfPartPosEditor_(new CR42YIntegerEditor(ui)),
 		typeSelector_(new CR42YToggleSelector(ui)),
 		currentType_(0),
-		wfFunctionGroup_(new CR42YRelativeContainer(ui)),
+		wfFunctionGroup_(new CR42YGrid(ui)),
 		wfFunctionLabel_(new CR42YLabel(ui)),
 		wfFunctionEditor_(new CR42YEntry(ui)),
-		wfHarmonicsGroup_(new CR42YRelativeContainer(ui)),
+		wfHarmonicsGroup_(new CR42YGrid(ui)),
 		wfHarmonicsSelector_(new CR42YToggleSelector(ui)),
-		wfSamplesGroup_(new CR42YRelativeContainer(ui)),
+		wfSamplesGroup_(new CR42YGrid(ui)),
 		wfSamplesEditTgl_(new CR42YToggle(ui)),
 		ignoreCallbacks_(false)
 {
 	setDrawBorder(true);
 
+	configureColumn(0, 1, 0.003, 0.003, 0, 0);
+	configureColumn(1, 4, 0.003, 0.003, 0, 0);
+
+	configureRow(0, 1, 0.003, 0.003, 0, 0);
+	configureRow(1, 1, 0.003, 0.003, 0, 0);
+	configureRow(2, 2, 0.003, 0.003, 0, 0);
+
 	wfPartPosLabel_->setText("POS");
 	wfPartPosEditor_->setMin(0, true);
 	wfPartPosEditor_->setMax(0, true);
-	wfPartPosEditor_->signalChanged().connect(sigc::mem_fun(this, &CR42YWFPartEditor::posEditCallback));
+	wfPartPosEditor_->signalChanged().connect(
+			sigc::mem_fun(this, &CR42YWFPartEditor::posEditCallback));
 
 	CR42YToggle* toggle = new CR42YToggle(ui);
 	toggle->setText("SMPLS");
@@ -79,13 +88,21 @@ CR42YWFPartEditor::CR42YWFPartEditor(CR42YUI* ui) :
 	toggle->setText("HARM");
 	typeSelector_->putToggle(toggle, 0.333, 0, 0.334, 1, 0, 2, 0, 2);
 
-	typeSelector_->signalSelected().connect(sigc::mem_fun(this, &CR42YWFPartEditor::typeSelectCallback));
+	typeSelector_->signalSelected().connect(
+			sigc::mem_fun(this, &CR42YWFPartEditor::typeSelectCallback));
 
 	wfFunctionLabel_->setText("f(x, y) = ");
-	wfFunctionEditor_->signal_changed().connect(sigc::mem_fun(this, &CR42YWFPartEditor::functionEditCallback));
+	wfFunctionEditor_->signal_changed().connect(
+			sigc::mem_fun(this, &CR42YWFPartEditor::functionEditCallback));
 
-	wfFunctionGroup_->put(wfFunctionLabel_, 0, 0, 0.3, 1, 2, 2, 2, 2);
-	wfFunctionGroup_->put(wfFunctionEditor_, 0.3, 0, 0.7, 1, 2, 2, 2, 2);
+	wfFunctionGroup_->configureColumn(0, 1, 0, 0.003, 0, 0);
+	wfFunctionGroup_->configureColumn(1, 2, 0.003, 0, 0, 0);
+
+	wfFunctionGroup_->configureRow(0, 1, 0, 0, 0, 0);
+	wfFunctionGroup_->configureRow(1, 1, 0, 0, 0, 0);
+
+	wfFunctionGroup_->put(wfFunctionLabel_, 0, 0);
+	wfFunctionGroup_->put(wfFunctionEditor_, 0, 1);
 
 	toggle = new CR42YToggle(ui);
 	toggle->setText("SIN");
@@ -99,30 +116,50 @@ CR42YWFPartEditor::CR42YWFPartEditor(CR42YUI* ui) :
 	toggle = new CR42YToggle(ui);
 	toggle->setText("SQR");
 	wfHarmonicsSelector_->putToggle(toggle, 0, 0.5, 0.333, 0.5, 2, 0, 0, 2);
-	wfHarmonicsSelector_->signalSelected().connect(sigc::mem_fun(this, &CR42YWFPartEditor::harmSelectCallback));
+	wfHarmonicsSelector_->signalSelected().connect(
+			sigc::mem_fun(this, &CR42YWFPartEditor::harmSelectCallback));
 
-	wfHarmonicsGroup_->put(wfHarmonicsSelector_, 0, 0, 1, 1, 2, 2, 2, 2);
+	wfHarmonicsGroup_->configureColumn(0, 1, 0, 0, 0, 0);
+	wfHarmonicsGroup_->configureRow(0, 1, 0, 0, 0, 0);
+
+	wfHarmonicsGroup_->put(wfHarmonicsSelector_, 0, 0);
 
 	wfSamplesEditTgl_->setText("EDIT");
-	wfSamplesEditTgl_->signalClicked().connect(sigc::mem_fun(this, &CR42YWFPartEditor::sampleEditCallback));
+	wfSamplesEditTgl_->signalClicked().connect(
+			sigc::mem_fun(this, &CR42YWFPartEditor::sampleEditCallback));
 
-	wfSamplesGroup_->put(wfSamplesEditTgl_, 0, 0, 0.5, 0.5, 2, 2, 2, 2);
+	wfSamplesGroup_->configureColumn(0, 1, 0, 0, 0, 0);
+	wfSamplesGroup_->configureColumn(1, 2, 0, 0, 0, 0);
+	wfSamplesGroup_->configureRow(0, 1, 0, 0, 0, 0);
+	wfSamplesGroup_->configureRow(1, 1, 0, 0, 0, 0);
 
-	put(wfPartPosLabel_, 0, 0, 0.2, 0.15, 2, 2, 2, 2);
-	put(wfPartPosEditor_, 0.2, 0, 0.8, 0.15, 2, 2, 2, 2);
+	wfSamplesGroup_->put(wfSamplesEditTgl_, 0, 0);
 
-	put(typeSelector_, 0, 0.15, 1, 0.15, 2, 2, 2, 2);
-	put(wfFunctionGroup_, 0, 0.3, 1, 0.2, 2, 2, 2, 2);
-	put(wfHarmonicsGroup_, 0, 0.3, 1, 0.4, 2, 2, 2, 2);
-	put(wfSamplesGroup_, 0, 0.3, 1, 0.3, 2, 2, 2, 2);
+	put(wfPartPosLabel_, 0, 0);
+	put(wfPartPosEditor_, 0, 1);
+
+	put(typeSelector_, 1, 0, 1, 2);
+	put(wfFunctionGroup_, 2, 0, 1, 2);
+	put(wfHarmonicsGroup_, 2, 0, 1, 2);
+	put(wfSamplesGroup_, 2, 0, 1, 2);
 }
 
 CR42YWFPartEditor::~CR42YWFPartEditor()
 {
 	delete wfPartPosLabel_;
 	delete wfPartPosEditor_;
+
+	delete typeSelector_;
+
+	delete wfFunctionGroup_;
 	delete wfFunctionLabel_;
 	delete wfFunctionEditor_;
+
+	delete wfHarmonicsGroup_;
+	delete wfHarmonicsSelector_;
+
+	delete wfSamplesGroup_;
+	delete wfSamplesEditTgl_;
 }
 
 void CR42YWFPartEditor::setController(WavetableEditController* controller)
@@ -142,9 +179,9 @@ void CR42YWFPartEditor::update()
 			currentType_ = newType;
 			typeSelector_->select(currentType_, false);
 
-			wfFunctionGroup_->hide_all();
-			wfHarmonicsGroup_->hide_all();
-			wfSamplesGroup_->hide_all();
+			wfFunctionGroup_->hide();
+			wfHarmonicsGroup_->hide();
+			wfSamplesGroup_->hide();
 
 			switch (newType)
 			{
@@ -193,10 +230,23 @@ void CR42YWFPartEditor::update()
 		wfPartPosEditor_->setMax(controller_->getPartAmount() - 1);
 		wfPartPosEditor_->setValue(controller_->getSelectedPart());
 
-		wfSamplesEditTgl_->set_state(controller_->getEditSelected() ? Gtk::STATE_ACTIVE : Gtk::STATE_NORMAL);
+		wfSamplesEditTgl_->set_state(
+				controller_->getEditSelected() ? Gtk::STATE_ACTIVE :
+													Gtk::STATE_NORMAL);
 
 		ignoreCallbacks_ = false;
 	}
+}
+
+void CR42YWFPartEditor::on_show()
+{
+	CR42YGrid::on_show();
+	/* it's stupid but it works
+	 * PS: can't be -1 cause that's what WavetableEditController::getPartType()
+	 * returns if nothing is selected.
+	 */
+	currentType_ = -2;
+	update();
 }
 
 void CR42YWFPartEditor::typeSelectCallback(int selected)

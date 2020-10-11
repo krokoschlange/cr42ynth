@@ -56,6 +56,8 @@ public:
 	CR42YTheme(std::string theme);
 	virtual ~CR42YTheme();
 
+	void setUIHeight(int uiHeight);
+
 	float* color(CR42YCOLORS color);
 	float lineThin();
 	float lineMiddle();
@@ -67,11 +69,23 @@ public:
 	int fontSizeMiddle();
 	int fontSizeBig();
 
+	enum FONT_SIZE
+	{
+		SMALL,
+		MIDDLE,
+		BIG,
+		FONT_SIZE_COUNT
+	};
+
+	int fontSize(FONT_SIZE size);
+
 
 private:
 	void load(std::string theme);
 	void loadRGBA(std::string hexColor, float* out);
 
+
+	float scaleFactor_;
 
 	float colors_[COLOR_COUNT][4];
 
@@ -81,9 +95,7 @@ private:
 	float cornerRadius_;
 
 	std::string font_;
-	int fontSizeSmall_;
-	int fontSizeMiddle_;
-	int fontSizeBig_;
+	int fontSizes_[FONT_SIZE_COUNT];
 };
 
 } /* namespace cr42y */

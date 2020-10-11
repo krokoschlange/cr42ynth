@@ -36,16 +36,18 @@
 #define SRC_DSP_GENERATORS_WTOSCILLATOR_H_
 
 #include "Generator.h"
-#include "OscillatorVoiceData.h"
-#include "WavetableEditData.h"
 
 namespace cr42y
 {
+class CR42YnthCommunicator;
+class OscillatorControls;
+class WavetableEditData;
+class OscillatorVoiceData;
 
 class WTOscillator : public Generator
 {
 public:
-	WTOscillator(std::vector<Voice*>* vce, int id, float rate);
+	WTOscillator(CR42YnthCommunicator* comm, std::vector<Voice*>* vce, int id, float rate);
 	virtual ~WTOscillator();
 
 	void setWavetable(std::vector<std::vector<float>>* wt);
@@ -58,14 +60,14 @@ public:
 
 	virtual void sendState();
 
-	bool receiveOSCMessage(OSCEvent* event);
+	bool handleOSCEvent(OSCEvent* event);
 
 
 	void midiPanic();
 
 	std::vector<float> getOutput(Voice* vce);
 
-	Control* getActiveCtrl();
+	/*Control* getActiveCtrl();
 	Control* getSmoothCtrl();
 	Control* getVolumeCtrl();
 	Control* getPanCtrl();
@@ -75,9 +77,13 @@ public:
 	Control* getUnisonDetuneCtrl();
 	Control* getUnisonSpreadCtrl();
 	Control* getPhaseShiftCtrl();
-	Control* getPhaseRandCtrl();
+	Control* getPhaseRandCtrl();*/
+
+	OscillatorControls* getControls();
 
 private:
+	CR42YnthCommunicator* communicator_;
+
 	int number;
 
 	float samplerate;
@@ -89,7 +95,7 @@ private:
 
 	std::vector<OscillatorVoiceData*> voiceData;
 
-	Control active;
+	/*Control active;
 	Control smooth;
 	Control noise;
 	Control volume;
@@ -101,7 +107,8 @@ private:
 	Control unisonDetune;
 	Control unisonSpread;
 	Control phaseShift;
-	Control phaseRand;
+	Control phaseRand;*/
+	OscillatorControls controls_;
 };
 
 } /* namespace cr42y */

@@ -35,7 +35,7 @@
 #ifndef SRC_UI_CR42YWFPARTEDITOR_H_
 #define SRC_UI_CR42YWFPARTEDITOR_H_
 
-#include "CR42YRelativeContainer.h"
+#include "CR42YGrid.h"
 
 namespace cr42y
 {
@@ -47,7 +47,7 @@ class CR42YIntegerEditor;
 class CR42YToggleSelector;
 class CR42YToggle;
 
-class CR42YWFPartEditor : public CR42YRelativeContainer
+class CR42YWFPartEditor : public CR42YGrid
 {
 public:
 	CR42YWFPartEditor(CR42YUI* ui);
@@ -56,6 +56,9 @@ public:
 	void setController(WavetableEditController* controller);
 
 	void update();
+
+protected:
+	void on_show();
 
 private:
 	WavetableEditController* controller_;
@@ -67,14 +70,14 @@ private:
 
 	int currentType_;
 
-	CR42YRelativeContainer* wfFunctionGroup_;
+	CR42YGrid* wfFunctionGroup_;
 	CR42YLabel* wfFunctionLabel_;
 	CR42YEntry* wfFunctionEditor_;
 
-	CR42YRelativeContainer* wfHarmonicsGroup_;
+	CR42YGrid* wfHarmonicsGroup_;
 	CR42YToggleSelector* wfHarmonicsSelector_;
 
-	CR42YRelativeContainer* wfSamplesGroup_;
+	CR42YGrid* wfSamplesGroup_;
 	CR42YToggle* wfSamplesEditTgl_;
 
 	bool ignoreCallbacks_;

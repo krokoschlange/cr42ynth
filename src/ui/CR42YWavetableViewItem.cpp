@@ -207,7 +207,7 @@ void CR42YWavetableViewItem::draw(Cairo::RefPtr<Cairo::Context> cr)
 		clr = tm->color(FG);
 		cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
 		cr->select_font_face(tm->font(), Cairo::FONT_SLANT_NORMAL, Cairo::FONT_WEIGHT_NORMAL);
-		cr->set_font_size(tm->fontSizeMiddle());
+		cr->set_font_size(tm->fontSizeSmall());
 		cr->get_text_extents(str, xtents);
 		cr->move_to(get_width() - xtents.width - 5, xtents.height + 5);
 		cr->show_text(str);

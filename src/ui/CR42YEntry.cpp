@@ -43,9 +43,12 @@ CR42YEntry::CR42YEntry(CR42YUI* ui) :
 		Glib::ObjectBase("CR42YEntry"),
 		CR42YWidget(ui),
 		drawCursor_(true),
-		drawSelection_(true)
+		drawSelection_(true),
+		fontSize_(CR42YTheme::SMALL),
+		currentFontSize_(theme()->fontSizeSmall())
 {
-	std::string font = theme()->font() + " " + std::to_string(theme()->fontSizeMiddle());
+	std::string font = theme()->font() + " "
+			+ std::to_string(theme()->fontSizeSmall());
 	modify_font(Pango::FontDescription(font));
 }
 
@@ -63,11 +66,29 @@ void CR42YEntry::setDrawSelection(bool drawSelection)
 	drawSelection_ = drawSelection;
 }
 
+void CR42YEntry::setFontSize(int fontSize)
+{
+	fontSize_ = fontSize;
+	if (theme()->fontSize((CR42YTheme::FONT_SIZE) fontSize_)
+			!= currentFontSize_)
+	{
+		std::string font = theme()->font() + " "
+				+ std::to_string(
+						theme()->fontSize((CR42YTheme::FONT_SIZE) fontSize_));
+		modify_font(Pango::FontDescription(font));
+		currentFontSize_ = theme()->fontSizeSmall();
+	}
+}
+
 bool CR42YEntry::on_expose_event(GdkEventExpose* event)
 {
 	Glib::RefPtr<Gdk::Window> win = get_window();
 	if (win)
 	{
+		/*std::string font = theme()->font() + " "
+		 + std::to_string(theme()->fontSizeSmall());
+		 modify_font(Pango::FontDescription(font));*/
+
 		Cairo::RefPtr<Cairo::Context> cr = win->create_cairo_context();
 		CR42YTheme* tm = theme();
 		float* clr = tm->color(BG_DARK);
@@ -76,7 +97,8 @@ bool CR42YEntry::on_expose_event(GdkEventExpose* event)
 		cr->rectangle(0, 0, get_width(), get_height());
 		cr->fill();
 
-		cr42y_rounded_rectangle(cr, 0, 0, get_width(), get_height(), tm->cornerRadius(), tm->lineThick());
+		cr42y_rounded_rectangle(cr, 0, 0, get_width(), get_height(),
+				tm->cornerRadius(), tm->lineThick());
 		if (get_state() != Gtk::STATE_INSENSITIVE)
 		{
 			clr = tm->color(FG);
@@ -100,6 +122,19 @@ bool CR42YEntry::on_expose_event(GdkEventExpose* event)
 void CR42YEntry::on_size_allocate(Gtk::Allocation& alloc)
 {
 	set_size_request(alloc.get_width(), alloc.get_height());
+
+	/* needed if statement or it will do some weird crap (modify_font probably
+	 * triggers another size_allocate? idk)
+	 */
+	if (theme()->fontSize((CR42YTheme::FONT_SIZE) fontSize_)
+			!= currentFontSize_)
+	{
+		std::string font = theme()->font() + " "
+				+ std::to_string(
+						theme()->fontSize((CR42YTheme::FONT_SIZE) fontSize_));
+		modify_font(Pango::FontDescription(font));
+		currentFontSize_ = theme()->fontSizeSmall();
+	}
 	Gtk::Entry::on_size_allocate(alloc);
 }
 
@@ -144,10 +179,12 @@ void CR42YEntry::drawText()
 		
 		Glib::ustring text = layout->get_text();
 		
-		int startIdx = g_utf8_offset_to_pointer(text.data(), start) - text.data();
+		int startIdx = g_utf8_offset_to_pointer(text.data(), start)
+				- text.data();
 		int endIdx = g_utf8_offset_to_pointer(text.data(), end) - text.data();
 
-		std::vector<std::pair<int, int>> ranges = line->get_x_ranges(startIdx, endIdx);
+		std::vector<std::pair<int, int>> ranges = line->get_x_ranges(startIdx,
+				endIdx);
 
 		layout->get_extents(inkRect, logicalRect);
 
@@ -156,7 +193,8 @@ void CR42YEntry::drawText()
 
 		for (int i = 0; i < ranges.size(); i++)
 		{
-			int rectX = x /*- property_scroll_offset().get_value()*/ + ranges[i].first / Pango::SCALE;
+			int rectX = x /*- property_scroll_offset().get_value()*/
+			+ ranges[i].first / Pango::SCALE;
 			int rectY = y;
 			int rectW = (ranges[i].second - ranges[i].first) / Pango::SCALE;
 			int rectH = logicalRect.get_height() / Pango::SCALE;
@@ -182,7 +220,8 @@ void CR42YEntry::drawCursor()
 	
 	if (true) //standard cursor (needs replacing, obv)
 	{
-		idx = g_utf8_offset_to_pointer(text.data(), get_position()) - text.data();
+		idx = g_utf8_offset_to_pointer(text.data(), get_position())
+				- text.data();
 	}
 	else //some other cursor
 	{
@@ -198,8 +237,8 @@ void CR42YEntry::drawCursor()
 	x -= textWinX;
 	y -= textWinY;
 	
-	int cursorX = strongPos.get_x() / Pango::SCALE + x;//- property_scroll_offset();
-	
+	int cursorX = strongPos.get_x() / Pango::SCALE + x; //- property_scroll_offset();
+
 	Cairo::RefPtr<Cairo::Context> textCr = textWin->create_cairo_context();
 	
 	CR42YTheme* tm = theme();

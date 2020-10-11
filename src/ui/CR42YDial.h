@@ -34,14 +34,55 @@
 #ifndef SRC_UI_CR42YDIAL_H_
 #define SRC_UI_CR42YDIAL_H_
 
+#include <gtkmm.h>
+#include "CR42YWidget.h"
+
 namespace cr42y
 {
 
-class CR42YDial
+class CR42YDial : public Gtk::Widget, public CR42YWidget
 {
 public:
-	CR42YDial();
+	CR42YDial(CR42YUI* ui);
 	virtual ~CR42YDial();
+
+	double value();
+	void setValue(double value, bool trigger = true);
+
+	double defaultValue();
+	void setDefaultValue(double defaultValue);
+
+	std::string text();
+	void setText(std::string text);
+
+
+	sigc::signal<void, double> signalChanged();
+	sigc::signal<void, double> signalDone();
+
+protected:
+
+	virtual bool on_expose_event(GdkEventExpose* event);
+	virtual void on_realize();
+
+	bool on_button_press(GdkEventButton* event);
+	bool on_button_release(GdkEventButton* event);
+	bool on_motion_notify(GdkEventMotion* event);
+
+private:
+	Glib::RefPtr<Gdk::Window> window_;
+
+	sigc::signal<void, double> signalChanged_;
+	sigc::signal<void, double> signalDone_;
+
+	double value_;
+	double preClickValue_;
+	double prePreClickValue_;
+	int mouseY_;
+
+	double oldValue_;
+	double defaultValue_;
+
+	std::string text_;
 };
 
 } /* namespace cr42y */

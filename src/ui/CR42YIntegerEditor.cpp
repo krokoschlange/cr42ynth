@@ -107,6 +107,11 @@ int CR42YIntegerEditor::max()
 	return entry_->max();
 }
 
+void CR42YIntegerEditor::setFontSize(int fontSize)
+{
+	entry_->setFontSize(fontSize);
+}
+
 sigc::signal<void, int> CR42YIntegerEditor::signalChanged()
 {
 	return entry_->signalChanged();

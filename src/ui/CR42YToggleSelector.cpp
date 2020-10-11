@@ -87,8 +87,8 @@ int CR42YToggleSelector::selected()
 }
 
 void CR42YToggleSelector::putToggle(CR42YToggle* toggle, double x, double y,
-		double w, double h, int padLeft, int padTop, int padRight,
-		int padBottom)
+		double w, double h, double padLeft, double padTop, double padRight,
+		double padBottom)
 {
 	put(toggle, x, y, w, h, padLeft, padTop, padRight, padBottom);
 	sigc::connection conn = toggle->signalClicked().connect(sigc::bind<int, bool>(sigc::mem_fun(this, &CR42YToggleSelector::select), toggles_.size(), true));

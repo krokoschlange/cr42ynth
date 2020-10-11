@@ -30,84 +30,24 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
-#ifndef SRC_DSP_CR42YNTHDSP_H_
-#define SRC_DSP_CR42YNTHDSP_H_
 
-#include <vector>
+#include "CR42YOSCSettings.h"
 
-#include "OSCEventListener.h"
+#include "CR42YDial.h"
 
 namespace cr42y
 {
-class WTOscillator;
-class Generator;
-class Voice;
-class Property;
-class CR42YnthCommunicator;
-class OSCEvent;
-class Control;
 
-
-class CR42YnthDSP : OSCEventListener
+CR42YOSCSettings::CR42YOSCSettings(CR42YUI* ui) :
+		Glib::ObjectBase("CR42YOSCSettings"),
+		CR42YRelativeContainer(ui),
+		dial_(new CR42YDial(ui))
 {
-public:
-	static CR42YnthDSP* getInstance(float rate = 0, CR42YnthCommunicator* comm = nullptr);
-	static void destroyInstance();
+	put(dial_, 0, 0, 100, 100);
+}
 
-	void init();
-
-	float getBPM();
-	float getSamplerate();
-	CR42YnthCommunicator* getCommunicator();
-
-	std::vector<WTOscillator*> getOscillators();
-	/*LFO** getLFOs();
-	Envelope** getEnvelopes();*/
-
-	void run(uint32_t n_samples);
-	bool handleOSCEvent(OSCEvent* event);
-
-	void sendState();
-
-	float* getOutR();
-	float* getOutL();
-
-	/*void addControl(Control* ctrl);
-	void removeControl(Control* ctrl);*/
-
-	Generator* getGeneratorFromString(std::string str);
-
-	Voice* getGlobalVoice();
-	Voice* getFreeVoice();
-
-private:
-	static CR42YnthDSP* instance;
-	CR42YnthDSP(float rate, CR42YnthCommunicator* comm);
-	virtual ~CR42YnthDSP();
-
-
-	float samplerate;
-	CR42YnthCommunicator* communicator;
-
-	//std::vector<Control*> controls;
-
-	Control* bpm;
-	Property* bpmProp;
-	Control* vol;
-	Property* volProp;
-
-	std::vector<WTOscillator*> oscillators;
-	/*std::vector<LFO*> lfos;
-	std::vector<Envelope*> envelopes;*/
-
-	Voice globalVoice;
-	Voice freeVoice;
-	std::vector<Voice*> voices;
-
-	float* outR;
-	float* outL;
-};
+CR42YOSCSettings::~CR42YOSCSettings()
+{
+}
 
 } /* namespace cr42y */
-
-#endif /* SRC_DSP_CR42YNTHDSP_H_ */
