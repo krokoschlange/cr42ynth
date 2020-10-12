@@ -71,8 +71,8 @@ void CR42YnthDSP::destroyInstance()
 }
 
 CR42YnthDSP::CR42YnthDSP(float rate, CR42YnthCommunicator* comm) :
-		globalVoice(0, 0),
-		freeVoice(0, 0),
+		globalVoice(new Voice(0, 0)),
+		freeVoice(new Voice(0, 0)),
 		samplerate(rate),
 		communicator(comm),
 		outL(nullptr),
@@ -122,16 +122,20 @@ CR42YnthDSP::~CR42YnthDSP()
 		delete volProp;
 		volProp = nullptr;
 	}
+	delete globalVoice;
+	globalVoice = nullptr;
+	delete freeVoice;
+	freeVoice = nullptr;
 	//controls.clear();
 }
 
 void CR42YnthDSP::init()
 {
 	bpm = new Control("/global/bpm", getCommunicator(), 140, 0, 999);
-	bpmProp = new Property(&globalVoice, bpm);
+	bpmProp = new Property(globalVoice, bpm);
 
 	vol = new Control("/global/volume", getCommunicator(), 1, 0, 1);
-	volProp = new Property(&globalVoice, vol);
+	volProp = new Property(globalVoice, vol);
 
 	for (int i = 0; i < CR42Ynth_OSC_COUNT; i++)
 	{
@@ -362,12 +366,12 @@ Generator* CR42YnthDSP::getGeneratorFromString(std::string str)
 
 Voice* CR42YnthDSP::getGlobalVoice()
 {
-	return &globalVoice;
+	return globalVoice;
 }
 
 Voice* CR42YnthDSP::getFreeVoice()
 {
-	return &freeVoice;
+	return freeVoice;
 }
 
 } /* namespace cr42y */

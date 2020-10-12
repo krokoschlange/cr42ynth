@@ -57,7 +57,8 @@ WTOscillator::WTOscillator(CR42YnthCommunicator* comm, std::vector<Voice*>* vce,
 		samplerate(rate),
 		wavetable(nullptr),
 
-		editData(new WavetableEditData(4096))
+		editData(new WavetableEditData(4096)),
+		controls_(new OscillatorControls(id, comm))
 {
 	setWavetable(editData->getSamples());
 	comm->addOSCEventListener(this);
@@ -69,6 +70,8 @@ WTOscillator::~WTOscillator()
 	{
 		delete wavetable;
 	}
+	delete controls_;
+	controls_ = nullptr;
 }
 
 void WTOscillator::setWavetable(std::vector<std::vector<float>>* wt)
@@ -118,7 +121,7 @@ void WTOscillator::nextSample()
 		for (int uni = 0; uni < voice->phases.size(); uni++)
 		{
 			float val = 0;
-			if (controls_.getNoiseCtrl()->getValue())
+			if (controls_->getNoiseCtrl()->getValue())
 			{
 				val = (rand() % 200) / 100. - 1;
 			}
@@ -146,7 +149,7 @@ void WTOscillator::nextSample()
 					{
 						wtSample = 0;
 					}
-					if (controls_.getSmoothCtrl()->getValue())
+					if (controls_->getSmoothCtrl()->getValue())
 					{
 						float smpl1 = (*wavetable)[wtSample][(int) waveSample];
 						float waveSample2 = waveSample + 1;
@@ -181,7 +184,7 @@ void WTOscillator::nextSample()
 			left += val * voice->volume.getValue() * lPan * voice->AM * voice->RM * voice->voice->getVelocity();
 			right += val * voice->volume.getValue() * rPan * voice->AM * voice->RM * voice->voice->getVelocity();
 
-			float note = voice->voice->getNote() + controls_.getDetuneCtrl()->getValue() + voice->noteShift.getValue();
+			float note = voice->voice->getNote() + controls_->getDetuneCtrl()->getValue() + voice->noteShift.getValue();
 			if (voice->phases.size() > 1)
 			{
 				float uniDet = voice->unisonDetune.getValue();
@@ -360,7 +363,7 @@ Control* WTOscillator::getPhaseRandCtrl()
 
 OscillatorControls* WTOscillator::getControls()
 {
-	return &controls_;
+	return controls_;
 }
 
 } /* namespace cr42y */

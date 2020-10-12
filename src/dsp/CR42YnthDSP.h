@@ -34,6 +34,7 @@
 #define SRC_DSP_CR42YNTHDSP_H_
 
 #include <vector>
+#include <string>
 
 #include "OSCEventListener.h"
 
@@ -100,8 +101,8 @@ private:
 	/*std::vector<LFO*> lfos;
 	std::vector<Envelope*> envelopes;*/
 
-	Voice globalVoice;
-	Voice freeVoice;
+	Voice* globalVoice;
+	Voice* freeVoice;
 	std::vector<Voice*> voices;
 
 	float* outR;

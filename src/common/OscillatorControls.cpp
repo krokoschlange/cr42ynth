@@ -45,7 +45,7 @@ Control* OscillatorControls::getSmoothCtrl()
 	return &smooth_;
 }
 
-Control* OscillatorControls::getSmoothCtrl()
+Control* OscillatorControls::getNoiseCtrl()
 {
 	return &noise_;
 }
@@ -55,7 +55,7 @@ Control* OscillatorControls::getVolumeCtrl()
 	return &volume_;
 }
 
-Control* OscillatorControls::getSmoothCtrl()
+Control* OscillatorControls::getDetuneCtrl()
 {
 	return &detune_;
 }

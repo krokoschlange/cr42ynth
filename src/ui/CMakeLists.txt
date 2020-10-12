@@ -25,6 +25,9 @@ include_directories ("${PROJECT_SOURCE_DIR}/ui/tools/")
 
 add_executable(cr42ynth_ui.so
 	../common/OSCEvent.cpp
+	../common/OSCEventListener.cpp
+	../common/OscillatorControls.cpp
+	../common/Control.cpp
 	../common/common.cpp
 	../common/CR42YnthCommunicator.cpp
 	../common/CR42YConfig.cpp

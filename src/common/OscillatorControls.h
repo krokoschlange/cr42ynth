@@ -1,6 +1,8 @@
 #ifndef SRC_COMMON_OSCILLATORCONTROLS_H_
 #define SRC_COMMON_OSCILLATORCONTROLS_H_
 
+#include "Control.h"
+
 namespace cr42y
 {
 

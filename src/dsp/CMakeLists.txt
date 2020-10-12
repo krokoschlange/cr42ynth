@@ -22,6 +22,8 @@ add_executable(cr42ynth.so
 	../common/common.cpp
 	../common/Control.cpp
 	../common/OSCEvent.cpp
+	../common/OSCEventListener.cpp
+	../common/OscillatorControls.cpp
 	../common/ControlListener.cpp
 	../common/WavetableEditData.cpp
 	../common/WaveformPart.cpp

@@ -36,7 +36,6 @@
 #include "rtosc/rtosc.h"
 
 #include "Control.h"
-#include "CR42YnthDSP.h"
 #include "CR42YnthCommunicator.h"
 #include "ControlListener.h"
 #include "OSCEvent.h"

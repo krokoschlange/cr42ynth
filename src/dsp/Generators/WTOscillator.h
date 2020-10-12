@@ -108,7 +108,7 @@ private:
 	Control unisonSpread;
 	Control phaseShift;
 	Control phaseRand;*/
-	OscillatorControls controls_;
+	OscillatorControls* controls_;
 };
 
 } /* namespace cr42y */
