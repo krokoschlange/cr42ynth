@@ -240,7 +240,7 @@ bool CR42YnthDSP::handleOSCEvent(OSCEvent* event)
 			break;
 		}
 	}
-	pattern = "/global/state";
+	/*pattern = "/global/state";
 	rtosc_match_path(pattern.c_str(), event->getMessage(), (const char**) &end);
 	if (end && *end == '\0' && rtosc_type(event->getMessage(), 0) == 's')
 	{
@@ -249,7 +249,7 @@ bool CR42YnthDSP::handleOSCEvent(OSCEvent* event)
 			eaten = true;
 			sendState();
 		}
-	}
+	}*/
 
 	/*for (int i = 0; i < controls.size() && !eaten; i++)
 	{
@@ -278,10 +278,10 @@ void CR42YnthDSP::sendState()
 	{
 		controls[i]->sendState();
 	}*/
-	for (int i = 0; i < oscillators.size(); i++)
+	/*for (int i = 0; i < oscillators.size(); i++)
 	{
 		oscillators[i]->sendState();
-	}
+	}*/
 }
 
 void CR42YnthDSP::run(uint32_t n_samples)

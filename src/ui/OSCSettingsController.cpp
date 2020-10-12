@@ -30,4 +30,22 @@ OSCSettingsController::~OSCSettingsController()
 	editHistory_.clear();
 }
 
+WavetableEditData* OSCSettingsController::getEditData(int idx)
+{
+	if (idx >= 0 && idx < editData_.size())
+	{
+		return &(editData_[idx]);
+	}
+	return nullptr;
+}
+
+OscillatorControls* OSCSettingsController::getControls(int idx)
+{
+	if (idx >= 0 && idx < controls_.size())
+	{
+		return &(controls_[idx]);
+	}
+	return nullptr;
+}
+
 } /* namespace cr42y */

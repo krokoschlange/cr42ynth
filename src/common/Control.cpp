@@ -187,6 +187,11 @@ bool Control::handleOSCEvent(OSCEvent* event)
 	return false;
 }
 
+void Control::sendState()
+{
+	sendState(true, true, true, true);
+}
+
 void Control::sendState(bool sendVal, bool sendMin, bool sendMax, bool sendGen)
 {
 	unsigned int bufferSize = getAddress().size() + 32;

@@ -4,6 +4,7 @@
 #include "CR42YToggle.h"
 #include "CR42YUI.h"
 #include "CR42YWFView.h"
+#include "OSCSettingsController.h"
 
 namespace cr42y
 {
@@ -34,6 +35,15 @@ CR42YOSCPanel::CR42YOSCPanel(CR42YUI* ui) :
 
 CR42YOSCPanel::~CR42YOSCPanel()
 {
+	delete wfView_;
+	delete oscToggle_;
+	delete volumeDial_;
+}
+
+void CR42YOSCPanel::connectData(int oscIndex, OSCSettingsController* controller_)
+{
+	wfView_->setData(controller_->getEditData(oscIndex));
+	//TODO: others
 }
 
 } /* namespace cr42y */

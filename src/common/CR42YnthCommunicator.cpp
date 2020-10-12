@@ -31,10 +31,14 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-
 #include "CR42YnthCommunicator.h"
 
+#include "OSCEvent.h"
 #include "OSCEventListener.h"
+
+#include <string>
+#include <string.h>
+#include "rtosc/rtosc.h"
 
 namespace cr42y
 {
@@ -67,9 +71,29 @@ void CR42YnthCommunicator::removeOSCEventListener(OSCEventListener* listener)
 void CR42YnthCommunicator::handleOSCEvent(OSCEvent* event)
 {
 	bool handled = false;
+
+	std::string pattern = "/global/state";
+	char* end = nullptr;
+	rtosc_match_path(pattern.c_str(), event->getMessage(), (const char**) &end);
+	if (end && *end == '\0' && rtosc_type(event->getMessage(), 0) == 's')
+	{
+		if (!strcmp(rtosc_argument(event->getMessage(), 0).s, "get"))
+		{
+			handled = true;
+			sendState();
+		}
+	}
 	for (int i = 0; i < listeners_.size() && !handled; i++)
 	{
 		handled = listeners_[i]->handleOSCEvent(event);
+	}
+}
+
+void CR42YnthCommunicator::sendState()
+{
+	for (int i = 0; i < listeners_.size(); i++)
+	{
+		listeners_[i]->sendState();
 	}
 }
 

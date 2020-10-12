@@ -12,6 +12,8 @@ public:
 	virtual ~OSCEventListener();
 
 	virtual bool handleOSCEvent(OSCEvent* event) = 0;
+
+	virtual void sendState() = 0;
 };
 
 } /* namespace cr42y */

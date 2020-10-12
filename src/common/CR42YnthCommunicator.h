@@ -56,6 +56,8 @@ public:
 
 	void handleOSCEvent(OSCEvent* event);
 
+	void sendState();
+
 protected:
 	std::vector<OSCEventListener*> listeners_;
 };

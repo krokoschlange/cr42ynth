@@ -74,25 +74,25 @@ private:
 	CR42YnthUI* ui;
 
 	class URIS
-		{
-		public:
-			LV2_URID atomFloat;
-			LV2_URID atomObject;
-			LV2_URID atomVector;
-			LV2_URID atomEventTransfer;
+	{
+	public:
+		LV2_URID atomFloat;
+		LV2_URID atomObject;
+		LV2_URID atomVector;
+		LV2_URID atomEventTransfer;
 
-			LV2_URID midiEvent;
+		LV2_URID midiEvent;
 
-			LV2_URID timePosition;
-			LV2_URID timeBarBeat;
-			LV2_URID timeBPM;
-			LV2_URID timeSpeed;
+		LV2_URID timePosition;
+		LV2_URID timeBarBeat;
+		LV2_URID timeBPM;
+		LV2_URID timeSpeed;
 
-			LV2_URID msgOSCMsg;
-			LV2_URID msgData;
-			LV2_URID msgObj;
-		};
-		URIS* uris;
+		LV2_URID msgOSCMsg;
+		LV2_URID msgData;
+		LV2_URID msgObj;
+	};
+	URIS* uris;
 };
 
 } /* namespace cr42y */
