@@ -1,6 +1,3 @@
-[submodule "avtk"]
-	path = avtk
-	url = https://github.com/openAVproductions/openAV-AVTK.git
 [submodule "exprtk"]
 	path = exprtk
 	url = https://github.com/ArashPartow/exprtk.git
