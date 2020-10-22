@@ -64,8 +64,11 @@ CR42YnthUI::CR42YnthUI(CR42YnthCommunicator* comm, const char* path) :
 {
 	set_size_request(500, 350);
 
+	strcpy(bundlePath_, path);
+	setResourceRoot(std::string(bundlePath_) + "../");
+
 	std::ifstream themeConf;
-	themeConf.open("theme.conf");
+	themeConf.open(resourceRoot() + "theme.conf");
 	std::string themeStr;
 
 	if (themeConf.is_open())
@@ -78,12 +81,11 @@ CR42YnthUI::CR42YnthUI(CR42YnthCommunicator* comm, const char* path) :
 	}
 
 	setTheme(new CR42YTheme(themeStr));
-	strcpy(bundlePath_, path);
-	setResourceRoot(bundlePath_);
 
 	screenSelector_ = new CR42YToggleSelector(this);
-	oscSettings_ = new CR42YOSCSettings(this);
 	wtEditor_ = new CR42YWavetableEditor(this);
+	oscSettings_ = new CR42YOSCSettings(this, comm, wtEditor_->getController(), screenSelector_);
+
 
 	CR42YToggle* tgl = new CR42YToggle(this);
 	tgl->setText("OSC");
@@ -104,7 +106,8 @@ CR42YnthUI::CR42YnthUI(CR42YnthCommunicator* comm, const char* path) :
 
 	screenSelector_->select(0);
 
-	screenSelector_->signalSelected().connect(sigc::mem_fun(this, &CR42YnthUI::screenSelectCallback));
+	screenSelector_->signalSelected().connect(
+			sigc::mem_fun(this, &CR42YnthUI::screenSelectCallback));
 
 	put(screenSelector_, 0.25, 0, 0.5, 0.15);
 	put(oscSettings_, 0, 0.15, 1, 0.85);
@@ -115,7 +118,8 @@ CR42YnthUI::CR42YnthUI(CR42YnthCommunicator* comm, const char* path) :
 		std::string addr = "/oscillators/0/active";
 		uint32_t bufferSize = addr.size() + 32;
 		char buffer[bufferSize];
-		int len = rtosc_message(buffer, bufferSize, addr.c_str(), "sf", "set_value", 1.0);
+		int len = rtosc_message(buffer, bufferSize, addr.c_str(), "sf",
+				"set_value", 1.0);
 		comm->writeMessage(buffer, len, nullptr, 0);
 
 		addr = "/global/state";
@@ -147,7 +151,8 @@ void CR42YnthUI::handleOSCEvent(OSCEvent* event)
 	if (end && *end == '\0')
 	{
 		//communicator->log(msg);
-		if (rtosc_type(msg, 0) == 's' && !strcmp(rtosc_argument(msg, 0).s, "set"))
+		if (rtosc_type(msg, 0) == 's'
+				&& !strcmp(rtosc_argument(msg, 0).s, "set"))
 		{
 			if (event->getData())
 			{
@@ -187,7 +192,7 @@ void CR42YnthUI::screenSelectCallback(int selected)
 	oscSettings_->hide_all();
 	wtEditor_->hide_all();
 
-	switch(selected)
+	switch (selected)
 	{
 	case 0:
 		oscSettings_->show_all();

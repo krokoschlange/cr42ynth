@@ -4,28 +4,31 @@
 #include "CR42YnthCommunicator.h"
 
 #include "CR42YButton.h"
-#include "CR42YOSCPanel.h"#
+#include "CR42YOSCPanel.h"
 #include "CR42YUI.h"
+#include "OSCSettingsController.h"
 
 namespace cr42y
 {
 
-CR42YOSCPanelScroll::CR42YOSCPanelScroll(CR42YUI* ui, CR42YnthCommunicator* comm) :
+CR42YOSCPanelScroll::CR42YOSCPanelScroll(CR42YUI* ui, CR42YnthCommunicator* comm, WavetableEditController* wtEditController, CR42YToggleSelector* viewSelector) :
 		Glib::ObjectBase("CR42YOSCPanelScroll"),
 		CR42YGrid(ui),
 		leftBtn_(new CR42YButton(ui)),
 		rightBtn_(new CR42YButton(ui)),
 		scrollIndex_(0),
-		controller_(new OSCSettingsController(comm))
+		controller_(new OSCSettingsController(comm, wtEditController))
 {
-	configureColumn(0, 1, 0, 0, 0, 70);
+	configureColumn(0, 1, 0, 0, 70, 0);
 	for (int i = 0; i < panelAmount_; i++)
 	{
-		configureColumn(i + 1, 3, 0, 0, 0, 70);
+		configureColumn(i + 1, 4, 0, 0, 70, 0);
 	}
-	configureColumn(panelAmount_ + 1, 1, 0, 0, 0, 70);
+	configureColumn(panelAmount_ + 1, 1, 0, 0, 70, 0);
 
 	configureRow(0, 1, 0, 0, 0, 0);
+
+	std::cout << ui->resourceRoot() + "media/left.png" << "\n";
 
 	leftBtn_->setSurfActive(
 			Cairo::ImageSurface::create_from_png(
@@ -53,8 +56,9 @@ CR42YOSCPanelScroll::CR42YOSCPanelScroll(CR42YUI* ui, CR42YnthCommunicator* comm
 
 	for (int i = 0; i < panelAmount_; i++)
 	{
-		CR42YOSCPanel* panel = new CR42YOSCPanel(ui);
+		CR42YOSCPanel* panel = new CR42YOSCPanel(ui, wtEditController, viewSelector);
 		put(panel, 0, i + 1);
+		panels_.push_back(panel);
 	}
 }
 

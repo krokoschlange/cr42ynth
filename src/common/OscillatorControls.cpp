@@ -28,7 +28,10 @@ OscillatorControls::OscillatorControls(int id, CR42YnthCommunicator* comm) :
 				0, -1, 1),
 		phaseRand_("/oscillators/" + std::to_string(id) + "/phase_rand", comm)
 {
-	
+	if (id == 0)
+	{
+		active_.setValue(1, false);
+	}
 }
 
 OscillatorControls::~OscillatorControls()

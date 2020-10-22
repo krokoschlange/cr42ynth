@@ -47,6 +47,7 @@ namespace cr42y
 CR42YnthUI_LV2::CR42YnthUI_LV2(const char* bundlePath,
 		LV2UI_Write_Function writeFunction, LV2UI_Controller ctrler,
 		LV2UI_Widget* widget, const LV2_Feature* const * features) :
+		CR42YnthCommunicator(),
 		write(writeFunction),
 		controller(ctrler),
 		logger(new LV2_Log_Logger()),

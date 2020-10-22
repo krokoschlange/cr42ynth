@@ -33,21 +33,34 @@
 
 #include "CR42YOSCSettings.h"
 
-#include "CR42YDial.h"
+#include "CR42YOSCPanelScroll.h"
 
 namespace cr42y
 {
 
-CR42YOSCSettings::CR42YOSCSettings(CR42YUI* ui) :
+CR42YOSCSettings::CR42YOSCSettings(CR42YUI* ui,
+		CR42YnthCommunicator* communicator,
+		WavetableEditController* wtEditController,
+		CR42YToggleSelector* viewSelector) :
 		Glib::ObjectBase("CR42YOSCSettings"),
-		CR42YRelativeContainer(ui),
-		dial_(new CR42YDial(ui))
+		CR42YGrid(ui),
+		oscPanelScroll_(
+				new CR42YOSCPanelScroll(ui, communicator, wtEditController,
+						viewSelector))
 {
-	put(dial_, 0, 0, 100, 100);
+	configureColumn(0, 1, 0, 0, 0, 0);
+
+	configureRow(0, 1, 0, 0, 0, 0);
+	configureRow(1, 1, 0, 0, 0, 0);
+
+	put(oscPanelScroll_, 0, 0);
+
+	oscPanelScroll_->update();
 }
 
 CR42YOSCSettings::~CR42YOSCSettings()
 {
+	delete oscPanelScroll_;
 }
 
 } /* namespace cr42y */

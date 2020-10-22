@@ -50,12 +50,17 @@ class CR42YHarmonicsEditor;
 class CR42YToolSelector;
 class CR42YWFPartEditor;
 class CR42YWFBulkEditor;
+class WavetableEditData;
 
 class CR42YWavetableEditor : public CR42YGrid
 {
 public:
 	CR42YWavetableEditor(CR42YUI* ui);
 	virtual ~CR42YWavetableEditor();
+
+	void setData(WavetableEditData* data);
+
+	WavetableEditController* getController();
 
 protected:
 	void on_realize();

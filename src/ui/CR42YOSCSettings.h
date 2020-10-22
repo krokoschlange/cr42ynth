@@ -34,20 +34,25 @@
 #ifndef SRC_UI_CR42YOSCSETTINGS_H_
 #define SRC_UI_CR42YOSCSETTINGS_H_
 
-#include "CR42YRelativeContainer.h"
+#include "CR42YGrid.h"
 
 namespace cr42y
 {
-class CR42YDial;
+class CR42YnthCommunicator;
+class CR42YOSCPanelScroll;
+class CR42YToggleSelector;
+class WavetableEditController;
 
-class CR42YOSCSettings : public CR42YRelativeContainer
+class CR42YOSCSettings : public CR42YGrid
 {
 public:
-	CR42YOSCSettings(CR42YUI* ui);
+	CR42YOSCSettings(CR42YUI* ui, CR42YnthCommunicator* communicator,
+			WavetableEditController* wtEditController,
+			CR42YToggleSelector* viewSelector);
 	virtual ~CR42YOSCSettings();
 
 private:
-	CR42YDial* dial_;
+	CR42YOSCPanelScroll* oscPanelScroll_;
 };
 
 } /* namespace cr42y */

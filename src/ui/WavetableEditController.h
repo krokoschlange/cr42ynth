@@ -134,7 +134,8 @@ public:
 
 	sigc::signal<void> signalSelectedChanged();
 	sigc::signal<void> signalSelectedChangedDone();
-	sigc::signal<std::deque<std::pair<char*, std::vector<int>>>> signalHistoryDelete();
+	sigc::signal<void> signalDataChanged();
+	sigc::signal<void, std::deque<std::pair<char*, std::vector<int>>>> signalHistoryDelete();
 
 	void addHistoryPoint();
 	void deleteHistory();
@@ -158,10 +159,12 @@ private:
 	int wtPos_;
 	std::vector<int> selectedParts_;
 
+	sigc::signal<void> signalDataChanged_;
+
 	std::deque<std::pair<char*, std::vector<int>>> editHistory_;
 	int historyIndex_;
 	int historySize_;
-	sigc::signal<std::deque<std::pair<char*, std::vector<int>>>> signalHistoryDelete_;
+	sigc::signal<void, std::deque<std::pair<char*, std::vector<int>>>> signalHistoryDelete_;
 };
 
 } /* namespace cr42y */

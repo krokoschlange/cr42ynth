@@ -98,6 +98,7 @@ void WavetableEditController::setData(WavetableEditData* data,
 			std::cout << "setdata\n";
 		}
 		signalSelectedChangedDone_.emit();
+		signalDataChanged_.emit();
 	}
 }
 
@@ -221,6 +222,7 @@ void WavetableEditController::addWaveform(int idx)
 		}
 		addHistoryPoint();
 		signalSelectedChangedDone_.emit();
+		signalDataChanged_.emit();
 		std::cout << "addwf\n";
 	}
 }
@@ -237,6 +239,7 @@ void WavetableEditController::removeWaveform(int idx, bool erase)
 		}
 		addHistoryPoint();
 		signalSelectedChangedDone_.emit();
+		signalDataChanged_.emit();
 		std::cout << "removewf\n";
 	}
 }
@@ -266,6 +269,7 @@ void WavetableEditController::moveWaveform(int idx, int newIdx)
 		selectedParts_.erase(selectedParts_.begin() + oldIdx);
 		addHistoryPoint();
 		signalSelectedChangedDone_.emit();
+		signalDataChanged_.emit();
 		std::cout << "movewf\n";
 	}
 }
@@ -292,6 +296,7 @@ void WavetableEditController::addFunctionWaveforms(int idx, int amnt,
 		}
 		addHistoryPoint();
 		signalSelectedChangedDone_.emit();
+		signalDataChanged_.emit();
 		std::cout << "addFuncs\n";
 	}
 }
@@ -351,6 +356,7 @@ void WavetableEditController::addWavWaveforms(int idx, int amnt, int width,
 		}
 		addHistoryPoint();
 		signalSelectedChangedDone_.emit();
+		signalDataChanged_.emit();
 		std::cout << "addwavwf\n";
 	}
 }
@@ -397,6 +403,7 @@ void WavetableEditController::crossfadeWaveforms(int idx, int amnt)
 		}
 		addHistoryPoint();
 		signalSelectedChangedDone_.emit();
+		signalDataChanged_.emit();
 		std::cout << "xfade\n";
 	}
 }
@@ -530,6 +537,7 @@ void WavetableEditController::spectralFadeWaveforms(int idx, int amnt,
 
 		addHistoryPoint();
 		signalSelectedChangedDone_.emit();
+		signalDataChanged_.emit();
 		std::cout << "specfade\n";
 	}
 }
@@ -541,6 +549,7 @@ bool WavetableEditController::addPart(WaveformPart* part, int idx)
 		data_->addPart(wtPos_, part, idx);
 		addHistoryPoint();
 		signalSelectedChangedDone_.emit();
+		signalDataChanged_.emit();
 		std::cout << "addPart\n";
 		return true;
 	}
@@ -558,6 +567,7 @@ void WavetableEditController::removePart(int idx)
 		}
 		addHistoryPoint();
 		signalSelectedChangedDone_.emit();
+		signalDataChanged_.emit();
 		std::cout << "removepart\n";
 	}
 }
@@ -573,6 +583,7 @@ void WavetableEditController::movePart(int idx, int newIdx)
 			data_->addPart(wtPos_, part, newIdx);
 			addHistoryPoint();
 			signalSelectedChangedDone_.emit();
+			signalDataChanged_.emit();
 			std::cout << "movepart\n";
 		}
 	}
@@ -651,6 +662,7 @@ void WavetableEditController::resizePart(float start, float end)
 			}
 			addHistoryPoint();
 			signalSelectedChangedDone_.emit();
+			signalDataChanged_.emit();
 			std::cout << "resize\n";
 		}
 	}
@@ -667,6 +679,7 @@ void WavetableEditController::setHarmonicsType(WPHarmonics::functionType type)
 			ph->setFunctionType(type);
 			addHistoryPoint();
 			signalSelectedChangedDone_.emit();
+			signalDataChanged_.emit();
 			std::cout << "setharmtype\n";
 		}
 	}
@@ -714,6 +727,7 @@ void WavetableEditController::setHarmonic(int num, float amp, float phase,
 			{
 				addHistoryPoint();
 				signalSelectedChangedDone_.emit();
+				signalDataChanged_.emit();
 				std::cout << "setharm\n";
 			}
 			else
@@ -734,6 +748,7 @@ void WavetableEditController::normalizeHarmonic()
 			((WPHarmonics*) part)->normalize();
 			addHistoryPoint();
 			signalSelectedChangedDone_.emit();
+			signalDataChanged_.emit();
 			std::cout << "normalize\n";
 		}
 	}
@@ -767,6 +782,7 @@ void WavetableEditController::setFunction(std::string func)
 			//TODO: move this to a better place so that it doesnt always update the history
 			addHistoryPoint();
 			signalSelectedChangedDone_.emit();
+			signalDataChanged_.emit();
 			std::cout << "setfunc\n";
 		}
 	}
@@ -835,6 +851,7 @@ void WavetableEditController::convertToSin(bool highQuality)
 		selectedParts_[wtPos_] = 0;
 		addHistoryPoint();
 		signalSelectedChangedDone_.emit();
+		signalDataChanged_.emit();
 		std::cout << "tosin\n";
 	}
 }
@@ -879,6 +896,7 @@ void WavetableEditController::replacePartWithDefault(
 				data_->addPart(selectedWaveform(), newPart, getSelectedPart());
 				addHistoryPoint();
 				signalSelectedChangedDone_.emit();
+				signalDataChanged_.emit();
 				std::cout << "defaultify\n";
 			}
 		}
@@ -911,6 +929,10 @@ int WavetableEditController::tool()
 
 WTTool* WavetableEditController::getNewTool(float x, float y)
 {
+	if (!data_)
+	{
+		return nullptr;
+	}
 	if (editSelected_)
 	{
 		WaveformPart* part = data_->getPartByIndex(selectedWaveform(), getSelectedPart());
@@ -1006,6 +1028,7 @@ void WavetableEditController::useToolAction(int x, int y, int w, int h)
 			selectPart(data_->getIndexOfPart(wtPos_, usedTool_->getPart()));
 		}
 		signalSelectedChanged_.emit();
+		signalDataChanged_.emit();
 	}
 }
 
@@ -1029,6 +1052,7 @@ void WavetableEditController::toolMoveAction(int x, int y, int w, int h)
 	{
 		usedTool_->motion(snapX, snapY);
 		signalSelectedChanged_.emit();
+		signalDataChanged_.emit();
 	}
 }
 
@@ -1041,6 +1065,7 @@ void WavetableEditController::dropToolAction()
 		editSelected_ = false;
 		addHistoryPoint();
 		signalSelectedChangedDone_.emit();
+		signalDataChanged_.emit();
 		std::cout << "drop\n";
 	}
 }
@@ -1065,7 +1090,12 @@ sigc::signal<void> WavetableEditController::signalSelectedChangedDone()
 	return signalSelectedChangedDone_;
 }
 
-sigc::signal<std::deque<std::pair<char*, std::vector<int>>>> WavetableEditController::signalHistoryDelete()
+sigc::signal<void> WavetableEditController::signalDataChanged()
+{
+	return signalDataChanged_;
+}
+
+sigc::signal<void, std::deque<std::pair<char*, std::vector<int>>>> WavetableEditController::signalHistoryDelete()
 {
 	return signalHistoryDelete_;
 }
@@ -1097,7 +1127,7 @@ void WavetableEditController::addHistoryPoint()
 
 void WavetableEditController::deleteHistory()
 {
-	signalHistoryDelete_.emit();
+	signalHistoryDelete_.emit(editHistory_);
 	for (int i = 0; i < editHistory_.size(); i++)
 	{
 		delete[] editHistory_[i].first;
@@ -1107,7 +1137,7 @@ void WavetableEditController::deleteHistory()
 
 bool WavetableEditController::undoPossible()
 {
-	return historyIndex_ < editHistory_.size() - 1;
+	return historyIndex_ < ((int) editHistory_.size() - 1);
 }
 
 void WavetableEditController::undo()
@@ -1121,6 +1151,7 @@ void WavetableEditController::undo()
 		setData(new WavetableEditData(data), false);
 		selectedParts_ = editHistory_[historyIndex_].second;
 		signalSelectedChangedDone_.emit();
+		signalDataChanged_.emit();
 	}
 }
 
@@ -1140,6 +1171,7 @@ void WavetableEditController::redo()
 		setData(new WavetableEditData(data), false);
 		selectedParts_ = editHistory_[historyIndex_].second;
 		signalSelectedChangedDone_.emit();
+		signalDataChanged_.emit();
 	}
 }
 

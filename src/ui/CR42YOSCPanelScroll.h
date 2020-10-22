@@ -9,12 +9,14 @@ namespace cr42y
 class CR42YButton;
 class CR42YnthCommunicator;
 class CR42YOSCPanel;
+class CR42YToggleSelector;
 class OSCSettingsController;
+class WavetableEditController;
 
 class CR42YOSCPanelScroll : public CR42YGrid
 {
 public:
-	CR42YOSCPanelScroll(CR42YUI* ui, CR42YnthCommunicator* comm);
+	CR42YOSCPanelScroll(CR42YUI* ui, CR42YnthCommunicator* comm, WavetableEditController* wtEditController, CR42YToggleSelector* viewSelector);
 	virtual ~CR42YOSCPanelScroll();
 
 	void update();

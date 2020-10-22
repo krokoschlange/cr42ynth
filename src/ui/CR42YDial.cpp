@@ -124,13 +124,15 @@ bool CR42YDial::on_expose_event(GdkEventExpose* event)
 		cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
 		cr->fill();
 
-		cr->arc(get_width() / 2, get_height() / 2, get_width() / 5 * 2, 2.45, 0.69);
+		int squareSize = get_width() < get_height() ? get_width() : get_height();
+
+		cr->arc(get_width() / 2, get_height() / 2, squareSize / 5 * 2, 2.45, 0.69);
 		clr = tm->color(FG);
 		cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
 		cr->set_line_width(get_width() / 20.);
 		cr->stroke();
 
-		cr->arc(get_width() / 2, get_height() / 2, get_width() / 5 * 2, 2.45, 2.45 + value_ * 4.52);
+		cr->arc(get_width() / 2, get_height() / 2, squareSize / 5 * 2, 2.45, 2.45 + value_ * 4.52);
 		clr = tm->color(HIGHLIGHT);
 		cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3] * 0.8);
 		cr->set_line_width(get_width() / 7.);

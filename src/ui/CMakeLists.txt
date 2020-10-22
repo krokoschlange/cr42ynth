@@ -28,6 +28,7 @@ add_executable(cr42ynth_ui.so
 	../common/OSCEventListener.cpp
 	../common/OscillatorControls.cpp
 	../common/Control.cpp
+	../common/ControlListener.cpp
 	../common/common.cpp
 	../common/CR42YnthCommunicator.cpp
 	../common/CR42YConfig.cpp
@@ -49,6 +50,8 @@ add_executable(cr42ynth_ui.so
 	tools/SinSlopeTool.cpp
 	tools/TriTool.cpp
 	tools/WTTool.cpp
+	
+	ControlConnector.cpp
 	
 	#wtEditor/CRSurfaceButton.cpp
 	#wtEditor/CustomScroll.cpp
@@ -91,7 +94,12 @@ add_executable(cr42ynth_ui.so
 	CR42YWFBulkEditor.cpp
 	CR42YDial.cpp
 	CR42YOSCSettings.cpp
+	CR42YOSCPanel.cpp
+	CR42YOSCPanelScroll.cpp
 	CR42YGrid.cpp
+	CR42YControlDial.cpp
+	CR42YWFView.cpp
+	OSCSettingsController.cpp
 	
 	helpers.cpp
 )

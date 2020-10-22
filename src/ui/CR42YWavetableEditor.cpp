@@ -66,8 +66,6 @@ CR42YWavetableEditor::CR42YWavetableEditor(CR42YUI* ui) :
 		wfPartEditor_(new CR42YWFPartEditor(ui)),
 		wfBulkEditor_(new CR42YWFBulkEditor(ui))
 {
-	WavetableEditData* data = new WavetableEditData(4096);
-
 	configureColumn(0, 1, 0.003, 0.003, 0, 0);
 	configureColumn(1, 7, 0.003, 0.003, 0, 0);
 	configureColumn(2, 1, 0.003, 0.003, 0, 0);
@@ -82,7 +80,6 @@ CR42YWavetableEditor::CR42YWavetableEditor(CR42YUI* ui) :
 	configureRow(6, 2, 0.003, 0.003, 0, 0);
 	configureRow(7, 1, 0, 1, 0, 15);
 
-	controller_->setData(data);
 	wfEditor_->setController(controller_);
 	harmonicsView_->setController(controller_);
 	wfPartEditor_->setController(controller_);
@@ -158,6 +155,18 @@ CR42YWavetableEditor::~CR42YWavetableEditor()
 		remove(*(children[i]));
 		delete children[i];
 	}
+
+	delete controller_;
+}
+
+void CR42YWavetableEditor::setData(WavetableEditData* data)
+{
+	controller_->setData(data, true);
+}
+
+WavetableEditController* CR42YWavetableEditor::getController()
+{
+	return controller_;
 }
 
 void CR42YWavetableEditor::on_realize()

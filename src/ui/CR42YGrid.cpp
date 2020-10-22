@@ -226,16 +226,6 @@ void CR42YGrid::on_size_allocate(Gtk::Allocation& alloc)
 	std::vector<int> rowEnds(rows_.size(), 0);
 
 	//getMinimumCellEnds(&columnEnds, &rowEnds);
-
-	std::vector<int> columnMinWidths(columns_.size(), 0);
-	columnMinWidths[0] = columnEnds[0];
-	for (int i = 1; i < columnEnds.size(); i++)
-	{
-		columnMinWidths[i] = columnEnds[i] - columnEnds[i - 1];
-	}
-
-	int totalWidth = alloc.get_width();
-
 	struct Alloc
 	{
 		int idx_;
@@ -245,139 +235,163 @@ void CR42YGrid::on_size_allocate(Gtk::Allocation& alloc)
 
 	std::vector<Alloc> columnAllocs(columns_.size());
 
-	int maxParam = 0;
-	int max2Param = 0;
-	for (int i = 0; i < columns_.size(); i++)
+	if (columns_.size() > 1)
 	{
-		columnAllocs[i] =
-		{	i, columnMinWidths[i], columns_[i].weight_ / (columnMinWidths[i] + 1)};
-		totalWidth -= columnMinWidths[i];
-
-		if (columnAllocs[i].param_ > columnAllocs[maxParam].param_)
+		std::vector<int> columnMinWidths(columns_.size(), 0);
+		columnMinWidths[0] = columnEnds[0];
+		for (int i = 1; i < columnEnds.size(); i++)
 		{
-			maxParam = i;
+			columnMinWidths[i] = columnEnds[i] - columnEnds[i - 1];
 		}
-	}
-	max2Param = maxParam == 0 ? 1 : 0;
-	for (int i = 0; i < columnAllocs.size(); i++)
-	{
-		if (columnAllocs[i].param_ > columnAllocs[max2Param].param_
-				&& i != maxParam)
-		{
-			max2Param = i;
-		}
-	}
 
-	while (totalWidth > 0)
-	{
-		Alloc* alloc = &(columnAllocs[maxParam]);
-		alloc->alloc_++;
-		totalWidth--;
-		alloc->param_ = columns_[alloc->idx_].weight_ / (alloc->alloc_ + 1);
+		int totalWidth = alloc.get_width();
 
-		if (columnAllocs[max2Param].param_ > columnAllocs[maxParam].param_
-				|| (columns_[alloc->idx_].maxSize_ > 0
-						&& alloc->alloc_ >= columns_[alloc->idx_].maxSize_))
+		int maxParam = 0;
+		int max2Param = 0;
+		for (int i = 0; i < columns_.size(); i++)
 		{
-			maxParam = max2Param;
-			double maxParamVal = 0;
-			max2Param = 0;
-			for (int i = 0; i < columnAllocs.size(); i++)
+			columnAllocs[i] =
+			{	i, columnMinWidths[i], columns_[i].weight_ / (columnMinWidths[i] + 1)};
+			totalWidth -= columnMinWidths[i];
+
+			if (columnAllocs[i].param_ > columnAllocs[maxParam].param_)
 			{
-				if (columnAllocs[i].param_ > maxParamVal && i != maxParam
-						&& !(columns_[columnAllocs[i].idx_].maxSize_ > 0
-								&& columnAllocs[i].alloc_
-										>= columns_[columnAllocs[i].idx_].maxSize_))
+				maxParam = i;
+			}
+		}
+		max2Param = maxParam == 0 ? 1 : 0;
+		for (int i = 0; i < columnAllocs.size(); i++)
+		{
+			if (columnAllocs[i].param_ > columnAllocs[max2Param].param_
+					&& i != maxParam)
+			{
+				max2Param = i;
+			}
+		}
+
+		while (totalWidth > 0)
+		{
+			Alloc* alloc = &(columnAllocs[maxParam]);
+			alloc->alloc_++;
+			totalWidth--;
+			alloc->param_ = columns_[alloc->idx_].weight_ / (alloc->alloc_ + 1);
+
+			if (columnAllocs[max2Param].param_ > columnAllocs[maxParam].param_
+					|| (columns_[alloc->idx_].maxSize_ > 0
+							&& alloc->alloc_ >= columns_[alloc->idx_].maxSize_))
+			{
+				maxParam = max2Param;
+				double maxParamVal = 0;
+				max2Param = 0;
+				for (int i = 0; i < columnAllocs.size(); i++)
 				{
-					maxParamVal = columnAllocs[i].param_;
-					max2Param = i;
+					if (columnAllocs[i].param_ > maxParamVal && i != maxParam
+							&& !(columns_[columnAllocs[i].idx_].maxSize_ > 0
+									&& columnAllocs[i].alloc_
+											>= columns_[columnAllocs[i].idx_].maxSize_))
+					{
+						maxParamVal = columnAllocs[i].param_;
+						max2Param = i;
+					}
 				}
 			}
 		}
+
+		/*double totalColumnWeight = 0;
+		 for (int i = 0; i < columns_.size(); i++)
+		 {
+		 totalColumnWeight += columns_[i].weight_;
+		 }
+		 for (int i = 0; i < columns_.size(); i++)
+		 {
+		 columnAllocs[i] =
+		 {	i, (int) (totalWidth * (columns_[i].weight_ / totalColumnWeight)), 0};
+		 }*/
 	}
-
-	/*double totalColumnWeight = 0;
-	 for (int i = 0; i < columns_.size(); i++)
-	 {
-	 totalColumnWeight += columns_[i].weight_;
-	 }
-	 for (int i = 0; i < columns_.size(); i++)
-	 {
-	 columnAllocs[i] =
-	 {	i, (int) (totalWidth * (columns_[i].weight_ / totalColumnWeight)), 0};
-	 }*/
-
-	std::vector<int> rowMinHeights(rows_.size(), 0);
-	rowMinHeights[0] = rowEnds[0];
-	for (int i = 1; i < rowEnds.size(); i++)
+	else
 	{
-		rowMinHeights[i] = rowEnds[i] - rowEnds[i - 1];
+		columnAllocs[0].alloc_ = alloc.get_width();
 	}
-
-	int totalHeight = alloc.get_height();
 
 	std::vector<Alloc> rowAllocs(rows_.size());
 
-	maxParam = 0;
-	max2Param = 0;
-	for (int i = 0; i < rows_.size(); i++)
+	if (rows_.size() > 1)
 	{
-		rowAllocs[i] =
-		{	i, rowMinHeights[i], rows_[i].weight_};
-		totalHeight -= rowMinHeights[i];
-
-		if (rowAllocs[i].param_ > rowAllocs[maxParam].param_)
+		std::vector<int> rowMinHeights(rows_.size(), 0);
+		rowMinHeights[0] = rowEnds[0];
+		for (int i = 1; i < rowEnds.size(); i++)
 		{
-			maxParam = i;
+			rowMinHeights[i] = rowEnds[i] - rowEnds[i - 1];
 		}
-	}
-	max2Param = maxParam == 0 ? 1 : 0;
-	for (int i = 0; i < rowAllocs.size(); i++)
-	{
-		if (rowAllocs[i].param_ > rowAllocs[max2Param].param_ && i != maxParam)
-		{
-			max2Param = i;
-		}
-	}
 
-	while (totalHeight > 0)
-	{
-		Alloc* alloc = &(rowAllocs[maxParam]);
-		alloc->alloc_++;
-		totalHeight--;
-		alloc->param_ = rows_[alloc->idx_].weight_ / (alloc->alloc_ + 1);
+		int totalHeight = alloc.get_height();
 
-		if (rowAllocs[max2Param].param_ > rowAllocs[maxParam].param_
-				|| (rows_[alloc->idx_].maxSize_ > 0
-						&& alloc->alloc_ >= rows_[alloc->idx_].maxSize_))
+		int maxParam = 0;
+		int max2Param = 0;
+		for (int i = 0; i < rows_.size(); i++)
 		{
-			maxParam = max2Param;
-			double maxParamVal = 0;
-			max2Param = 0;
-			for (int i = 0; i < rowAllocs.size(); i++)
+			rowAllocs[i] =
+			{	i, rowMinHeights[i], rows_[i].weight_};
+			totalHeight -= rowMinHeights[i];
+
+			if (rowAllocs[i].param_ > rowAllocs[maxParam].param_)
 			{
-				if (rowAllocs[i].param_ > maxParamVal && i != maxParam
-						&& !(rows_[rowAllocs[i].idx_].maxSize_ > 0
-								&& rowAllocs[i].alloc_
-										>= rows_[rowAllocs[i].idx_].maxSize_))
+				maxParam = i;
+			}
+		}
+		max2Param = maxParam == 0 ? 1 : 0;
+		for (int i = 0; i < rowAllocs.size(); i++)
+		{
+			if (rowAllocs[i].param_ > rowAllocs[max2Param].param_
+					&& i != maxParam)
+			{
+				max2Param = i;
+			}
+		}
+
+		while (totalHeight > 0)
+		{
+			Alloc* alloc = &(rowAllocs[maxParam]);
+			alloc->alloc_++;
+			totalHeight--;
+			alloc->param_ = rows_[alloc->idx_].weight_ / (alloc->alloc_ + 1);
+
+			if (rowAllocs[max2Param].param_ > rowAllocs[maxParam].param_
+					|| (rows_[alloc->idx_].maxSize_ > 0
+							&& alloc->alloc_ >= rows_[alloc->idx_].maxSize_))
+			{
+				maxParam = max2Param;
+				double maxParamVal = 0;
+				max2Param = 0;
+				for (int i = 0; i < rowAllocs.size(); i++)
 				{
-					maxParamVal = rowAllocs[i].param_;
-					max2Param = i;
+					if (rowAllocs[i].param_ > maxParamVal && i != maxParam
+							&& !(rows_[rowAllocs[i].idx_].maxSize_ > 0
+									&& rowAllocs[i].alloc_
+											>= rows_[rowAllocs[i].idx_].maxSize_))
+					{
+						maxParamVal = rowAllocs[i].param_;
+						max2Param = i;
+					}
 				}
 			}
 		}
-	}
 
-	/*double totalRowWeight = 0;
-	 for (int i = 0; i < rows_.size(); i++)
-	 {
-	 totalRowWeight += rows_[i].weight_;
-	 }
-	 for (int i = 0; i < rows_.size(); i++)
-	 {
-	 rowAllocs[i] =
-	 {	i, (int) (totalHeight * (rows_[i].weight_ / totalRowWeight)), 0};
-	 }*/
+		/*double totalRowWeight = 0;
+		 for (int i = 0; i < rows_.size(); i++)
+		 {
+		 totalRowWeight += rows_[i].weight_;
+		 }
+		 for (int i = 0; i < rows_.size(); i++)
+		 {
+		 rowAllocs[i] =
+		 {	i, (int) (totalHeight * (rows_[i].weight_ / totalRowWeight)), 0};
+		 }*/
+	}
+	else
+	{
+		rowAllocs[0].alloc_ = alloc.get_height();
+	}
 
 	//std::vector<int> columnWidths(columns_.size(), 0);
 	for (int i = 0; i < columnAllocs.size(); i++)

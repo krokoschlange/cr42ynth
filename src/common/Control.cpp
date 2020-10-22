@@ -43,8 +43,8 @@
 namespace cr42y
 {
 
-Control::Control(std::string addr, CR42YnthCommunicator* comm, float val, float mi, float ma,
-		std::string gen) :
+Control::Control(std::string addr, CR42YnthCommunicator* comm, float val,
+		float mi, float ma, std::string gen) :
 		address(addr),
 		communicator(comm),
 		generator(gen),
@@ -54,13 +54,19 @@ Control::Control(std::string addr, CR42YnthCommunicator* comm, float val, float 
 {
 	//CR42YnthDSP::getInstance()->getCommunicator()->log(addr.c_str());
 	//CR42YnthDSP::getInstance()->addControl(this);
-	comm->addOSCEventListener(this);
+	if (comm)
+	{
+		comm->addOSCEventListener(this);
+	}
 }
 
 Control::~Control()
 {
 	//CR42YnthDSP::getInstance()->removeControl(this);
-	communicator->removeOSCEventListener(this);
+	if (communicator)
+	{
+		communicator->removeOSCEventListener(this);
+	}
 }
 
 void Control::setValue(float val, bool callback)
@@ -194,27 +200,35 @@ void Control::sendState()
 
 void Control::sendState(bool sendVal, bool sendMin, bool sendMax, bool sendGen)
 {
+	if (!communicator)
+	{
+		return;
+	}
 	unsigned int bufferSize = getAddress().size() + 32;
 	char buffer[bufferSize];
 	if (sendVal)
 	{
-		int len = rtosc_message(buffer, bufferSize, getAddress().c_str(), "sf", "set_value", getValue());
+		int len = rtosc_message(buffer, bufferSize, getAddress().c_str(), "sf",
+				"set_value", getValue());
 		communicator->writeMessage(buffer, len, nullptr, 0);
 		//communicator->log(buffer);
 	}
 	if (sendMin)
 	{
-		int len = rtosc_message(buffer, bufferSize, getAddress().c_str(), "sf", "set_min", getMin());
+		int len = rtosc_message(buffer, bufferSize, getAddress().c_str(), "sf",
+				"set_min", getMin());
 		communicator->writeMessage(buffer, len, nullptr, 0);
 	}
 	if (sendMax)
 	{
-		int len = rtosc_message(buffer, bufferSize, getAddress().c_str(), "sf", "set_max", getMax());
+		int len = rtosc_message(buffer, bufferSize, getAddress().c_str(), "sf",
+				"set_max", getMax());
 		communicator->writeMessage(buffer, len, nullptr, 0);
 	}
 	if (sendGen)
 	{
-		int len = rtosc_message(buffer, bufferSize, getAddress().c_str(), "ss", "set_generator", getGenerator().c_str());
+		int len = rtosc_message(buffer, bufferSize, getAddress().c_str(), "ss",
+				"set_generator", getGenerator().c_str());
 		communicator->writeMessage(buffer, len, nullptr, 0);
 	}
 }
