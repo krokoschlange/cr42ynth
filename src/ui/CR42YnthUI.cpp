@@ -35,7 +35,6 @@
 
 #include "CR42YnthUI.h"
 
-#include <iostream>
 #include <fstream>
 
 #include "CR42YnthCommunicator.h"

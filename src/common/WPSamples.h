@@ -44,6 +44,7 @@ class WPSamples : public WaveformPart
 public:
 	WPSamples(float s, float e, std::vector<float> sam);
 	WPSamples(float s, float e, char** data, int size);
+	WPSamples(const WPSamples& other);
 	virtual ~WPSamples();
 	
 	virtual int getData(void** buffer);

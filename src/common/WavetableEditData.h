@@ -46,6 +46,8 @@ public:
 	WavetableEditData(char* data);
 	virtual ~WavetableEditData();
 	
+	WavetableEditData& operator=(const WavetableEditData& data);
+
 	WaveformPart* getPartByIndex(int row, int idx);
 	int getIndexOfPart(int row, WaveformPart* part);
 	std::vector<std::pair<float, float>> getVisibleAreas(int row, WaveformPart* part);

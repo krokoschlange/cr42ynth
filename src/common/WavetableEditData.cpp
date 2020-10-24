@@ -33,10 +33,11 @@
 
 #include <map>
 #include <cstring>
-#include <iostream>
 
 #include "WavetableEditData.h"
 #include "WPHarmonics.h"
+#include "WPFunction.h"
+#include "WPSamples.h"
 
 namespace cr42y
 {
@@ -83,6 +84,30 @@ WavetableEditData::~WavetableEditData()
 	parts.clear();
 }
 
+WavetableEditData& WavetableEditData::operator =(const WavetableEditData& data)
+{
+	for (int i = 0; i < parts.size(); i++)
+	{
+		for (int j = 0; j < parts[i].size(); j++)
+		{
+			delete parts[i][j];
+		}
+		parts[i].clear();
+	}
+	parts.clear();
+
+	for (int i = 0; i < data.parts.size(); i++)
+	{
+		parts.push_back(std::vector<WaveformPart*>());
+		for (int j = 0; j < data.parts[i].size(); j++)
+		{
+			WaveformPart* copy = WaveformPart::copy(*(data.parts[i][j]));
+			parts[i].push_back(copy);
+		}
+	}
+	return *this;
+}
+
 int WavetableEditData::getWidth()
 {
 	return width;
@@ -124,7 +149,8 @@ std::vector<std::pair<float, float>> WavetableEditData::getVisibleAreas(int row,
 	int idx = getIndexOfPart(row, part);
 	if (idx != -1)
 	{
-		ret.push_back(std::pair<float, float>(part->getStart(), part->getEnd()));
+		ret.push_back(
+				std::pair<float, float>(part->getStart(), part->getEnd()));
 		std::vector<WaveformPart*>* wf = getWaveform(row);
 		for (idx++; idx < wf->size(); idx++)
 		{
@@ -132,7 +158,8 @@ std::vector<std::pair<float, float>> WavetableEditData::getVisibleAreas(int row,
 			{
 				if ((*wf)[idx]->getStart() <= ret[i].first)
 				{
-					if ((*wf)[idx]->getEnd() > ret[i].first && (*wf)[idx]->getEnd() < ret[i].second)
+					if ((*wf)[idx]->getEnd() > ret[i].first
+							&& (*wf)[idx]->getEnd() < ret[i].second)
 					{
 						ret[i].first = (*wf)[idx]->getEnd();
 					}
@@ -144,9 +171,12 @@ std::vector<std::pair<float, float>> WavetableEditData::getVisibleAreas(int row,
 				}
 				else if ((*wf)[idx]->getStart() < ret[i].second)
 				{
-					if ((*wf)[idx]->getEnd() > ret[i].first && (*wf)[idx]->getEnd() < ret[i].second)
+					if ((*wf)[idx]->getEnd() > ret[i].first
+							&& (*wf)[idx]->getEnd() < ret[i].second)
 					{
-						ret.push_back(std::pair<float, float>((*wf)[idx]->getEnd(), ret[i].second));
+						ret.push_back(
+								std::pair<float, float>((*wf)[idx]->getEnd(),
+										ret[i].second));
 						ret[i].second = (*wf)[idx]->getStart();
 					}
 					else if ((*wf)[idx]->getEnd() >= ret[i].second)
@@ -182,10 +212,10 @@ void WavetableEditData::addWaveform(int idx)
 	std::vector<WaveformPart*> row;
 	std::vector<std::pair<float, float>> ht;
 	/*ht.push_back(std::pair<float, float>(0, 0));
-	ht.push_back(std::pair<float, float>(1, 0));
-	WPHarmonics* harm = new WPHarmonics(0, 1, ht, WPHarmonics::SIN);
-	row.push_back(harm); //new WPFunction(0, 1, "sin(2pi*x)"));
-	row[0]->setEnd(1);*/
+	 ht.push_back(std::pair<float, float>(1, 0));
+	 WPHarmonics* harm = new WPHarmonics(0, 1, ht, WPHarmonics::SIN);
+	 row.push_back(harm); //new WPFunction(0, 1, "sin(2pi*x)"));
+	 row[0]->setEnd(1);*/
 	if (idx < 0 || idx >= parts.size())
 	{
 		parts.push_back(row);
@@ -315,7 +345,7 @@ std::vector<float>* WavetableEditData::getPartSamples(int row, int part,
 	if (p)
 	{
 		int start = p->getStart() * getWidth();
-		int end = p->getEnd()* getWidth();
+		int end = p->getEnd() * getWidth();
 		for (int i = start; i < end; i += stepSize)
 		{
 			ret->push_back(p->getSample(getWidth(), i, row));

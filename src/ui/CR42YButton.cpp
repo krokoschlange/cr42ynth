@@ -33,8 +33,6 @@
 
 #include "CR42YButton.h"
 
-#include <iostream>
-
 #include <cairomm/context.h>
 #include "helpers.h"
 

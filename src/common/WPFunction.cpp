@@ -31,8 +31,6 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#include <iostream>
-
 #include "WPFunction.h"
 
 namespace cr42y
@@ -69,6 +67,21 @@ WPFunction::WPFunction(float s, float e, char** data, int size) :
 	setFunction(function_);
 }
 
+WPFunction::WPFunction(const WPFunction& other) :
+		WaveformPart(other.getStart(), other.getEnd(), WaveformPart::FUNCTION),
+		function_(other.function_),
+		varX_(0),
+		varY_(0)
+{
+	symTable_.add_variable("x", varX_);
+	symTable_.add_variable("y", varY_);
+	symTable_.add_constants();
+
+	funcExpr_.register_symbol_table(symTable_);
+
+	setFunction(function_);
+}
+
 WPFunction::~WPFunction()
 {
 }
@@ -88,7 +101,9 @@ int WPFunction::getData(void** buffer)
 	mem += sizeof(PartDataHead);
 	
 	const char* c = function_.c_str();
-	for (int i = 0; c[i]; *mem = c[i], mem++, i++) {}
+	for (int i = 0; c[i]; *mem = c[i], mem++, i++)
+	{
+	}
 	*mem = 0;
 	mem++;
 	
@@ -115,7 +130,8 @@ void WPFunction::setFunction(std::string function)
 {
 	function_ = function;
 	bool err = parser_.compile(function_, funcExpr_);
-	if (!err) {
+	if (!err)
+	{
 		parser_.compile("0", funcExpr_);
 	}
 }

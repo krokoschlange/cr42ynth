@@ -46,6 +46,7 @@ class WPFunction : public WaveformPart
 public:
 	WPFunction(float s, float e, std::string function);
 	WPFunction(float s, float e, char** data, int size);
+	WPFunction(const WPFunction& other);
 	virtual ~WPFunction();
 	
 	virtual int getData(void** buffer);

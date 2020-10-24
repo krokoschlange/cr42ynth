@@ -33,7 +33,6 @@
 
 #include <cmath>
 #include <cstring>
-#include <iostream>
 
 #include "FftRealPair.hpp"
 
@@ -73,6 +72,17 @@ WPHarmonics::WPHarmonics(float s, float e, char** data, int size) :
 		*data += sizeof(float);
 		hTable.push_back(std::pair<float, float>(first, second));
 	}
+}
+
+WPHarmonics::WPHarmonics(const WPHarmonics& other) :
+		WaveformPart(other.getStart(), other.getEnd(), WaveformPart::HARMONICS),
+		normFactor(other.normFactor),
+		needUpdate(other.needUpdate),
+		fType(other.fType),
+		hTable(other.hTable),
+		samples(other.samples)
+{
+
 }
 
 WPHarmonics::~WPHarmonics()

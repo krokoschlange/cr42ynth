@@ -165,6 +165,28 @@ WaveformPart* WaveformPart::getFromData(char** data)
 	}
 }
 
+WaveformPart* WaveformPart::copy(const WaveformPart& other)
+{
+	switch (other.getType())
+	{
+	case SAMPLES:
+	{
+		return new WPSamples((const WPSamples&) other);
+		break;
+	}
+	case FUNCTION:
+	{
+		return new WPFunction((const WPFunction&) other);
+	}
+	case HARMONICS:
+	{
+		return new WPHarmonics((const WPHarmonics&) other);
+	}
+	default:
+		return nullptr;
+	}
+}
+
 WaveformPart::~WaveformPart()
 {
 }
@@ -207,17 +229,17 @@ void WaveformPart::setEnd(float e)
 	end = e;
 }
 
-int WaveformPart::getType()
+int WaveformPart::getType() const
 {
 	return type;
 }
 
-float WaveformPart::getStart()
+float WaveformPart::getStart() const
 {
 	return start;
 }
 
-float WaveformPart::getEnd()
+float WaveformPart::getEnd() const
 {
 	return end;
 }

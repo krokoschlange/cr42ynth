@@ -37,8 +37,6 @@
 #include "CR42YTheme.h"
 #include "helpers.h"
 
-#include <iostream>
-
 namespace cr42y
 {
 

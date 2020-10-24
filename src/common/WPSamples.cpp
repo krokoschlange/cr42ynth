@@ -31,7 +31,6 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#include <iostream>
 #include <cstring>
 
 #include "WPSamples.h"
@@ -53,6 +52,12 @@ WPSamples::WPSamples(float s, float e, char** data, int size) :
 		samples.push_back(*(float*) *data);
 		*data += sizeof(float);
 	}
+}
+
+WPSamples::WPSamples(const WPSamples& other) :
+		WaveformPart(other.getStart(), other.getEnd(), WaveformPart::SAMPLES),
+		samples(other.samples)
+{
 }
 
 WPSamples::~WPSamples()

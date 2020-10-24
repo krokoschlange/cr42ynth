@@ -7,8 +7,6 @@
 #include "OSCSettingsController.h"
 #include "OscillatorControls.h"
 
-#include <iostream>
-
 namespace cr42y
 {
 

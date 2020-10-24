@@ -51,6 +51,7 @@ public:
 	};
 	WPHarmonics(float s, float e, std::vector<std::pair<float, float>> ht, functionType t = SIN);
 	WPHarmonics(float s, float e, char** data, int size);
+	WPHarmonics(const WPHarmonics& other);
 	virtual ~WPHarmonics();
 	
 	virtual int getData(void** buffer);

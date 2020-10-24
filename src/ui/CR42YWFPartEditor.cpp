@@ -41,8 +41,6 @@
 #include "CR42YButton.h"
 #include "CR42YToggle.h"
 
-#include <iostream>
-
 namespace cr42y
 {
 

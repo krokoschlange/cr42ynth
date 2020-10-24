@@ -6,8 +6,6 @@
 #include "WavetableEditController.h"
 #include "WavetableEditData.h"
 
-#include <iostream>
-
 namespace cr42y
 {
 

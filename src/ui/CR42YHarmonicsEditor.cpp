@@ -36,8 +36,6 @@
 #include "CR42YBoxVScale.h"
 #include "CR42YTheme.h"
 
-#include <iostream>
-
 namespace cr42y
 {
 

@@ -65,6 +65,7 @@ public:
 	//WaveformPart(WaveformPart* part, float newStart, int size);
 	virtual ~WaveformPart();
 	static WaveformPart* getFromData(char** data);
+	static WaveformPart* copy(const WaveformPart& other);
 
 	PartDataHead* getDataHead();
 	virtual int getData(void** buffer) = 0;
@@ -76,9 +77,9 @@ public:
 	//void setFunction(std::string* func);
 
 
-	float getStart();
-	float getEnd();
-	int getType();
+	float getStart() const;
+	float getEnd() const;
+	int getType() const;
 	//std::string* getFunction();
 	//std::vector<float>* getSamples();
 

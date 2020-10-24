@@ -31,8 +31,6 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#include <iostream>
-
 #include "FreeTool.h"
 #include "WavetableEditData.h"
 #include "WPSamples.h"

@@ -34,7 +34,6 @@
 #ifndef SRC_COMMON_COMMON_H_
 #define SRC_COMMON_COMMON_H_
 
-#include <iostream>
 #include <sstream>
 
 #define CR42Ynth__URI "https://github.com/krokoschlange/cr42ynth"

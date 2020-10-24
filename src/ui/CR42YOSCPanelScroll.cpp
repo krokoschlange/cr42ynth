@@ -28,8 +28,6 @@ CR42YOSCPanelScroll::CR42YOSCPanelScroll(CR42YUI* ui, CR42YnthCommunicator* comm
 
 	configureRow(0, 1, 0, 0, 0, 0);
 
-	std::cout << ui->resourceRoot() + "media/left.png" << "\n";
-
 	leftBtn_->setSurfActive(
 			Cairo::ImageSurface::create_from_png(
 					ui->resourceRoot() + "media/left.png"));

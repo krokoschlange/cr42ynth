@@ -39,8 +39,6 @@
 #include "CR42YnthUI.h"
 #include "helpers.h"
 
-#include <iostream>
-
 namespace cr42y
 {
 

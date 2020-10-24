@@ -40,7 +40,7 @@
 #include <cmath>
 #include <sndfile.h>
 
-#include <iostream>
+//#include <iostream>
 
 #include "FreeTool.h"
 #include "SinHalfTool.h"
@@ -95,7 +95,7 @@ void WavetableEditController::setData(WavetableEditData* data,
 		{
 			deleteHistory();
 			addHistoryPoint();
-			std::cout << "setdata\n";
+			//std::cout << "setdata\n";
 		}
 		signalSelectedChangedDone_.emit();
 		signalDataChanged_.emit();
@@ -223,7 +223,7 @@ void WavetableEditController::addWaveform(int idx)
 		addHistoryPoint();
 		signalSelectedChangedDone_.emit();
 		signalDataChanged_.emit();
-		std::cout << "addwf\n";
+		//std::cout << "addwf\n";
 	}
 }
 
@@ -240,7 +240,7 @@ void WavetableEditController::removeWaveform(int idx, bool erase)
 		addHistoryPoint();
 		signalSelectedChangedDone_.emit();
 		signalDataChanged_.emit();
-		std::cout << "removewf\n";
+		//std::cout << "removewf\n";
 	}
 }
 
@@ -270,7 +270,7 @@ void WavetableEditController::moveWaveform(int idx, int newIdx)
 		addHistoryPoint();
 		signalSelectedChangedDone_.emit();
 		signalDataChanged_.emit();
-		std::cout << "movewf\n";
+		//std::cout << "movewf\n";
 	}
 }
 
@@ -297,7 +297,7 @@ void WavetableEditController::addFunctionWaveforms(int idx, int amnt,
 		addHistoryPoint();
 		signalSelectedChangedDone_.emit();
 		signalDataChanged_.emit();
-		std::cout << "addFuncs\n";
+		//std::cout << "addFuncs\n";
 	}
 }
 
@@ -357,7 +357,7 @@ void WavetableEditController::addWavWaveforms(int idx, int amnt, int width,
 		addHistoryPoint();
 		signalSelectedChangedDone_.emit();
 		signalDataChanged_.emit();
-		std::cout << "addwavwf\n";
+		//std::cout << "addwavwf\n";
 	}
 }
 
@@ -404,7 +404,7 @@ void WavetableEditController::crossfadeWaveforms(int idx, int amnt)
 		addHistoryPoint();
 		signalSelectedChangedDone_.emit();
 		signalDataChanged_.emit();
-		std::cout << "xfade\n";
+		//std::cout << "xfade\n";
 	}
 }
 
@@ -538,7 +538,7 @@ void WavetableEditController::spectralFadeWaveforms(int idx, int amnt,
 		addHistoryPoint();
 		signalSelectedChangedDone_.emit();
 		signalDataChanged_.emit();
-		std::cout << "specfade\n";
+		//std::cout << "specfade\n";
 	}
 }
 
@@ -550,7 +550,7 @@ bool WavetableEditController::addPart(WaveformPart* part, int idx)
 		addHistoryPoint();
 		signalSelectedChangedDone_.emit();
 		signalDataChanged_.emit();
-		std::cout << "addPart\n";
+		//std::cout << "addPart\n";
 		return true;
 	}
 	return false;
@@ -568,7 +568,7 @@ void WavetableEditController::removePart(int idx)
 		addHistoryPoint();
 		signalSelectedChangedDone_.emit();
 		signalDataChanged_.emit();
-		std::cout << "removepart\n";
+		//std::cout << "removepart\n";
 	}
 }
 
@@ -584,7 +584,7 @@ void WavetableEditController::movePart(int idx, int newIdx)
 			addHistoryPoint();
 			signalSelectedChangedDone_.emit();
 			signalDataChanged_.emit();
-			std::cout << "movepart\n";
+			//std::cout << "movepart\n";
 		}
 	}
 }
@@ -663,7 +663,7 @@ void WavetableEditController::resizePart(float start, float end)
 			addHistoryPoint();
 			signalSelectedChangedDone_.emit();
 			signalDataChanged_.emit();
-			std::cout << "resize\n";
+			//std::cout << "resize\n";
 		}
 	}
 }
@@ -680,7 +680,7 @@ void WavetableEditController::setHarmonicsType(WPHarmonics::functionType type)
 			addHistoryPoint();
 			signalSelectedChangedDone_.emit();
 			signalDataChanged_.emit();
-			std::cout << "setharmtype\n";
+			//std::cout << "setharmtype\n";
 		}
 	}
 }
@@ -728,7 +728,7 @@ void WavetableEditController::setHarmonic(int num, float amp, float phase,
 				addHistoryPoint();
 				signalSelectedChangedDone_.emit();
 				signalDataChanged_.emit();
-				std::cout << "setharm\n";
+				//std::cout << "setharm\n";
 			}
 			else
 			{
@@ -749,7 +749,7 @@ void WavetableEditController::normalizeHarmonic()
 			addHistoryPoint();
 			signalSelectedChangedDone_.emit();
 			signalDataChanged_.emit();
-			std::cout << "normalize\n";
+			//std::cout << "normalize\n";
 		}
 	}
 }
@@ -783,7 +783,7 @@ void WavetableEditController::setFunction(std::string func)
 			addHistoryPoint();
 			signalSelectedChangedDone_.emit();
 			signalDataChanged_.emit();
-			std::cout << "setfunc\n";
+			//std::cout << "setfunc\n";
 		}
 	}
 }
@@ -852,7 +852,7 @@ void WavetableEditController::convertToSin(bool highQuality)
 		addHistoryPoint();
 		signalSelectedChangedDone_.emit();
 		signalDataChanged_.emit();
-		std::cout << "tosin\n";
+		//std::cout << "tosin\n";
 	}
 }
 
@@ -897,7 +897,7 @@ void WavetableEditController::replacePartWithDefault(
 				addHistoryPoint();
 				signalSelectedChangedDone_.emit();
 				signalDataChanged_.emit();
-				std::cout << "defaultify\n";
+				//std::cout << "defaultify\n";
 			}
 		}
 	}
@@ -1066,7 +1066,7 @@ void WavetableEditController::dropToolAction()
 		addHistoryPoint();
 		signalSelectedChangedDone_.emit();
 		signalDataChanged_.emit();
-		std::cout << "drop\n";
+		//std::cout << "drop\n";
 	}
 }
 
@@ -1146,9 +1146,8 @@ void WavetableEditController::undo()
 	{
 		historyIndex_ += 1;
 		char* data = editHistory_[historyIndex_].first;
-		delete data_;
-		data_ = nullptr;
-		setData(new WavetableEditData(data), false);
+		*data_ = WavetableEditData(data);
+		//setData(new WavetableEditData(data), false);
 		selectedParts_ = editHistory_[historyIndex_].second;
 		signalSelectedChangedDone_.emit();
 		signalDataChanged_.emit();
@@ -1166,9 +1165,8 @@ void WavetableEditController::redo()
 	{
 		historyIndex_ -= 1;
 		char* data = editHistory_[historyIndex_].first;
-		delete data_;
-		data_ = nullptr;
-		setData(new WavetableEditData(data), false);
+		*data_ = WavetableEditData(data);
+		//setData(new WavetableEditData(data), false);
 		selectedParts_ = editHistory_[historyIndex_].second;
 		signalSelectedChangedDone_.emit();
 		signalDataChanged_.emit();

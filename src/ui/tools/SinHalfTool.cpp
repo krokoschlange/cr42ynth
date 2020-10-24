@@ -31,8 +31,6 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#include <iostream>
-
 #include "SinHalfTool.h"
 #include "WavetableEditData.h"
 #include "WPFunction.h"

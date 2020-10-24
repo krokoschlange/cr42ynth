@@ -32,7 +32,6 @@
  *******************************************************************************/
 
 #include <cstring>
-#include <iostream>
 
 #include "rtosc/rtosc.h"
 
