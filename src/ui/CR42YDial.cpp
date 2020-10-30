@@ -52,7 +52,9 @@ CR42YDial::CR42YDial(CR42YUI* ui) :
 		valueMode_(true),
 		minValue_(0),
 		maxValue_(1),
-		grabMax_(true)
+		grabMax_(true),
+		logicalMin_(0),
+		logicalMax_(1)
 {
 	set_flags(Gtk::NO_WINDOW);
 	add_events(
@@ -77,7 +79,7 @@ double CR42YDial::value()
 
 void CR42YDial::setValue(double value, bool trigger)
 {
-	double newVal = fmax(0, fmin(value, 1));
+	double newVal = fmax(logicalMin_, fmin(value, logicalMax_));
 	if (newVal != value_)
 	{
 		value_ = newVal;
@@ -87,6 +89,18 @@ void CR42YDial::setValue(double value, bool trigger)
 		}
 		queue_draw();
 	}
+}
+
+void CR42YDial::setLogicalMin(double logicalMin)
+{
+	logicalMin_ = logicalMin;
+	setValue(value_);
+}
+
+void CR42YDial::setLogicalMax(double logicalMax)
+{
+	logicalMax_ = logicalMax;
+	setValue(value_);
 }
 
 double CR42YDial::defaultValue()
@@ -171,7 +185,7 @@ bool CR42YDial::on_expose_event(GdkEventExpose* event)
 		if (valueMode_)
 		{
 			cr->arc(get_width() / 2, get_height() / 2, squareSize / 5 * 2, 2.45,
-					2.45 + value_ * 4.52);
+					2.45 + (value_ / (logicalMax_ - logicalMin_)) * 4.52);
 			clr = tm->color(HIGHLIGHT);
 			cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3] * 0.8);
 			cr->set_line_width(get_width() / 7.);
@@ -180,7 +194,8 @@ bool CR42YDial::on_expose_event(GdkEventExpose* event)
 		else
 		{
 			cr->arc(get_width() / 2, get_height() / 2, squareSize / 5 * 2,
-					2.45 + minValue_ * 4.52, 2.45 + maxValue_ * 4.52);
+					2.45 + (minValue_ / (logicalMax_ - logicalMin_)) * 4.52,
+					2.45 + (maxValue_ / (logicalMax_ - logicalMin_)) * 4.52);
 			clr = tm->color(HIGHLIGHT); //TODO: Different color
 			cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3] * 0.8);
 			cr->set_line_width(get_width() / 7.);
@@ -316,7 +331,10 @@ bool CR42YDial::on_motion_notify(GdkEventMotion* event)
 		{
 			//setValue(1 - event->y / get_height());
 			float ydiff = mouseY_ - event->y;
-			setValue(value_ + ydiff / get_height() / 2);
+			setValue(
+					value_
+							+ ydiff / get_height() / 2
+									* (logicalMax_ - logicalMin_));
 			mouseY_ = event->y;
 			return true;
 		}

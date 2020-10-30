@@ -49,6 +49,9 @@ public:
 	double value();
 	void setValue(double value, bool trigger = true);
 
+	void setLogicalMin(double logicalMin);
+	void setLogicalMax(double logicalMax);
+
 	double defaultValue();
 	void setDefaultValue(double defaultValue);
 
@@ -82,6 +85,9 @@ private:
 	sigc::signal<void, double> signalDone_;
 
 	double value_;
+	double logicalMin_;
+	double logicalMax_;
+
 	double preClickValue_;
 	double prePreClickValue_;
 	int mouseY_;
