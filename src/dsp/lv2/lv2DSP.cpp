@@ -33,6 +33,7 @@
 
 #include <iostream>
 #include <lv2/core/lv2.h>
+#include <lv2/state/state.h>
 #include "CR42YnthLV2.h"
 #include "common.h"
 
@@ -41,7 +42,8 @@ namespace cr42y
 LV2_Handle instantiate(const LV2_Descriptor* descriptor, double samplerate,
 		const char* bundlePath, const LV2_Feature* const * features)
 {
-	CR42YnthLV2* lv2 = CR42YnthLV2::getInstance(samplerate, bundlePath, features);
+	CR42YnthLV2* lv2 = CR42YnthLV2::getInstance(samplerate, bundlePath,
+			features);
 	if (lv2->isReady())
 	{
 		lv2->log("instantiated");
@@ -85,8 +87,29 @@ void cleanup(LV2_Handle instance)
 	lv2 = nullptr;
 }
 
+LV2_State_Status save(LV2_Handle instance, LV2_State_Store_Function store,
+		LV2_State_Handle handle, uint32_t flags,
+		const LV2_Feature* const * features)
+{
+	return LV2_STATE_SUCCESS;
+}
+
+LV2_State_Status restore(LV2_Handle instance,
+		LV2_State_Retrieve_Function retrieve, LV2_State_Handle handle,
+		uint32_t flags, const LV2_Feature* const * features)
+{
+	return LV2_STATE_SUCCESS;
+}
+
+static const LV2_State_Interface stateIface =
+	{save, restore};
+
 const void* extensionData(const char* uri)
 {
+	if (!strcmp(uri, LV2_STATE__interface))
+	{
+		return &stateIface;
+	}
 	return nullptr;
 }
 
@@ -112,5 +135,4 @@ int main()
 	std::cout << "Use as LV2 Plugin";
 	return 0;
 }
-
 

@@ -55,8 +55,8 @@ public:
 	void setValue(float val, bool callback = true);
 	bool handleOSCEvent(OSCEvent* event);
 
-	void sendState();
-	void sendState(bool sendVal, bool sendMin, bool sendMax, bool sendGen);
+	void getState(std::vector<OSCEvent>& events);
+	void getState(std::vector<OSCEvent>& events, bool sendVal, bool sendMin, bool sendMax, bool sendGen);
 
 	void setGenerator(std::string g, bool callback = true);
 

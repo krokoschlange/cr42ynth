@@ -48,13 +48,13 @@ public:
 	CR42YnthCommunicator();
 	virtual ~CR42YnthCommunicator();
 
-	virtual void writeMessage(char* msg, int size, void* data, int dataSize) = 0;
+	virtual void writeMessage(OSCEvent& event) = 0;
 	virtual void log(const char* msg) = 0;
 
 	void addOSCEventListener(OSCEventListener* listener);
 	void removeOSCEventListener(OSCEventListener* listener);
 
-	void handleOSCEvent(OSCEvent* event);
+	bool handleOSCEvent(OSCEvent* event);
 
 	void sendState();
 

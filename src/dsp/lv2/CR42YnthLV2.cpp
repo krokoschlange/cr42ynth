@@ -119,8 +119,17 @@ bool CR42YnthLV2::isReady()
 	return initialized;
 }
 
-void CR42YnthLV2::writeMessage(char* msg, int size, void* data, int dataSize)
+void CR42YnthLV2::writeMessage(OSCEvent& event)
 {
+	const char* msg = nullptr;
+	int size = 0;
+	void* data = nullptr;
+	int dataSize = 0;
+	msg = event.getMessage(&size);
+	data = event.getData(&dataSize);
+
+	//log(msg);
+
 	lv2_atom_forge_frame_time(forge, 0);
 
 	LV2_Atom_Forge_Frame objectFrame; // start of object with message and data property
@@ -163,13 +172,15 @@ void CR42YnthLV2::run(uint32_t n_samples)
 					LV2_Atom_Vector* msgV = (LV2_Atom_Vector*) msgAtom;
 					char* msg = (char*) msgV + sizeof(LV2_Atom_Vector);
 					void* data = nullptr;
+					int dataSize = 0;
 					if (dataAtom)
 					{
 						LV2_Atom_Vector* dataV = (LV2_Atom_Vector*) dataAtom;
 						data = (void*) ((char*) dataV + sizeof(LV2_Atom_Vector));
+						dataSize = dataAtom->size - sizeof(LV2_Atom_Vector_Body);
 					}
 
-					OSCEvent oscevent(msg, data);
+					OSCEvent oscevent(msg, msgAtom->size - sizeof(LV2_Atom_Vector_Body), data, dataSize);
 					//dsp->handleEvent(&oscevent);
 					handleOSCEvent(&oscevent);
 				}
@@ -183,7 +194,7 @@ void CR42YnthLV2::run(uint32_t n_samples)
 				{
 					char buffer[32];
 					int len = rtosc_message(buffer, 32, "/global/bpm", "f", ((LV2_Atom_Float*) bpm)->body);
-					OSCEvent event(buffer, nullptr);
+					OSCEvent event(buffer, len, nullptr, 0);
 					//dsp->handleEvent(&event);
 					handleOSCEvent(&event);
 				}
@@ -191,7 +202,7 @@ void CR42YnthLV2::run(uint32_t n_samples)
 				{
 					char buffer[32];
 					int len = rtosc_message(buffer, 32, "/global/speed", "f", ((LV2_Atom_Float*) speed)->body);
-					OSCEvent event(buffer, nullptr);
+					OSCEvent event(buffer, len, nullptr, 0);
 					//dsp->handleEvent(&event);
 					handleOSCEvent(&event);
 				}
@@ -199,7 +210,7 @@ void CR42YnthLV2::run(uint32_t n_samples)
 				{
 					char buffer[32];
 					int len = rtosc_message(buffer, 32, "/global/beat", "f", ((LV2_Atom_Float*) beat)->body);
-					OSCEvent event(buffer, nullptr);
+					OSCEvent event(buffer, len, nullptr, 0);
 					//dsp->handleEvent(&event);
 					handleOSCEvent(&event);
 				}
@@ -213,7 +224,7 @@ void CR42YnthLV2::run(uint32_t n_samples)
 			char midimsg[] =
 				{msg[0], msg[1], msg[2], 0};
 			int len = rtosc_message(buffer, 32, "/global/midi", "m", midimsg);
-			OSCEvent oscevent(buffer, nullptr);
+			OSCEvent oscevent(buffer, len, nullptr, 0);
 			//dsp->handleEvent(&oscevent);
 			handleOSCEvent(&oscevent);
 		}

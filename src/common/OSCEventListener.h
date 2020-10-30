@@ -1,6 +1,8 @@
 #ifndef SRC_COMMON_OSCEVENTLISTENER_H_
 #define SRC_COMMON_OSCEVENTLISTENER_H_
 
+#include <vector>
+
 namespace cr42y
 {
 class OSCEvent;
@@ -13,7 +15,7 @@ public:
 
 	virtual bool handleOSCEvent(OSCEvent* event) = 0;
 
-	virtual void sendState() = 0;
+	virtual void getState(std::vector<OSCEvent>& events) = 0;
 };
 
 } /* namespace cr42y */

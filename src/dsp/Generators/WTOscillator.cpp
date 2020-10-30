@@ -224,7 +224,7 @@ void WTOscillator::voiceRemoved(Voice* vce)
 	}
 }
 
-void WTOscillator::sendState()
+void WTOscillator::getState(std::vector<OSCEvent>& events)
 {
 	std::string address = "/oscillators/" + std::to_string(number) + "/wavetable";
 
@@ -247,11 +247,13 @@ void WTOscillator::sendState()
 		 */
 		void* dataBuffer = nullptr;
 		int dataSize = editData->getData(&dataBuffer);
-		communicator_->writeMessage(buffer, len, dataBuffer, dataSize);
+		events.push_back(OSCEvent(buffer, len, dataBuffer, dataSize));
+		//communicator_->writeMessage(buffer, len, dataBuffer, dataSize);
 	}
 	else
 	{
-		communicator_->writeMessage(buffer, len, nullptr, 0);
+		events.push_back(OSCEvent(buffer, len, nullptr, 0));
+		//communicator_->writeMessage(buffer, len, nullptr, 0);
 	}
 }
 

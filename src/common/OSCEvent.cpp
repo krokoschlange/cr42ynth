@@ -32,27 +32,101 @@
  *******************************************************************************/
 #include "OSCEvent.h"
 
+#include <memory.h>
+
 namespace cr42y
 {
 
-OSCEvent::OSCEvent(char* msg, void* d) :
-		message(msg),
-		data(d)
+OSCEvent::OSCEvent(char* msg, int msgLength, void* data, int dataLength) :
+		message_(nullptr),
+		msgLength_(msgLength),
+		data_(nullptr),
+		dataLength_(dataLength)
 {
+	if (msg && msgLength > 0)
+	{
+		message_ = new char[msgLength];
+		memcpy(message_, msg, msgLength);
+	}
+	if (data && dataLength > 0)
+	{
+		data_ = new char[dataLength];
+		memcpy(data_, data, dataLength);
+	}
+}
+
+OSCEvent::OSCEvent(const OSCEvent& other) :
+		message_(nullptr),
+		msgLength_(other.msgLength_),
+		data_(nullptr),
+		dataLength_(other.dataLength_)
+{
+	if (other.message_ && msgLength_ > 0)
+	{
+		message_ = new char[msgLength_];
+		memcpy(message_, other.message_, msgLength_);
+	}
+	if (other.data_ && dataLength_ > 0)
+	{
+		data_ = new char[dataLength_];
+		memcpy(data_, other.data_, dataLength_);
+	}
 }
 
 OSCEvent::~OSCEvent()
 {
+	if (message_)
+	{
+		delete[] message_;
+	}
+	if (data_)
+	{
+		delete[] ((char*) data_);
+	}
 }
 
-const char* OSCEvent::getMessage()
+OSCEvent& OSCEvent::operator =(const OSCEvent& other)
 {
-	return message;
+	if (message_)
+	{
+		delete[] message_;
+	}
+	if (data_)
+	{
+		delete[] ((char*) data_);
+	}
+
+	msgLength_ = other.msgLength_;
+	dataLength_ = other.dataLength_;
+
+	if (other.message_ && msgLength_ > 0)
+	{
+		message_ = new char[msgLength_];
+		memcpy(message_, other.message_, msgLength_);
+	}
+	if (other.data_ && dataLength_ > 0)
+	{
+		data_ = new char[dataLength_];
+		memcpy(data_, other.data_, dataLength_);
+	}
 }
 
-void* OSCEvent::getData()
+const char* OSCEvent::getMessage(int* len)
 {
-	return data;
+	if (len)
+	{
+		*len = msgLength_;
+	}
+	return message_;
+}
+
+void* OSCEvent::getData(int* len)
+{
+	if (len)
+	{
+		*len = dataLength_;
+	}
+	return data_;
 }
 
 } /* namespace cr42y */

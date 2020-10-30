@@ -68,7 +68,7 @@ public:
 	void run(uint32_t n_samples);
 	bool handleOSCEvent(OSCEvent* event);
 
-	void sendState();
+	void getState(std::vector<OSCEvent>& events);
 
 	float* getOutR();
 	float* getOutL();

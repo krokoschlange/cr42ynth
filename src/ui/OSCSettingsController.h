@@ -23,7 +23,7 @@ public:
 	OscillatorControls* getControls(int idx);
 
 	bool handleOSCEvent(OSCEvent* event);
-	void sendState();
+	void getState(std::vector<OSCEvent>& events);
 
 	void wavetableChangedCallback();
 
@@ -34,7 +34,7 @@ private:
 	WavetableEditController* wtEditController_;
 
 	std::vector<WavetableEditData> editData_;
-	std::vector<OscillatorControls> controls_;
+	std::vector<OscillatorControls*> controls_;
 
 	std::vector<std::deque<std::pair<char*, std::vector<int>>>> editHistory_;
 };

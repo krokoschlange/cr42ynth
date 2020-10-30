@@ -55,6 +55,13 @@ public:
 	std::string text();
 	void setText(std::string text);
 
+	void setMode(bool valueMode);
+
+	void setMinValue(double minValue);
+	double minValue();
+
+	void setMaxValue(double minValue);
+	double maxValue();
 
 	sigc::signal<void, double> signalChanged();
 	sigc::signal<void, double> signalDone();
@@ -81,6 +88,13 @@ private:
 
 	double oldValue_;
 	double defaultValue_;
+
+	bool valueMode_;
+
+	double minValue_;
+	double maxValue_;
+
+	bool grabMax_;
 
 	std::string text_;
 };

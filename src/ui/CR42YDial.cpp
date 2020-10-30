@@ -48,13 +48,22 @@ CR42YDial::CR42YDial(CR42YUI* ui) :
 		mouseY_(0),
 		oldValue_(0),
 		defaultValue_(0),
-		text_("")
+		text_(""),
+		valueMode_(true),
+		minValue_(0),
+		maxValue_(1),
+		grabMax_(true)
 {
 	set_flags(Gtk::NO_WINDOW);
-	add_events(Gdk::BUTTON_PRESS_MASK | Gdk::BUTTON_RELEASE_MASK | Gdk::BUTTON1_MOTION_MASK);
-	signal_button_press_event().connect(sigc::mem_fun(this, &CR42YDial::on_button_press));
-	signal_button_release_event().connect(sigc::mem_fun(this, &CR42YDial::on_button_release));
-	signal_motion_notify_event().connect(sigc::mem_fun(this, &CR42YDial::on_motion_notify));
+	add_events(
+			Gdk::BUTTON_PRESS_MASK | Gdk::BUTTON_RELEASE_MASK
+					| Gdk::BUTTON1_MOTION_MASK);
+	signal_button_press_event().connect(
+			sigc::mem_fun(this, &CR42YDial::on_button_press));
+	signal_button_release_event().connect(
+			sigc::mem_fun(this, &CR42YDial::on_button_release));
+	signal_motion_notify_event().connect(
+			sigc::mem_fun(this, &CR42YDial::on_motion_notify));
 }
 
 CR42YDial::~CR42YDial()
@@ -101,6 +110,31 @@ void CR42YDial::setText(std::string text)
 	queue_draw();
 }
 
+void CR42YDial::setMode(bool valueMode)
+{
+	valueMode_ = valueMode;
+}
+
+void CR42YDial::setMinValue(double minValue)
+{
+	minValue_ = minValue;
+}
+
+double CR42YDial::minValue()
+{
+	return minValue_;
+}
+
+void CR42YDial::setMaxValue(double maxValue)
+{
+	maxValue_ = maxValue;
+}
+
+double CR42YDial::maxValue()
+{
+	return maxValue_;
+}
+
 sigc::signal<void, double> CR42YDial::signalChanged()
 {
 	return signalChanged_;
@@ -124,28 +158,45 @@ bool CR42YDial::on_expose_event(GdkEventExpose* event)
 		cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
 		cr->fill();
 
-		int squareSize = get_width() < get_height() ? get_width() : get_height();
+		int squareSize =
+				get_width() < get_height() ? get_width() : get_height();
 
-		cr->arc(get_width() / 2, get_height() / 2, squareSize / 5 * 2, 2.45, 0.69);
+		cr->arc(get_width() / 2, get_height() / 2, squareSize / 5 * 2, 2.45,
+				0.69);
 		clr = tm->color(FG);
 		cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
 		cr->set_line_width(get_width() / 20.);
 		cr->stroke();
 
-		cr->arc(get_width() / 2, get_height() / 2, squareSize / 5 * 2, 2.45, 2.45 + value_ * 4.52);
-		clr = tm->color(HIGHLIGHT);
-		cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3] * 0.8);
-		cr->set_line_width(get_width() / 7.);
-		cr->stroke();
+		if (valueMode_)
+		{
+			cr->arc(get_width() / 2, get_height() / 2, squareSize / 5 * 2, 2.45,
+					2.45 + value_ * 4.52);
+			clr = tm->color(HIGHLIGHT);
+			cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3] * 0.8);
+			cr->set_line_width(get_width() / 7.);
+			cr->stroke();
+		}
+		else
+		{
+			cr->arc(get_width() / 2, get_height() / 2, squareSize / 5 * 2,
+					2.45 + minValue_ * 4.52, 2.45 + maxValue_ * 4.52);
+			clr = tm->color(HIGHLIGHT); //TODO: Different color
+			cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3] * 0.8);
+			cr->set_line_width(get_width() / 7.);
+			cr->stroke();
+		}
 
 		if (text_.size() > 0)
 		{
 			Cairo::TextExtents xtents;
-			cr->select_font_face(tm->font(), Cairo::FONT_SLANT_NORMAL, Cairo::FONT_WEIGHT_NORMAL);
+			cr->select_font_face(tm->font(), Cairo::FONT_SLANT_NORMAL,
+					Cairo::FONT_WEIGHT_NORMAL);
 			cr->set_font_size(tm->fontSizeSmall());
 			cr->get_text_extents(text_, xtents);
 
-			cr->move_to(get_width() / 2 - xtents.width / 2, get_height() - tm->fontSizeSmall() / 2);
+			cr->move_to(get_width() / 2 - xtents.width / 2,
+					get_height() - tm->fontSizeSmall() / 2);
 			cr->show_text(text_);
 		}
 	}
@@ -171,7 +222,8 @@ void CR42YDial::on_realize()
 		attributes.window_type = GDK_WINDOW_CHILD;
 		attributes.wclass = GDK_INPUT_OUTPUT;
 
-		window_ = Gdk::Window::create(get_window(), &attributes, GDK_WA_X | GDK_WA_Y);
+		window_ = Gdk::Window::create(get_window(), &attributes,
+				GDK_WA_X | GDK_WA_Y);
 
 		unset_flags(Gtk::NO_WINDOW);
 		set_window(window_);
@@ -186,48 +238,68 @@ bool CR42YDial::on_button_press(GdkEventButton* event)
 	{
 		return false;
 	}
-	if (event->button == 1 && event->type == GDK_BUTTON_PRESS)
+	if (valueMode_)
 	{
-		prePreClickValue_ = preClickValue_;
-		preClickValue_ = value();
-		//setValue(1 - event->y / get_height());
-		mouseY_ = event->y;
-		gtk_grab_add(gobj());
-		return true;
+		if (event->button == 1 && event->type == GDK_BUTTON_PRESS)
+		{
+			prePreClickValue_ = preClickValue_;
+			preClickValue_ = value();
+			//setValue(1 - event->y / get_height());
+			mouseY_ = event->y;
+			gtk_grab_add(gobj());
+			return true;
+		}
+		else if (event->button == 1 && event->type == GDK_2BUTTON_PRESS)
+		{
+			if (fabs(prePreClickValue_ - defaultValue_) < 0.0001)
+			{
+				setValue(oldValue_);
+			}
+			else
+			{
+				oldValue_ = prePreClickValue_;
+				setValue(defaultValue_);
+			}
+			return true;
+		}
+		else if (event->button == 3)
+		{
+			if (fabs(value() - defaultValue_) < 0.0001)
+			{
+				setValue(oldValue_);
+			}
+			else
+			{
+				oldValue_ = value();
+				setValue(defaultValue_);
+			}
+			signalDone_.emit(value_);
+			return true;
+		}
 	}
-	else if (event->button == 1 && event->type == GDK_2BUTTON_PRESS)
+	else
 	{
-		if (fabs(prePreClickValue_ - defaultValue_) < 0.0001)
+		if (event->button == 1)
 		{
-			setValue(oldValue_);
+			grabMax_ = true;
+			mouseY_ = event->y;
+			gtk_grab_add(gobj());
+			return true;
 		}
-		else
+		else if (event->button == 3)
 		{
-			oldValue_ = prePreClickValue_;
-			setValue(defaultValue_);
+			grabMax_ = false;
+			mouseY_ = event->y;
+			gtk_grab_add(gobj());
+			return true;
 		}
-		return true;
-	}
-	else if (event->button == 3)
-	{
-		if (fabs(value() - defaultValue_) < 0.0001)
-		{
-			setValue(oldValue_);
-		}
-		else
-		{
-			oldValue_ = value();
-			setValue(defaultValue_);
-		}
-		signalDone_.emit(value_);
-		return true;
 	}
 	return false;
 }
 
 bool CR42YDial::on_button_release(GdkEventButton* event)
 {
-	if (event->button == 1)
+	if (event->button == 1 || event->button == 3)
 	{
 		gtk_grab_remove(gobj());
 		signalDone_.emit(value_);
@@ -240,11 +312,28 @@ bool CR42YDial::on_motion_notify(GdkEventMotion* event)
 {
 	if (get_state() != Gtk::STATE_INSENSITIVE)
 	{
-		//setValue(1 - event->y / get_height());
-		float ydiff = mouseY_ - event->y;
-		setValue(value_ + ydiff / get_height() / 2);
-		mouseY_ = event->y;
-		return true;
+		if (valueMode_)
+		{
+			//setValue(1 - event->y / get_height());
+			float ydiff = mouseY_ - event->y;
+			setValue(value_ + ydiff / get_height() / 2);
+			mouseY_ = event->y;
+			return true;
+		}
+		else
+		{
+			float ydiff = mouseY_ - event->y;
+			if (grabMax_)
+			{
+				setMaxValue(maxValue_ + ydiff / get_height() / 2);
+			}
+			else
+			{
+				setMinValue(minValue_ + ydiff / get_height() / 2);
+			}
+			mouseY_ = event->y;
+			return true;
+		}
 	}
 	return false;
 }

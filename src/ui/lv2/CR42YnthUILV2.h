@@ -59,7 +59,7 @@ public:
 
 	bool isReady();
 
-	void writeMessage(char* msg, int size, void* data, int dataSize);
+	void writeMessage(OSCEvent& event);
 	void log(const char* msg);
 
 private:

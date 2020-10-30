@@ -88,7 +88,7 @@ void LFO::voiceRemoved(Voice* vce)
 	}
 }
 
-void LFO::sendState()
+void LFO::getState(std::vector<OSCEvent>& events)
 {
 
 }

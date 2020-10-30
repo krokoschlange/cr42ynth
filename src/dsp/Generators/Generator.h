@@ -61,8 +61,6 @@ public:
 	virtual void voiceAdded(Voice* vce) = 0;
 	virtual void voiceRemoved(Voice* vce) = 0;
 
-	virtual void sendState() = 0;
-
 protected:
 	std::vector<Property*> controls;
 

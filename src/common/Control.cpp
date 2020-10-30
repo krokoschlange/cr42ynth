@@ -72,36 +72,44 @@ Control::~Control()
 void Control::setValue(float val, bool callback)
 {
 	value = val;
-	if (callback)
+	if (callback && communicator)
 	{
-		sendState(true, false, false, false);
+		std::vector<OSCEvent> events;
+		getState(events, true, false, false, false);
+		communicator->writeMessage(events[0]);//sendState(true, false, false, false);
 	}
 }
 
 void Control::setMin(float m, bool callback)
 {
 	min = m;
-	if (callback)
+	if (callback && communicator)
 	{
-		sendState(false, true, false, false);
+		std::vector<OSCEvent> events;
+		getState(events, false, true, false, false);
+		communicator->writeMessage(events[0]);
 	}
 }
 
 void Control::setMax(float m, bool callback)
 {
 	max = m;
-	if (callback)
+	if (callback && communicator)
 	{
-		sendState(false, false, true, false);
+		std::vector<OSCEvent> events;
+		getState(events, false, false, true, false);
+		communicator->writeMessage(events[0]);
 	}
 }
 
 void Control::setGenerator(std::string gen, bool callback)
 {
 	generator = gen;
-	if (callback)
+	if (callback && communicator)
 	{
-		sendState(false, false, false, true);
+		std::vector<OSCEvent> events;
+		getState(events, false, false, false, true);
+		communicator->writeMessage(events[0]);
 	}
 }
 
@@ -193,12 +201,12 @@ bool Control::handleOSCEvent(OSCEvent* event)
 	return false;
 }
 
-void Control::sendState()
+void Control::getState(std::vector<OSCEvent>& events)
 {
-	sendState(true, true, true, true);
+	getState(events, true, true, true, true);
 }
 
-void Control::sendState(bool sendVal, bool sendMin, bool sendMax, bool sendGen)
+void Control::getState(std::vector<OSCEvent>& events, bool sendVal, bool sendMin, bool sendMax, bool sendGen)
 {
 	if (!communicator)
 	{
@@ -210,26 +218,30 @@ void Control::sendState(bool sendVal, bool sendMin, bool sendMax, bool sendGen)
 	{
 		int len = rtosc_message(buffer, bufferSize, getAddress().c_str(), "sf",
 				"set_value", getValue());
-		communicator->writeMessage(buffer, len, nullptr, 0);
+		events.push_back(OSCEvent(buffer, bufferSize, nullptr, 0));
+		//communicator->writeMessage(buffer, len, nullptr, 0);
 		//communicator->log(buffer);
 	}
 	if (sendMin)
 	{
 		int len = rtosc_message(buffer, bufferSize, getAddress().c_str(), "sf",
 				"set_min", getMin());
-		communicator->writeMessage(buffer, len, nullptr, 0);
+		events.push_back(OSCEvent(buffer, bufferSize, nullptr, 0));
+		//communicator->writeMessage(buffer, len, nullptr, 0);
 	}
 	if (sendMax)
 	{
 		int len = rtosc_message(buffer, bufferSize, getAddress().c_str(), "sf",
 				"set_max", getMax());
-		communicator->writeMessage(buffer, len, nullptr, 0);
+		events.push_back(OSCEvent(buffer, bufferSize, nullptr, 0));
+		//communicator->writeMessage(buffer, len, nullptr, 0);
 	}
 	if (sendGen)
 	{
 		int len = rtosc_message(buffer, bufferSize, getAddress().c_str(), "ss",
 				"set_generator", getGenerator().c_str());
-		communicator->writeMessage(buffer, len, nullptr, 0);
+		events.push_back(OSCEvent(buffer, bufferSize, nullptr, 0));
+		//communicator->writeMessage(buffer, len, nullptr, 0);
 	}
 }
 

@@ -119,12 +119,14 @@ CR42YnthUI::CR42YnthUI(CR42YnthCommunicator* comm, const char* path) :
 		char buffer[bufferSize];
 		int len = rtosc_message(buffer, bufferSize, addr.c_str(), "sf",
 				"set_value", 1.0);
-		comm->writeMessage(buffer, len, nullptr, 0);
+		OSCEvent event = OSCEvent(buffer, len, nullptr, 0);
+		comm->writeMessage(event);
 
 		addr = "/global/state";
 		buffer[bufferSize];
 		len = rtosc_message(buffer, bufferSize, addr.c_str(), "s", "get");
-		comm->writeMessage(buffer, len, nullptr, 0);
+		event = OSCEvent(buffer, len, nullptr, 0);
+		comm->writeMessage(event);
 	}
 }
 
@@ -139,31 +141,6 @@ const char* CR42YnthUI::getBundlePath()
 	return bundlePath_;
 }
 
-void CR42YnthUI::handleOSCEvent(OSCEvent* event)
-{
-	
-	const char* msg = event->getMessage();
-	//communicator->log(msg);
-	std::string addr = "/oscillators/0/wavetable";
-	char* end = nullptr;
-	rtosc_match_path(addr.c_str(), msg, (const char**) &end);
-	if (end && *end == '\0')
-	{
-		//communicator->log(msg);
-		if (rtosc_type(msg, 0) == 's'
-				&& !strcmp(rtosc_argument(msg, 0).s, "set"))
-		{
-			if (event->getData())
-			{
-				//WavetableEditController* controller = wtEditor->getController();
-				//controller->setData(new WavetableEditData((char*) event->getData()));
-				//wtEditor->requestRedraw();
-
-			}
-		}
-	}
-}
-
 void CR42YnthUI::idle()
 {
 	gtkMain_->iteration(false);
@@ -176,16 +153,18 @@ CR42YnthCommunicator* CR42YnthUI::getCommunicator()
 
 void CR42YnthUI::on_realize()
 {
-	CR42YRelativeContainer::on_realize();
+	CR42YUI::on_realize();
+	screenSelectCallback(0);
+}
+
+void CR42YnthUI::on_show()
+{
+	CR42YUI::on_show();
 	screenSelectCallback(0);
 }
 
 void CR42YnthUI::screenSelectCallback(int selected)
 {
-	if (selectedScreen_ == selected)
-	{
-		return;
-	}
 	selectedScreen_ = selected;
 
 	oscSettings_->hide_all();

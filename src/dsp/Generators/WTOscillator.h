@@ -58,7 +58,7 @@ public:
 	virtual void voiceAdded(Voice* vce);
 	virtual void voiceRemoved(Voice* vce);
 
-	virtual void sendState();
+	virtual void getState(std::vector<OSCEvent>& events);
 
 	bool handleOSCEvent(OSCEvent* event);
 

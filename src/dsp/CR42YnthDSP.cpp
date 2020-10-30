@@ -101,16 +101,6 @@ CR42YnthDSP::~CR42YnthDSP()
 		delete oscillators[i];
 	}
 	oscillators.clear();
-	if (bpm)
-	{
-		delete bpm;
-		bpm = nullptr;
-	}
-	if (vol)
-	{
-		delete vol;
-		vol = nullptr;
-	}
 	if (bpmProp)
 	{
 		delete bpmProp;
@@ -121,6 +111,17 @@ CR42YnthDSP::~CR42YnthDSP()
 		delete volProp;
 		volProp = nullptr;
 	}
+	if (bpm)
+	{
+		delete bpm;
+		bpm = nullptr;
+	}
+	if (vol)
+	{
+		delete vol;
+		vol = nullptr;
+	}
+
 	delete globalVoice;
 	globalVoice = nullptr;
 	delete freeVoice;
@@ -262,7 +263,7 @@ bool CR42YnthDSP::handleOSCEvent(OSCEvent* event)
 	return eaten;
 }
 
-void CR42YnthDSP::sendState()
+void CR42YnthDSP::getState(std::vector<OSCEvent>& events)
 {
 	getCommunicator()->log("sending state");
 	//std::cout << "sending state\n";
@@ -270,7 +271,8 @@ void CR42YnthDSP::sendState()
 	{
 		char buffer[32];
 		int len = rtosc_message(buffer, 32, "/global/note", "i", voices[i]->getNote());
-		getCommunicator()->writeMessage(buffer, len, nullptr, 0);
+		events.push_back(OSCEvent(buffer, len, nullptr, 0));
+		//getCommunicator()->writeMessage(buffer, len, nullptr, 0);
 	}
 
 	/*for (int i = 0; i < controls.size(); i++)

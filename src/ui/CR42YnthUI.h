@@ -55,14 +55,13 @@ public:
 	
 	const char* getBundlePath();
 
-	void handleOSCEvent(OSCEvent* event);
-
 	void idle();
 
 	CR42YnthCommunicator* getCommunicator();
 
 protected:
 	void on_realize();
+	void on_show();
 
 private:
 	Gtk::Main* gtkMain_;
