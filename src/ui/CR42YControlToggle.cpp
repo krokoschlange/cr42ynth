@@ -30,56 +30,50 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
-#ifndef SRC_COMMON_OSCILLATORCONTROLS_H_
-#define SRC_COMMON_OSCILLATORCONTROLS_H_
-
-#include "Control.h"
+#include "CR42YControlToggle.h"
 
 namespace cr42y
 {
 
-class Control;
-class OSCEvent;
-class CR42YnthCommunicator;
-
-class OscillatorControls
+CR42YControlToggle::CR42YControlToggle(CR42YUI* ui) :
+		CR42YToggle(ui)
 {
-public:
-	OscillatorControls(int id, CR42YnthCommunicator* comm);
-	virtual ~OscillatorControls();
+	using std::placeholders::_1;
+	connector_.setWidgetValueSetter(std::bind(&CR42YControlToggle::setValue, this, _1));
+	signalClicked().connect(
+			sigc::mem_fun(this, &CR42YControlToggle::clickedCallback));
+}
 
-	bool receiveOSCMessage(OSCEvent* event);
+CR42YControlToggle::~CR42YControlToggle()
+{
+}
 
-	Control* getActiveCtrl();
-	Control* getSmoothCtrl();
-	Control* getNoiseCtrl();
-	Control* getVolumeCtrl();
-	Control* getDetuneCtrl();
-	Control* getPanCtrl();
-	Control* getNoteShiftCtrl();
-	Control* getWTPosCtrl();
-	Control* getUnisonAmountCtrl();
-	Control* getUnisonDetuneCtrl();
-	Control* getUnisonSpreadCtrl();
-	Control* getPhaseShiftCtrl();
-	Control* getPhaseRandCtrl();
+void CR42YControlToggle::connectControl(Control* control)
+{
+	connector_.listenTo(control);
+	setValue(connector_.getControl()->getValue());
+}
 
-private:
-	Control active_;
-	Control smooth_;
-	Control noise_;
-	Control volume_;
-	Control detune_;
-	Control pan_;
-	Control noteShift_;
-	Control wtPos_;
-	Control unisonAmount_;
-	Control unisonDetune_;
-	Control unisonSpread_;
-	Control phaseShift_;
-	Control phaseRand_;
-};
+void CR42YControlToggle::setValue(double value)
+{
+	if (value >= 0.5)
+	{
+		set_state(Gtk::STATE_ACTIVE);
+	}
+	else
+	{
+		set_state(Gtk::STATE_NORMAL);
+	}
+}
+
+double CR42YControlToggle::value()
+{
+	return get_state() == Gtk::STATE_ACTIVE;
+}
+
+void CR42YControlToggle::clickedCallback()
+{
+	connector_.setControlValue(value());
+}
 
 } /* namespace cr42y */
-
-#endif /* SRC_COMMON_OSCILLATORCONTROLS_H_ */

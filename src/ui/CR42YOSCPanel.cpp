@@ -1,7 +1,39 @@
+/*******************************************************************************
+ * Copyright (c) 2020 krokoschlange and contributors.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in
+ *     the documentation and/or other materials provided with the
+ *     distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the
+ *     names of its contributors may be used to endorse or promote
+ *     products derived from this software without specific prior
+ *     written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+ * PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER
+ * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *******************************************************************************/
 #include "CR42YOSCPanel.h"
 
 #include "CR42YControlDial.h"
-#include "CR42YToggle.h"
+#include "CR42YControlToggle.h"
 #include "CR42YUI.h"
 #include "CR42YWFView.h"
 #include "OSCSettingsController.h"
@@ -15,7 +47,7 @@ CR42YOSCPanel::CR42YOSCPanel(CR42YUI* ui, WavetableEditController* wtEditControl
 		CR42YGrid(ui),
 		wfView_(new CR42YWFView(ui, wtEditController, viewSelector)),
 		idxLabel_(new CR42YLabel(ui)),
-		oscToggle_(new CR42YToggle(ui)),
+		oscToggle_(new CR42YControlToggle(ui)),
 		volumeDial_(new CR42YControlDial(ui))
 {
 	configureRow(0, 1, 0.003, 0.003, 0, 0);
@@ -55,6 +87,8 @@ void CR42YOSCPanel::connectData(int oscIndex, OSCSettingsController* controller_
 	idxLabel_->queue_draw();
 
 	volumeDial_->connectControl(controller_->getControls(oscIndex)->getVolumeCtrl());
+
+	oscToggle_->connectControl(controller_->getControls(oscIndex)->getActiveCtrl());
 }
 
 } /* namespace cr42y */

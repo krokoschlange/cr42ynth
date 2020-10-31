@@ -30,56 +30,34 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
-#ifndef SRC_COMMON_OSCILLATORCONTROLS_H_
-#define SRC_COMMON_OSCILLATORCONTROLS_H_
+#ifndef SRC_UI_CR42YCONTROLTOGGLE_H_
+#define SRC_UI_CR42YCONTROLTOGGLE_H_
 
-#include "Control.h"
+#include "CR42YToggle.h"
+
+#include "ControlConnector.h"
 
 namespace cr42y
 {
-
 class Control;
-class OSCEvent;
-class CR42YnthCommunicator;
 
-class OscillatorControls
+class CR42YControlToggle : public CR42YToggle
 {
 public:
-	OscillatorControls(int id, CR42YnthCommunicator* comm);
-	virtual ~OscillatorControls();
+	CR42YControlToggle(CR42YUI* ui);
+	virtual ~CR42YControlToggle();
 
-	bool receiveOSCMessage(OSCEvent* event);
+	void connectControl(Control* control);
 
-	Control* getActiveCtrl();
-	Control* getSmoothCtrl();
-	Control* getNoiseCtrl();
-	Control* getVolumeCtrl();
-	Control* getDetuneCtrl();
-	Control* getPanCtrl();
-	Control* getNoteShiftCtrl();
-	Control* getWTPosCtrl();
-	Control* getUnisonAmountCtrl();
-	Control* getUnisonDetuneCtrl();
-	Control* getUnisonSpreadCtrl();
-	Control* getPhaseShiftCtrl();
-	Control* getPhaseRandCtrl();
+	void setValue(double value);
+	double value();
 
 private:
-	Control active_;
-	Control smooth_;
-	Control noise_;
-	Control volume_;
-	Control detune_;
-	Control pan_;
-	Control noteShift_;
-	Control wtPos_;
-	Control unisonAmount_;
-	Control unisonDetune_;
-	Control unisonSpread_;
-	Control phaseShift_;
-	Control phaseRand_;
+	ControlConnector connector_;
+
+	void clickedCallback();
 };
 
 } /* namespace cr42y */
 
-#endif /* SRC_COMMON_OSCILLATORCONTROLS_H_ */
+#endif /* SRC_UI_CR42YCONTROLTOGGLE_H_ */
