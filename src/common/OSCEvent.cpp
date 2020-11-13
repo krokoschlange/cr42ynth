@@ -37,7 +37,7 @@
 namespace cr42y
 {
 
-OSCEvent::OSCEvent(char* msg, int msgLength, void* data, int dataLength) :
+OSCEvent::OSCEvent(char* msg, size_t msgLength, void* data, size_t dataLength) :
 		message_(nullptr),
 		msgLength_(msgLength),
 		data_(nullptr),
@@ -111,7 +111,7 @@ OSCEvent& OSCEvent::operator =(const OSCEvent& other)
 	}
 }
 
-const char* OSCEvent::getMessage(int* len)
+const char* OSCEvent::getMessage(size_t* len)
 {
 	if (len)
 	{
@@ -120,7 +120,7 @@ const char* OSCEvent::getMessage(int* len)
 	return message_;
 }
 
-void* OSCEvent::getData(int* len)
+void* OSCEvent::getData(size_t* len)
 {
 	if (len)
 	{

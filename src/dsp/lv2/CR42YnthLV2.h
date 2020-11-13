@@ -31,7 +31,6 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-
 #ifndef SRC_DSP_LV2_CR42YNTHLV2_H_
 #define SRC_DSP_LV2_CR42YNTHLV2_H_
 
@@ -40,6 +39,9 @@
 #include <lv2/atom/forge.h>
 #include <lv2/log/logger.h>
 #include <lv2/midi/midi.h>
+#include <lv2/state/state.h>
+
+#include <queue>
 
 #include "../CR42YnthDSP.h"
 #include "CR42YnthCommunicator.h"
@@ -60,6 +62,14 @@ public:
 	void connectPort(uint32_t port, void* data);
 	void run(uint32_t n_samples);
 	void cleanup();
+
+	LV2_State_Status save(LV2_State_Store_Function store,
+			LV2_State_Handle handle, uint32_t flags,
+			const LV2_Feature* const * features);
+
+	LV2_State_Status restore(LV2_State_Retrieve_Function retrieve,
+			LV2_State_Handle handle, uint32_t flags,
+			const LV2_Feature* const * features);
 
 	bool isReady();
 
@@ -87,6 +97,9 @@ private:
 	LV2_URID_Map* map;
 	LV2_Log_Logger* logger;
 
+	bool ctrlOutFull_;
+	std::queue<OSCEvent> eventQueue;
+
 	LV2_Atom_Forge_Frame outFrame;
 
 	class URIS
@@ -104,6 +117,10 @@ private:
 		LV2_URID msgOSCMsg;
 		LV2_URID msgData;
 		LV2_URID msgObj;
+		LV2_URID msgComplete;
+
+		LV2_URID stateKey;
+		LV2_URID stateType;
 	};
 	URIS* uris;
 };

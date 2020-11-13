@@ -83,9 +83,9 @@ CR42YnthUI_LV2::CR42YnthUI_LV2(const char* bundlePath,
 	uris->timeBPM = map->map(map->handle, LV2_TIME__beatsPerMinute);
 	uris->timeSpeed = map->map(map->handle, LV2_TIME__speed);
 
-	uris->msgOSCMsg = map->map(map->handle, CR42Ynth__DSP "/msg_oscmsg");
-	uris->msgData = map->map(map->handle, CR42Ynth__DSP "/msg_data");
-	uris->msgObj = map->map(map->handle, CR42Ynth__DSP "/msg_obj");
+	uris->msgOSCMsg = map->map(map->handle, CR42Ynth__OSCMSG);
+	uris->msgData = map->map(map->handle, CR42Ynth__MSGDATA);
+	uris->msgObj = map->map(map->handle, CR42Ynth__MSGOBJ);
 
 	LV2UI_Resize* resize = nullptr;
 	intptr_t parent = 0;
@@ -123,9 +123,9 @@ bool CR42YnthUI_LV2::isReady()
 void CR42YnthUI_LV2::writeMessage(OSCEvent& event)
 {
 	const char* msg = nullptr;
-	int size = 0;
+	size_t size = 0;
 	void* data = nullptr;
-	int dataSize = 0;
+	size_t dataSize = 0;
 	msg = event.getMessage(&size);
 	data = event.getData(&dataSize);
 

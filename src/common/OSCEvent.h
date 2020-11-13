@@ -33,26 +33,28 @@
 #ifndef SRC_COMMON_OSCEVENT_H_
 #define SRC_COMMON_OSCEVENT_H_
 
+#include <stddef.h>
+
 namespace cr42y
 {
 
 class OSCEvent
 {
 public:
-	OSCEvent(char* msg, int msgLength, void* data, int dataLength);
+	OSCEvent(char* msg, size_t msgLength, void* data, size_t dataLength);
 	OSCEvent(const OSCEvent& other);
 	virtual ~OSCEvent();
 
 	OSCEvent& operator=(const OSCEvent& other);
 
-	const char* getMessage(int* len = nullptr);
-	void* getData(int* len = nullptr);
+	const char* getMessage(size_t* len = nullptr);
+	void* getData(size_t* len = nullptr);
 
 private:
 	char* message_;
-	int msgLength_;
+	size_t msgLength_;
 	void* data_;
-	int dataLength_;
+	size_t dataLength_;
 };
 
 } /* namespace cr42y */

@@ -91,14 +91,16 @@ LV2_State_Status save(LV2_Handle instance, LV2_State_Store_Function store,
 		LV2_State_Handle handle, uint32_t flags,
 		const LV2_Feature* const * features)
 {
-	return LV2_STATE_SUCCESS;
+	CR42YnthLV2* lv2 = (CR42YnthLV2*) instance;
+	return lv2->save(store, handle, flags, features);
 }
 
 LV2_State_Status restore(LV2_Handle instance,
 		LV2_State_Retrieve_Function retrieve, LV2_State_Handle handle,
 		uint32_t flags, const LV2_Feature* const * features)
 {
-	return LV2_STATE_SUCCESS;
+	CR42YnthLV2* lv2 = (CR42YnthLV2*) instance;
+	return lv2->restore(retrieve, handle, flags, features);
 }
 
 static const LV2_State_Interface stateIface =

@@ -86,9 +86,12 @@ CR42YnthLV2::CR42YnthLV2(float samplerate, const char* bundlePath,
 	uris->timeBarBeat = map->map(map->handle, LV2_TIME__barBeat);
 	uris->timeBPM = map->map(map->handle, LV2_TIME__beatsPerMinute);
 	uris->timeSpeed = map->map(map->handle, LV2_TIME__speed);
-	uris->msgOSCMsg = map->map(map->handle, CR42Ynth__DSP "/msg_oscmsg");
-	uris->msgData = map->map(map->handle, CR42Ynth__DSP "/msg_data");
-	uris->msgObj = map->map(map->handle, CR42Ynth__DSP "/msg_obj");
+	uris->msgOSCMsg = map->map(map->handle, CR42Ynth__OSCMSG);
+	uris->msgData = map->map(map->handle, CR42Ynth__MSGDATA);
+	uris->msgObj = map->map(map->handle, CR42Ynth__MSGOBJ);
+	uris->msgComplete = map->map(map->handle, CR42Ynth__MSGCOMPLETE);
+	uris->stateKey = map->map(map->handle, CR42Ynth__STATEKEY);
+	uris->stateType = map->map(map->handle, CR42Ynth__STATETYPE);
 
 	forge = new LV2_Atom_Forge();
 	lv2_atom_forge_init(forge, map);
@@ -97,6 +100,8 @@ CR42YnthLV2::CR42YnthLV2(float samplerate, const char* bundlePath,
 	ctrlOut = nullptr;
 	outR = nullptr;
 	outL = nullptr;
+
+	ctrlOutFull_(false);
 
 	for (int i = 0; i < 8; i++)
 	{
@@ -121,36 +126,72 @@ bool CR42YnthLV2::isReady()
 
 void CR42YnthLV2::writeMessage(OSCEvent& event)
 {
-	const char* msg = nullptr;
-	int size = 0;
-	void* data = nullptr;
-	int dataSize = 0;
-	msg = event.getMessage(&size);
-	data = event.getData(&dataSize);
-
-	//log(msg);
-
-	lv2_atom_forge_frame_time(forge, 0);
-
-	LV2_Atom_Forge_Frame objectFrame; // start of object with message and data property
-	lv2_atom_forge_object(forge, &objectFrame, 0, uris->msgObj);
-
-	lv2_atom_forge_key(forge, uris->msgOSCMsg); // message key
-	lv2_atom_forge_vector(forge, 1, 0, size, msg); // message as char vector
-
-	if (dataSize > 0 && data)
+	if (!ctrlOutFull_)
 	{
-		lv2_atom_forge_key(forge, uris->msgData); // data key
-		lv2_atom_forge_vector(forge, dataSize, 0, 1, data); // data as "vector"
-	}
+		const char* msg = nullptr;
+		size_t size = 0;
+		void* data = nullptr;
+		size_t dataSize = 0;
+		msg = event.getMessage(&size);
+		data = event.getData(&dataSize);
 
-	lv2_atom_forge_pop(forge, &objectFrame); // end object
+		uint32_t space = forge->size - forge->offset;
+
+		lv2_atom_forge_frame_time(forge, 0);
+
+		LV2_Atom_Forge_Frame objectFrame; // start of object with message and data property
+		lv2_atom_forge_object(forge, &objectFrame, 0, uris->msgObj);
+
+		if (forge->size - forge->offset > size + 8 + 8 + sizeof(LV2_Atom_Bool) + 8)
+		{
+			lv2_atom_forge_key(forge, uris->msgOSCMsg); // message key
+			lv2_atom_forge_vector(forge, 1, 0, size, msg); // message as char vector
+
+			lv2_atom_forge_key(forge, uris->msgComplete);
+			LV2_Atom_Forge_Ref completeRef = lv2_atom_forge_bool(forge, true);
+			if (dataSize > 0 && data)
+			{
+				if (forge->size - forge->offset > dataSize + 8)
+				{
+					lv2_atom_forge_key(forge, uris->msgData); // data key
+					lv2_atom_forge_vector(forge, dataSize, 0, 1, data); // data as "vector"
+				}
+				else
+				{
+					lv2_atom_forge_key(forge, uris->msgData); // data key
+					uint32_t available = forge->size - forge->offset;
+					lv2_atom_forge_vector(forge, available, 0, 1, data); // data as "vector"
+					LV2_Atom_Bool* completeAtom = (LV2_Atom_Bool*) lv2_atom_forge_deref(forge, completeRef);
+					completeAtom->body = false;
+
+
+					eventQueue.push(OSCEvent(event.getMessage(), event.))
+				}
+			}
+		}
+
+		lv2_atom_forge_pop(forge, &objectFrame); // end object
+
+		if (forge->size - forge->offset
+				< sizeof(int64_t) + sizeof(LV2_Atom_Object))
+		{
+			ctrlOutFull_ = true;
+		}
+
+		//access forge directly to fix this shit
+
+		//(forge->size, forge->offset)!!!
+	}
+	else
+	{
+		eventQueue.push(event);
+	}
 }
 
 void CR42YnthLV2::run(uint32_t n_samples)
 {
 	uint32_t capacity = ctrlOut->atom.size;
-	lv2_atom_forge_set_buffer(forge, (uint8_t*) ctrlOut, 50000);
+	lv2_atom_forge_set_buffer(forge, (uint8_t*) ctrlOut, capacity);
 	lv2_atom_forge_sequence_head(forge, &outFrame, 0);
 
 	for (LV2_Atom_Event* event = lv2_atom_sequence_begin(&(ctrlIn)->body);
@@ -166,7 +207,8 @@ void CR42YnthLV2::run(uint32_t n_samples)
 				//log("custom msg");
 				LV2_Atom* msgAtom = nullptr;
 				LV2_Atom* dataAtom = nullptr;
-				lv2_atom_object_get(obj, uris->msgOSCMsg, &msgAtom, uris->msgData, &dataAtom, 0);
+				lv2_atom_object_get(obj, uris->msgOSCMsg, &msgAtom,
+						uris->msgData, &dataAtom, 0);
 				if (msgAtom)
 				{
 					LV2_Atom_Vector* msgV = (LV2_Atom_Vector*) msgAtom;
@@ -177,10 +219,13 @@ void CR42YnthLV2::run(uint32_t n_samples)
 					{
 						LV2_Atom_Vector* dataV = (LV2_Atom_Vector*) dataAtom;
 						data = (void*) ((char*) dataV + sizeof(LV2_Atom_Vector));
-						dataSize = dataAtom->size - sizeof(LV2_Atom_Vector_Body);
+						dataSize = dataAtom->size
+								- sizeof(LV2_Atom_Vector_Body);
 					}
 
-					OSCEvent oscevent(msg, msgAtom->size - sizeof(LV2_Atom_Vector_Body), data, dataSize);
+					OSCEvent oscevent(msg,
+							msgAtom->size - sizeof(LV2_Atom_Vector_Body), data,
+							dataSize);
 					//dsp->handleEvent(&oscevent);
 					handleOSCEvent(&oscevent);
 				}
@@ -189,11 +234,13 @@ void CR42YnthLV2::run(uint32_t n_samples)
 			{
 				//log("time data");
 				LV2_Atom* beat = nullptr, *bpm = nullptr, *speed = nullptr;
-				lv2_atom_object_get(obj, uris->timeBarBeat, &beat, uris->timeBPM, &bpm, uris->timeSpeed, &speed, nullptr);
+				lv2_atom_object_get(obj, uris->timeBarBeat, &beat,
+						uris->timeBPM, &bpm, uris->timeSpeed, &speed, nullptr);
 				if (bpm && bpm->type == uris->atomFloat)
 				{
 					char buffer[32];
-					int len = rtosc_message(buffer, 32, "/global/bpm", "f", ((LV2_Atom_Float*) bpm)->body);
+					int len = rtosc_message(buffer, 32, "/global/bpm", "f",
+							((LV2_Atom_Float*) bpm)->body);
 					OSCEvent event(buffer, len, nullptr, 0);
 					//dsp->handleEvent(&event);
 					handleOSCEvent(&event);
@@ -201,7 +248,8 @@ void CR42YnthLV2::run(uint32_t n_samples)
 				if (speed && speed->type == uris->atomFloat)
 				{
 					char buffer[32];
-					int len = rtosc_message(buffer, 32, "/global/speed", "f", ((LV2_Atom_Float*) speed)->body);
+					int len = rtosc_message(buffer, 32, "/global/speed", "f",
+							((LV2_Atom_Float*) speed)->body);
 					OSCEvent event(buffer, len, nullptr, 0);
 					//dsp->handleEvent(&event);
 					handleOSCEvent(&event);
@@ -209,7 +257,8 @@ void CR42YnthLV2::run(uint32_t n_samples)
 				if (beat && beat->type == uris->atomFloat)
 				{
 					char buffer[32];
-					int len = rtosc_message(buffer, 32, "/global/beat", "f", ((LV2_Atom_Float*) beat)->body);
+					int len = rtosc_message(buffer, 32, "/global/beat", "f",
+							((LV2_Atom_Float*) beat)->body);
 					OSCEvent event(buffer, len, nullptr, 0);
 					//dsp->handleEvent(&event);
 					handleOSCEvent(&event);
@@ -281,6 +330,113 @@ void CR42YnthLV2::deactivate()
 void CR42YnthLV2::cleanup()
 {
 
+}
+
+LV2_State_Status CR42YnthLV2::save(LV2_State_Store_Function store,
+		LV2_State_Handle handle, uint32_t flags,
+		const LV2_Feature* const * features)
+{
+	LV2_Atom_Forge* saveForge = new LV2_Atom_Forge();
+	lv2_atom_forge_init(saveForge, map);
+
+	std::vector<OSCEvent> events;
+
+	for (int i = 0; i < listeners_.size(); i++)
+	{
+		listeners_[i]->getState(events);
+	}
+
+	uint64_t bufferSize = sizeof(uint64_t) * 2;
+
+	uint64_t msgLen = 0;
+	uint64_t dataLen = 0;
+
+	for (int i = 0; i < events.size(); i++)
+	{
+		events[i].getMessage(&msgLen);
+		events[i].getMessage(&dataLen);
+
+		bufferSize += sizeof(uint64_t) + msgLen + sizeof(uint64_t) + dataLen;
+	}
+
+	uint8_t buffer[bufferSize];
+
+	uint8_t* bufferptr = buffer;
+
+	((uint64_t*) buffer)[0] = bufferSize;
+	((uint64_t*) buffer)[1] = events.size();
+
+	bufferptr += 2 * sizeof(uint64_t);
+
+	for (int i = 0; i < events.size(); i++)
+	{
+		const char* msg = events[i].getMessage(&msgLen);
+		const char* data = events[i].getMessage(&dataLen);
+		*(uint64_t*) bufferptr = msgLen;
+		bufferptr += sizeof(uint64_t);
+		memcpy(bufferptr, msg, msgLen);
+		bufferptr += msgLen;
+		*(uint64_t*) bufferptr = dataLen;
+		bufferptr += sizeof(uint64_t);
+		if (dataLen > 0 && data)
+		{
+			memcpy(bufferptr, data, dataLen);
+			bufferptr += dataLen;
+		}
+	}
+
+	return store(handle, uris->stateKey, buffer, bufferSize, uris->stateType,
+			LV2_STATE_IS_PORTABLE | LV2_STATE_IS_POD);
+}
+
+LV2_State_Status CR42YnthLV2::restore(LV2_State_Retrieve_Function retrieve,
+		LV2_State_Handle handle, uint32_t flags,
+		const LV2_Feature* const * features)
+{
+	size_t size = 0;
+	uint32_t type = 0;
+	uint32_t dataFlags = 0;
+	const void* data = retrieve(handle, uris->stateKey, &size, &type,
+			&dataFlags);
+
+	if (!data)
+	{
+		return LV2_STATE_ERR_UNKNOWN;
+	}
+
+	uint8_t* bufferptr = (uint8_t*) data;
+	uint64_t bufferSize = ((uint64_t*) bufferptr)[0];
+	uint64_t eventAmount = ((uint64_t*) bufferptr)[1];
+
+	bufferptr += 2 * sizeof(uint64_t);
+
+	for (int i = 0; i < eventAmount; i++)
+	{
+		uint64_t msgLen = *((uint64_t*) bufferptr);
+		bufferptr += sizeof(uint64_t);
+
+		char msg[msgLen];
+		memcpy(msg, bufferptr, msgLen);
+		bufferptr += msgLen;
+
+		uint64_t dataLen = *((uint64_t*) bufferptr);
+		bufferptr += sizeof(uint64_t);
+
+		char* data = nullptr;
+		if (dataLen > 0)
+		{
+			data = new char[dataLen];
+			memcpy(data, bufferptr, dataLen);
+		}
+		OSCEvent event(msg, msgLen, data, dataLen);
+		handleOSCEvent(&event);
+		if (data)
+		{
+			delete data;
+		}
+	}
+
+	return LV2_STATE_SUCCESS;
 }
 
 void CR42YnthLV2::log(const char* msg)
