@@ -34,6 +34,7 @@
 #include <lv2/core/lv2_util.h>
 #include <lv2/time/time.h>
 #include <lv2/midi/midi.h>
+#include <lv2/buf-size/buf-size.h>
 
 #include "rtosc/rtosc.h"
 
@@ -48,16 +49,18 @@ CR42YnthUI_LV2::CR42YnthUI_LV2(const char* bundlePath,
 		LV2UI_Write_Function writeFunction, LV2UI_Controller ctrler,
 		LV2UI_Widget* widget, const LV2_Feature* const * features) :
 		CR42YnthCommunicator(),
+		logger(new LV2_Log_Logger()),
 		write(writeFunction),
 		controller(ctrler),
-		logger(new LV2_Log_Logger()),
 		forge(new LV2_Atom_Forge()),
 		uris(new URIS())
 
 {
 	const char* missing = lv2_features_query(features,
 	LV2_LOG__log, &logger->log, false,
-	LV2_URID__map, &map, true, nullptr);
+	LV2_URID__map, &map, true,
+	LV2_OPTIONS__options, lv2Options_, true,
+	nullptr);
 	if (map)
 	{
 		lv2_log_logger_set_map(logger, map);
@@ -75,6 +78,8 @@ CR42YnthUI_LV2::CR42YnthUI_LV2(const char* bundlePath,
 	uris->atomObject = map->map(map->handle, LV2_ATOM__Object);
 	uris->atomVector = map->map(map->handle, LV2_ATOM__Vector);
 	uris->atomEventTransfer = map->map(map->handle, LV2_ATOM__eventTransfer);
+	
+	uris->bufsizeSequenceSize = map->map(map->handle, LV2_BUF_SIZE__sequenceSize);
 
 	uris->midiEvent = map->map(map->handle, LV2_MIDI__MidiEvent);
 
@@ -107,6 +112,11 @@ CR42YnthUI_LV2::CR42YnthUI_LV2(const char* bundlePath,
 	{
 		resize->ui_resize(resize->handle, ui->get_width(), ui->get_height());
 	}
+	
+	for (const LV2_Options_Option* op = lv2Options_; op; op++)
+	{
+		scanOption(op);
+	}
 }
 
 CR42YnthUI_LV2::~CR42YnthUI_LV2()
@@ -130,7 +140,7 @@ void CR42YnthUI_LV2::writeMessage(OSCEvent& event)
 	data = event.getData(&dataSize);
 
 
-	int bufferSize = size + dataSize + sizeof(LV2_Atom_Object)
+	size_t bufferSize = size + dataSize + sizeof(LV2_Atom_Object)
 			+ 2 * sizeof(LV2_Atom_Vector) + 256;
 	uint8_t buffer[bufferSize];
 	lv2_atom_forge_set_buffer(forge, buffer, bufferSize);
@@ -210,6 +220,16 @@ int CR42YnthUI_LV2::idle()
 {
 	ui->idle();
 	return 0;
+}
+
+void CR42YnthUI_LV2::scanOption(const LV2_Options_Option* option)
+{
+	if (option->key == uris->bufsizeSequenceSize)
+	{
+		uint8_t bytes[64];
+		memcpy(bytes + (64 - option->size), option->value, option->size);
+		portMaxSize_ = *((uint64_t*) bytes);
+	}
 }
 
 } /* namespace cr42y */

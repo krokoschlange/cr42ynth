@@ -40,6 +40,7 @@
 #include <lv2/log/logger.h>
 #include <lv2/midi/midi.h>
 #include <lv2/state/state.h>
+#include <lv2/options/options.h>
 
 #include <queue>
 
@@ -79,7 +80,7 @@ public:
 
 private:
 	CR42YnthLV2(float samplerate, const char* bundlePath,
-			const LV2_Feature* const * features);
+			const LV2_Feature* const* features);
 	static CR42YnthLV2* instance;
 	bool initialized;
 
@@ -99,6 +100,8 @@ private:
 
 	bool ctrlOutFull_;
 	std::queue<OSCEvent> eventQueue;
+	
+	const LV2_Options_Option* lv2Options_;
 
 	LV2_Atom_Forge_Frame outFrame;
 

@@ -37,7 +37,7 @@
 namespace cr42y
 {
 
-OSCEvent::OSCEvent(char* msg, size_t msgLength, void* data, size_t dataLength) :
+OSCEvent::OSCEvent(const char* msg, size_t msgLength, const void* data, size_t dataLength) :
 		message_(nullptr),
 		msgLength_(msgLength),
 		data_(nullptr),

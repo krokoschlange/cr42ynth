@@ -37,6 +37,7 @@
 #include <lv2/ui/ui.h>
 #include <lv2/atom/forge.h>
 #include <lv2/log/logger.h>
+#include <lv2/options/options.h>
 
 #include "CR42YnthCommunicator.h"
 #include "CR42YnthUI.h"
@@ -61,6 +62,8 @@ public:
 
 	void writeMessage(OSCEvent& event);
 	void log(const char* msg);
+	
+	void scanOption(const LV2_Options_Option* option);
 
 private:
 	bool ready;
@@ -70,6 +73,11 @@ private:
 	LV2UI_Controller controller;
 	LV2_Atom_Forge* forge;
 	LV2_URID_Map* map;
+	
+	const LV2_Options_Option* lv2Options_;
+	
+	size_t portMaxSize_;
+	size_t portAvailableSpace_;
 
 	CR42YnthUI* ui;
 
@@ -80,6 +88,8 @@ private:
 		LV2_URID atomObject;
 		LV2_URID atomVector;
 		LV2_URID atomEventTransfer;
+		
+		LV2_URID bufsizeSequenceSize;
 
 		LV2_URID midiEvent;
 

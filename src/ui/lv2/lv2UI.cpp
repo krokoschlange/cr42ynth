@@ -33,6 +33,7 @@
 
 #include <iostream>
 #include <lv2/ui/ui.h>
+#include <lv2/options/options.h>
 
 #include "common.h"
 #include "CR42YnthUILV2.h"
@@ -79,11 +80,33 @@ int idleUI(LV2UI_Handle handle)
 static const LV2UI_Idle_Interface idleIface =
 	{idleUI};
 
+uint32_t getOptions(LV2_Handle handle, LV2_Options_Option* options)
+{
+	return LV2_OPTIONS_SUCCESS;
+}
+
+uint32_t setOptions(LV2_Handle handle, const LV2_Options_Option* options)
+{
+	CR42YnthUI_LV2* ui = (CR42YnthUI_LV2*) handle;
+	for (const LV2_Options_Option* op = options; op; op++)
+	{
+		ui->scanOption(op);
+	}
+	return LV2_OPTIONS_SUCCESS;
+}
+
+static const LV2_Options_Interface optionsIface =
+	{getOptions, setOptions};
+
 const void* extensionDataUI(const char* uri)
 {
 	if (!strcmp(uri, LV2_UI__idleInterface))
 	{
 		return &idleIface;
+	}
+	else if (!strcmp(uri, LV2_OPTIONS__interface))
+	{
+		return &optionsIface;
 	}
 	return nullptr;
 }

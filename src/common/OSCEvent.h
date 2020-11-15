@@ -41,7 +41,7 @@ namespace cr42y
 class OSCEvent
 {
 public:
-	OSCEvent(char* msg, size_t msgLength, void* data, size_t dataLength);
+	OSCEvent(const char* msg, size_t msgLength, const void* data, size_t dataLength);
 	OSCEvent(const OSCEvent& other);
 	virtual ~OSCEvent();
 

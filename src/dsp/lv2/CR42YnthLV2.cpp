@@ -34,6 +34,8 @@
 #include <lv2/atom/util.h>
 #include <lv2/core/lv2_util.h>
 #include <lv2/time/time.h>
+#include <lv2/options/options.h>
+#include <lv2/buf-size/buf-size.h>
 
 #include "rtosc/rtosc.h"
 
@@ -58,12 +60,14 @@ CR42YnthLV2* CR42YnthLV2::getInstance(float samplerate, const char* bundlePath,
 CR42YnthLV2::CR42YnthLV2(float samplerate, const char* bundlePath,
 		const LV2_Feature* const * features) :
 		dsp(CR42YnthDSP::getInstance(samplerate, this)),
-		uris(new URIS()),
-		logger(new LV2_Log_Logger())
+		logger(new LV2_Log_Logger()),
+		uris(new URIS())
 {
 	const char* missing = lv2_features_query(features,
 	LV2_LOG__log, &logger->log, false,
-	LV2_URID__map, &map, true, nullptr);
+	LV2_URID__map, &map, true,
+	LV2_OPTIONS__options, lv2Options_, true,
+	nullptr);
 	if (map)
 	{
 		lv2_log_logger_set_map(logger, map);
@@ -101,7 +105,7 @@ CR42YnthLV2::CR42YnthLV2(float samplerate, const char* bundlePath,
 	outR = nullptr;
 	outL = nullptr;
 
-	ctrlOutFull_(false);
+	ctrlOutFull_ = false;
 
 	for (int i = 0; i < 8; i++)
 	{
@@ -151,7 +155,8 @@ void CR42YnthLV2::writeMessage(OSCEvent& event)
 			LV2_Atom_Forge_Ref completeRef = lv2_atom_forge_bool(forge, true);
 			if (dataSize > 0 && data)
 			{
-				if (forge->size - forge->offset > dataSize + 8)
+				size_t available = forge->size - forge->offset;
+				if (available > dataSize + 8)
 				{
 					lv2_atom_forge_key(forge, uris->msgData); // data key
 					lv2_atom_forge_vector(forge, dataSize, 0, 1, data); // data as "vector"
@@ -159,13 +164,13 @@ void CR42YnthLV2::writeMessage(OSCEvent& event)
 				else
 				{
 					lv2_atom_forge_key(forge, uris->msgData); // data key
-					uint32_t available = forge->size - forge->offset;
+					
 					lv2_atom_forge_vector(forge, available, 0, 1, data); // data as "vector"
 					LV2_Atom_Bool* completeAtom = (LV2_Atom_Bool*) lv2_atom_forge_deref(forge, completeRef);
 					completeAtom->body = false;
 
 
-					eventQueue.push(OSCEvent(event.getMessage(), event.))
+					eventQueue.push(OSCEvent(msg, size, ((uint8_t*) data) + available, dataSize - available));
 				}
 			}
 		}
@@ -177,10 +182,6 @@ void CR42YnthLV2::writeMessage(OSCEvent& event)
 		{
 			ctrlOutFull_ = true;
 		}
-
-		//access forge directly to fix this shit
-
-		//(forge->size, forge->offset)!!!
 	}
 	else
 	{
@@ -193,6 +194,13 @@ void CR42YnthLV2::run(uint32_t n_samples)
 	uint32_t capacity = ctrlOut->atom.size;
 	lv2_atom_forge_set_buffer(forge, (uint8_t*) ctrlOut, capacity);
 	lv2_atom_forge_sequence_head(forge, &outFrame, 0);
+	
+	size_t queueSize = eventQueue.size();
+	for (int i = 0; i < queueSize; i++)
+	{
+		writeMessage(eventQueue.front());
+		eventQueue.pop();
+	}
 
 	for (LV2_Atom_Event* event = lv2_atom_sequence_begin(&(ctrlIn)->body);
 			!lv2_atom_sequence_is_end(&(ctrlIn)->body, ctrlIn->atom.size, event);
