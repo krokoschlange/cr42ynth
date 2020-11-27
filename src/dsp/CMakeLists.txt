@@ -13,6 +13,7 @@ include_directories ("${PROJECT_SOURCE_DIR}/dsp/Generators/")
 include_directories ("${PROJECT_SOURCE_DIR}/dsp/lv2/")
 
 include_directories ("${PROJECT_SOURCE_DIR}/common/")
+include_directories ("${PROJECT_SOURCE_DIR}/common/lv2/")
 include_directories ("${PROJECT_SOURCE_DIR}/../rtosc/include/")
 include_directories ("${PROJECT_SOURCE_DIR}/../exprtk/")
 

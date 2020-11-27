@@ -35,11 +35,14 @@
 #include <lv2/time/time.h>
 #include <lv2/midi/midi.h>
 #include <lv2/buf-size/buf-size.h>
+#include <lv2/atom/util.h>
+#include <utility>
 
 #include "rtosc/rtosc.h"
 
 #include "CR42YnthUILV2.h"
 #include "common.h"
+#include "lv2_common.h"
 #include "OSCEvent.h"
 
 namespace cr42y
@@ -48,13 +51,12 @@ namespace cr42y
 CR42YnthUI_LV2::CR42YnthUI_LV2(const char* bundlePath,
 		LV2UI_Write_Function writeFunction, LV2UI_Controller ctrler,
 		LV2UI_Widget* widget, const LV2_Feature* const * features) :
-		CR42YnthCommunicator(),
+		CR42YnthLV2Communicator(),
 		logger(new LV2_Log_Logger()),
 		write(writeFunction),
 		controller(ctrler),
 		forge(new LV2_Atom_Forge()),
-		uris(new URIS())
-
+		uris(new URIS()),
 {
 	const char* missing = lv2_features_query(features,
 	LV2_LOG__log, &logger->log, false,
@@ -91,6 +93,7 @@ CR42YnthUI_LV2::CR42YnthUI_LV2(const char* bundlePath,
 	uris->msgOSCMsg = map->map(map->handle, CR42Ynth__OSCMSG);
 	uris->msgData = map->map(map->handle, CR42Ynth__MSGDATA);
 	uris->msgObj = map->map(map->handle, CR42Ynth__MSGOBJ);
+	uris->msgComplete = map->map(map->handle, CR42Ynth__MSGCOMPLETE);
 
 	LV2UI_Resize* resize = nullptr;
 	intptr_t parent = 0;
@@ -132,7 +135,7 @@ bool CR42YnthUI_LV2::isReady()
 
 void CR42YnthUI_LV2::writeMessage(OSCEvent& event)
 {
-	const char* msg = nullptr;
+	/*const char* msg = nullptr;
 	size_t size = 0;
 	void* data = nullptr;
 	size_t dataSize = 0;
@@ -145,20 +148,72 @@ void CR42YnthUI_LV2::writeMessage(OSCEvent& event)
 	uint8_t buffer[bufferSize];
 	lv2_atom_forge_set_buffer(forge, buffer, bufferSize);
 
-	LV2_Atom_Forge_Frame frame;
-	LV2_Atom* msgAtom = (LV2_Atom*) lv2_atom_forge_object(forge, &frame, 0,
-			uris->msgObj);
-	lv2_atom_forge_key(forge, uris->msgOSCMsg);
-	lv2_atom_forge_vector(forge, 1, 0, size, msg);
-	if (data && dataSize > 0)
-	{
-		lv2_atom_forge_key(forge, uris->msgData);
-		lv2_atom_forge_vector(forge, dataSize, 0, 1, data);
-	}
-	lv2_atom_forge_pop(forge, &frame);
 
-	write(controller, CONTROL, lv2_atom_total_size(msgAtom),
-			uris->atomEventTransfer, msgAtom);
+	size_t maxAvailableAtomSize = portAvailableSpace_ - sizeof(LV2_Atom_Event::time);
+
+	size_t propertySize = sizeof(LV2_Atom_Property_Body) - sizeof(LV2_Atom);
+
+	if (maxAvailableAtomSize > size + sizeof(LV2_Atom_Object) + propertySize +
+			sizeof(LV2_Atom_Vector) + propertySize + sizeof(LV2_Atom_Int))
+	{
+		LV2_Atom_Forge_Frame frame;
+		LV2_Atom* msgAtom = (LV2_Atom*) lv2_atom_forge_object(forge, &frame, 0,
+				uris->msgObj);
+
+		lv2_atom_forge_key(forge, uris->msgComplete);
+		LV2_Atom_Forge_Ref completeRef = lv2_atom_forge_int(forge, flags);
+
+		lv2_atom_forge_key(forge, uris->msgOSCMsg);
+		lv2_atom_forge_vector(forge, 1, 0, size, msg);
+
+		maxAvailableAtomSize -= forge->offset;
+		if (data && dataSize > 0)
+		{
+			if (maxAvailableAtomSize > dataSize + sizeof(LV2_Atom_Property_Body)
+					- sizeof(LV2_Atom) + sizeof(LV2_Atom_Vector))
+			{
+				lv2_atom_forge_key(forge, uris->msgData);
+				lv2_atom_forge_vector(forge, dataSize, 0, 1, data);
+
+				LV2_Atom_Int* completeAtom = (LV2_Atom_Int*) lv2_atom_forge_deref(forge, completeRef);
+				completeAtom->body |= HAS_DATA_END;
+			}
+			else
+			{
+
+				lv2_atom_forge_key(forge, uris->msgData);
+				lv2_atom_forge_vector(forge, maxAvailableAtomSize, 0, 1, data);
+				
+				eventQueue_.push(std::pair<OSCEvent, int>(
+							OSCEvent(msg, size, ((uint8_t*)data)
+								+ maxAvailableAtomSize, maxAvailableAtomSize), 0));
+
+				LV2_Atom_Int* completeAtom = (LV2_Atom_Int*) lv2_atom_forge_deref(forge, completeRef);
+				completeAtom->body &= ~HAS_DATA_END;
+
+			}
+		}
+		lv2_atom_forge_pop(forge, &frame);
+
+		write(controller, CONTROL, lv2_atom_total_size(msgAtom),
+				uris->atomEventTransfer, msgAtom);
+
+		portAvailableSpace_ -= lv2_atom_pad_size(lv2_atom_total_size(msgAtom));
+		portAvailableSpace_ -= sizeof(LV2_Atom_Event::time);
+	}
+	else
+	{
+		eventQueue_.push(std::pair<OSCEvent, int>(event, flags));
+	}*/
+	const char* msg = nullptr;
+	size_t msgSize = 0;
+	uint8_t* data = nullptr;
+	size_t dataSize = 0;
+
+	msg = event.getMessage(&msgSize);
+	data = event.getData(&dataSize);
+
+	queueMsg(msg, msgSize, data, dataSize);
 }
 
 void CR42YnthUI_LV2::log(const char* msg)
@@ -175,43 +230,7 @@ void CR42YnthUI_LV2::portEvent(uint32_t port, uint32_t bufferSize,
 		if (format == uris->atomEventTransfer)
 		{
 			const LV2_Atom* atom = (const LV2_Atom*) buffer;
-			if (lv2_atom_forge_is_object_type(forge, atom->type))
-			{
-				const LV2_Atom_Object* obj = (const LV2_Atom_Object*) atom;
-				if (obj->body.otype == uris->msgObj)
-				{
-					LV2_Atom* msgAtom = nullptr;
-					LV2_Atom* dataAtom = nullptr;
-					lv2_atom_object_get(obj, uris->msgOSCMsg, &msgAtom,
-							uris->msgData, &dataAtom, 0);
-					if (msgAtom)
-					{
-						LV2_Atom_Vector* msgVector = (LV2_Atom_Vector*) msgAtom;
-						char* msg = (char*) msgVector + sizeof(LV2_Atom_Vector);
-						void* data = nullptr;
-						int dataSize = 0;
-						if (dataAtom)
-						{
-							data = (void*) ((char*) dataAtom
-									+ sizeof(LV2_Atom_Vector));
-							dataSize = dataAtom->size - sizeof(LV2_Atom_Vector_Body);
-						}
-						OSCEvent event(msg, msgAtom->size - sizeof(LV2_Atom_Vector_Body), data, dataSize);
 
-						//log(msg);
-
-						bool handled = handleOSCEvent(&event);
-						/*if (handled)
-						{
-							log("handled");
-						}
-						else
-						{
-							log("failed");
-						}*/
-					}
-				}
-			}
 		}
 	}
 }
@@ -231,5 +250,27 @@ void CR42YnthUI_LV2::scanOption(const LV2_Options_Option* option)
 		portMaxSize_ = *((uint64_t*) bytes);
 	}
 }
+
+bool CR42YnthUI_LV2::handleOSCEvent(OSCEvent* event)
+{
+	std::string pattern = "/global/port_notify";
+	char* end = nullptr;
+	rtosc_match_path(pattern.c_str(), event->getMessage(), (const char**) &end);
+	if (end && *end == '\0')
+	{
+		portAvailableSpace_ = portMaxSize_;
+
+		size_t queueSize = eventQueue_.size();
+		for (int i = 0; i < queueSize; ++i) {
+			writeMessageWithFlags(eventQueue_.front().first, eventQueue_.front().second);
+			eventQueue_.pop();
+		}
+		return true;
+	}
+
+	return CR42YnthCommunicator::handleOSCEvent(event);
+}
+
+
 
 } /* namespace cr42y */

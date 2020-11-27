@@ -75,6 +75,7 @@ public:
 	bool isReady();
 
 	void writeMessage(OSCEvent& event);
+	void writeMessageWithFlags(OSCEvent& event, int flags);
 
 	void log(const char* msg);
 
@@ -99,7 +100,7 @@ private:
 	LV2_Log_Logger* logger;
 
 	bool ctrlOutFull_;
-	std::queue<OSCEvent> eventQueue;
+	std::queue<std::pair<OSCEvent, int>> eventQueue_;
 	
 	const LV2_Options_Option* lv2Options_;
 

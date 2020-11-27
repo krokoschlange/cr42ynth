@@ -31,90 +31,31 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_UI_LV2_CR42YNTHUILV2_H_
-#define SRC_UI_LV2_CR42YNTHUILV2_H_
+#ifndef LV2_COMMON_H
+#define LV2_COMMON_H
 
-#include <queue>
+#define CR42Ynth__URI "https://github.com/krokoschlange/cr42ynth"
+#define CR42Ynth__DSP CR42Ynth__URI "#dsp"
+#define CR42Ynth__UI CR42Ynth__URI "#ui"
 
-#include <lv2/ui/ui.h>
-#include <lv2/atom/forge.h>
-#include <lv2/log/logger.h>
-#include <lv2/options/options.h>
-#include <utility>
+#define CR42Ynth__OSCMSG CR42Ynth__URI "#msg_oscmsg"
+#define CR42Ynth__MSGDATA CR42Ynth__URI "#msg_data"
+#define CR42Ynth__MSGOBJ CR42Ynth__URI "#msg_obj"
+#define CR42Ynth__MSGCOMPLETE CR42Ynth__URI "#msg_complete"
 
-#include "CR42YnthLV2Communicator.h"
-#include "CR42YnthUI.h"
+#define CR42Ynth__STATEKEY CR42Ynth__URI "#state_key"
+#define CR42Ynth__STATETYPE CR42Ynth__URI "#state_type"
+
+#define CR42Ynth_OSC_COUNT 8
 
 namespace cr42y
 {
-
-class CR42YnthUI_LV2 : public CR42YnthLV2Communicator
+enum MsgAtomCompletionStage
 {
-public:
-	CR42YnthUI_LV2(const char* bundlePath, LV2UI_Write_Function writeFunction,
-			LV2UI_Controller ctrler, LV2UI_Widget* widget,
-			const LV2_Feature* const * features);
-	virtual ~CR42YnthUI_LV2();
-
-	void cleanup();
-	void portEvent(uint32_t port, uint32_t bufferSize, uint32_t format,
-			const void* buffer);
-	
-	int idle();
-
-	bool isReady();
-
-	void writeMessage(OSCEvent& event);
-
-	void log(const char* msg);
-	
-	void scanOption(const LV2_Options_Option* option);
-
-protected:
-	bool handleOSCEvent(OSCEvent* event);
-
-
-private:
-	bool ready;
-
-	LV2_Log_Logger* logger;
-	LV2UI_Write_Function write;
-	LV2UI_Controller controller;
-	LV2_Atom_Forge* forge;
-	LV2_URID_Map* map;
-	
-	const LV2_Options_Option* lv2Options_;
-	
-	size_t portMaxSize_;
-	size_t portAvailableSpace_;
-
-	CR42YnthUI* ui;
-
-	class URIS
-	{
-	public:
-		LV2_URID atomFloat;
-		LV2_URID atomObject;
-		LV2_URID atomVector;
-		LV2_URID atomEventTransfer;
-		
-		LV2_URID bufsizeSequenceSize;
-
-		LV2_URID midiEvent;
-
-		LV2_URID timePosition;
-		LV2_URID timeBarBeat;
-		LV2_URID timeBPM;
-		LV2_URID timeSpeed;
-
-		LV2_URID msgOSCMsg;
-		LV2_URID msgData;
-		LV2_URID msgObj;
-		LV2_URID msgComplete;
-	};
-	URIS* uris;
+	HAS_DATA_START,
+	HAS_DATA_END
 };
+}
 
-} /* namespace cr42y */
 
-#endif /* SRC_UI_LV2_CR42YNTHUILV2_H_ */
+#endif /* LV2_COMMON_H */

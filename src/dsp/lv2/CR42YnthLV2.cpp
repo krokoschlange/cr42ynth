@@ -42,6 +42,8 @@
 #include "CR42YnthLV2.h"
 #include "OSCEvent.h"
 #include "common.h"
+#include "lv2_common.h"
+
 
 namespace cr42y
 {
@@ -130,6 +132,11 @@ bool CR42YnthLV2::isReady()
 
 void CR42YnthLV2::writeMessage(OSCEvent& event)
 {
+	writeMessageWithFlags(event, HAS_DATA_START);
+}
+
+void CR42YnthLV2::writeMessageWithFlags(OSCEvent& event, int flags)
+{
 	if (!ctrlOutFull_)
 	{
 		const char* msg = nullptr;
@@ -146,13 +153,13 @@ void CR42YnthLV2::writeMessage(OSCEvent& event)
 		LV2_Atom_Forge_Frame objectFrame; // start of object with message and data property
 		lv2_atom_forge_object(forge, &objectFrame, 0, uris->msgObj);
 
-		if (forge->size - forge->offset > size + 8 + 8 + sizeof(LV2_Atom_Bool) + 8)
+		if (forge->size - forge->offset > size + 8 + 8 + sizeof(LV2_Atom_Int) + 8)
 		{
 			lv2_atom_forge_key(forge, uris->msgOSCMsg); // message key
 			lv2_atom_forge_vector(forge, 1, 0, size, msg); // message as char vector
 
 			lv2_atom_forge_key(forge, uris->msgComplete);
-			LV2_Atom_Forge_Ref completeRef = lv2_atom_forge_bool(forge, true);
+			LV2_Atom_Forge_Ref completeRef = lv2_atom_forge_int(forge, flags);
 			if (dataSize > 0 && data)
 			{
 				size_t available = forge->size - forge->offset;
@@ -160,6 +167,9 @@ void CR42YnthLV2::writeMessage(OSCEvent& event)
 				{
 					lv2_atom_forge_key(forge, uris->msgData); // data key
 					lv2_atom_forge_vector(forge, dataSize, 0, 1, data); // data as "vector"
+
+					LV2_Atom_Int* completeAtom = (LV2_Atom_Int*) lv2_atom_forge_deref(forge, completeRef);
+					completeAtom->body |= HAS_DATA_END;
 				}
 				else
 				{
@@ -167,10 +177,10 @@ void CR42YnthLV2::writeMessage(OSCEvent& event)
 					
 					lv2_atom_forge_vector(forge, available, 0, 1, data); // data as "vector"
 					LV2_Atom_Bool* completeAtom = (LV2_Atom_Bool*) lv2_atom_forge_deref(forge, completeRef);
-					completeAtom->body = false;
+					completeAtom->body &= ~HAS_DATA_END;
 
-
-					eventQueue.push(OSCEvent(msg, size, ((uint8_t*) data) + available, dataSize - available));
+					eventQueue_.push(std::pair<OSCEvent, int>(
+								OSCEvent(msg, size, ((uint8_t*) data) + available, dataSize - available), 0));
 				}
 			}
 		}
@@ -185,7 +195,7 @@ void CR42YnthLV2::writeMessage(OSCEvent& event)
 	}
 	else
 	{
-		eventQueue.push(event);
+		eventQueue_.push(std::pair<OSCEvent, int>(event, flags));
 	}
 }
 
@@ -195,11 +205,11 @@ void CR42YnthLV2::run(uint32_t n_samples)
 	lv2_atom_forge_set_buffer(forge, (uint8_t*) ctrlOut, capacity);
 	lv2_atom_forge_sequence_head(forge, &outFrame, 0);
 	
-	size_t queueSize = eventQueue.size();
+	size_t queueSize = eventQueue_.size();
 	for (int i = 0; i < queueSize; i++)
 	{
-		writeMessage(eventQueue.front());
-		eventQueue.pop();
+		writeMessageWithFlags(eventQueue_.front().first, eventQueue_.front().second);
+		eventQueue_.pop();
 	}
 
 	for (LV2_Atom_Event* event = lv2_atom_sequence_begin(&(ctrlIn)->body);

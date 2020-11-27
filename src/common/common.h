@@ -36,20 +36,6 @@
 
 #include <sstream>
 
-#define CR42Ynth__URI "https://github.com/krokoschlange/cr42ynth"
-#define CR42Ynth__DSP CR42Ynth__URI "#dsp"
-#define CR42Ynth__UI CR42Ynth__URI "#ui"
-
-#define CR42Ynth__OSCMSG CR42Ynth__URI "#msg_oscmsg"
-#define CR42Ynth__MSGDATA CR42Ynth__URI "#msg_data"
-#define CR42Ynth__MSGOBJ CR42Ynth__URI "#msg_obj"
-#define CR42Ynth__MSGCOMPLETE CR42Ynth__URI "#msg_complete"
-
-#define CR42Ynth__STATEKEY CR42Ynth__URI "#state_key"
-#define CR42Ynth__STATETYPE CR42Ynth__URI "#state_type"
-
-#define CR42Ynth_OSC_COUNT 8
-
 
 namespace cr42y
 {
