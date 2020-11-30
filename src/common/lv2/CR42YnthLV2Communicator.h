@@ -1,5 +1,5 @@
 #ifndef CR42YNTHLV2COMMUNICATOR_H
-#define CR42YNTHLV2COMMNICATOR_H
+#define CR42YNTHLV2COMMUNICATOR_H
 
 #include "CR42YnthCommunicator.h"
 
@@ -25,11 +25,16 @@ public:
 
 
 
-	void prepareAtomWrite();
+	virtual void prepareAtomWrite(size_t atomSize);
 	size_t writeMsgAtom(uint8_t* data, size_t size);
 
+	CommunicatorMessage* createCommunicatorMessage(const char* msg, size_t size,
+												   uint8_t* data, size_t dataSize);
+	
 	void queueMsg(const char* msg, size_t size, uint8_t* data, size_t dataSize);
 
+	bool writeSingleMessage(CommunicatorMessage* msg);
+	
 	void writeQueue();
 
 	void readAtom(const LV2_Atom* atom);

@@ -36,6 +36,7 @@
 #include <lv2/options/options.h>
 
 #include "common.h"
+#include "lv2_common.h"
 #include "CR42YnthUILV2.h"
 
 #include <gtkmm.h>

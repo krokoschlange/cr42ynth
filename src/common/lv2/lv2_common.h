@@ -46,8 +46,6 @@
 #define CR42Ynth__STATEKEY CR42Ynth__URI "#state_key"
 #define CR42Ynth__STATETYPE CR42Ynth__URI "#state_type"
 
-#define CR42Ynth_OSC_COUNT 8
-
 namespace cr42y
 {
 enum MsgAtomCompletionStage

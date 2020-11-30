@@ -30,7 +30,7 @@ uint32_t CommunicatorMessage::id()
 
 size_t CommunicatorMessage::read(uint8_t** out)
 {
-	*out = buffer_[offset_];
+	*out = buffer_ + offset_;
 	return size_ - offset_;
 }
 

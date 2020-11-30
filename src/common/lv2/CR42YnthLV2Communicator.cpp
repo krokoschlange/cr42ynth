@@ -8,15 +8,16 @@
 #include "lv2_common.h"
 
 #include "CommunicatorMessage.h"
+#include "OSCEvent.h"
 
 namespace cr42y
 {
 
 CR42YnthLV2Communicator::CR42YnthLV2Communicator() :
-		forge_(new LV2_Atom_Forge()),
-		map_(nullptr),
-		msgId_(0),
-		uris_(nullptr)
+	forge_(new LV2_Atom_Forge()),
+	map_(nullptr),
+	uris_(nullptr),
+	msgId_(0)
 {
 
 }
@@ -36,9 +37,9 @@ void CR42YnthLV2Communicator::initURIDMap(LV2_URID_Map* map)
 	uris_->atomObject = map->map(map->handle, LV2_ATOM__Object);
 	uris_->atomVector = map->map(map->handle, LV2_ATOM__Vector);
 	uris_->atomEventTransfer = map->map(map->handle, LV2_ATOM__eventTransfer);
-	
+
 	uris_->bufsizeSequenceSize = map->map(map->handle,
-	LV2_BUF_SIZE__sequenceSize);
+										  LV2_BUF_SIZE__sequenceSize);
 
 	uris_->midiEvent = map->map(map->handle, LV2_MIDI__MidiEvent);
 
@@ -54,32 +55,37 @@ void CR42YnthLV2Communicator::initURIDMap(LV2_URID_Map* map)
 
 	uris_->stateKey = map->map(map->handle, CR42Ynth__STATEKEY);
 	uris_->stateType = map->map(map->handle, CR42Ynth__STATETYPE);
+
+	lv2_atom_forge_init(forge_, map_);
 }
 
-void CR42YnthLV2Communicator::prepareAtomWrite()
+void CR42YnthLV2Communicator::prepareAtomWrite(size_t atomSize)
 {
 
 }
 
 size_t CR42YnthLV2Communicator::writeMsgAtom(uint8_t* data, size_t size)
 {
-	prepareAtomWrite();
+	size_t minimum = lv2_atom_pad_size(
+						 sizeof(LV2_Atom_Object) + sizeof(LV2_Atom_Property_Body)
+						 - sizeof(LV2_Atom) + sizeof(LV2_Atom_Vector) + 32);
+	
+	size_t atomSize = minimum + size;
+	prepareAtomWrite(atomSize);
 
 	size_t space = forge_->size - forge_->offset;
-
-	size_t minimum = lv2_atom_pad_size(
-			sizeof(LV2_Atom_Object) + sizeof(LV2_Atom_Property_Body)
-					- sizeof(LV2_Atom) + sizeof(LV2_Atom_Vector) + 32);
-
+	
+	
+	
 	if (space < minimum)
 	{
 		return 0;
 	}
 
 	LV2_Atom_Forge_Frame frame;
-	
+
 	lv2_atom_forge_object(forge_, &frame, 0, uris_->msgObj);
-	
+
 	lv2_atom_forge_key(forge_, uris_->msgData);
 
 	space -= sizeof(LV2_Atom_Vector);
@@ -95,36 +101,49 @@ size_t CR42YnthLV2Communicator::writeMsgAtom(uint8_t* data, size_t size)
 	return dataToWrite;
 }
 
+CommunicatorMessage* CR42YnthLV2Communicator::createCommunicatorMessage(
+	const char* msg, size_t size, uint8_t* data, size_t dataSize)
+{
+	return new CommunicatorMessage(msg, size, data, dataSize, msgId_++);
+}
+
 void CR42YnthLV2Communicator::queueMsg(const char* msg, size_t size,
-		uint8_t* data, size_t dataSize)
+									   uint8_t* data, size_t dataSize)
 {
 	messageQueue_.push(
-			new CommunicatorMessage(msg, size, data, dataSize, msgId_));
-	msgId_++;
+		createCommunicatorMessage(msg, size, data, dataSize));
+}
+
+bool CR42YnthLV2Communicator::writeSingleMessage(CommunicatorMessage* msg)
+{
+	uint8_t* data = nullptr;
+	size_t lenght = msg->read(&data);
+
+	uint32_t id = msg->id();
+
+	size_t bufferSize = sizeof(id) + lenght;
+	uint8_t buffer[bufferSize];
+
+	memcpy(buffer, &id, sizeof(id));
+	memcpy(buffer + sizeof(id), data, lenght);
+
+	size_t written = writeMsgAtom(buffer, bufferSize);
+
+	msg->offset(written - sizeof(id));
+
+	return written < bufferSize;
 }
 
 void CR42YnthLV2Communicator::writeQueue()
 {
 	bool done = false;
+
 	while (!done)
 	{
 		CommunicatorMessage* msg = messageQueue_.front();
-		uint8_t* data = nullptr;
-		size_t lenght = msg->read(&data);
 
-		uint32_t id = msg->id();
-
-		size_t bufferSize = sizeof(id) + lenght;
-		uint8_t buffer[bufferSize];
-
-		memcpy(buffer, &id, sizeof(id));
-		memcpy(buffer + sizeof(id), data, lenght);
-
-		size_t written = writeMsgAtom(buffer, bufferSize);
-
-		if (written < bufferSize)
+		if (writeSingleMessage(msg))
 		{
-			msg->offset(written - sizeof(id));
 			done = true;
 		}
 		else
@@ -146,6 +165,7 @@ void CR42YnthLV2Communicator::readAtom(const LV2_Atom* atom)
 	{
 		return;
 	}
+
 	const LV2_Atom_Object* obj = (const LV2_Atom_Object*) atom;
 
 	LV2_Atom* dataAtom = nullptr;
@@ -160,15 +180,16 @@ void CR42YnthLV2Communicator::readAtom(const LV2_Atom* atom)
 	for (int i = 0; i < incomingQueue_.size(); i++)
 	{
 		uint32_t queueID = *((uint32_t*) incomingQueue_[i].second);
+
 		if (queueID == id)
 		{
 			uint8_t* newBuffer = new uint8_t[incomingQueue_[i].first + dataSize
-					- sizeof(uint32_t)];
+											 - sizeof(uint32_t)];
 
 			memcpy(newBuffer, incomingQueue_[i].second,
-					incomingQueue_[i].first);
+				   incomingQueue_[i].first);
 			memcpy(newBuffer + incomingQueue_[i].first, data + sizeof(uint32_t),
-					dataSize - sizeof(uint32_t));
+				   dataSize - sizeof(uint32_t));
 
 			delete incomingQueue_[i].second;
 			incomingQueue_[i].first += dataSize - sizeof(uint32_t);
@@ -176,7 +197,7 @@ void CR42YnthLV2Communicator::readAtom(const LV2_Atom* atom)
 
 			if (handleBuffer(newBuffer, incomingQueue_[i].first))
 			{
-				delete newBuffer;
+				delete[] newBuffer;
 				incomingQueue_.erase(incomingQueue_.begin() + i);
 				return;
 			}
@@ -199,24 +220,25 @@ bool CR42YnthLV2Communicator::handleBuffer(uint8_t* buffer, size_t bufferSize)
 		return false;
 	}
 
-	size_t msgSize = *((size_t*) (buffer + sizeof(uint32_t)));
+	size_t msgSize = *((size_t*)(buffer + sizeof(uint32_t)));
 
 	if (bufferSize < sizeof(uint32_t) + sizeof(size_t) * 2 + msgSize)
 	{
 		return false;
 	}
 
-	size_t dataSize = *((size_t*) (buffer + sizeof(uint32_t) + msgSize));
+	size_t dataSize = *((size_t*)(buffer + sizeof(uint32_t) + msgSize));
 
 	if (bufferSize
 			>= sizeof(uint32_t) + sizeof(size_t) * 2 + msgSize + dataSize)
 	{
-		OSCEvent event(buffer + sizeof(uint32_t) + sizeof(size_t), msgSize,
-				buffer + sizeof(uint32_t) + sizeof(size_t) * 2 + msgSize,
-				dataSize);
+		OSCEvent event((const char*)buffer + sizeof(uint32_t) + sizeof(size_t), msgSize,
+					   buffer + sizeof(uint32_t) + sizeof(size_t) * 2 + msgSize,
+					   dataSize);
 
 		handleOSCEvent(&event);
 	}
+
 	return true;
 }
 

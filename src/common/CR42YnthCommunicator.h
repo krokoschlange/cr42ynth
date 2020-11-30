@@ -54,7 +54,7 @@ public:
 	void addOSCEventListener(OSCEventListener* listener);
 	void removeOSCEventListener(OSCEventListener* listener);
 
-	bool handleOSCEvent(OSCEvent* event);
+	virtual bool handleOSCEvent(OSCEvent* event);
 
 	void sendState();
 

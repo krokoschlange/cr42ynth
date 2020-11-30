@@ -34,6 +34,10 @@ add_executable(cr42ynth_ui.so
 	../common/CR42YnthCommunicator.cpp
 	../common/CR42YConfig.cpp
 	
+	
+	../common/lv2/CR42YnthLV2Communicator.cpp
+	../common/lv2/CommunicatorMessage.cpp
+	
 	lv2/CR42YnthUILV2.cpp
 	lv2/lv2UI.cpp
 	

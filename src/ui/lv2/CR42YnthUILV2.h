@@ -69,6 +69,8 @@ public:
 	void log(const char* msg);
 	
 	void scanOption(const LV2_Options_Option* option);
+	
+	void prepareAtomWrite(size_t atomSize);
 
 protected:
 	bool handleOSCEvent(OSCEvent* event);
@@ -76,12 +78,12 @@ protected:
 
 private:
 	bool ready;
+	
+	uint8_t* forgeBuffer_;
 
 	LV2_Log_Logger* logger;
 	LV2UI_Write_Function write;
 	LV2UI_Controller controller;
-	LV2_Atom_Forge* forge;
-	LV2_URID_Map* map;
 	
 	const LV2_Options_Option* lv2Options_;
 	
@@ -89,30 +91,6 @@ private:
 	size_t portAvailableSpace_;
 
 	CR42YnthUI* ui;
-
-	class URIS
-	{
-	public:
-		LV2_URID atomFloat;
-		LV2_URID atomObject;
-		LV2_URID atomVector;
-		LV2_URID atomEventTransfer;
-		
-		LV2_URID bufsizeSequenceSize;
-
-		LV2_URID midiEvent;
-
-		LV2_URID timePosition;
-		LV2_URID timeBarBeat;
-		LV2_URID timeBPM;
-		LV2_URID timeSpeed;
-
-		LV2_URID msgOSCMsg;
-		LV2_URID msgData;
-		LV2_URID msgObj;
-		LV2_URID msgComplete;
-	};
-	URIS* uris;
 };
 
 } /* namespace cr42y */

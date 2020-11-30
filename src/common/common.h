@@ -36,6 +36,7 @@
 
 #include <sstream>
 
+#define CR42Ynth_OSC_COUNT 8
 
 namespace cr42y
 {

@@ -55,17 +55,16 @@ CR42YnthUI_LV2::CR42YnthUI_LV2(const char* bundlePath,
 		logger(new LV2_Log_Logger()),
 		write(writeFunction),
 		controller(ctrler),
-		forge(new LV2_Atom_Forge()),
-		uris(new URIS()),
+		forgeBuffer_(nullptr)
 {
 	const char* missing = lv2_features_query(features,
 	LV2_LOG__log, &logger->log, false,
-	LV2_URID__map, &map, true,
+	LV2_URID__map, &map_, true,
 	LV2_OPTIONS__options, lv2Options_, true,
 	nullptr);
-	if (map)
+	if (map_)
 	{
-		lv2_log_logger_set_map(logger, map);
+		lv2_log_logger_set_map(logger, map_);
 	}
 	if (missing)
 	{
@@ -74,26 +73,8 @@ CR42YnthUI_LV2::CR42YnthUI_LV2(const char* bundlePath,
 		return;
 	}
 	ready = true;
-	lv2_atom_forge_init(forge, map);
-
-	uris->atomFloat = map->map(map->handle, LV2_ATOM__Float);
-	uris->atomObject = map->map(map->handle, LV2_ATOM__Object);
-	uris->atomVector = map->map(map->handle, LV2_ATOM__Vector);
-	uris->atomEventTransfer = map->map(map->handle, LV2_ATOM__eventTransfer);
 	
-	uris->bufsizeSequenceSize = map->map(map->handle, LV2_BUF_SIZE__sequenceSize);
-
-	uris->midiEvent = map->map(map->handle, LV2_MIDI__MidiEvent);
-
-	uris->timePosition = map->map(map->handle, LV2_TIME__Position);
-	uris->timeBarBeat = map->map(map->handle, LV2_TIME__barBeat);
-	uris->timeBPM = map->map(map->handle, LV2_TIME__beatsPerMinute);
-	uris->timeSpeed = map->map(map->handle, LV2_TIME__speed);
-
-	uris->msgOSCMsg = map->map(map->handle, CR42Ynth__OSCMSG);
-	uris->msgData = map->map(map->handle, CR42Ynth__MSGDATA);
-	uris->msgObj = map->map(map->handle, CR42Ynth__MSGOBJ);
-	uris->msgComplete = map->map(map->handle, CR42Ynth__MSGCOMPLETE);
+	initURIDMap(map_);
 
 	LV2UI_Resize* resize = nullptr;
 	intptr_t parent = 0;
@@ -124,7 +105,6 @@ CR42YnthUI_LV2::CR42YnthUI_LV2(const char* bundlePath,
 
 CR42YnthUI_LV2::~CR42YnthUI_LV2()
 {
-	delete forge;
 	//delete ui; //TODO: fix this
 }
 
@@ -211,7 +191,7 @@ void CR42YnthUI_LV2::writeMessage(OSCEvent& event)
 	size_t dataSize = 0;
 
 	msg = event.getMessage(&msgSize);
-	data = event.getData(&dataSize);
+	data = (uint8_t*) event.getData(&dataSize);
 
 	queueMsg(msg, msgSize, data, dataSize);
 }
@@ -227,10 +207,10 @@ void CR42YnthUI_LV2::portEvent(uint32_t port, uint32_t bufferSize,
 	switch (port)
 	{
 	case NOTIFY:
-		if (format == uris->atomEventTransfer)
+		if (format == uris_->atomEventTransfer)
 		{
 			const LV2_Atom* atom = (const LV2_Atom*) buffer;
-
+			readAtom(atom);
 		}
 	}
 }
@@ -243,12 +223,23 @@ int CR42YnthUI_LV2::idle()
 
 void CR42YnthUI_LV2::scanOption(const LV2_Options_Option* option)
 {
-	if (option->key == uris->bufsizeSequenceSize)
+	if (option->key == uris_->bufsizeSequenceSize)
 	{
 		uint8_t bytes[64];
 		memcpy(bytes + (64 - option->size), option->value, option->size);
 		portMaxSize_ = *((uint64_t*) bytes);
 	}
+}
+
+void CR42YnthUI_LV2::prepareAtomWrite(size_t atomSize)
+{
+	if (forgeBuffer_)
+	{
+		delete[] forgeBuffer_;
+	}
+	forgeBuffer_ = new uint8_t[atomSize];
+	
+	lv2_atom_forge_set_buffer(forge_, forgeBuffer_, atomSize);
 }
 
 bool CR42YnthUI_LV2::handleOSCEvent(OSCEvent* event)
@@ -258,14 +249,7 @@ bool CR42YnthUI_LV2::handleOSCEvent(OSCEvent* event)
 	rtosc_match_path(pattern.c_str(), event->getMessage(), (const char**) &end);
 	if (end && *end == '\0')
 	{
-		portAvailableSpace_ = portMaxSize_;
-
-		size_t queueSize = eventQueue_.size();
-		for (int i = 0; i < queueSize; ++i) {
-			writeMessageWithFlags(eventQueue_.front().first, eventQueue_.front().second);
-			eventQueue_.pop();
-		}
-		return true;
+		writeQueue();
 	}
 
 	return CR42YnthCommunicator::handleOSCEvent(event);

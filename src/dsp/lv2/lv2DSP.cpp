@@ -36,6 +36,7 @@
 #include <lv2/state/state.h>
 #include "CR42YnthLV2.h"
 #include "common.h"
+#include "lv2_common.h"
 
 namespace cr42y
 {

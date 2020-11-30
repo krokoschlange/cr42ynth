@@ -45,12 +45,12 @@
 #include <queue>
 
 #include "../CR42YnthDSP.h"
-#include "CR42YnthCommunicator.h"
+#include "CR42YnthLV2Communicator.h"
 
 namespace cr42y
 {
 
-class CR42YnthLV2 : public CR42YnthCommunicator
+class CR42YnthLV2 : public CR42YnthLV2Communicator
 {
 public:
 	static CR42YnthLV2* getInstance(float samplerate = 0,
@@ -75,7 +75,6 @@ public:
 	bool isReady();
 
 	void writeMessage(OSCEvent& event);
-	void writeMessageWithFlags(OSCEvent& event, int flags);
 
 	void log(const char* msg);
 
@@ -95,8 +94,6 @@ private:
 
 	std::vector<const float*> external;
 
-	LV2_Atom_Forge* forge;
-	LV2_URID_Map* map;
 	LV2_Log_Logger* logger;
 
 	bool ctrlOutFull_;
@@ -105,28 +102,6 @@ private:
 	const LV2_Options_Option* lv2Options_;
 
 	LV2_Atom_Forge_Frame outFrame;
-
-	class URIS
-	{
-	public:
-		LV2_URID atomFloat;
-		LV2_URID atomObject;
-		LV2_URID atomVector;
-		LV2_URID midiEvent;
-		LV2_URID timePosition;
-		LV2_URID timeBarBeat;
-		LV2_URID timeBPM;
-		LV2_URID timeSpeed;
-
-		LV2_URID msgOSCMsg;
-		LV2_URID msgData;
-		LV2_URID msgObj;
-		LV2_URID msgComplete;
-
-		LV2_URID stateKey;
-		LV2_URID stateType;
-	};
-	URIS* uris;
 };
 
 } /* namespace cr42y */
