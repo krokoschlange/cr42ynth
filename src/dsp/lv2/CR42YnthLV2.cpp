@@ -67,7 +67,7 @@ CR42YnthLV2::CR42YnthLV2(float samplerate, const char* bundlePath,
 	const char* missing = lv2_features_query(features,
 	LV2_LOG__log, &logger->log, false,
 	LV2_URID__map, &map_, true,
-	LV2_OPTIONS__options, lv2Options_, true,
+	LV2_OPTIONS__options, &lv2Options_, true,
 	nullptr);
 	if (map_)
 	{
@@ -121,6 +121,11 @@ void CR42YnthLV2::writeMessage(OSCEvent& event)
 	data = (uint8_t*) event.getData(&dataSize);
 	
 	queueMsg(msg, msgSize, data, dataSize);
+}
+
+void CR42YnthLV2::prepareAtomWrite()
+{
+	lv2_atom_forge_frame_time(forge_, 0);
 }
 
 void CR42YnthLV2::run(uint32_t n_samples)
@@ -350,9 +355,9 @@ LV2_State_Status CR42YnthLV2::restore(LV2_State_Retrieve_Function retrieve,
 	return LV2_STATE_SUCCESS;
 }
 
-void CR42YnthLV2::log(const char* msg)
+void CR42YnthLV2::log(std::string msg)
 {
-	lv2_log_note(logger, "[CR42Ynth]: %s\n", msg);
+	lv2_log_note(logger, "[CR42Ynth]: %s\n", msg.c_str());
 }
 
 } /* namespace cr42y */

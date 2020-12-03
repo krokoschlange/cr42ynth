@@ -25,8 +25,9 @@ public:
 
 
 
-	virtual void prepareAtomWrite(size_t atomSize);
 	size_t writeMsgAtom(uint8_t* data, size_t size);
+	virtual void prepareAtomWrite();
+	virtual void finishAtomWrite(LV2_Atom* atom);
 
 	CommunicatorMessage* createCommunicatorMessage(const char* msg, size_t size,
 												   uint8_t* data, size_t dataSize);

@@ -51,9 +51,7 @@ namespace cr42y
 class CR42YnthUI_LV2 : public CR42YnthLV2Communicator
 {
 public:
-	CR42YnthUI_LV2(const char* bundlePath, LV2UI_Write_Function writeFunction,
-			LV2UI_Controller ctrler, LV2UI_Widget* widget,
-			const LV2_Feature* const * features);
+	CR42YnthUI_LV2(const char* bundlePath, LV2UI_Write_Function writeFunction, LV2UI_Controller ctrler, LV2UI_Widget* widget, const LV2_Feature*const* features);
 	virtual ~CR42YnthUI_LV2();
 
 	void cleanup();
@@ -66,11 +64,11 @@ public:
 
 	void writeMessage(OSCEvent& event);
 
-	void log(const char* msg);
+	void log(std::string msg);
 	
-	void scanOption(const LV2_Options_Option* option);
+	bool scanOption(const LV2_Options_Option* option);
 	
-	void prepareAtomWrite(size_t atomSize);
+	virtual void finishAtomWrite(LV2_Atom* atom);
 
 protected:
 	bool handleOSCEvent(OSCEvent* event);
@@ -80,6 +78,7 @@ private:
 	bool ready;
 	
 	uint8_t* forgeBuffer_;
+	size_t forgeBufferSize_;
 
 	LV2_Log_Logger* logger;
 	LV2UI_Write_Function write;
@@ -88,7 +87,7 @@ private:
 	const LV2_Options_Option* lv2Options_;
 	
 	size_t portMaxSize_;
-	size_t portAvailableSpace_;
+	size_t availablePortSpace_;
 
 	CR42YnthUI* ui;
 };

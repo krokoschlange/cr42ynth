@@ -75,8 +75,10 @@ public:
 	bool isReady();
 
 	void writeMessage(OSCEvent& event);
+	
+	void prepareAtomWrite();
 
-	void log(const char* msg);
+	void log(std::string msg);
 
 private:
 	CR42YnthLV2(float samplerate, const char* bundlePath,

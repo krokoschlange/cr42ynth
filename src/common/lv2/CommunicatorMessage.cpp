@@ -14,8 +14,17 @@ CommunicatorMessage::CommunicatorMessage(const char* msg, size_t size,
 {
 	memcpy(buffer_, &size, sizeof(size_t));
 	memcpy(buffer_ + sizeof(size_t), msg, size);
+	if (!data)
+	{
+		//ensure this
+		dataSize = 0;
+	}
 	memcpy(buffer_ + sizeof(size_t) + size, &dataSize, sizeof(size_t));
-	memcpy(buffer_ + sizeof(size_t) * 2 + size, data, dataSize);
+	if (data && dataSize > 0)
+	{
+		
+		memcpy(buffer_ + sizeof(size_t) * 2 + size, data, dataSize);
+	}
 }
 
 CommunicatorMessage::~CommunicatorMessage()
@@ -37,6 +46,10 @@ size_t CommunicatorMessage::read(uint8_t** out)
 void CommunicatorMessage::offset(size_t offset)
 {
 	offset_ += offset;
+	if (offset_ > size_ - 1)
+	{
+		offset_ = size_ - 1;
+	}
 }
 
 } /* namespace cr42y */

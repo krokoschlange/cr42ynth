@@ -52,16 +52,21 @@ CR42YnthUI_LV2::CR42YnthUI_LV2(const char* bundlePath,
 		LV2UI_Write_Function writeFunction, LV2UI_Controller ctrler,
 		LV2UI_Widget* widget, const LV2_Feature* const * features) :
 		CR42YnthLV2Communicator(),
+		forgeBuffer_(nullptr),
+		forgeBufferSize_(0),
 		logger(new LV2_Log_Logger()),
 		write(writeFunction),
 		controller(ctrler),
-		forgeBuffer_(nullptr)
-{
+		lv2Options_(nullptr),
+		portMaxSize_(0),
+		availablePortSpace_(0)
+{	
 	const char* missing = lv2_features_query(features,
 	LV2_LOG__log, &logger->log, false,
 	LV2_URID__map, &map_, true,
-	LV2_OPTIONS__options, lv2Options_, true,
+	LV2_OPTIONS__options, &lv2Options_, false,
 	nullptr);
+		
 	if (map_)
 	{
 		lv2_log_logger_set_map(logger, map_);
@@ -97,9 +102,10 @@ CR42YnthUI_LV2::CR42YnthUI_LV2(const char* bundlePath,
 		resize->ui_resize(resize->handle, ui->get_width(), ui->get_height());
 	}
 	
-	for (const LV2_Options_Option* op = lv2Options_; op; op++)
+	bool hasOpt = true;
+	for (const LV2_Options_Option* op = lv2Options_; hasOpt; op++)
 	{
-		scanOption(op);
+		hasOpt = scanOption(op);
 	}
 }
 
@@ -196,9 +202,9 @@ void CR42YnthUI_LV2::writeMessage(OSCEvent& event)
 	queueMsg(msg, msgSize, data, dataSize);
 }
 
-void CR42YnthUI_LV2::log(const char* msg)
+void CR42YnthUI_LV2::log(std::string msg)
 {
-	lv2_log_note(logger, "[CR42Ynth UI]: %s\n", msg);
+	lv2_log_note(logger, "[CR42Ynth UI]: %s\n", msg.c_str());
 }
 
 void CR42YnthUI_LV2::portEvent(uint32_t port, uint32_t bufferSize,
@@ -221,25 +227,38 @@ int CR42YnthUI_LV2::idle()
 	return 0;
 }
 
-void CR42YnthUI_LV2::scanOption(const LV2_Options_Option* option)
+bool CR42YnthUI_LV2::scanOption(const LV2_Options_Option* option)
 {
+	if (option->key == 0 && (option->value == nullptr || *((int*) option->value) == 0))
+	{
+		return false;
+	}
+	
 	if (option->key == uris_->bufsizeSequenceSize)
 	{
 		uint8_t bytes[64];
+		*((uint64_t*) bytes) = 0;
 		memcpy(bytes + (64 - option->size), option->value, option->size);
 		portMaxSize_ = *((uint64_t*) bytes);
+		if (portMaxSize_ < 65536)
+		{
+			//received data is probably bullshit, guess
+			portMaxSize_ = 65536;
+		}
+		//std::cout << "PORT SIZE: " << portMaxSize_ << "\n";
 	}
+	return true;
 }
 
-void CR42YnthUI_LV2::prepareAtomWrite(size_t atomSize)
+void CR42YnthUI_LV2::finishAtomWrite(LV2_Atom* atom)
 {
-	if (forgeBuffer_)
-	{
-		delete[] forgeBuffer_;
-	}
-	forgeBuffer_ = new uint8_t[atomSize];
-	
-	lv2_atom_forge_set_buffer(forge_, forgeBuffer_, atomSize);
+	write(controller, CONTROL, lv2_atom_total_size(atom),
+			uris_->atomEventTransfer, atom);
+	//std::cout << "Event written (" << lv2_atom_total_size(atom) << "\n";
+	availablePortSpace_ -= sizeof(LV2_Atom_Event) - sizeof(LV2_Atom) +
+	lv2_atom_pad_size(lv2_atom_total_size(atom));
+	lv2_atom_forge_set_buffer(forge_, forgeBuffer_ +
+			(forgeBufferSize_ - availablePortSpace_), availablePortSpace_);
 }
 
 bool CR42YnthUI_LV2::handleOSCEvent(OSCEvent* event)
@@ -249,6 +268,22 @@ bool CR42YnthUI_LV2::handleOSCEvent(OSCEvent* event)
 	rtosc_match_path(pattern.c_str(), event->getMessage(), (const char**) &end);
 	if (end && *end == '\0')
 	{
+		if (forgeBufferSize_ + sizeof(LV2_Atom_Sequence) != portMaxSize_)
+		{
+			if (forgeBuffer_)
+			{
+				delete[] forgeBuffer_;
+			}
+			forgeBufferSize_ = portMaxSize_ - sizeof(LV2_Atom_Sequence);
+			if (portMaxSize_ + 4 < sizeof(LV2_Atom_Sequence))
+			{
+				forgeBufferSize_ = 4;
+			}
+			forgeBuffer_ = new uint8_t[forgeBufferSize_];
+			availablePortSpace_ = forgeBufferSize_;
+			lv2_atom_forge_set_buffer(forge_, forgeBuffer_, forgeBufferSize_);
+		}
+		//std::cout << "QUEUE\n";
 		writeQueue();
 	}
 

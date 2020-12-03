@@ -36,6 +36,7 @@
 #define SRC_COMMON_CR42YNTHCOMMUNICATOR_H_
 
 #include <vector>
+#include <string>
 
 namespace cr42y
 {
@@ -49,7 +50,7 @@ public:
 	virtual ~CR42YnthCommunicator();
 
 	virtual void writeMessage(OSCEvent& event) = 0;
-	virtual void log(const char* msg) = 0;
+	virtual void log(std::string msg) = 0;
 
 	void addOSCEventListener(OSCEventListener* listener);
 	void removeOSCEventListener(OSCEventListener* listener);
