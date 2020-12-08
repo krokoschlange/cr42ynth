@@ -32,8 +32,7 @@ add_executable(cr42ynth.so
 	../common/WPHarmonics.cpp
 	../common/WPSamples.cpp
 	
-	../common/lv2/CR42YnthLV2Communicator.cpp
-	../common/lv2/CommunicatorMessage.cpp
+	../common/lv2/CR42YnthLV2URIS.cpp
 	
 	Generators/OscillatorVoiceData.cpp
 	Generators/Generator.cpp

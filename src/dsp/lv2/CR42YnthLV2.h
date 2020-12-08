@@ -43,14 +43,18 @@
 #include <lv2/options/options.h>
 
 #include <queue>
+#include <functional>
 
 #include "../CR42YnthDSP.h"
-#include "CR42YnthLV2Communicator.h"
+#include "CR42YnthCommunicator.h"
+#include "OSCEvent.h"
 
 namespace cr42y
 {
 
-class CR42YnthLV2 : public CR42YnthLV2Communicator
+class CR42YnthLV2URIS;
+	
+class CR42YnthLV2 : public CR42YnthCommunicator
 {
 public:
 	static CR42YnthLV2* getInstance(float samplerate = 0,
@@ -76,8 +80,16 @@ public:
 
 	void writeMessage(OSCEvent& event);
 	
-	void prepareAtomWrite();
-
+	void queueEvent(OSCEvent& event)
+	{
+		events_.push(new OSCEvent(event));
+	}
+	
+	void setUIWriteFunction(std::function<void(OSCEvent&)> func)
+	{
+		uiWrite_ = func;
+	}
+	
 	void log(std::string msg);
 
 private:
@@ -97,13 +109,15 @@ private:
 	std::vector<const float*> external;
 
 	LV2_Log_Logger* logger;
-
-	bool ctrlOutFull_;
-	std::queue<std::pair<OSCEvent, int>> eventQueue_;
 	
-	const LV2_Options_Option* lv2Options_;
-
+	CR42YnthLV2URIS* uris_;
+	LV2_Atom_Forge* forge_;
+	
 	LV2_Atom_Forge_Frame outFrame;
+	
+	std::queue<OSCEvent*> events_;
+	
+	std::function<void(OSCEvent&)> uiWrite_;
 };
 
 } /* namespace cr42y */

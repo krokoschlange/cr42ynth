@@ -42,13 +42,17 @@
 #include <lv2/options/options.h>
 #include <utility>
 
-#include "CR42YnthLV2Communicator.h"
 #include "CR42YnthUI.h"
+
+#include "CR42YnthCommunicator.h"
 
 namespace cr42y
 {
 
-class CR42YnthUI_LV2 : public CR42YnthLV2Communicator
+class CR42YnthLV2URIS;
+class CR42YnthLV2;
+
+class CR42YnthUI_LV2 : public CR42YnthCommunicator
 {
 public:
 	CR42YnthUI_LV2(const char* bundlePath, LV2UI_Write_Function writeFunction, LV2UI_Controller ctrler, LV2UI_Widget* widget, const LV2_Feature*const* features);
@@ -66,9 +70,8 @@ public:
 
 	void log(std::string msg);
 	
-	bool scanOption(const LV2_Options_Option* option);
-	
-	virtual void finishAtomWrite(LV2_Atom* atom);
+	void queueEvent(OSCEvent& event);
+
 
 protected:
 	bool handleOSCEvent(OSCEvent* event);
@@ -76,20 +79,18 @@ protected:
 
 private:
 	bool ready;
-	
-	uint8_t* forgeBuffer_;
-	size_t forgeBufferSize_;
 
 	LV2_Log_Logger* logger;
 	LV2UI_Write_Function write;
 	LV2UI_Controller controller;
 	
-	const LV2_Options_Option* lv2Options_;
+	CR42YnthLV2URIS* uris_;
 	
-	size_t portMaxSize_;
-	size_t availablePortSpace_;
+	CR42YnthLV2* dsp_;
 
 	CR42YnthUI* ui;
+	
+	std::queue<OSCEvent*> events_;
 };
 
 } /* namespace cr42y */

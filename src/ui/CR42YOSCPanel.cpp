@@ -48,7 +48,8 @@ CR42YOSCPanel::CR42YOSCPanel(CR42YUI* ui, WavetableEditController* wtEditControl
 		wfView_(new CR42YWFView(ui, wtEditController, viewSelector)),
 		idxLabel_(new CR42YLabel(ui)),
 		oscToggle_(new CR42YControlToggle(ui)),
-		volumeDial_(new CR42YControlDial(ui))
+		volumeDial_(new CR42YControlDial(ui)),
+		wtPosDial_(new CR42YControlDial(ui))
 {
 	configureRow(0, 1, 0.003, 0.003, 0, 0);
 	configureRow(1, 5, 0.003, 0.003, 0, 0);
@@ -56,7 +57,8 @@ CR42YOSCPanel::CR42YOSCPanel(CR42YUI* ui, WavetableEditController* wtEditControl
 
 	configureColumn(0, 1, 0.003, 0.003, 0, 0);
 	configureColumn(1, 1, 0.003, 0.003, 0, 0);
-	configureColumn(2, 5, 0.003, 0.003, 0, 0);
+	configureColumn(2, 2, 0.003, 0.003, 0, 0);
+	configureColumn(3, 2, 0.003, 0.003, 0, 0);
 
 	oscToggle_->setForcedSizeRatio(1);
 	oscToggle_->setSurfActive(Cairo::ImageSurface::create_from_png(ui->resourceRoot() + "media/power.png"));
@@ -68,6 +70,7 @@ CR42YOSCPanel::CR42YOSCPanel(CR42YUI* ui, WavetableEditController* wtEditControl
 	put(idxLabel_, 0, 1);
 	put(wfView_, 1, 0, 1, 3);
 	put(volumeDial_, 2, 0, 1, 2);
+	put(wtPosDial_, 2, 2, 1, 1);
 }
 
 CR42YOSCPanel::~CR42YOSCPanel()
@@ -76,6 +79,7 @@ CR42YOSCPanel::~CR42YOSCPanel()
 	delete idxLabel_;
 	delete oscToggle_;
 	delete volumeDial_;
+	delete wtPosDial_;
 }
 
 void CR42YOSCPanel::connectData(int oscIndex, OSCSettingsController* controller_)
@@ -87,6 +91,7 @@ void CR42YOSCPanel::connectData(int oscIndex, OSCSettingsController* controller_
 	idxLabel_->queue_draw();
 
 	volumeDial_->connectControl(controller_->getControls(oscIndex)->getVolumeCtrl());
+	wtPosDial_->connectControl(controller_->getControls(oscIndex)->getWTPosCtrl());
 
 	oscToggle_->connectControl(controller_->getControls(oscIndex)->getActiveCtrl());
 }

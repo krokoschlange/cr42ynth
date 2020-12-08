@@ -30,43 +30,54 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
-#ifndef SRC_UI_CR42YOSCPANEL_H_
-#define SRC_UI_CR42YOSCPANEL_H_
 
-#include "CR42YGrid.h"
-#include "ControlListener.h"
+#include "CR42YnthLV2URIS.h"
+
+#include <lv2/atom/atom.h>
+#include <lv2/buf-size/buf-size.h>
+#include <lv2/midi/midi.h>
+#include <lv2/time/time.h>
+
+#include "lv2_common.h"
 
 namespace cr42y
 {
 
-class CR42YControlDial;
-class CR42YControlToggle;
-class CR42YLabel;
-class CR42YToggleSelector;
-class CR42YWFView;
-
-class WavetableEditController;
-
-class OSCSettingsController;
-
-class CR42YOSCPanel : public CR42YGrid
+CR42YnthLV2URIS::CR42YnthLV2URIS(LV2_URID_Map* map) :
+		map_(map)
 {
-public:
-	CR42YOSCPanel(CR42YUI* ui, WavetableEditController* wtEditController, CR42YToggleSelector* viewSelector);
-	virtual ~CR42YOSCPanel();
+	atomFloat = map->map(map->handle, LV2_ATOM__Float);
+	atomObject = map->map(map->handle, LV2_ATOM__Object);
+	atomVector = map->map(map->handle, LV2_ATOM__Vector);
+	atomEventTransfer = map->map(map->handle, LV2_ATOM__eventTransfer);
+	
+	bufsizeSequenceSize = map->map(map->handle,
+						  LV2_BUF_SIZE__sequenceSize);
+	
+	midiEvent = map->map(map->handle, LV2_MIDI__MidiEvent);
+	
+	timePosition = map->map(map->handle, LV2_TIME__Position);
+	timeBarBeat = map->map(map->handle, LV2_TIME__barBeat);
+	timeBPM = map->map(map->handle, LV2_TIME__beatsPerMinute);
+	timeSpeed = map->map(map->handle, LV2_TIME__speed);
+	
+	msgOSCMsg = map->map(map->handle, CR42Ynth__OSCMSG);
+	msgData = map->map(map->handle, CR42Ynth__MSGDATA);
+	msgObj = map->map(map->handle, CR42Ynth__MSGOBJ);
+	msgComplete = map->map(map->handle, CR42Ynth__MSGCOMPLETE);
+	
+	stateKey = map->map(map->handle, CR42Ynth__STATEKEY);
+	stateType = map->map(map->handle, CR42Ynth__STATETYPE);
+}
 
-	void connectData(int oscIndex, OSCSettingsController* controller);
+CR42YnthLV2URIS::~CR42YnthLV2URIS()
+{
 
-private:
-	CR42YWFView* wfView_;
+}
 
-	CR42YLabel* idxLabel_;
+LV2_URID_Map* CR42YnthLV2URIS::map()
+{
+	return map_;
+}
 
-	CR42YControlToggle* oscToggle_;
-	CR42YControlDial* volumeDial_;
-	CR42YControlDial* wtPosDial_;
-};
-
-} /* namespace cr42y */
-
-#endif /* SRC_UI_CR42YOSCPANEL_H_ */
+}

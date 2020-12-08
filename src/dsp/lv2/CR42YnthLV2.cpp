@@ -44,6 +44,8 @@
 #include "common.h"
 #include "lv2_common.h"
 
+#include "CR42YnthLV2URIS.h"
+
 
 namespace cr42y
 {
@@ -62,16 +64,19 @@ CR42YnthLV2* CR42YnthLV2::getInstance(float samplerate, const char* bundlePath,
 CR42YnthLV2::CR42YnthLV2(float samplerate, const char* bundlePath,
 		const LV2_Feature* const * features) :
 		dsp(CR42YnthDSP::getInstance(samplerate, this)),
-		logger(new LV2_Log_Logger())
+		logger(new LV2_Log_Logger()),
+		uris_(nullptr),
+		forge_(new LV2_Atom_Forge())
 {
+	LV2_URID_Map* map = nullptr;
+	
 	const char* missing = lv2_features_query(features,
 	LV2_LOG__log, &logger->log, false,
-	LV2_URID__map, &map_, true,
-	LV2_OPTIONS__options, &lv2Options_, true,
+	LV2_URID__map, &map, true,
 	nullptr);
-	if (map_)
+	if (map)
 	{
-		lv2_log_logger_set_map(logger, map_);
+		lv2_log_logger_set_map(logger, map);
 	}
 
 	if (missing)
@@ -83,15 +88,13 @@ CR42YnthLV2::CR42YnthLV2(float samplerate, const char* bundlePath,
 	initialized = true;
 	dsp->init();
 
-	initURIDMap(map_);
+	uris_ = new CR42YnthLV2URIS(map);
 
 
 	ctrlIn = nullptr;
 	ctrlOut = nullptr;
 	outR = nullptr;
 	outL = nullptr;
-
-	ctrlOutFull_ = false;
 
 	for (int i = 0; i < 8; i++)
 	{
@@ -103,6 +106,9 @@ CR42YnthLV2::~CR42YnthLV2()
 {
 	CR42YnthDSP::destroyInstance();
 	instance = nullptr;
+	
+	delete uris_;
+	delete logger;
 }
 
 bool CR42YnthLV2::isReady()
@@ -112,40 +118,31 @@ bool CR42YnthLV2::isReady()
 
 void CR42YnthLV2::writeMessage(OSCEvent& event)
 {
-	const char* msg = nullptr;
-	size_t msgSize = 0;
-	uint8_t* data = nullptr;
-	size_t dataSize = 0;
-	
-	msg = event.getMessage(&msgSize);
-	data = (uint8_t*) event.getData(&dataSize);
-	
-	queueMsg(msg, msgSize, data, dataSize);
-}
-
-void CR42YnthLV2::prepareAtomWrite()
-{
-	lv2_atom_forge_frame_time(forge_, 0);
+	uiWrite_(event);
 }
 
 void CR42YnthLV2::run(uint32_t n_samples)
 {
 	uint32_t capacity = ctrlOut->atom.size;
-	lv2_atom_forge_set_buffer(forge_, (uint8_t*) ctrlOut, capacity);
-	lv2_atom_forge_sequence_head(forge_, &outFrame, 0);
+	//lv2_atom_forge_set_buffer(forge_, (uint8_t*) ctrlOut, capacity);
+	//lv2_atom_forge_sequence_head(forge_, &outFrame, 0);
+	
+	while (events_.size() > 0)
+	{
+		handleOSCEvent(events_.front());
+		delete events_.front();
+		events_.pop();
+	}
 
 	for (LV2_Atom_Event* event = lv2_atom_sequence_begin(&(ctrlIn)->body);
 			!lv2_atom_sequence_is_end(&(ctrlIn)->body, ctrlIn->atom.size, event);
 			event = lv2_atom_sequence_next(event))
 	{
+		log("EVENT");
 		if (lv2_atom_forge_is_object_type(forge_, event->body.type))
 		{
 			LV2_Atom_Object* obj = (LV2_Atom_Object*) &event->body;
-			if (obj->body.otype == uris_->msgObj)
-			{
-				readAtom((LV2_Atom*) obj);
-			}
-			else if (obj->body.otype == uris_->timePosition)
+			if (obj->body.otype == uris_->timePosition)
 			{
 				LV2_Atom* beat = nullptr, *bpm = nullptr, *speed = nullptr;
 				lv2_atom_object_get(obj, uris_->timeBarBeat, &beat,
@@ -199,14 +196,14 @@ void CR42YnthLV2::run(uint32_t n_samples)
 		outR[i] = r[i];
 	}
 
-	char buffer[32];
+	/*char buffer[32];
 	size_t msgSize = rtosc_message(buffer, 32, "/global/port_notify", "");
 	
 	writeSingleMessage(createCommunicatorMessage(buffer, msgSize, nullptr, 0));
 	
 	writeQueue();
 	
-	lv2_atom_forge_pop(forge_, &outFrame);
+	lv2_atom_forge_pop(forge_, &outFrame);*/
 }
 
 void CR42YnthLV2::connectPort(uint32_t port, void* data)
@@ -253,7 +250,7 @@ LV2_State_Status CR42YnthLV2::save(LV2_State_Store_Function store,
 		const LV2_Feature* const * features)
 {
 	LV2_Atom_Forge* saveForge = new LV2_Atom_Forge();
-	lv2_atom_forge_init(saveForge, map_);
+	lv2_atom_forge_init(saveForge, uris_->map());
 
 	std::vector<OSCEvent> events;
 

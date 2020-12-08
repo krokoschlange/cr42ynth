@@ -30,43 +30,49 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
-#ifndef SRC_UI_CR42YOSCPANEL_H_
-#define SRC_UI_CR42YOSCPANEL_H_
 
-#include "CR42YGrid.h"
-#include "ControlListener.h"
+#ifndef CR42Y_CR42YNTHLV2URIS_H
+#define CR42Y_CR42YNTHLV2URIS_H
 
-namespace cr42y
-{
+#include <lv2/urid/urid.h>
 
-class CR42YControlDial;
-class CR42YControlToggle;
-class CR42YLabel;
-class CR42YToggleSelector;
-class CR42YWFView;
+namespace cr42y {
 
-class WavetableEditController;
 
-class OSCSettingsController;
-
-class CR42YOSCPanel : public CR42YGrid
+class CR42YnthLV2URIS
 {
 public:
-	CR42YOSCPanel(CR42YUI* ui, WavetableEditController* wtEditController, CR42YToggleSelector* viewSelector);
-	virtual ~CR42YOSCPanel();
-
-	void connectData(int oscIndex, OSCSettingsController* controller);
+    CR42YnthLV2URIS(LV2_URID_Map* map);
+    virtual ~CR42YnthLV2URIS();
+	
+	
+	LV2_URID atomFloat;
+	LV2_URID atomObject;
+	LV2_URID atomVector;
+	LV2_URID atomEventTransfer;
+	
+	LV2_URID bufsizeSequenceSize;
+	
+	LV2_URID midiEvent;
+	LV2_URID timePosition;
+	LV2_URID timeBarBeat;
+	LV2_URID timeBPM;
+	LV2_URID timeSpeed;
+	
+	LV2_URID msgOSCMsg;
+	LV2_URID msgData;
+	LV2_URID msgObj;
+	LV2_URID msgComplete;
+	
+	LV2_URID stateKey;
+	LV2_URID stateType;
+	
+	LV2_URID_Map* map();
 
 private:
-	CR42YWFView* wfView_;
-
-	CR42YLabel* idxLabel_;
-
-	CR42YControlToggle* oscToggle_;
-	CR42YControlDial* volumeDial_;
-	CR42YControlDial* wtPosDial_;
+	LV2_URID_Map* map_;
 };
 
-} /* namespace cr42y */
+}
 
-#endif /* SRC_UI_CR42YOSCPANEL_H_ */
+#endif // CR42Y_CR42YNTHLV2URIS_H

@@ -1052,7 +1052,7 @@ void WavetableEditController::toolMoveAction(int x, int y, int w, int h)
 	{
 		usedTool_->motion(snapX, snapY);
 		signalSelectedChanged_.emit();
-		signalDataChanged_.emit();
+		//signalDataChanged_.emit();
 	}
 }
 

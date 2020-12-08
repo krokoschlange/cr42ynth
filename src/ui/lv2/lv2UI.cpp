@@ -81,7 +81,7 @@ int idleUI(LV2UI_Handle handle)
 static const LV2UI_Idle_Interface idleIface =
 	{idleUI};
 
-uint32_t getOptions(LV2_Handle handle, LV2_Options_Option* options)
+/*uint32_t getOptions(LV2_Handle handle, LV2_Options_Option* options)
 {
 	return LV2_OPTIONS_SUCCESS;
 }
@@ -98,6 +98,7 @@ uint32_t setOptions(LV2_Handle handle, const LV2_Options_Option* options)
 
 static const LV2_Options_Interface optionsIface =
 	{getOptions, setOptions};
+*/
 
 const void* extensionDataUI(const char* uri)
 {
@@ -105,10 +106,10 @@ const void* extensionDataUI(const char* uri)
 	{
 		return &idleIface;
 	}
-	else if (!strcmp(uri, LV2_OPTIONS__interface))
+	/*else if (!strcmp(uri, LV2_OPTIONS__interface))
 	{
 		return &optionsIface;
-	}
+	}*/
 	return nullptr;
 }
 

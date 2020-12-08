@@ -91,7 +91,7 @@ void WTOscillator::setEditData(WavetableEditData* ed)
 	}
 	editData = ed;
 	//CR42YnthDSP::getInstance()->getCommunicator()->log(editData->to_string().c_str());
-	if (editData)
+	if (editData && editData->getWaveforms()->size() > 0)
 	{
 		setWavetable(editData->getSamples());
 		/*std::string str = "";
@@ -140,7 +140,7 @@ void WTOscillator::nextSample()
 
 					waveSample *= (*wavetable)[0].size();
 
-					int wtSample = (int) voice->wtPos.getValue() * wavetable->size();
+					int wtSample = (int) (voice->wtPos.getValue() * wavetable->size());
 					if (wtSample >= wavetable->size())
 					{
 						wtSample = wavetable->size() - 1;

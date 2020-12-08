@@ -23,6 +23,7 @@ include_directories ("${PROJECT_SOURCE_DIR}/common/lv2/")
 include_directories ("${PROJECT_SOURCE_DIR}/ui/lv2/")
 include_directories ("${PROJECT_SOURCE_DIR}/ui/")
 include_directories ("${PROJECT_SOURCE_DIR}/ui/tools/")
+include_directories ("${PROJECT_SOURCE_DIR}/dsp/lv2/")
 
 add_executable(cr42ynth_ui.so
 	../common/OSCEvent.cpp
@@ -35,8 +36,7 @@ add_executable(cr42ynth_ui.so
 	../common/CR42YConfig.cpp
 	
 	
-	../common/lv2/CR42YnthLV2Communicator.cpp
-	../common/lv2/CommunicatorMessage.cpp
+	../common/lv2/CR42YnthLV2URIS.cpp
 	
 	lv2/CR42YnthUILV2.cpp
 	lv2/lv2UI.cpp
