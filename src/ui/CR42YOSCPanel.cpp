@@ -38,6 +38,7 @@
 #include "CR42YWFView.h"
 #include "OSCSettingsController.h"
 #include "OscillatorControls.h"
+#include "CR42YTheme.h"
 
 namespace cr42y
 {
@@ -65,6 +66,10 @@ CR42YOSCPanel::CR42YOSCPanel(CR42YUI* ui, WavetableEditController* wtEditControl
 	oscToggle_->setSurfInactive(Cairo::ImageSurface::create_from_png(ui->resourceRoot() + "media/power_off.png"));
 
 	idxLabel_->setForcedSizeRatio(1);
+	idxLabel_->setFontSize(CR42YTheme::MIDDLE);
+	
+	volumeDial_->setText("VOL");
+	wtPosDial_->setText("WT POS");
 
 	put(oscToggle_, 0, 0);
 	put(idxLabel_, 0, 1);

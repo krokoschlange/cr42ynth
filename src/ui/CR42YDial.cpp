@@ -171,15 +171,20 @@ bool CR42YDial::on_expose_event(GdkEventExpose* event)
 		cr->rectangle(0, 0, get_width(), get_height());
 		cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
 		cr->fill();
+		
+		
 
 		int squareSize =
 				get_width() < get_height() ? get_width() : get_height();
-
+		
+		double smallWidth = squareSize / 15.;
+		double largeWidth = squareSize / 5.;
+		
 		cr->arc(get_width() / 2, get_height() / 2, squareSize / 5 * 2, 2.45,
 				0.69);
 		clr = tm->color(FG);
 		cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
-		cr->set_line_width(get_width() / 20.);
+		cr->set_line_width(smallWidth);
 		cr->stroke();
 
 		if (valueMode_)
@@ -188,7 +193,7 @@ bool CR42YDial::on_expose_event(GdkEventExpose* event)
 					2.45 + (value_ / (logicalMax_ - logicalMin_)) * 4.52);
 			clr = tm->color(HIGHLIGHT);
 			cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3] * 0.8);
-			cr->set_line_width(get_width() / 7.);
+			cr->set_line_width(largeWidth);
 			cr->stroke();
 		}
 		else
@@ -198,7 +203,7 @@ bool CR42YDial::on_expose_event(GdkEventExpose* event)
 					2.45 + (maxValue_ / (logicalMax_ - logicalMin_)) * 4.52);
 			clr = tm->color(HIGHLIGHT); //TODO: Different color
 			cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3] * 0.8);
-			cr->set_line_width(get_width() / 7.);
+			cr->set_line_width(largeWidth);
 			cr->stroke();
 		}
 

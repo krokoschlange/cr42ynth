@@ -110,13 +110,8 @@ void WTOscillator::setEditData(WavetableEditData* ed)
 
 void WTOscillator::nextSample()
 {
-	values.clear();
-	output.clear();
-
 	for (int vce = 0; vce < voiceData.size(); vce++)
 	{
-		float left = 0;
-		float right = 0;
 		OscillatorVoiceData* voice = voiceData[vce];
 		for (int uni = 0; uni < voice->phases.size(); uni++)
 		{
@@ -168,7 +163,7 @@ void WTOscillator::nextSample()
 			}
 			if (uni == 0)
 			{
-				values.insert(std::pair<Voice*, float>(voice->voice, val));
+				values[voice->voice] = val;
 			}
 
 			float panFactor = voice->pan.getValue();
@@ -181,8 +176,8 @@ void WTOscillator::nextSample()
 			float lPan = (sqrtf(2) / 2) * (cosf(panFactor * M_PI_4) + sinf(panFactor * M_PI_4));
 			float rPan = (sqrtf(2) / 2) * (cosf(panFactor * M_PI_4) - sinf(panFactor * M_PI_4));
 
-			left += val * voice->volume.getValue() * lPan * voice->AM * voice->RM * voice->voice->getVelocity();
-			right += val * voice->volume.getValue() * rPan * voice->AM * voice->RM * voice->voice->getVelocity();
+			output[voice->voice][0] += val * voice->volume.getValue() * lPan * voice->AM * voice->RM * voice->voice->getVelocity();
+			output[voice->voice][1] += val * voice->volume.getValue() * rPan * voice->AM * voice->RM * voice->voice->getVelocity();
 
 			float note = voice->voice->getNote() + controls_->getDetuneCtrl()->getValue() + voice->noteShift.getValue();
 			if (voice->phases.size() > 1)
@@ -198,17 +193,123 @@ void WTOscillator::nextSample()
 			{
 				voice->phases[uni] -= (int) voice->phases[uni];
 			}
+			//output[voice->voice][0] = 0;
+			//output[voice->voice][1] = 0;
 		}
-		std::vector<float> out;
+		/*std::vector<float> out;
 		out.push_back(left);
 		out.push_back(right);
-		output.insert(std::pair<Voice*, std::vector<float>>(voice->voice, out));
+		output.insert(std::pair<Voice*, std::vector<float>>(voice->voice, out));*/
+	}
+}
+
+void WTOscillator::nextSample(float* left, float* right)
+{
+	for (int vce = 0; vce < voiceData.size(); vce++)
+	{
+		OscillatorVoiceData* voice = voiceData[vce];
+		for (int uni = 0; uni < voice->phases.size(); uni++)
+		{
+			float val = 0;
+			if (controls_->getNoiseCtrl()->getValue())
+			{
+				val = (rand() % 200) / 100. - 1;
+			}
+			else
+			{
+				if (wavetable)
+				{
+					float waveSample = (voice->phases[uni] + voice->phaseShift.getValue() + voice->PM);
+					waveSample =
+					waveSample >= 0 ?
+					waveSample :
+					1 + (waveSample - (int) waveSample); //normalize
+					waveSample =
+					waveSample <= 1 ? waveSample :
+					waveSample - (int) waveSample;
+					
+					waveSample *= (*wavetable)[0].size();
+					
+					int wtSample = (int) (voice->wtPos.getValue() * wavetable->size());
+					if (wtSample >= wavetable->size())
+					{
+						wtSample = wavetable->size() - 1;
+					}
+					else if (wtSample < 0)
+					{
+						wtSample = 0;
+					}
+					if (controls_->getSmoothCtrl()->getValue())
+					{
+						float smpl1 = (*wavetable)[wtSample][(int) waveSample];
+						float waveSample2 = waveSample + 1;
+						if (waveSample2 >= (*wavetable)[0].size())
+						{
+							waveSample2 -= (*wavetable)[0].size();
+						}
+						float smpl2 = (*wavetable)[wtSample][(int) waveSample2];
+						val = smpl1 + (waveSample - (int) waveSample) * (smpl2 - smpl1);
+					}
+					else
+					{
+						val = (*wavetable)[wtSample][(int) waveSample];
+					}
+				}
+			}
+			if (uni == 0)
+			{
+				values[voice->voice] = val;
+			}
+			
+			float panFactor = voice->pan.getValue();
+			if (voice->phases.size() > 1)
+			{
+				float uniSpread = voice->unisonSpread.getValue();
+				panFactor += -uniSpread + uni * ((uniSpread * 2) / voice->phases.size() - 1);
+			}
+			
+			float lPan = (sqrtf(2) / 2) * (cosf(panFactor * M_PI_4) + sinf(panFactor * M_PI_4));
+			float rPan = (sqrtf(2) / 2) * (cosf(panFactor * M_PI_4) - sinf(panFactor * M_PI_4));
+			
+			*left += val * voice->volume.getValue() * lPan * voice->AM * voice->RM * voice->voice->getVelocity();
+			*right += val * voice->volume.getValue() * rPan * voice->AM * voice->RM * voice->voice->getVelocity();
+			
+			float note = voice->voice->getNote() + controls_->getDetuneCtrl()->getValue() + voice->noteShift.getValue();
+			if (voice->phases.size() > 1)
+			{
+				float uniDet = voice->unisonDetune.getValue();
+				note += -uniDet + uni * ((uniDet * 2) / voice->phases.size() - 1);
+			}
+			float frequency = pow(2, (note - 69) / 12) * 440 * voice->FM;
+			float deltaPhase = frequency / samplerate;
+			voice->phases[uni] = voice->phases[uni] + deltaPhase;
+			
+			if (voice->phases[uni] >= 1)
+			{
+				voice->phases[uni] -= (int) voice->phases[uni];
+			}
+			//output[voice->voice][0] = 0;
+			//output[voice->voice][1] = 0;
+		}
+		/*std::vector<float> out;
+		 *	out.push_back(left);
+		 *	out.push_back(right);
+		 *	output.insert(std::pair<Voice*, std::vector<float>>(voice->voice, out));*/
 	}
 }
 
 void WTOscillator::voiceAdded(Voice* vce)
 {
+	output[vce] = std::vector<float>(2, 0);
+	values[vce] = 0;
 	voiceData.push_back(new OscillatorVoiceData(this, vce));
+	
+	std::map<Voice*, std::vector<float>>::iterator it = output.find(vce);
+	
+	if (it == output.end())
+	{
+		communicator_->log("fail");
+	}
 }
 
 void WTOscillator::voiceRemoved(Voice* vce)
@@ -222,6 +323,8 @@ void WTOscillator::voiceRemoved(Voice* vce)
 			i--;
 		}
 	}
+	output.erase(vce);
+	values.erase(vce);
 }
 
 void WTOscillator::getState(std::vector<OSCEvent>& events)
@@ -298,14 +401,14 @@ void WTOscillator::midiPanic()
 	voiceData.clear();
 }
 
-std::vector<float> WTOscillator::getOutput(Voice* vce)
+std::vector<float>* WTOscillator::getOutput(Voice* vce)
 {
 	std::map<Voice*, std::vector<float>>::iterator it = output.find(vce);
 	if (it != output.end())
 	{
-		return it->second;
+		return &(it->second);
 	}
-	return std::vector<float>();
+	return nullptr;
 }
 
 /*Control* WTOscillator::getActiveCtrl()

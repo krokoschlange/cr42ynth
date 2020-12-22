@@ -70,6 +70,7 @@ public:
 
 	void getState(std::vector<OSCEvent>& events);
 
+	void setSink(float* left, float* right);
 	float* getOutR();
 	float* getOutL();
 

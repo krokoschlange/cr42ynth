@@ -86,7 +86,7 @@ CR42YnthDSP::CR42YnthDSP(float rate, CR42YnthCommunicator* comm) :
 
 CR42YnthDSP::~CR42YnthDSP()
 {
-	if (outL)
+	/*if (outL)
 	{
 		delete[] outL;
 	}
@@ -95,7 +95,7 @@ CR42YnthDSP::~CR42YnthDSP()
 	{
 		delete[] outR;
 	}
-	outR = nullptr;
+	outR = nullptr;*/
 	for (int i = 0; i < oscillators.size(); i++)
 	{
 		delete oscillators[i];
@@ -172,6 +172,12 @@ std::vector<WTOscillator*> CR42YnthDSP::getOscillators()
  {
  return envelopes;
  }*/
+
+void CR42YnthDSP::setSink(float* left, float* right)
+{
+	outL = left;
+	outR = right;
+}
 
 float* CR42YnthDSP::getOutL()
 {
@@ -287,7 +293,7 @@ void CR42YnthDSP::getState(std::vector<OSCEvent>& events)
 
 void CR42YnthDSP::run(uint32_t n_samples)
 {
-	if (outL)
+	/*if (outL)
 	{
 		delete[] outL;
 		outL = nullptr;
@@ -298,27 +304,26 @@ void CR42YnthDSP::run(uint32_t n_samples)
 		outR = nullptr;
 	}
 	outL = new float[n_samples];
-	outR = new float[n_samples];
+	outR = new float[n_samples];*/
 
-	for (int s = 0; s < n_samples; s++)
+	std::fill(outL, outL + n_samples, 0);
+	std::fill(outR, outR + n_samples, 0);
+	for (int i = 0; i < oscillators.size(); i++)
 	{
-		outL[s] = 0;
-		outR[s] = 0;
-		for (int i = 0; i < oscillators.size(); i++)
+		if (oscillators[i]->getControls()->getActiveCtrl()->getValue())
 		{
-			//getCommunicator()->log(std::to_string(oscillators[i]->getActiveCtrl()->getValue()).c_str());
-			if (oscillators[i]->getControls()->getActiveCtrl()->getValue())
+			for (int s = 0; s < n_samples; s++)
 			{
-				oscillators[i]->nextSample();
-				for (int v = 0; v < voices.size(); v++)
+				oscillators[i]->nextSample(outL + s, outR + s);
+				/*for (int v = 0; v < voices.size(); v++)
 				{
-					std::vector<float> output = oscillators[i]->getOutput(voices[v]);
-					if (output.size() > 1)
+					std::vector<float>* output = oscillators[i]->getOutput(voices[v]);
+					if (output)
 					{
-						outL[s] += output[0];
-						outR[s] += output[1];
+						outL[s] += (*output)[0];
+						outR[s] += (*output)[1];
 					}
-				}
+				}*/
 			}
 		}
 	}

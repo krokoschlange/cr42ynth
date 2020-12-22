@@ -187,14 +187,14 @@ void CR42YnthLV2::run(uint32_t n_samples)
 
 	dsp->run(n_samples);
 
-	float* l = dsp->getOutL();
+	/*float* l = dsp->getOutL();
 	float* r = dsp->getOutR();
 
 	for (int i = 0; i < n_samples; i++)
 	{
 		outL[i] = l[i];
 		outR[i] = r[i];
-	}
+	}*/
 
 	/*char buffer[32];
 	size_t msgSize = rtosc_message(buffer, 32, "/global/port_notify", "");
@@ -212,9 +212,11 @@ void CR42YnthLV2::connectPort(uint32_t port, void* data)
 	{
 	case AUDIO_OUT_L:
 		outL = (float*) data;
+		dsp->setSink(outL, outR);
 		break;
 	case AUDIO_OUT_R:
 		outR = (float*) data;
+		dsp->setSink(outL, outR);
 		break;
 	case NOTIFY:
 		ctrlOut = (LV2_Atom_Sequence*) data;

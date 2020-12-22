@@ -55,6 +55,7 @@ public:
 	void setEditData(WavetableEditData* ed);
 
 	virtual void nextSample();
+	virtual void nextSample(float* left, float* right);
 	virtual void voiceAdded(Voice* vce);
 	virtual void voiceRemoved(Voice* vce);
 
@@ -65,7 +66,7 @@ public:
 
 	void midiPanic();
 
-	std::vector<float> getOutput(Voice* vce);
+	std::vector<float>* getOutput(Voice* vce);
 
 	/*Control* getActiveCtrl();
 	Control* getSmoothCtrl();
