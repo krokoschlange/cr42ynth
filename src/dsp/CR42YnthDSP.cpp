@@ -70,8 +70,8 @@ void CR42YnthDSP::destroyInstance()
 }
 
 CR42YnthDSP::CR42YnthDSP(float rate, CR42YnthCommunicator* comm) :
-		globalVoice(new Voice(0, 0)),
-		freeVoice(new Voice(0, 0)),
+		globalVoice(new Voice(0, 0, std::vector<WTOscillator*>())),
+		freeVoice(new Voice(0, 0, std::vector<WTOscillator*>())),
 		samplerate(rate),
 		communicator(comm),
 		outL(nullptr),
@@ -139,7 +139,7 @@ void CR42YnthDSP::init()
 
 	for (int i = 0; i < CR42Ynth_OSC_COUNT; i++)
 	{
-		oscillators.push_back(new WTOscillator(getCommunicator(), &voices, i, samplerate));
+		oscillators.push_back(new WTOscillator(getCommunicator(), i, samplerate));
 	}
 }
 
@@ -198,9 +198,11 @@ bool CR42YnthDSP::handleOSCEvent(OSCEvent* event)
 	rtosc_match_path(pattern.c_str(), event->getMessage(), (const char**) &end);
 	if (end && *end == '\0' && rtosc_type(event->getMessage(), 0) == 'm')
 	{
-		uint8_t* midi = rtosc_argument(event->getMessage(), 0).m;
+		rtosc_arg_t argument = rtosc_argument(event->getMessage(), 0);
+		uint8_t* midi = argument.m;
 		uint8_t channel = midi[0] & 0b00001111; //TODO: do something with this
 		uint8_t status = midi[0] >> 4;
+				
 		switch (status)
 		{
 		case 8: //Note off
@@ -208,24 +210,34 @@ bool CR42YnthDSP::handleOSCEvent(OSCEvent* event)
 			{
 				if (voices[i]->getNote() == midi[1])
 				{
-					for (int j = 0; j < oscillators.size(); j++)
+					/*for (int j = 0; j < oscillators.size(); j++)
 					{
 						oscillators[j]->voiceRemoved(voices[i]);
-					}
+					}*/
 					delete voices[i];
 					voices.erase(voices.begin() + i);
 					i--;
 				}
 			}
+			eaten = true;
 			break;
 		case 9: //Note on
 		{
-			Voice* voice = new Voice(midi[1], midi[2]);
-			voices.push_back(voice);
+			std::vector<WTOscillator*> activeOscs;
 			for (int i = 0; i < oscillators.size(); i++)
 			{
-				oscillators[i]->voiceAdded(voice);
+				if (oscillators[i]->getControls().getActiveCtrl()->getValue())
+				{
+					activeOscs.push_back(oscillators[i]);
+				}
 			}
+			Voice* voice = new Voice(midi[1], midi[2], activeOscs);
+			voices.push_back(voice);
+			/*for (int i = 0; i < oscillators.size(); i++)
+			{
+				oscillators[i]->voiceAdded(voice);
+			}*/
+			eaten = true;
 			break;
 		}
 		case 11:
@@ -236,11 +248,8 @@ bool CR42YnthDSP::handleOSCEvent(OSCEvent* event)
 					delete voices[i];
 				}
 				voices.clear();
-				for (int i = 0; i < oscillators.size(); i++)
-				{
-					oscillators[i]->midiPanic();
-				}
 			}
+			eaten = true;
 			break;
 		default:
 			break;
@@ -308,24 +317,19 @@ void CR42YnthDSP::run(uint32_t n_samples)
 
 	std::fill(outL, outL + n_samples, 0);
 	std::fill(outR, outR + n_samples, 0);
-	for (int i = 0; i < oscillators.size(); i++)
+	/*for (int i = 0; i < oscillators.size(); i++)
 	{
-		if (oscillators[i]->getControls()->getActiveCtrl()->getValue())
+		if (oscillators[i]->getControls().getActiveCtrl()->getValue())
 		{
 			for (int s = 0; s < n_samples; s++)
 			{
 				oscillators[i]->nextSample(outL + s, outR + s);
-				/*for (int v = 0; v < voices.size(); v++)
-				{
-					std::vector<float>* output = oscillators[i]->getOutput(voices[v]);
-					if (output)
-					{
-						outL[s] += (*output)[0];
-						outR[s] += (*output)[1];
-					}
-				}*/
 			}
 		}
+	}*/
+	for (int i = 0; i < voices.size(); i++)
+	{
+		voices[i]->calculate(outL, outR, n_samples);
 	}
 }
 
@@ -352,20 +356,22 @@ void CR42YnthDSP::removeControl(Control* ctrl)
 	}
 }*/
 
+void CR42YnthDSP::calculateOscillators(float* left, float* right, uint32_t samples)
+{
+	
+	for (int i = 0; i < samples; i++)
+	{
+		
+	}
+}
+
 Generator* CR42YnthDSP::getGeneratorFromString(std::string str)
 {
 	if (str.size() == 0)
 	{
 		return nullptr;
 	}
-	if (str.compare(0, 3, std::string("osc")))
-	{
-		int number = std::stoi(str.substr(4));
-		if (number < oscillators.size())
-		{
-			return oscillators[number];
-		}
-	}
+	
 
 	return nullptr;
 }

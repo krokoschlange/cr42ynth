@@ -89,7 +89,7 @@ void Property::genCallback(std::string gen)
 
 void Property::listenTo(Control* ctrl)
 {
-	ControlListener::listenTo(ctrl);
+	ControlListener::connect(*ctrl);
 	genCallback(ctrl->getGenerator());
 	valueCallback(ctrl->getValue());
 	minCallback(ctrl->getMin());
@@ -99,21 +99,6 @@ void Property::listenTo(Control* ctrl)
 Voice* Property::getVoice()
 {
 	return voice;
-}
-
-float Property::getValue()
-{
-	return value;
-}
-
-float Property::getMin()
-{
-	return minimum;
-}
-
-float Property::getMax()
-{
-	return maximum;
 }
 
 Generator* Property::getGenerator()

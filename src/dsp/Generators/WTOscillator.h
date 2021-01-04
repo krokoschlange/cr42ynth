@@ -35,7 +35,7 @@
 #ifndef SRC_DSP_GENERATORS_WTOSCILLATOR_H_
 #define SRC_DSP_GENERATORS_WTOSCILLATOR_H_
 
-#include "Generator.h"
+#include "OSCEventListener.h"
 
 namespace cr42y
 {
@@ -44,43 +44,27 @@ class OscillatorControls;
 class WavetableEditData;
 class OscillatorVoiceData;
 
-class WTOscillator : public Generator
+class WTOscillator : public OSCEventListener
 {
 public:
-	WTOscillator(CR42YnthCommunicator* comm, std::vector<Voice*>* vce, int id, float rate);
+	WTOscillator(CR42YnthCommunicator* comm, int id, float rate);
 	virtual ~WTOscillator();
 
-	void setWavetable(std::vector<std::vector<float>>* wt);
+	void setWavetable(std::vector<std::vector<float>>& wt);
+	
+	std::vector<std::vector<float>>& wavetable();
 
 	void setEditData(WavetableEditData* ed);
-
-	virtual void nextSample();
-	virtual void nextSample(float* left, float* right);
-	virtual void voiceAdded(Voice* vce);
-	virtual void voiceRemoved(Voice* vce);
 
 	virtual void getState(std::vector<OSCEvent>& events);
 
 	bool handleOSCEvent(OSCEvent* event);
 
-
-	void midiPanic();
-
-	std::vector<float>* getOutput(Voice* vce);
-
-	/*Control* getActiveCtrl();
-	Control* getSmoothCtrl();
-	Control* getVolumeCtrl();
-	Control* getPanCtrl();
-	Control* getNoteShiftCtrl();
-	Control* getWTPosCtrl();
-	Control* getUnisonAmountCtrl();
-	Control* getUnisonDetuneCtrl();
-	Control* getUnisonSpreadCtrl();
-	Control* getPhaseShiftCtrl();
-	Control* getPhaseRandCtrl();*/
-
-	OscillatorControls* getControls();
+	OscillatorControls& getControls();
+	
+	float getSamplerate();
+	
+	int getNumber();
 
 private:
 	CR42YnthCommunicator* communicator_;
@@ -91,26 +75,20 @@ private:
 
 	WavetableEditData* editData;
 
-	std::vector<std::vector<float>>* wavetable;
-	std::map<Voice*, std::vector<float>> output;
+	std::vector<std::vector<float>> wavetable_;
 
-	std::vector<OscillatorVoiceData*> voiceData;
-
-	/*Control active;
-	Control smooth;
-	Control noise;
-	Control volume;
-	Control detune;
-	Control pan;
-	Control noteShift;
-	Control wtPos;
-	Control unisonAmount;
-	Control unisonDetune;
-	Control unisonSpread;
-	Control phaseShift;
-	Control phaseRand;*/
 	OscillatorControls* controls_;
 };
+
+inline float WTOscillator::getSamplerate()
+{
+	return samplerate;
+}
+
+inline int WTOscillator::getNumber()
+{
+	return number;
+}
 
 } /* namespace cr42y */
 

@@ -125,25 +125,22 @@ int WavetableEditController::getWavetableHeight()
 	return 0;
 }
 
-std::vector<float>* WavetableEditController::getSamples(int row, int stepSize)
+void WavetableEditController::getSamples(std::vector<float>& samples, int row, int stepSize)
 {
 	if (!data_)
 	{
-		std::vector<float>* ret = new std::vector<float>;
-		ret->push_back(0);
-		ret->push_back(0);
-		return ret;
+		samples.push_back(0);
+		samples.push_back(0);
 	}
-	return data_->getSamples(row, stepSize);
+	data_->getSamples(samples, row, stepSize);
 }
 
-std::vector<float>* WavetableEditController::getPartSamples(int stepSize)
+void WavetableEditController::getPartSamples(std::vector<float>& samples, int stepSize)
 {
 	if (data_)
 	{
-		return data_->getPartSamples(selectedWaveform(), getSelectedPart(), stepSize);
+		data_->getPartSamples(samples, getSelectedPart(), stepSize);
 	}
-	return nullptr;
 }
 
 void WavetableEditController::selectWaveform(int num)
@@ -369,21 +366,21 @@ void WavetableEditController::crossfadeWaveforms(int idx, int amnt)
 		int start = idx > 0 ? idx : getWavetableHeight() - 1;
 		int end = idx > 0 ? idx - 1 : 0;
 
-		std::vector<float>* smpls1 = nullptr;
-		std::vector<float>* smpls2 = nullptr;
+		std::vector<float> smpls1;
+		std::vector<float> smpls2;
 		float amntPerWF = 1.f / (amnt + 1);
 
 		std::vector<float> newSmpls(getWaveformWidth(), 0);
 		for (int i = start; i > end; i--)
 		{
-			smpls1 = getSamples(i);
-			smpls2 = getSamples(i - 1);
+			getSamples(smpls1, i);
+			getSamples(smpls2, i - 1);
 
 			for (int wf = 1; wf <= amnt; wf++)
 			{
-				for (int smpl = 0; smpl < smpls1->size(); smpl++)
+				for (int smpl = 0; smpl < smpls1.size(); smpl++)
 				{
-					newSmpls[smpl] = (*smpls1)[smpl] + (wf * amntPerWF) * ((*smpls2)[smpl] - (*smpls1)[smpl]);
+					newSmpls[smpl] = smpls1[smpl] + (wf * amntPerWF) * (smpls2[smpl] - smpls1[smpl]);
 				}
 				int newIdx = i;
 				data_->addWaveform(newIdx);
@@ -398,8 +395,6 @@ void WavetableEditController::crossfadeWaveforms(int idx, int amnt)
 				WPSamples* part = new WPSamples(0, 1, newSmpls);
 				data_->addPart(newIdx, part);
 			}
-			delete smpls1;
-			delete smpls2;
 		}
 		addHistoryPoint();
 		signalSelectedChangedDone_.emit();
@@ -794,14 +789,10 @@ std::vector<std::pair<float, float>> WavetableEditController::getWFHarmonics(
 	std::vector<std::pair<float, float>> harmonics;
 	if (data_)
 	{
-		std::vector<float>* samples = getSamples(idx);
-		std::vector<double> realSmpls(samples->begin(), samples->end());
-		std::vector<double> imagSmpls(samples->size());
-		if (samples)
-		{
-			delete samples;
-		}
-		samples = nullptr;
+		std::vector<float> samples;
+		getSamples(samples, idx);
+		std::vector<double> realSmpls(samples.begin(), samples.end());
+		std::vector<double> imagSmpls(samples.size());
 
 		Fft::transform(realSmpls, imagSmpls);
 

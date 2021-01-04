@@ -70,6 +70,8 @@ CR42YOSCPanel::CR42YOSCPanel(CR42YUI* ui, WavetableEditController* wtEditControl
 	
 	volumeDial_->setText("VOL");
 	wtPosDial_->setText("WT POS");
+	
+	wtPosDial_->signalChanged().connect(sigc::mem_fun(wfView_, &CR42YWFView::setSelectedWaveform));
 
 	put(oscToggle_, 0, 0);
 	put(idxLabel_, 0, 1);
@@ -87,18 +89,18 @@ CR42YOSCPanel::~CR42YOSCPanel()
 	delete wtPosDial_;
 }
 
-void CR42YOSCPanel::connectData(int oscIndex, OSCSettingsController* controller_)
+void CR42YOSCPanel::connectData(int oscIndex, OSCSettingsController* controller)
 {
-	wfView_->setData(controller_->getEditData(oscIndex));
+	wfView_->setData(controller->getEditData(oscIndex));
 	//TODO: others
 
 	idxLabel_->setText(std::to_string(oscIndex + 1));
 	idxLabel_->queue_draw();
 
-	volumeDial_->connectControl(controller_->getControls(oscIndex)->getVolumeCtrl());
-	wtPosDial_->connectControl(controller_->getControls(oscIndex)->getWTPosCtrl());
+	volumeDial_->connectControl(controller->getControls(oscIndex)->getVolumeCtrl());
+	wtPosDial_->connectControl(controller->getControls(oscIndex)->getWTPosCtrl());
 
-	oscToggle_->connectControl(controller_->getControls(oscIndex)->getActiveCtrl());
+	oscToggle_->connectControl(controller->getControls(oscIndex)->getActiveCtrl());
 }
 
 } /* namespace cr42y */

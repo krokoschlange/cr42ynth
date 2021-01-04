@@ -67,6 +67,8 @@ public:
 
 	void run(uint32_t n_samples);
 	bool handleOSCEvent(OSCEvent* event);
+	
+	void calculateOscillators(float* left, float* right, uint32_t samples);
 
 	void getState(std::vector<OSCEvent>& events);
 

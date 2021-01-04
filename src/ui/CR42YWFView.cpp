@@ -76,14 +76,23 @@ void CR42YWFView::setShowAll(bool showAll)
 	showAll_ = showAll;
 }
 
-void CR42YWFView::setSelectedWaveform(int selectedWaveform)
+void CR42YWFView::setSelectedWaveform(float selectedWaveform)
 {
-	selectedWaveform_ = selectedWaveform;
+	if (data_)
+	{
+		selectedWaveform_ = selectedWaveform * (data_->getWaveforms()->size() - 1);
+	}
+	else
+	{
+		selectedWaveform_ = 0;
+	}
+	queue_draw();
 }
 
 void CR42YWFView::setData(WavetableEditData* data)
 {
 	data_ = data;
+	queue_draw();
 }
 
 void CR42YWFView::on_realize()
@@ -144,27 +153,26 @@ bool CR42YWFView::on_expose_event(GdkEventExpose* event)
 				{
 					stepSize = 1;
 				}
-				std::vector<float>* samples = data_->getSamples(selectedWaveform_, stepSize);
+				std::vector<float> samples;
+				data_->getSamples(samples, selectedWaveform_, stepSize);
 
-				float pixelsPerSample = (float) get_width() / samples->size();
+				float pixelsPerSample = (float) get_width() / samples.size();
 
 
-				for (int i = 1; i < samples->size(); i++)
+				for (int i = 1; i < samples.size(); i++)
 				{
-					cr->move_to(i * pixelsPerSample, ((*samples)[i] * get_height() - get_height()) / -2);
-					cr->line_to((i - 1) * pixelsPerSample, ((*samples)[i - 1] * get_height() - get_height()) / -2);
+					cr->move_to(i * pixelsPerSample, (samples[i] * get_height() - get_height()) / -2);
+					cr->line_to((i - 1) * pixelsPerSample, (samples[i - 1] * get_height() - get_height()) / -2);
 				}
 
-				cr->move_to(get_width(), ((*samples)[0] * get_height() - get_height()) / -2);
-				cr->line_to(get_width() - pixelsPerSample, ((*samples)[samples->size() - 1] * get_height() - get_height()) / -2);
+				cr->move_to(get_width(), (samples[0] * get_height() - get_height()) / -2);
+				cr->line_to(get_width() - pixelsPerSample, (samples[samples.size() - 1] * get_height() - get_height()) / -2);
 
 				clr = tm->color(HIGHLIGHT);
 
 				cr->set_line_width(tm->lineThick());
 				cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
 				cr->stroke();
-
-				delete samples;
 			}
 		}
 	}

@@ -53,11 +53,11 @@ public:
 	virtual void maxCallback(float max) = 0;
 	virtual void genCallback(std::string gen) = 0;
 
-	virtual void listenTo(Control* ctrl);
+	virtual void connect(Control& ctrl);
+	virtual void disconnect(Control& ctrl);
 
-	Control* getControl();
 protected:
-	Control* control;
+	std::vector<Control*> connections_;
 };
 
 } /* namespace cr42y */

@@ -166,25 +166,25 @@ bool CR42YWaveformEditor::on_expose_event(GdkEventExpose* event)
 			cr->stroke();
 		}
 
-		std::vector<float>* samples = nullptr;
+		std::vector<float> samples;
 		int stepSize = controller_->getWaveformWidth() / get_width();
-		samples = controller_->getSamples(controller_->selectedWaveform(),
+		controller_->getSamples(samples, controller_->selectedWaveform(),
 				stepSize);
 
-		float pixelPerSample = (float) get_width() / samples->size();
+		float pixelPerSample = (float) get_width() / samples.size();
 
-		for (int i = 1; i < samples->size(); i++)
+		for (int i = 1; i < samples.size(); i++)
 		{
 			cr->move_to(pixelPerSample * i,
-					get_height() * -0.5 * (*samples)[i] + get_height() / 2);
+					get_height() * -0.5 * samples[i] + get_height() / 2);
 			cr->line_to(pixelPerSample * (i - 1),
-					get_height() * -0.5 * (*samples)[i - 1] + get_height() / 2);
+					get_height() * -0.5 * samples[i - 1] + get_height() / 2);
 		}
-		cr->move_to(pixelPerSample * (samples->size() - 1),
-				get_height() * -0.5 * (*samples)[samples->size() - 1]
+		cr->move_to(pixelPerSample * (samples.size() - 1),
+				get_height() * -0.5 * samples[samples.size() - 1]
 						+ get_height() / 2);
 		cr->line_to(get_width(),
-				get_height() * -0.5 * (*samples)[0] + get_height() / 2);
+				get_height() * -0.5 * samples[0] + get_height() / 2);
 		cr->set_line_join(Cairo::LINE_JOIN_ROUND);
 		cr->set_line_width(tm->lineThick());
 		clr = tm->color(HIGHLIGHT);
@@ -228,15 +228,11 @@ bool CR42YWaveformEditor::on_expose_event(GdkEventExpose* event)
 			}
 		}
 
-		if (samples)
-		{
-			delete samples;
-		}
 
-		std::vector<float>* selectedSamples = controller_->getPartSamples(
-				stepSize);
+		std::vector<float> selectedSamples;
+		controller_->getPartSamples(selectedSamples, stepSize);
 
-		if (selectedSamples)
+		if (selectedSamples.size() > 0)
 		{
 			clr = tm->color(HIGHLIGHT);
 			cr->set_line_width(tm->lineThick());
@@ -245,24 +241,23 @@ bool CR42YWaveformEditor::on_expose_event(GdkEventExpose* event)
 			float start = controller_->getPartStart(
 					controller_->getSelectedPart());
 
-			for (int i = 0; i < (int) (selectedSamples->size()) - 8; i += 8)
+			for (int i = 0; i < (int) (selectedSamples.size()) - 8; i += 8)
 			{
 				cr->move_to(start * get_width() + i * pixelPerSample,
-						get_height() * -0.5 * (*selectedSamples)[i]
+						get_height() * -0.5 * selectedSamples[i]
 								+ get_height() / 2);
 				cr->line_to(start * get_width() + (i + 1) * pixelPerSample,
-						get_height() * -0.5 * (*selectedSamples)[i + 1]
+						get_height() * -0.5 * selectedSamples[i + 1]
 								+ get_height() / 2);
 				cr->line_to(start * get_width() + (i + 2) * pixelPerSample,
-						get_height() * -0.5 * (*selectedSamples)[i + 2]
+						get_height() * -0.5 * selectedSamples[i + 2]
 								+ get_height() / 2);
 				cr->line_to(start * get_width() + (i + 3) * pixelPerSample,
-						get_height() * -0.5 * (*selectedSamples)[i + 3]
+						get_height() * -0.5 * selectedSamples[i + 3]
 								+ get_height() / 2);
 
 				cr->stroke();
 			}
-			delete selectedSamples;
 		}
 	}
 

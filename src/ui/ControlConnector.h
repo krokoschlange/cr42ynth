@@ -60,12 +60,22 @@ public:
 	void minCallback(float min);
 	void maxCallback(float max);
 	void genCallback(std::string gen);
+	
+	void connect(Control& ctrl) override;
+	void disconnect(Control& ctrl) override;
+	
+	Control* getControl();
 
 private:
+	Control* control_;
+	
 	std::function<void(double)> widgetSetValue_;
 	std::function<void(double)> widgetSetMin_;
 	std::function<void(double)> widgetSetMax_;
 	std::function<void(std::string)> widgetSetGenerator_;
+	
+	//when setting values, this is needed
+	bool ignoreCallback_;
 };
 
 } /* namespace cr42y */

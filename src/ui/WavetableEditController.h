@@ -59,9 +59,9 @@ public:
 
 	int getWaveformWidth();
 	int getWavetableHeight();
-	std::vector<float>* getSamples(int row, int stepSize = 1);
+	void getSamples(std::vector<float>& samples, int row, int stepSize = 1);
 
-	std::vector<float>* getPartSamples(int stepSize = 1);
+	void getPartSamples(std::vector<float>& samples, int stepSize = 1);
 
 	void selectWaveform(int num);
 	int selectedWaveform();

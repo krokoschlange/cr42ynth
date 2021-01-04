@@ -50,7 +50,7 @@ CR42YControlToggle::~CR42YControlToggle()
 
 void CR42YControlToggle::connectControl(Control* control)
 {
-	connector_.listenTo(control);
+	connector_.connect(*control);
 	setValue(connector_.getControl()->getValue());
 }
 

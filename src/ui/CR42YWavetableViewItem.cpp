@@ -180,27 +180,22 @@ void CR42YWavetableViewItem::draw(Cairo::RefPtr<Cairo::Context> cr)
 		{
 			stepSize = 1;
 		}
-		std::vector<float>* samples = controller_->getSamples(waveform_, stepSize);
-		float ppS = (float) get_width() / samples->size();
-		for (int j = 1; j < samples->size(); j++)
+		std::vector<float> samples;
+		controller_->getSamples(samples, waveform_, stepSize);
+		float ppS = (float) get_width() / samples.size();
+		for (int j = 1; j < samples.size(); j++)
 		{
-			cr->move_to(ppS * j, get_height() * 0.5 - (get_height() - tm->lineThick()) * 0.5 * (*samples)[j]);
-			cr->line_to(ppS * (j - 1), get_height() * 0.5 - (get_height() - tm->lineThick()) * 0.5 * (*samples)[j - 1]);
+			cr->move_to(ppS * j, get_height() * 0.5 - (get_height() - tm->lineThick()) * 0.5 * samples[j]);
+			cr->line_to(ppS * (j - 1), get_height() * 0.5 - (get_height() - tm->lineThick()) * 0.5 * samples[j - 1]);
 		}
-		cr->move_to(ppS * (controller_->getWaveformWidth() - 1), get_height() * 0.5 - (get_height() - tm->lineThick()) * 0.5 * (*samples)[samples->size() - 1]);
-		cr->line_to(get_width(), get_height() * 0.5 - (get_height() - tm->lineThick()) * 0.5 * (*samples)[0]);
+		cr->move_to(ppS * (controller_->getWaveformWidth() - 1), get_height() * 0.5 - (get_height() - tm->lineThick()) * 0.5 * samples[samples.size() - 1]);
+		cr->line_to(get_width(), get_height() * 0.5 - (get_height() - tm->lineThick()) * 0.5 * samples[0]);
 		//cairo_set_line_join(cairoCache, CAIRO_LINE_JOIN_ROUND);
 		cr->set_line_width(tm->lineThick());
 		clr = tm->color(FG_DARK);
 		cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
 		cr->stroke();
 		cr->reset_clip();
-		if (samples)
-		{
-			delete samples;
-		}
-		samples = nullptr;
-
 
 		std::string str = std::to_string(waveform_ + 1);
 		Cairo::TextExtents xtents;

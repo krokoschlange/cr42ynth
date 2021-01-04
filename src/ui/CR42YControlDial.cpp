@@ -51,7 +51,7 @@ CR42YControlDial::~CR42YControlDial()
 
 void CR42YControlDial::connectControl(Control* control)
 {
-	connector_.listenTo(control);
+	connector_.connect(*control);
 	setValue(connector_.getControl()->getValue(), false);
 }
 

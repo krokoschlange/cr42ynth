@@ -41,21 +41,21 @@ namespace cr42y
 
 OscillatorVoiceData::OscillatorVoiceData(WTOscillator* osc, Voice* vce) :
 		voice(vce),
-		volume(vce, osc->getControls()->getVolumeCtrl()),
-		pan(vce, osc->getControls()->getPanCtrl()),
-		noteShift(vce, osc->getControls()->getNoteShiftCtrl()),
-		wtPos(vce, osc->getControls()->getWTPosCtrl()),
-		unisonDetune(vce, osc->getControls()->getUnisonDetuneCtrl()),
-		unisonSpread(vce, osc->getControls()->getUnisonSpreadCtrl()),
-		phaseShift(vce, osc->getControls()->getPhaseShiftCtrl()),
+		volume(vce, osc->getControls().getVolumeCtrl()),
+		pan(vce, osc->getControls().getPanCtrl()),
+		noteShift(vce, osc->getControls().getNoteShiftCtrl()),
+		wtPos(vce, osc->getControls().getWTPosCtrl()),
+		unisonDetune(vce, osc->getControls().getUnisonDetuneCtrl()),
+		unisonSpread(vce, osc->getControls().getUnisonSpreadCtrl()),
+		phaseShift(vce, osc->getControls().getPhaseShiftCtrl()),
 		FM(1),
 		AM(1),
 		RM(1),
 		PM(0)
 {
-	for (int i = 0; i < osc->getControls()->getUnisonAmountCtrl()->getValue(); i++)
+	for (int i = 0; i < osc->getControls().getUnisonAmountCtrl()->getValue(); i++)
 	{
-		float phase = phaseShift.getValue() + osc->getControls()->getPhaseRandCtrl()->getValue() * ((rand() % 200) - 100) / 100.;
+		float phase = phaseShift.getValue() + osc->getControls().getPhaseRandCtrl()->getValue() * ((rand() % 200) - 100) / 100.;
 		phase = phase >= 0 ? phase : 1 + (phase - (int) phase); //normalize to 0...1
 		phase = phase <= 1 ? phase : phase - (int) phase;
 		phases.push_back(phase);

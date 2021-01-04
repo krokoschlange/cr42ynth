@@ -56,9 +56,9 @@ public:
 
 	Voice* getVoice();
 
-	float getValue();
-	float getMin();
-	float getMax();
+	float& getValue();
+	float& getMin();
+	float& getMax();
 	Generator* getGenerator();
 
 private:
@@ -69,6 +69,21 @@ private:
 	float maximum;
 	Generator* generator;
 };
+
+inline float& Property::getValue()
+{
+	return value;
+}
+
+inline float& Property::getMin()
+{
+	return minimum;
+}
+
+inline float& Property::getMax()
+{
+	return maximum;
+}
 
 } /* namespace cr42y */
 

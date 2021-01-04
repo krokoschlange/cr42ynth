@@ -77,6 +77,10 @@ void Control::setValue(float val, bool callback)
 		std::vector<OSCEvent> events;
 		getState(events, true, false, false, false);
 		communicator->writeMessage(events[0]);//sendState(true, false, false, false);
+		for (int i = 0; i < listeners.size(); i++)
+		{
+			listeners[i]->valueCallback(getValue());
+		}
 	}
 }
 
@@ -88,6 +92,10 @@ void Control::setMin(float m, bool callback)
 		std::vector<OSCEvent> events;
 		getState(events, false, true, false, false);
 		communicator->writeMessage(events[0]);
+		for (int i = 0; i < listeners.size(); i++)
+		{
+			listeners[i]->minCallback(getMin());
+		}
 	}
 }
 
@@ -99,6 +107,10 @@ void Control::setMax(float m, bool callback)
 		std::vector<OSCEvent> events;
 		getState(events, false, false, true, false);
 		communicator->writeMessage(events[0]);
+		for (int i = 0; i < listeners.size(); i++)
+		{
+			listeners[i]->maxCallback(getMax());
+		}
 	}
 }
 
@@ -110,6 +122,10 @@ void Control::setGenerator(std::string gen, bool callback)
 		std::vector<OSCEvent> events;
 		getState(events, false, false, false, true);
 		communicator->writeMessage(events[0]);
+		for (int i = 0; i < listeners.size(); i++)
+		{
+			listeners[i]->genCallback(getGenerator());
+		}
 	}
 }
 
@@ -153,10 +169,6 @@ bool Control::handleOSCEvent(OSCEvent* event)
 				if (rtosc_type(msg, 1) == 'f')
 				{
 					setValue(rtosc_argument(msg, 1).f, false);
-					for (int i = 0; i < listeners.size(); i++)
-					{
-						listeners[i]->valueCallback(getValue());
-					}
 					return true;
 				}
 			}
@@ -165,10 +177,6 @@ bool Control::handleOSCEvent(OSCEvent* event)
 				if (rtosc_type(msg, 1) == 'f')
 				{
 					setMin(rtosc_argument(msg, 1).f, false);
-					for (int i = 0; i < listeners.size(); i++)
-					{
-						listeners[i]->minCallback(getMin());
-					}
 					return true;
 				}
 			}
@@ -177,10 +185,6 @@ bool Control::handleOSCEvent(OSCEvent* event)
 				if (rtosc_type(msg, 1) == 'f')
 				{
 					setMax(rtosc_argument(msg, 1).f, false);
-					for (int i = 0; i < listeners.size(); i++)
-					{
-						listeners[i]->maxCallback(getMax());
-					}
 					return true;
 				}
 			}
@@ -189,10 +193,6 @@ bool Control::handleOSCEvent(OSCEvent* event)
 				if (rtosc_type(msg, 1) == 's')
 				{
 					setGenerator(std::string(rtosc_argument(msg, 1).s), false);
-					for (int i = 0; i < listeners.size(); i++)
-					{
-						listeners[i]->genCallback(getGenerator());
-					}
 					return true;
 				}
 			}

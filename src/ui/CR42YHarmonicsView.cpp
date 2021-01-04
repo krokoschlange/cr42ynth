@@ -77,11 +77,11 @@ bool CR42YHarmonicsView::on_expose_event(GdkEventExpose* event)
 		cr->clip();
 
 
-		std::vector<float>* samples = controller_->getSamples(controller_->selectedWaveform());
+		std::vector<float> samples;
+		controller_->getSamples(samples, controller_->selectedWaveform());
 
-		std::vector<double> samplesd(samples->begin(), samples->end());
+		std::vector<double> samplesd(samples.begin(), samples.end());
 		std::vector<double> empty(samplesd.size());
-		delete samples;
 
 		Fft::transform(samplesd, empty);
 

@@ -315,43 +315,38 @@ float WavetableEditData::getSample(int row, int smpl)
 	return ret;
 }
 
-std::vector<float>* WavetableEditData::getSamples(int row, int stepSize)
+void WavetableEditData::getSamples(std::vector<float>& samples, int row, int stepSize)
 {
-	std::vector<float>* ret = new std::vector<float>();
+	samples.reserve(getWidth() / stepSize);
 	for (int i = 0; i < getWidth(); i += stepSize)
 	{
-		ret->push_back(getSample(row, i));
+		samples.push_back(getSample(row, i));
 	}
-	return ret;
 }
 
-std::vector<std::vector<float>>* WavetableEditData::getSamples()
+void WavetableEditData::getSamples(std::vector<std::vector<float>>& samples)
 {
-	std::vector<std::vector<float>>* ret = new std::vector<std::vector<float>>();
+	samples.resize(parts.size());
 	for (int i = 0; i < parts.size(); i++)
 	{
-		std::vector<float>* smpls = getSamples(i);
-		ret->push_back(*smpls);
-		delete smpls;
+		getSamples(samples[i], i);
 	}
-	return ret;
 }
 
-std::vector<float>* WavetableEditData::getPartSamples(int row, int part,
+void WavetableEditData::getPartSamples(std::vector<float>& samples, int row, int part,
 		int stepSize)
 {
-	std::vector<float>* ret = new std::vector<float>();
 	WaveformPart* p = getPartByIndex(row, part);
 	if (p)
 	{
 		int start = p->getStart() * getWidth();
 		int end = p->getEnd() * getWidth();
+		samples.reserve((end - start) / stepSize);
 		for (int i = start; i < end; i += stepSize)
 		{
-			ret->push_back(p->getSample(getWidth(), i, row));
+			samples.push_back(p->getSample(getWidth(), i, row));
 		}
 	}
-	return ret;
 }
 
 int WavetableEditData::getData(void** buffer)

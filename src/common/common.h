@@ -37,6 +37,7 @@
 #include <sstream>
 
 #define CR42Ynth_OSC_COUNT 8
+#define CR42Ynth_UNISON_MAX 16
 
 namespace cr42y
 {

@@ -65,6 +65,8 @@ public:
 	float AM;
 	float RM;
 	float PM;
+	
+	float value_;
 };
 
 } /* namespace cr42y */

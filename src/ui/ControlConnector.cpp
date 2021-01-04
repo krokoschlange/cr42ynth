@@ -36,7 +36,9 @@ namespace cr42y
 {
 
 ControlConnector::ControlConnector() :
-		ControlListener()
+		ControlListener(),
+		ignoreCallback_(false),
+		control_(nullptr)
 {
 	widgetSetValue_ = [](float value)
 	{};
@@ -54,33 +56,37 @@ ControlConnector::~ControlConnector()
 
 void ControlConnector::setControlValue(double value)
 {
-	if (getControl())
+	if (control_)
 	{
-		getControl()->setValue(value, true);
+		control_->setValue(value, true);
+		ignoreCallback_ = true;
 	}
 }
 
 void ControlConnector::setControlMin(double min)
 {
-	if (getControl())
+	if (control_)
 	{
-		getControl()->setMin(min, true);
+		control_->setMin(min, true);
+		ignoreCallback_ = true;
 	}
 }
 
 void ControlConnector::setControlMax(double max)
 {
-	if (getControl())
+	if (control_)
 	{
-		getControl()->setValue(max, true);
+		control_->setValue(max, true);
+		ignoreCallback_ = true;
 	}
 }
 
 void ControlConnector::setControlGenerator(std::string generator)
 {
-	if (getControl())
+	if (control_)
 	{
-		getControl()->setGenerator(generator, true);
+		control_->setGenerator(generator, true);
+		ignoreCallback_ = true;
 	}
 }
 
@@ -107,22 +113,61 @@ void ControlConnector::setWidgetGeneratorSetter(
 
 void ControlConnector::valueCallback(float val)
 {
-	widgetSetValue_(val);
+	if (!ignoreCallback_)
+	{
+		widgetSetValue_(val);
+		ignoreCallback_ = false;
+	}
 }
 
 void ControlConnector::minCallback(float min)
 {
-	widgetSetMin_(min);
+	if (!ignoreCallback_)
+	{
+		widgetSetMin_(min);
+		ignoreCallback_ = false;
+	}
 }
 
 void ControlConnector::maxCallback(float max)
 {
-	widgetSetMax_(max);
+	if (!ignoreCallback_)
+	{
+		widgetSetMax_(max);
+		ignoreCallback_ = false;
+	}
 }
 
 void ControlConnector::genCallback(std::string gen)
 {
-	widgetSetGenerator_(gen);
+	if (!ignoreCallback_)
+	{
+		widgetSetGenerator_(gen);
+		ignoreCallback_ = false;
+	}
+}
+
+void ControlConnector::connect(Control& ctrl)
+{
+	for (int i = 0; i < connections_.size(); i++)
+	{
+		ControlListener::disconnect(*connections_[i]);
+	}
+	control_ = &ctrl;
+}
+
+void ControlConnector::disconnect(Control& ctrl)
+{
+	ControlListener::disconnect(ctrl);
+	if (&ctrl == control_)
+	{
+		control_ = nullptr;
+	}
+}
+
+Control* ControlConnector::getControl()
+{
+	return control_;
 }
 
 } /* namespace cr42y */

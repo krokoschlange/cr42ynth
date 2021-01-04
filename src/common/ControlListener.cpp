@@ -36,35 +36,37 @@
 namespace cr42y
 {
 
-ControlListener::ControlListener() :
-		control(nullptr)
+ControlListener::ControlListener()
 {
 }
 
 ControlListener::~ControlListener()
 {
-	if (control)
+	for (int i = 0; i < connections_.size(); i++)
 	{
-		control->removeListener(this);
+		connections_[i]->removeListener(this);
 	}
 }
 
-void ControlListener::listenTo(Control* ctrl)
+void ControlListener::connect(Control& ctrl)
 {
-	if (control)
+	ctrl.addListener(this);
+	connections_.push_back(&ctrl);
+}
+
+void ControlListener::disconnect(Control& ctrl)
+{
+
+	ctrl.removeListener(this);
+	for (int i = 0; i < connections_.size(); i++)
 	{
-		control->removeListener(this);
-	}
-	control = ctrl;
-	if (control)
-	{
-		control->addListener(this);
+		if (connections_[i] == &ctrl)
+		{
+			connections_.erase(connections_.begin() + i);
+			i--;
+		}
 	}
 }
 
-Control* ControlListener::getControl()
-{
-	return control;
-}
 
 } /* namespace cr42y */

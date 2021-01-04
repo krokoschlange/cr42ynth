@@ -51,7 +51,7 @@ public:
 
 	void setShowAll(bool showAll);
 
-	void setSelectedWaveform(int selectedWaveform);
+	void setSelectedWaveform(float selectedWaveform);
 
 	void setData(WavetableEditData* data);
 
