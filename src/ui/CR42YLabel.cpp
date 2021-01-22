@@ -194,6 +194,7 @@ bool CR42YLabel::on_expose_event(GdkEventExpose* event)
 			cr->show_text(text_);
 		}
 	}
+	return false;
 }
 
 void CR42YLabel::on_realize()

@@ -42,7 +42,7 @@ ControlListener::ControlListener()
 
 ControlListener::~ControlListener()
 {
-	for (int i = 0; i < connections_.size(); i++)
+	for (unsigned int i = 0; i < connections_.size(); i++)
 	{
 		connections_[i]->removeListener(this);
 	}
@@ -58,7 +58,7 @@ void ControlListener::disconnect(Control& ctrl)
 {
 
 	ctrl.removeListener(this);
-	for (int i = 0; i < connections_.size(); i++)
+	for (unsigned int i = 0; i < connections_.size(); i++)
 	{
 		if (connections_[i] == &ctrl)
 		{

@@ -96,7 +96,7 @@ void CR42YRelativeContainer::move(Gtk::Widget* child, double x, double y,
 
 CR42YRelativeChild* CR42YRelativeContainer::getChild(Gtk::Widget* child)
 {
-	for (int i = 0; i < children_.size(); i++)
+	for (size_t i = 0; i < children_.size(); i++)
 	{
 		if (children_[i].widget == child)
 		{
@@ -151,7 +151,6 @@ bool CR42YRelativeContainer::on_expose_event(GdkEventExpose* event)
 void CR42YRelativeContainer::on_size_allocate(Gtk::Allocation& alloc)
 {
 	Gtk::Allocation childAlloc;
-	Gtk::Requisition childReq;
 
 	set_allocation(alloc);
 
@@ -160,7 +159,7 @@ void CR42YRelativeContainer::on_size_allocate(Gtk::Allocation& alloc)
 		get_window()->move_resize(alloc.get_x(), alloc.get_y(), alloc.get_width(), alloc.get_height());
 	}
 
-	for (int i = 0; i < children_.size(); i++)
+	for (size_t i = 0; i < children_.size(); i++)
 	{
 		CR42YRelativeChild childData = children_[i];
 		childAlloc.set_x(0);
@@ -232,7 +231,7 @@ void CR42YRelativeContainer::on_remove(Gtk::Widget* child)
 	CR42YRelativeChild* childData = getChild(child);
 	if (childData)
 	{
-		for (int i = 0; i < children_.size(); i++)
+		for (size_t i = 0; i < children_.size(); i++)
 		{
 			if (&(children_[i]) == childData)
 			{
@@ -249,10 +248,10 @@ void CR42YRelativeContainer::on_add(Gtk::Widget* child)
 	put(child, 0, 0, 1, 1);
 }
 
-void CR42YRelativeContainer::forall_vfunc(gboolean include_internals,
+void CR42YRelativeContainer::forall_vfunc(gboolean,
 		GtkCallback callback, gpointer callback_data)
 {
-	for (int i = 0; i < children_.size(); i++)
+	for (size_t i = 0; i < children_.size(); i++)
 	{
 		if (children_[i].widget->gobj())
 		{

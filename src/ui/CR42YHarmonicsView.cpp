@@ -58,7 +58,7 @@ void CR42YHarmonicsView::setController(WavetableEditController* controller)
 	controller_ = controller;
 }
 
-bool CR42YHarmonicsView::on_expose_event(GdkEventExpose* event)
+bool CR42YHarmonicsView::on_expose_event(GdkEventExpose*)
 {
 	Glib::RefPtr<Gdk::Window> win = get_window();
 	if (win && controller_)
@@ -86,7 +86,7 @@ bool CR42YHarmonicsView::on_expose_event(GdkEventExpose* event)
 		Fft::transform(samplesd, empty);
 
 		float maxAmp = 0;
-		for (int i = 0; i < 129 && i < samplesd.size(); i++)
+		for (size_t i = 0; i < 129 && i < samplesd.size(); i++)
 		{
 			float amp = sqrt(samplesd[i] * samplesd[i] + empty[i] * empty[i]) / (samplesd.size() / 2);
 			if (amp > maxAmp)
@@ -104,7 +104,7 @@ bool CR42YHarmonicsView::on_expose_event(GdkEventExpose* event)
 		clr = tm->color(HIGHLIGHT);
 		cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
 
-		for (int i = 0; i < 129 && i < samplesd.size(); i++)
+		for (size_t i = 0; i < 129 && i < samplesd.size(); i++)
 		{
 			float amp = sqrt(samplesd[i] * samplesd[i] + empty[i] * empty[i]) / (samplesd.size() / 2) / maxAmp;
 
@@ -138,6 +138,7 @@ bool CR42YHarmonicsView::on_expose_event(GdkEventExpose* event)
 		cr->set_line_width(tm->lineThick());
 		cr->stroke();
 	}
+	return false;
 }
 
 void CR42YHarmonicsView::on_realize()

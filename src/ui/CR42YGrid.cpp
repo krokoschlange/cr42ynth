@@ -41,8 +41,8 @@ CR42YGrid::CR42YGrid(CR42YUI* ui) :
 		Glib::ObjectBase("CR42YGrid"),
 		Gtk::Container(),
 		CR42YWidget(ui),
-		drawBG_(false),
-		drawBorder_(false)
+		drawBorder_(false),
+		drawBG_(false)
 {
 	set_flags(Gtk::NO_WINDOW);
 	configureColumn(0, 1, 0, 0, 0, 0);
@@ -81,7 +81,7 @@ void CR42YGrid::addRow(double weight, double padFront, double padBack,
 
 void CR42YGrid::removeRow(int row)
 {
-	if (0 <= row && row < rows_.size())
+	if (0 <= row && (size_t) row < rows_.size())
 	{
 		rows_.erase(rows_.begin() + row);
 	}
@@ -89,7 +89,7 @@ void CR42YGrid::removeRow(int row)
 
 void CR42YGrid::removeColumn(int column)
 {
-	if (0 <= column && column < columns_.size())
+	if (0 <= column && (size_t) column < columns_.size())
 	{
 		columns_.erase(columns_.begin() + column);
 	}
@@ -98,7 +98,7 @@ void CR42YGrid::removeColumn(int column)
 void CR42YGrid::configureColumn(int column, double weight, double padFront,
 		double padBack, int minSize, int maxSize)
 {
-	while (column >= columns_.size())
+	while ((size_t) column >= columns_.size())
 	{
 		addColumn(0, 0, 0, 0, 0);
 	}
@@ -112,7 +112,7 @@ void CR42YGrid::configureColumn(int column, double weight, double padFront,
 void CR42YGrid::configureRow(int row, double weight, double padFront,
 		double padBack, int minSize, int maxSize)
 {
-	while (row >= rows_.size())
+	while ((size_t) row >= rows_.size())
 	{
 		addRow(0, 0, 0, 0, 0);
 	}
@@ -141,7 +141,7 @@ void CR42YGrid::put(Gtk::Widget* widget, int row, int column, int rowSpan,
 void CR42YGrid::on_remove(Gtk::Widget* child)
 {
 	CR42YGridChild* childData = getChild(child);
-	for (int i = 0; i < children_.size(); i++)
+	for (size_t i = 0; i < children_.size(); i++)
 	{
 		if (childData == &(children_[i]))
 		{
@@ -228,7 +228,7 @@ void CR42YGrid::on_size_allocate(Gtk::Allocation& alloc)
 	//getMinimumCellEnds(&columnEnds, &rowEnds);
 	struct Alloc
 	{
-		int idx_;
+		size_t idx_;
 		int alloc_;
 		double param_;
 	};
@@ -239,16 +239,16 @@ void CR42YGrid::on_size_allocate(Gtk::Allocation& alloc)
 	{
 		std::vector<int> columnMinWidths(columns_.size(), 0);
 		columnMinWidths[0] = columnEnds[0];
-		for (int i = 1; i < columnEnds.size(); i++)
+		for (size_t i = 1; i < columnEnds.size(); i++)
 		{
 			columnMinWidths[i] = columnEnds[i] - columnEnds[i - 1];
 		}
 
 		int totalWidth = alloc.get_width();
 
-		int maxParam = 0;
-		int max2Param = 0;
-		for (int i = 0; i < columns_.size(); i++)
+		size_t maxParam = 0;
+		size_t max2Param = 0;
+		for (size_t i = 0; i < columns_.size(); i++)
 		{
 			columnAllocs[i] =
 			{	i, columnMinWidths[i], columns_[i].weight_ / (columnMinWidths[i] + 1)};
@@ -260,10 +260,10 @@ void CR42YGrid::on_size_allocate(Gtk::Allocation& alloc)
 			}
 		}
 		max2Param = maxParam == 0 ? 1 : 0;
-		for (int i = 0; i < columnAllocs.size(); i++)
+		for (size_t i = 0; i < columnAllocs.size(); i++)
 		{
 			if (columnAllocs[i].param_ > columnAllocs[max2Param].param_
-					&& i != maxParam)
+				&& i != maxParam)
 			{
 				max2Param = i;
 			}
@@ -283,7 +283,7 @@ void CR42YGrid::on_size_allocate(Gtk::Allocation& alloc)
 				maxParam = max2Param;
 				double maxParamVal = 0;
 				max2Param = 0;
-				for (int i = 0; i < columnAllocs.size(); i++)
+				for (size_t i = 0; i < columnAllocs.size(); i++)
 				{
 					if (columnAllocs[i].param_ > maxParamVal && i != maxParam
 							&& !(columns_[columnAllocs[i].idx_].maxSize_ > 0
@@ -319,16 +319,16 @@ void CR42YGrid::on_size_allocate(Gtk::Allocation& alloc)
 	{
 		std::vector<int> rowMinHeights(rows_.size(), 0);
 		rowMinHeights[0] = rowEnds[0];
-		for (int i = 1; i < rowEnds.size(); i++)
+		for (size_t i = 1; i < rowEnds.size(); i++)
 		{
 			rowMinHeights[i] = rowEnds[i] - rowEnds[i - 1];
 		}
 
 		int totalHeight = alloc.get_height();
 
-		int maxParam = 0;
-		int max2Param = 0;
-		for (int i = 0; i < rows_.size(); i++)
+		size_t maxParam = 0;
+		size_t max2Param = 0;
+		for (size_t i = 0; i < rows_.size(); i++)
 		{
 			rowAllocs[i] =
 			{	i, rowMinHeights[i], rows_[i].weight_};
@@ -340,7 +340,7 @@ void CR42YGrid::on_size_allocate(Gtk::Allocation& alloc)
 			}
 		}
 		max2Param = maxParam == 0 ? 1 : 0;
-		for (int i = 0; i < rowAllocs.size(); i++)
+		for (size_t i = 0; i < rowAllocs.size(); i++)
 		{
 			if (rowAllocs[i].param_ > rowAllocs[max2Param].param_
 					&& i != maxParam)
@@ -363,7 +363,7 @@ void CR42YGrid::on_size_allocate(Gtk::Allocation& alloc)
 				maxParam = max2Param;
 				double maxParamVal = 0;
 				max2Param = 0;
-				for (int i = 0; i < rowAllocs.size(); i++)
+				for (size_t i = 0; i < rowAllocs.size(); i++)
 				{
 					if (rowAllocs[i].param_ > maxParamVal && i != maxParam
 							&& !(rows_[rowAllocs[i].idx_].maxSize_ > 0
@@ -394,18 +394,18 @@ void CR42YGrid::on_size_allocate(Gtk::Allocation& alloc)
 	}
 
 	//std::vector<int> columnWidths(columns_.size(), 0);
-	for (int i = 0; i < columnAllocs.size(); i++)
+	for (size_t i = 0; i < columnAllocs.size(); i++)
 	{
 		columns_[i].allocated_ = columnAllocs[i].alloc_;
 	}
 	//std::vector<int> rowHeights(rows_.size(), 0);
-	for (int i = 0; i < rowAllocs.size(); i++)
+	for (size_t i = 0; i < rowAllocs.size(); i++)
 	{
 		rows_[i].allocated_ = rowAllocs[i].alloc_;
 	}
 
 	Gtk::Allocation childAlloc;
-	for (int i = 0; i < children_.size(); i++)
+	for (size_t i = 0; i < children_.size(); i++)
 	{
 		CR42YGridChild child = children_[i];
 
@@ -465,11 +465,11 @@ void CR42YGrid::on_size_allocate(Gtk::Allocation& alloc)
 		int x = 0, y = 0, w = 0, h = 0;
 		int x2 = 0, y2 = 0;
 
-		if (child.stickySides_ & W > 0)
+		if ((child.stickySides_ & W) > 0)
 		{
 			x = cellX;
 		}
-		else if (child.stickySides_ & E > 0)
+		else if ((child.stickySides_ & E) > 0)
 		{
 			x = cellX + cellW - preferredW;
 		}
@@ -477,11 +477,11 @@ void CR42YGrid::on_size_allocate(Gtk::Allocation& alloc)
 		{
 			x = cellX + (cellW - preferredW) / 2;
 		}
-		if (child.stickySides_ & E > 0)
+		if ((child.stickySides_ & E) > 0)
 		{
 			x2 = cellX + cellW;
 		}
-		else if (child.stickySides_ & W > 0)
+		else if ((child.stickySides_ & W) > 0)
 		{
 			x2 = cellX + preferredW;
 		}
@@ -490,11 +490,11 @@ void CR42YGrid::on_size_allocate(Gtk::Allocation& alloc)
 			x2 = cellX + (cellW + preferredW) / 2;
 		}
 
-		if (child.stickySides_ & N > 0)
+		if ((child.stickySides_ & N) > 0)
 		{
 			y = cellY;
 		}
-		else if (child.stickySides_ & S > 0)
+		else if ((child.stickySides_ & S) > 0)
 		{
 			y = cellY + cellH - preferredH;
 		}
@@ -502,11 +502,11 @@ void CR42YGrid::on_size_allocate(Gtk::Allocation& alloc)
 		{
 			y = cellY + (cellY - preferredH) / 2;
 		}
-		if (child.stickySides_ & S > 0)
+		if ((child.stickySides_ & S) > 0)
 		{
 			y2 = cellY + cellH;
 		}
-		else if (child.stickySides_ & N > 0)
+		else if ((child.stickySides_ & N) > 0)
 		{
 			y2 = cellY + preferredH;
 		}
@@ -552,10 +552,10 @@ void CR42YGrid::on_size_request(Gtk::Requisition* requisition)
 	requisition->height = rowEnds[rowEnds.size() - 1];
 }
 
-void CR42YGrid::forall_vfunc(gboolean include_internals, GtkCallback callback,
+void CR42YGrid::forall_vfunc(gboolean, GtkCallback callback,
 		gpointer callback_data)
 {
-	for (int i = 0; i < children_.size(); i++)
+	for (size_t i = 0; i < children_.size(); i++)
 	{
 		if (children_[i].widget_->gobj())
 		{
@@ -568,7 +568,7 @@ void CR42YGrid::getRelativeCellSize(std::vector<CR42YGridRow>& rows,
 		std::vector<double>& size, std::vector<bool>& ignore)
 {
 	int totalWeight = 0;
-	for (int i = 0; i < rows.size(); i++)
+	for (size_t i = 0; i < rows.size(); i++)
 	{
 		if (!ignore[i])
 		{
@@ -578,7 +578,7 @@ void CR42YGrid::getRelativeCellSize(std::vector<CR42YGridRow>& rows,
 
 	if (totalWeight > 0)
 	{
-		for (int i = 0; i < rows.size(); i++)
+		for (size_t i = 0; i < rows.size(); i++)
 		{
 			if (!ignore[i])
 			{
@@ -592,7 +592,7 @@ void CR42YGrid::getMinimumCellEnds(std::vector<int>* columnEnds,
 		std::vector<int>* rowEnds)
 {
 	*columnEnds = std::vector<int>(columns_.size(), 0);
-	for (int column = 0; column < columns_.size(); column++)
+	for (size_t column = 0; column < columns_.size(); column++)
 	{
 		int previousEnd = 0;
 		if (column > 0)
@@ -601,9 +601,9 @@ void CR42YGrid::getMinimumCellEnds(std::vector<int>* columnEnds,
 		}
 		(*columnEnds)[column] = previousEnd + columns_[column].minSize_;
 
-		for (int i = 0; i < children_.size(); i++)
+		for (size_t i = 0; i < children_.size(); i++)
 		{
-			if (children_[i].column_ + children_[i].columnSpan_ - 1 == column)
+			if ((size_t) (children_[i].column_ + children_[i].columnSpan_) - 1 == column)
 			{
 				int startEnd = 0;
 				if (children_[i].column_ > 0)
@@ -658,7 +658,7 @@ void CR42YGrid::getMinimumCellEnds(std::vector<int>* columnEnds,
 		}
 	}
 	*rowEnds = std::vector<int>(rows_.size(), 0);
-	for (int row = 0; row < rows_.size(); row++)
+	for (size_t row = 0; row < rows_.size(); row++)
 	{
 		int previousEnd = 0;
 		if (row > 0)
@@ -667,9 +667,9 @@ void CR42YGrid::getMinimumCellEnds(std::vector<int>* columnEnds,
 		}
 		(*rowEnds)[row] = previousEnd + rows_[row].minSize_;
 
-		for (int i = 0; i < children_.size(); i++)
+		for (size_t i = 0; i < children_.size(); i++)
 		{
-			if (children_[i].row_ + children_[i].rowSpan_ - 1 == row)
+			if ((size_t) (children_[i].row_ + children_[i].rowSpan_) - 1 == row)
 			{
 				int startEnd = 0;
 				if (children_[i].row_ > 0)
@@ -727,7 +727,7 @@ void CR42YGrid::getMinimumCellEnds(std::vector<int>* columnEnds,
 
 CR42YGrid::CR42YGridChild* CR42YGrid::getChild(Gtk::Widget* child)
 {
-	for (int i = 0; i < children_.size(); i++)
+	for (size_t i = 0; i < children_.size(); i++)
 	{
 		if (children_[i].widget_ == child)
 		{

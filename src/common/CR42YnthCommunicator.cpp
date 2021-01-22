@@ -58,7 +58,7 @@ void CR42YnthCommunicator::addOSCEventListener(OSCEventListener* listener)
 
 void CR42YnthCommunicator::removeOSCEventListener(OSCEventListener* listener)
 {
-	for (int i = 0; i < listeners_.size(); i++)
+	for (unsigned int i = 0; i < listeners_.size(); i++)
 	{
 		if (listener == listeners_[i])
 		{
@@ -84,7 +84,7 @@ bool CR42YnthCommunicator::handleOSCEvent(OSCEvent* event)
 		}
 	}
 	//log(std::to_string(listeners_.size()).c_str());
-	for (int i = 0; i < listeners_.size() && !handled; i++)
+	for (unsigned  i = 0; i < listeners_.size() && !handled; i++)
 	{
 		handled = listeners_[i]->handleOSCEvent(event);
 	}
@@ -94,10 +94,10 @@ bool CR42YnthCommunicator::handleOSCEvent(OSCEvent* event)
 void CR42YnthCommunicator::sendState()
 {
 	std::vector<OSCEvent> events;
-	for (int i = 0; i < listeners_.size(); i++)
+	for (unsigned int i = 0; i < listeners_.size(); i++)
 	{
 		listeners_[i]->getState(events);
-		for (int j = 0; j < events.size(); j++)
+		for (unsigned int j = 0; j < events.size(); j++)
 		{
 			writeMessage(events[j]);
 		}

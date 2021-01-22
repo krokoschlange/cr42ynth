@@ -46,6 +46,8 @@
 #include "Control.h"
 #include "Property.h"
 #include "common.h"
+#include "ModulationControls.h"
+#include "LFO.h"
 
 namespace cr42y
 {
@@ -70,18 +72,19 @@ void CR42YnthDSP::destroyInstance()
 }
 
 CR42YnthDSP::CR42YnthDSP(float rate, CR42YnthCommunicator* comm) :
-		globalVoice(new Voice(0, 0, std::vector<WTOscillator*>())),
-		freeVoice(new Voice(0, 0, std::vector<WTOscillator*>())),
 		samplerate(rate),
 		communicator(comm),
-		outL(nullptr),
-		outR(nullptr),
 		bpm(nullptr),
 		bpmProp(nullptr),
 		vol(nullptr),
-		volProp(nullptr)
+		volProp(nullptr),
+		modCtrls_(nullptr),globalVoice(nullptr),//new Voice(0, 0, std::vector<WTOscillator*>())),
+		freeVoice(nullptr),//new Voice(0, 0, std::vector<WTOscillator*>())),
+		outR(nullptr),
+		outL(nullptr)
 {
 	comm->addOSCEventListener(this);
+	modCtrls_ = new ModulationControls(comm);
 }
 
 CR42YnthDSP::~CR42YnthDSP()
@@ -96,7 +99,7 @@ CR42YnthDSP::~CR42YnthDSP()
 		delete[] outR;
 	}
 	outR = nullptr;*/
-	for (int i = 0; i < oscillators.size(); i++)
+	for (size_t i = 0; i < oscillators.size(); i++)
 	{
 		delete oscillators[i];
 	}
@@ -126,6 +129,12 @@ CR42YnthDSP::~CR42YnthDSP()
 	globalVoice = nullptr;
 	delete freeVoice;
 	freeVoice = nullptr;
+	delete modCtrls_;
+	
+	for (size_t i = 0; i < lfos_.size(); i++)
+	{
+		delete lfos_[i];
+	}
 	//controls.clear();
 }
 
@@ -200,13 +209,13 @@ bool CR42YnthDSP::handleOSCEvent(OSCEvent* event)
 	{
 		rtosc_arg_t argument = rtosc_argument(event->getMessage(), 0);
 		uint8_t* midi = argument.m;
-		uint8_t channel = midi[0] & 0b00001111; //TODO: do something with this
+		//uint8_t channel = midi[0] & 0b00001111; //TODO: do something with this
 		uint8_t status = midi[0] >> 4;
 				
 		switch (status)
 		{
 		case 8: //Note off
-			for (int i = 0; i < voices.size(); i++)
+			for (size_t i = 0; i < voices.size(); i++)
 			{
 				if (voices[i]->getNote() == midi[1])
 				{
@@ -224,14 +233,14 @@ bool CR42YnthDSP::handleOSCEvent(OSCEvent* event)
 		case 9: //Note on
 		{
 			std::vector<WTOscillator*> activeOscs;
-			for (int i = 0; i < oscillators.size(); i++)
+			for (size_t i = 0; i < oscillators.size(); i++)
 			{
 				if (oscillators[i]->getControls().getActiveCtrl()->getValue())
 				{
 					activeOscs.push_back(oscillators[i]);
 				}
 			}
-			Voice* voice = new Voice(midi[1], midi[2], activeOscs);
+			Voice* voice = new Voice(midi[1], midi[2], activeOscs, modCtrls_, lfos_);
 			voices.push_back(voice);
 			/*for (int i = 0; i < oscillators.size(); i++)
 			{
@@ -243,7 +252,7 @@ bool CR42YnthDSP::handleOSCEvent(OSCEvent* event)
 		case 11:
 			if (midi[1] == 120 || midi[1] == 123) //All Sounds / Notes off
 			{
-				for (int i = 0; i < voices.size(); i++)
+				for (size_t i = 0; i < voices.size(); i++)
 				{
 					delete voices[i];
 				}
@@ -282,7 +291,7 @@ void CR42YnthDSP::getState(std::vector<OSCEvent>& events)
 {
 	getCommunicator()->log("sending state");
 	//std::cout << "sending state\n";
-	for (int i = 0; i < voices.size(); i++)
+	for (size_t i = 0; i < voices.size(); i++)
 	{
 		char buffer[32];
 		int len = rtosc_message(buffer, 32, "/global/note", "i", voices[i]->getNote());
@@ -327,7 +336,7 @@ void CR42YnthDSP::run(uint32_t n_samples)
 			}
 		}
 	}*/
-	for (int i = 0; i < voices.size(); i++)
+	for (size_t i = 0; i < voices.size(); i++)
 	{
 		voices[i]->calculate(outL, outR, n_samples);
 	}
@@ -356,10 +365,10 @@ void CR42YnthDSP::removeControl(Control* ctrl)
 	}
 }*/
 
-void CR42YnthDSP::calculateOscillators(float* left, float* right, uint32_t samples)
+void CR42YnthDSP::calculateOscillators(float*, float*, uint32_t samples)
 {
 	
-	for (int i = 0; i < samples; i++)
+	for (uint32_t i = 0; i < samples; i++)
 	{
 		
 	}

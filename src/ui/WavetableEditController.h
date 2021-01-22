@@ -162,8 +162,8 @@ private:
 	sigc::signal<void> signalDataChanged_;
 
 	std::deque<std::pair<char*, std::vector<int>>> editHistory_;
-	int historyIndex_;
-	int historySize_;
+	size_t historyIndex_;
+	size_t historySize_;
 	sigc::signal<void, std::deque<std::pair<char*, std::vector<int>>>> signalHistoryDelete_;
 };
 

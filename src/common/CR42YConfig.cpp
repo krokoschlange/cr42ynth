@@ -60,7 +60,7 @@ std::string CR42YConfig::get(std::string prop)
 	}
 }
 
-int CR42YConfig::read(std::string conf)
+void CR42YConfig::read(std::string conf)
 {
 	std::stringstream stream(conf);
 	std::string line;
@@ -70,7 +70,7 @@ int CR42YConfig::read(std::string conf)
 
 	while (std::getline(stream, line, '\n'))
 	{
-		for (int i = 0; i < line.length(); i++)
+		for (unsigned int i = 0; i < line.length(); i++)
 		{
 			if (line[i] == ' ' || line[i] == '\t')
 			{
@@ -81,10 +81,11 @@ int CR42YConfig::read(std::string conf)
 
 		if (line.find('=') != std::string::npos)
 		{
-			name = line.substr(0, line.find('='));
-
-			param = line.substr(line.find('=') + 1);
-
+			size_t split = line.find('=');
+			name = line.substr(0, split);
+			
+			param = line.substr(split + 1);
+			
 			map[name] = param;
 		}
 	}

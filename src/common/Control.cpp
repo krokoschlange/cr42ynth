@@ -47,10 +47,10 @@ Control::Control(std::string addr, CR42YnthCommunicator* comm, float val,
 		float mi, float ma, std::string gen) :
 		address(addr),
 		communicator(comm),
+		value(val),
 		generator(gen),
-		min(mi),
 		max(ma),
-		value(val)
+		min(mi)
 {
 	//CR42YnthDSP::getInstance()->getCommunicator()->log(addr.c_str());
 	//CR42YnthDSP::getInstance()->addControl(this);
@@ -77,9 +77,9 @@ void Control::setValue(float val, bool callback)
 		std::vector<OSCEvent> events;
 		getState(events, true, false, false, false);
 		communicator->writeMessage(events[0]);//sendState(true, false, false, false);
-		for (int i = 0; i < listeners.size(); i++)
+		for (unsigned int i = 0; i < listeners.size(); i++)
 		{
-			listeners[i]->valueCallback(getValue());
+			listeners[i]->valueCallback(getValue(), this);
 		}
 	}
 }
@@ -92,9 +92,9 @@ void Control::setMin(float m, bool callback)
 		std::vector<OSCEvent> events;
 		getState(events, false, true, false, false);
 		communicator->writeMessage(events[0]);
-		for (int i = 0; i < listeners.size(); i++)
+		for (unsigned int i = 0; i < listeners.size(); i++)
 		{
-			listeners[i]->minCallback(getMin());
+			listeners[i]->minCallback(getMin(), this);
 		}
 	}
 }
@@ -107,9 +107,9 @@ void Control::setMax(float m, bool callback)
 		std::vector<OSCEvent> events;
 		getState(events, false, false, true, false);
 		communicator->writeMessage(events[0]);
-		for (int i = 0; i < listeners.size(); i++)
+		for (unsigned int i = 0; i < listeners.size(); i++)
 		{
-			listeners[i]->maxCallback(getMax());
+			listeners[i]->maxCallback(getMax(), this);
 		}
 	}
 }
@@ -122,9 +122,9 @@ void Control::setGenerator(std::string gen, bool callback)
 		std::vector<OSCEvent> events;
 		getState(events, false, false, false, true);
 		communicator->writeMessage(events[0]);
-		for (int i = 0; i < listeners.size(); i++)
+		for (unsigned int i = 0; i < listeners.size(); i++)
 		{
-			listeners[i]->genCallback(getGenerator());
+			listeners[i]->genCallback(getGenerator(), this);
 		}
 	}
 }
@@ -216,7 +216,7 @@ void Control::getState(std::vector<OSCEvent>& events, bool sendVal, bool sendMin
 	char buffer[bufferSize];
 	if (sendVal)
 	{
-		int len = rtosc_message(buffer, bufferSize, getAddress().c_str(), "sf",
+		rtosc_message(buffer, bufferSize, getAddress().c_str(), "sf",
 				"set_value", getValue());
 		events.push_back(OSCEvent(buffer, bufferSize, nullptr, 0));
 		//communicator->writeMessage(buffer, len, nullptr, 0);
@@ -224,21 +224,21 @@ void Control::getState(std::vector<OSCEvent>& events, bool sendVal, bool sendMin
 	}
 	if (sendMin)
 	{
-		int len = rtosc_message(buffer, bufferSize, getAddress().c_str(), "sf",
+		rtosc_message(buffer, bufferSize, getAddress().c_str(), "sf",
 				"set_min", getMin());
 		events.push_back(OSCEvent(buffer, bufferSize, nullptr, 0));
 		//communicator->writeMessage(buffer, len, nullptr, 0);
 	}
 	if (sendMax)
 	{
-		int len = rtosc_message(buffer, bufferSize, getAddress().c_str(), "sf",
+		rtosc_message(buffer, bufferSize, getAddress().c_str(), "sf",
 				"set_max", getMax());
 		events.push_back(OSCEvent(buffer, bufferSize, nullptr, 0));
 		//communicator->writeMessage(buffer, len, nullptr, 0);
 	}
 	if (sendGen)
 	{
-		int len = rtosc_message(buffer, bufferSize, getAddress().c_str(), "ss",
+		rtosc_message(buffer, bufferSize, getAddress().c_str(), "ss",
 				"set_generator", getGenerator().c_str());
 		events.push_back(OSCEvent(buffer, bufferSize, nullptr, 0));
 		//communicator->writeMessage(buffer, len, nullptr, 0);
@@ -247,7 +247,7 @@ void Control::getState(std::vector<OSCEvent>& events, bool sendVal, bool sendMin
 
 void Control::addListener(ControlListener* listener)
 {
-	for (int i = 0; i < listeners.size(); i++)
+	for (unsigned int i = 0; i < listeners.size(); i++)
 	{
 		if (listeners[i] == listener)
 		{
@@ -259,7 +259,7 @@ void Control::addListener(ControlListener* listener)
 
 void Control::removeListener(ControlListener* listener)
 {
-	for (int i = 0; i < listeners.size(); i++)
+	for (unsigned int i = 0; i < listeners.size(); i++)
 	{
 		if (listeners[i] == listener)
 		{

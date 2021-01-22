@@ -40,10 +40,10 @@ namespace cr42y
 
 Property::Property(Voice* vce, Control* ctrl, float val, float min, float max, Generator* gen) :
 		voice(vce),
-		generator(gen),
 		value(val),
 		minimum(min),
-		maximum(max)
+		maximum(max),
+		generator(gen)
 {
 	if (ctrl)
 	{
@@ -55,7 +55,7 @@ Property::~Property()
 {
 }
 
-void Property::valueCallback(float val)
+void Property::valueCallback(float val, Control*)
 {
 	if (!generator)
 	{
@@ -63,17 +63,17 @@ void Property::valueCallback(float val)
 	}
 }
 
-void Property::minCallback(float min)
+void Property::minCallback(float min, Control*)
 {
 	minimum = min;
 }
 
-void Property::maxCallback(float max)
+void Property::maxCallback(float max, Control*)
 {
 	maximum = max;
 }
 
-void Property::genCallback(std::string gen)
+void Property::genCallback(std::string gen, Control*)
 {
 	if (generator)
 	{
@@ -90,10 +90,10 @@ void Property::genCallback(std::string gen)
 void Property::listenTo(Control* ctrl)
 {
 	ControlListener::connect(*ctrl);
-	genCallback(ctrl->getGenerator());
-	valueCallback(ctrl->getValue());
-	minCallback(ctrl->getMin());
-	maxCallback(ctrl->getMax());
+	genCallback(ctrl->getGenerator(), ctrl);
+	valueCallback(ctrl->getValue(), ctrl);
+	minCallback(ctrl->getMin(), ctrl);
+	maxCallback(ctrl->getMax(), ctrl);
 }
 
 Voice* Property::getVoice()

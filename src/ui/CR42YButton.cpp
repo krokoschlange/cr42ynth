@@ -67,7 +67,7 @@ void CR42YButton::setAutorepeat(bool autorepeat)
 	autorepeat_ = autorepeat;
 }
 
-bool CR42YButton::on_button_press(GdkEventButton* event)
+bool CR42YButton::on_button_press(GdkEventButton*)
 {
 	if (get_state() == Gtk::STATE_INSENSITIVE)
 	{

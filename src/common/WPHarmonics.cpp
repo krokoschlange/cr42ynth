@@ -46,8 +46,8 @@ WPHarmonics::WPHarmonics(float s, float e,
 		WaveformPart(s, e, WaveformPart::HARMONICS),
 		hTable(ht),
 		fType(t),
-		normFactor(1),
-		needUpdate(true)
+		needUpdate(true),
+		normFactor(1)
 {
 	for (int i = hTable.size(); i < 129; i++)
 	{
@@ -58,8 +58,8 @@ WPHarmonics::WPHarmonics(float s, float e,
 
 WPHarmonics::WPHarmonics(float s, float e, char** data, int size) :
 		WaveformPart(s, e, WaveformPart::HARMONICS),
-		normFactor(1),
-		needUpdate(true)
+		needUpdate(true),
+		normFactor(1)
 {
 	fType = *(functionType*) *data;
 	*data += sizeof(int);
@@ -76,11 +76,11 @@ WPHarmonics::WPHarmonics(float s, float e, char** data, int size) :
 
 WPHarmonics::WPHarmonics(const WPHarmonics& other) :
 		WaveformPart(other.getStart(), other.getEnd(), WaveformPart::HARMONICS),
-		normFactor(other.normFactor),
-		needUpdate(other.needUpdate),
-		fType(other.fType),
 		hTable(other.hTable),
-		samples(other.samples)
+		fType(other.fType),
+		needUpdate(other.needUpdate),
+		samples(other.samples),
+		normFactor(other.normFactor)
 {
 
 }
@@ -106,7 +106,7 @@ int WPHarmonics::getData(void** buffer)
 	*(int*) mem = fType;
 	mem += sizeof(int);
 	
-	for (int i = 0; i < hTable.size(); i++)
+	for (size_t i = 0; i < hTable.size(); i++)
 	{
 		*(float*) mem = hTable[i].first;
 		mem += sizeof(float);
@@ -119,9 +119,9 @@ int WPHarmonics::getData(void** buffer)
 	return totalSize;
 }
 
-float WPHarmonics::getSample(int size, int pos, int ypos)
+float WPHarmonics::getSample(int size, int pos, int)
 {
-	if (samples.size() != size || needUpdate)
+	if (samples.size() != (size_t) size || needUpdate)
 	{
 		update(size);
 	}
@@ -163,7 +163,7 @@ void WPHarmonics::update(int size)
 		{
 			float x = (float) pos / size;
 			float smpl = 0;
-			for (int htPos = 0; htPos < hTable.size(); htPos++)
+			for (size_t htPos = 0; htPos < hTable.size(); htPos++)
 			{
 				float phase = x * htPos - hTable[htPos].second;
 				if (phase < 0)
@@ -184,13 +184,13 @@ void WPHarmonics::update(int size)
 		std::vector<double> real(size);
 		std::vector<double> imag(size);
 
-		int i;
+		size_t i;
 		for (i = 0; i < hTable.size(); i++)
 		{
 			real[i] = -sin(hTable[i].second * 2 * M_PI) * hTable[i].first;
 			imag[i] = -cos(hTable[i].second * 2 * M_PI) * hTable[i].first;
 		}
-		for (; i <= size; i++)
+		for (; i <= (size_t) size; i++)
 		{
 			real[i] = 0;
 			imag[i] = 0;
@@ -316,7 +316,7 @@ void WPHarmonics::normalize()
 		}
 	}
 	normFactor = maxAmp;
-	for (int i = 0; i < hTable.size(); i++)
+	for (size_t i = 0; i < hTable.size(); i++)
 	{
 		hTable[i].first /= normFactor;
 	}

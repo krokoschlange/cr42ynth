@@ -102,7 +102,7 @@ CR42YToolSelector::CR42YToolSelector(CR42YUI* ui,
 CR42YToolSelector::~CR42YToolSelector()
 {
 	std::vector<Gtk::Widget*> children = get_children();
-	for (int i = 0; i < children.size(); i++)
+	for (size_t i = 0; i < children.size(); i++)
 	{
 		delete children[i];
 	}
@@ -110,7 +110,7 @@ CR42YToolSelector::~CR42YToolSelector()
 
 void CR42YToolSelector::selectCallback(int selected)
 {
-	if (selected >= 0 && selected < mapping_.size())
+	if (selected >= 0 && (size_t) selected < mapping_.size())
 	{
 		controller_->setTool((WavetableEditController::TOOL) mapping_[selected]);
 	}

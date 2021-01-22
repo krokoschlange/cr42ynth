@@ -12,7 +12,7 @@ include_directories(${LIBSNDFILE_INCLUDE_DIRS})
 link_directories(${LIBSNDFILE_LINK_DIRS})
 
 pkg_check_modules(GTKMM gtkmm-2.4 REQUIRED)
-include_directories( ${GTKMM_INCLUDE_DIRS})
+include_directories(SYSTEM ${GTKMM_INCLUDE_DIRS})
 link_directories   ( ${GTKMM_LIBRARY_DIRS})
 
 include_directories ("${PROJECT_SOURCE_DIR}/../rtosc/include/")
@@ -113,3 +113,4 @@ add_executable(cr42ynth_ui.so
 target_link_libraries(cr42ynth_ui.so ${PROJECT_BINARY_DIR}/../rtosc/librtosc.a)
 target_link_libraries(cr42ynth_ui.so ${LIBSNDFILE_LIBRARIES})
 target_link_libraries(cr42ynth_ui.so ${GTKMM_LIBRARIES})
+target_compile_options(cr42ynth_ui.so PRIVATE -Werror -Wall -Wextra)

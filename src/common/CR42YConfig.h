@@ -46,7 +46,7 @@ public:
 	CR42YConfig();
 	virtual ~CR42YConfig();
 
-	int read(std::string conf);
+	void read(std::string conf);
 
 	std::string get(std::string prop);
 

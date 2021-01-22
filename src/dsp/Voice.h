@@ -47,20 +47,19 @@ namespace cr42y
 {
 class WTOscillator;
 class OscillatorVoiceData;
+class ModulationControls;
+class LFO;
 	
 class Voice : public ControlListener
 {
 public:
-	Voice(int n, int midivel, std::vector<WTOscillator*> oscillators);
+	Voice(int n, int midivel, std::vector<WTOscillator*>& oscillators, ModulationControls* modCtrls, std::vector<LFO*>& lfos);
 	virtual ~Voice();
 
 	int getNote();
 	float getVelocity();
 	
 	void calculate(float* left, float* right, uint32_t samples);
-	
-	void handleOSCEvent(OSCEvent& event);
-
 private:
 	int note;
 	float start;
@@ -68,7 +67,7 @@ private:
 	float samplerate;
 	float baseFrequency;
 	bool pressed_;
-		
+	
 	struct OscillatorData
 	{
 		int id;
@@ -101,7 +100,8 @@ private:
 	
 	struct LFOData
 	{
-		float* wavetable;
+		uint32_t id;
+		float* waveform;
 		uint32_t wavesize;
 		float phase;
 		float deltaPhase;
@@ -110,6 +110,7 @@ private:
 	
 	struct ENVData
 	{
+		uint32_t id;
 		float* samples;
 		uint32_t size;
 		float pos;
@@ -155,24 +156,44 @@ private:
 	
 	enum ParamModType : uint8_t
 	{
-		NONE = 0,
-		LFO = 1,
-		ENV = 2,
-		EXT = 3
+		TYPE_NONE = 0,
+		TYPE_LFO = 1,
+		TYPE_ENV = 2,
+		TYPE_EXT = 3
 	};
+	
+	void valueCallback(float val, Control* ctrl);
+	void minCallback(float min, Control* ctrl);
+	void maxCallback(float max, Control* ctrl);
+	void genCallback(std::string gen, Control* ctrl);
+	
+	struct OscillatorDataControls
+	{
+		Control* volume;
+		Control* pan;
+		Control* phaseShift;
+		Control* detune;
+		Control* noteShift;
+		Control* unisonSpread;
+		Control* unisonDetune;
+		Control* wtPos;
+		Control* modFactors[CR42Ynth_OSC_COUNT * 4];
+	};
+	
+	OscillatorDataControls dataControls_[CR42Ynth_OSC_COUNT];
 };
 
 inline void Voice::calcParamMod(uint32_t data, float min, float range, float& out)
 {
 	switch (data >> 24)
 	{
-	case LFO:
+	case TYPE_LFO:
 		out = min + lfos_[data & 0xffffff].value * range;
 		break;
-	case ENV:
+	case TYPE_ENV:
 		out = min + envelopes_[data & 0xffffff].value * range;
 		break;
-	case EXT:
+	case TYPE_EXT:
 		//TODO: implement
 		break;
 	default:

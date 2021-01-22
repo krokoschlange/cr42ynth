@@ -75,7 +75,7 @@ CR42YWavetableView::~CR42YWavetableView()
 {
 	std::vector<Gtk::Widget*> children = get_children();
 
-	for (int i = 0; i < children.size(); i++)
+	for (size_t i = 0; i < children.size(); i++)
 	{
 		remove(*(children[i]));
 		delete children[i];
@@ -153,13 +153,13 @@ void CR42YWavetableView::update()
 			items_.push_back(item);
 			item->show();
 		}
-		while (controller_->getWavetableHeight() < items_.size())
+		while ((size_t) controller_->getWavetableHeight() < items_.size())
 		{
 			remove(*(items_[items_.size() - 1]));
 			delete items_[items_.size() - 1];
 			items_.erase(items_.begin() + items_.size() - 1);
 		}
-		for (int i = 0; i < items_.size(); i++)
+		for (size_t i = 0; i < items_.size(); i++)
 		{
 			items_[i]->queue_draw();
 		}
@@ -169,8 +169,8 @@ void CR42YWavetableView::update()
 }
 
 void CR42YWavetableView::on_drag_data_received(
-		const Glib::RefPtr<Gdk::DragContext>& context, int x, int y,
-		const Gtk::SelectionData& selection_data, guint info, guint time)
+		const Glib::RefPtr<Gdk::DragContext>&, int, int,
+		const Gtk::SelectionData& selection_data, guint, guint)
 {
 	CR42YWavetableViewItem* source = *((CR42YWavetableViewItem**) selection_data.get_data());
 

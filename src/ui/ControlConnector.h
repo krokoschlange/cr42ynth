@@ -56,10 +56,10 @@ public:
 	void setWidgetMaxSetter(std::function<void(double)> widgetSetMax);
 	void setWidgetGeneratorSetter(std::function<void(std::string)> widgetSetGenerator);
 
-	void valueCallback(float val);
-	void minCallback(float min);
-	void maxCallback(float max);
-	void genCallback(std::string gen);
+	void valueCallback(float val, Control* ctrl) override;
+	void minCallback(float min, Control* ctrl) override;
+	void maxCallback(float max, Control* ctrl) override;
+	void genCallback(std::string gen, Control* ctrl) override;
 	
 	void connect(Control& ctrl) override;
 	void disconnect(Control& ctrl) override;

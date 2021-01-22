@@ -42,10 +42,10 @@ namespace cr42y
 CR42YEntry::CR42YEntry(CR42YUI* ui) :
 		Glib::ObjectBase("CR42YEntry"),
 		CR42YWidget(ui),
-		drawCursor_(true),
-		drawSelection_(true),
+		currentFontSize_(theme()->fontSizeSmall()),
 		fontSize_(CR42YTheme::SMALL),
-		currentFontSize_(theme()->fontSizeSmall())
+		drawCursor_(true),
+		drawSelection_(true)
 {
 	std::string font = theme()->font() + " "
 			+ std::to_string(theme()->fontSizeSmall());
@@ -80,7 +80,7 @@ void CR42YEntry::setFontSize(int fontSize)
 	}
 }
 
-bool CR42YEntry::on_expose_event(GdkEventExpose* event)
+bool CR42YEntry::on_expose_event(GdkEventExpose*)
 {
 	Glib::RefPtr<Gdk::Window> win = get_window();
 	if (win)
@@ -117,6 +117,7 @@ bool CR42YEntry::on_expose_event(GdkEventExpose* event)
 			drawCursor();
 		}
 	}
+	return false;
 }
 
 void CR42YEntry::on_size_allocate(Gtk::Allocation& alloc)
@@ -191,7 +192,7 @@ void CR42YEntry::drawText()
 		clr = tm->color(FG_DARK);
 		textCr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
 
-		for (int i = 0; i < ranges.size(); i++)
+		for (size_t i = 0; i < ranges.size(); i++)
 		{
 			int rectX = x /*- property_scroll_offset().get_value()*/
 			+ ranges[i].first / Pango::SCALE;

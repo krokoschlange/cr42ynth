@@ -53,16 +53,16 @@ namespace cr42y
 CR42YWavetableEditor::CR42YWavetableEditor(CR42YUI* ui) :
 		Glib::ObjectBase("CR42YWavetableEditor"),
 		CR42YGrid(ui),
-		wfEditor_(new CR42YWaveformEditor(ui)),
 		controller_(new WavetableEditController()),
+		wfEditor_(new CR42YWaveformEditor(ui)),
 		wfeControllerPanel_(
 				new CR42YWaveformEditorControlPanel(ui, wfEditor_,
 						controller_)),
 		harmonicsView_(new CR42YHarmonicsView(ui)),
 		wtView_(new CR42YWavetableView(ui)),
-		addWaveformButton_(new CR42YButton(ui)),
 		harmonicsEditor_(new CR42YHarmonicsEditor(ui)),
 		toolSelector_(new CR42YToolSelector(ui, controller_)),
+		addWaveformButton_(new CR42YButton(ui)),
 		wfPartEditor_(new CR42YWFPartEditor(ui)),
 		wfBulkEditor_(new CR42YWFBulkEditor(ui))
 {
@@ -150,7 +150,7 @@ CR42YWavetableEditor::~CR42YWavetableEditor()
 {
 	std::vector<Gtk::Widget*> children = get_children();
 
-	for (int i = 0; i < children.size(); i++)
+	for (size_t i = 0; i < children.size(); i++)
 	{
 		remove(*(children[i]));
 		delete children[i];

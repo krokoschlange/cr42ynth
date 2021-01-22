@@ -46,8 +46,8 @@ CR42YIntegerEntry::CR42YIntegerEntry(CR42YUI* ui) :
 		value_(0),
 		showValue_(0),
 		min_(0),
-		max_(8),
 		useMin_(true),
+		max_(8),
 		useMax_(true)
 {
 	setText(std::to_string(value_));
@@ -125,7 +125,7 @@ bool CR42YIntegerEntry::on_button_press_event(GdkEventButton* event)
 
 bool CR42YIntegerEntry::on_key_press_event(GdkEventKey* event)
 {
-	int keys[] =
+	unsigned int keys[] =
 		{GDK_0, GDK_KP_0, GDK_1, GDK_KP_1, GDK_2, GDK_KP_2, GDK_3, GDK_KP_3,
 		GDK_4, GDK_KP_4, GDK_5, GDK_KP_5, GDK_6, GDK_KP_6, GDK_7,
 		GDK_KP_7, GDK_8, GDK_KP_8, GDK_9, GDK_KP_9};
@@ -167,9 +167,10 @@ bool CR42YIntegerEntry::on_key_press_event(GdkEventKey* event)
 	return false;
 }
 
-bool CR42YIntegerEntry::on_focus_out_event(GdkEventFocus* event)
+bool CR42YIntegerEntry::on_focus_out_event(GdkEventFocus*)
 {
 	setValue(showValue_);
+	return true;
 }
 
 void CR42YIntegerEntry::setShowValue(int showValue)

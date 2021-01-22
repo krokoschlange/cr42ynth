@@ -61,7 +61,7 @@ CR42YnthLV2* CR42YnthLV2::getInstance(float samplerate, const char* bundlePath,
 	return instance;
 }
 
-CR42YnthLV2::CR42YnthLV2(float samplerate, const char* bundlePath,
+CR42YnthLV2::CR42YnthLV2(float samplerate, const char*,
 		const LV2_Feature* const * features) :
 		dsp(CR42YnthDSP::getInstance(samplerate, this)),
 		logger(new LV2_Log_Logger()),
@@ -123,7 +123,7 @@ void CR42YnthLV2::writeMessage(OSCEvent& event)
 
 void CR42YnthLV2::run(uint32_t n_samples)
 {
-	uint32_t capacity = ctrlOut->atom.size;
+	//uint32_t capacity = ctrlOut->atom.size;
 	//lv2_atom_forge_set_buffer(forge_, (uint8_t*) ctrlOut, capacity);
 	//lv2_atom_forge_sequence_head(forge_, &outFrame, 0);
 	
@@ -248,15 +248,15 @@ void CR42YnthLV2::cleanup()
 }
 
 LV2_State_Status CR42YnthLV2::save(LV2_State_Store_Function store,
-		LV2_State_Handle handle, uint32_t flags,
-		const LV2_Feature* const * features)
+		LV2_State_Handle handle, uint32_t,
+		const LV2_Feature* const *)
 {
 	LV2_Atom_Forge* saveForge = new LV2_Atom_Forge();
 	lv2_atom_forge_init(saveForge, uris_->map());
 
 	std::vector<OSCEvent> events;
 
-	for (int i = 0; i < listeners_.size(); i++)
+	for (size_t i = 0; i < listeners_.size(); i++)
 	{
 		listeners_[i]->getState(events);
 	}
@@ -266,7 +266,7 @@ LV2_State_Status CR42YnthLV2::save(LV2_State_Store_Function store,
 	uint64_t msgLen = 0;
 	uint64_t dataLen = 0;
 
-	for (int i = 0; i < events.size(); i++)
+	for (size_t i = 0; i < events.size(); i++)
 	{
 		events[i].getMessage(&msgLen);
 		events[i].getMessage(&dataLen);
@@ -283,7 +283,7 @@ LV2_State_Status CR42YnthLV2::save(LV2_State_Store_Function store,
 
 	bufferptr += 2 * sizeof(uint64_t);
 
-	for (int i = 0; i < events.size(); i++)
+	for (size_t i = 0; i < events.size(); i++)
 	{
 		const char* msg = events[i].getMessage(&msgLen);
 		const char* data = events[i].getMessage(&dataLen);
@@ -305,8 +305,8 @@ LV2_State_Status CR42YnthLV2::save(LV2_State_Store_Function store,
 }
 
 LV2_State_Status CR42YnthLV2::restore(LV2_State_Retrieve_Function retrieve,
-		LV2_State_Handle handle, uint32_t flags,
-		const LV2_Feature* const * features)
+		LV2_State_Handle handle, uint32_t,
+		const LV2_Feature* const *)
 {
 	size_t size = 0;
 	uint32_t type = 0;
@@ -325,7 +325,7 @@ LV2_State_Status CR42YnthLV2::restore(LV2_State_Retrieve_Function retrieve,
 
 	bufferptr += 2 * sizeof(uint64_t);
 
-	for (int i = 0; i < eventAmount; i++)
+	for (uint64_t i = 0; i < eventAmount; i++)
 	{
 		uint64_t msgLen = *((uint64_t*) bufferptr);
 		bufferptr += sizeof(uint64_t);

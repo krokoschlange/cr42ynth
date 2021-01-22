@@ -40,7 +40,7 @@
 
 namespace cr42y
 {
-LV2_Handle instantiate(const LV2_Descriptor* descriptor, double samplerate,
+LV2_Handle instantiate(const LV2_Descriptor*, double samplerate,
 		const char* bundlePath, const LV2_Feature* const * features)
 {
 	CR42YnthLV2* lv2 = CR42YnthLV2::getInstance(samplerate, bundlePath,

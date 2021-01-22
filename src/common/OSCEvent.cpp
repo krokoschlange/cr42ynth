@@ -109,6 +109,7 @@ OSCEvent& OSCEvent::operator =(const OSCEvent& other)
 		data_ = new char[dataLength_];
 		memcpy(data_, other.data_, dataLength_);
 	}
+	return *this;
 }
 
 const char* OSCEvent::getMessage(size_t* len)

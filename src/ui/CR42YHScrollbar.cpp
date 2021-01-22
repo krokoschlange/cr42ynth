@@ -55,7 +55,7 @@ bool CR42YHScrollbar::scroll_event(GdkEventScroll* event)
 	return on_scroll_event(event);
 }
 
-bool CR42YHScrollbar::on_expose_event(GdkEventExpose* event)
+bool CR42YHScrollbar::on_expose_event(GdkEventExpose*)
 {
 	Glib::RefPtr<Gdk::Window> win = get_window();
 	if (win)
@@ -87,6 +87,7 @@ bool CR42YHScrollbar::on_expose_event(GdkEventExpose* event)
 		cr->set_line_width(tm->lineThick());
 		cr->stroke();
 	}
+	return false;
 }
 
 } /* namespace cr42y */

@@ -98,7 +98,7 @@ sigc::signal<void, double> CR42YBoxVScale::signalDone()
 	return signalDone_;
 }
 
-bool CR42YBoxVScale::on_expose_event(GdkEventExpose* event)
+bool CR42YBoxVScale::on_expose_event(GdkEventExpose*)
 {
 	Glib::RefPtr<Gdk::Window> win = get_window();
 	if (win)
@@ -184,6 +184,7 @@ bool CR42YBoxVScale::on_expose_event(GdkEventExpose* event)
 			cr->fill();
 		}
 	}
+	return false;
 }
 
 void CR42YBoxVScale::on_realize()

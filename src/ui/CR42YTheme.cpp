@@ -154,7 +154,7 @@ void CR42YTheme::loadRGBA(std::string hexColor, float* out)
 	{
 		std::stringstream stream;
 		int val;
-		for (int i = 0; i < 4 && i * 2 + 1 < hexColor.size(); i++)
+		for (size_t i = 0; i < 4 && i * 2 + 1 < hexColor.size(); i++)
 		{
 			stream.clear();
 			stream << std::hex << hexColor.substr(i * 2 + 1, 2);

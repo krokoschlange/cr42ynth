@@ -54,7 +54,7 @@ sigc::signal<void> CR42YToggle::signalClicked()
 	return signalClicked_;
 }
 
-bool CR42YToggle::on_button_press(GdkEventButton* event)
+bool CR42YToggle::on_button_press(GdkEventButton*)
 {
 	if (get_state() == Gtk::STATE_ACTIVE)
 	{

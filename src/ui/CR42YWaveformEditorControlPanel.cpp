@@ -45,9 +45,9 @@ namespace cr42y
 CR42YWaveformEditorControlPanel::CR42YWaveformEditorControlPanel(CR42YUI* ui,
 		CR42YWaveformEditor* wfEditor, WavetableEditController* controller) :
 		Glib::ObjectBase("CR42YWaveformEditorControlPanel"),
+		CR42YRelativeContainer(ui),
 		wfEditor_(wfEditor),
 		controller_(controller),
-		CR42YRelativeContainer(ui),
 		gridXLabel_(new CR42YLabel(ui)),
 		gridXEditor_(new CR42YIntegerEditor(ui)),
 		gridYLabel_(new CR42YLabel(ui)),
@@ -129,7 +129,7 @@ CR42YWaveformEditorControlPanel::~CR42YWaveformEditorControlPanel()
 {
 	std::vector<Gtk::Widget*> children = get_children();
 
-	for (int i = 0; i < children.size(); i++)
+	for (size_t i = 0; i < children.size(); i++)
 	{
 		remove(*(children[i]));
 		delete children[i];

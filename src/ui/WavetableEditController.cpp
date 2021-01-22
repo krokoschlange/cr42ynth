@@ -54,15 +54,15 @@ namespace cr42y
 
 WavetableEditController::WavetableEditController() :
 		data_(nullptr),
-		wtPos_(0),
-		selectedParts_(),
 		tool_(TRI_SLOPE),
 		usedTool_(nullptr),
+		editSelected_(false),
 		gridX_(0),
 		gridY_(0),
-		editSelected_(false),
-		historySize_(32),
-		historyIndex_(0)
+		wtPos_(0),
+		selectedParts_(),
+		historyIndex_(0),
+		historySize_(32)
 {
 	
 }
@@ -81,7 +81,7 @@ void WavetableEditController::setData(WavetableEditData* data,
 		if (data_)
 		{
 			selectedParts_.clear();
-			for (int i = 0; i < data_->getWaveforms()->size(); i++)
+			for (size_t i = 0; i < data_->getWaveforms()->size(); i++)
 			{
 				selectedParts_.push_back(-1);
 			}
@@ -145,7 +145,7 @@ void WavetableEditController::getPartSamples(std::vector<float>& samples, int st
 
 void WavetableEditController::selectWaveform(int num)
 {
-	num = num >= selectedParts_.size() ? selectedParts_.size() - 1 : num;
+	num = (size_t) num >= selectedParts_.size() ? selectedParts_.size() - 1 : num;
 	num = num < 0 ? 0 : num;
 	int old = wtPos_;
 	wtPos_ = num;
@@ -209,7 +209,7 @@ void WavetableEditController::addWaveform(int idx)
 	if (data_)
 	{
 		data_->addWaveform(idx);
-		if (idx < 0 || idx >= selectedParts_.size())
+		if (idx < 0 || (size_t) idx >= selectedParts_.size())
 		{
 			selectedParts_.push_back(0);
 		}
@@ -226,11 +226,11 @@ void WavetableEditController::addWaveform(int idx)
 
 void WavetableEditController::removeWaveform(int idx, bool erase)
 {
-	if (data_ && idx >= 0 && idx < selectedParts_.size())
+	if (data_ && idx >= 0 && (size_t) idx < selectedParts_.size())
 	{
 		data_->removeWaveform(idx, erase);
 		selectedParts_.erase(selectedParts_.begin() + idx);
-		if (wtPos_ >= data_->getWaveforms()->size())
+		if ((size_t) wtPos_ >= data_->getWaveforms()->size())
 		{
 			wtPos_ = data_->getWaveforms()->size() - 1;
 		}
@@ -243,11 +243,11 @@ void WavetableEditController::removeWaveform(int idx, bool erase)
 
 void WavetableEditController::moveWaveform(int idx, int newIdx)
 {
-	if (data_ && idx >= 0 && idx < data_->getWaveforms()->size() && newIdx >= 0 && newIdx <= data_->getWaveforms()->size())
+	if (data_ && idx >= 0 && (size_t) idx < data_->getWaveforms()->size() && newIdx >= 0 && (size_t) newIdx <= data_->getWaveforms()->size())
 	{
 		int oldIdx = idx + (newIdx < idx);
 		data_->addWaveform(newIdx);
-		if (newIdx == selectedParts_.size())
+		if ((size_t) newIdx == selectedParts_.size())
 		{
 			selectedParts_.push_back(selectedParts_[idx]);
 		}
@@ -258,7 +258,7 @@ void WavetableEditController::moveWaveform(int idx, int newIdx)
 
 		data_->removePart(newIdx, 0);
 
-		for (int i = 0; i < data_->getWaveform(oldIdx)->size(); i++)
+		for (size_t i = 0; i < data_->getWaveform(oldIdx)->size(); i++)
 		{
 			data_->addPart(newIdx, data_->getPartByIndex(oldIdx, i));
 		}
@@ -279,7 +279,7 @@ void WavetableEditController::addFunctionWaveforms(int idx, int amnt,
 		for (int i = 0; i < amnt; i++)
 		{
 			data_->addWaveform(idx);
-			if (idx < 0 || idx >= selectedParts_.size())
+			if (idx < 0 || (size_t) idx >= selectedParts_.size())
 			{
 				selectedParts_.push_back(0);
 			}
@@ -327,7 +327,7 @@ void WavetableEditController::addWavWaveforms(int idx, int amnt, int width,
 		for (int i = 0; i < amnt; i++)
 		{
 			std::vector<float> wfSamples(getWaveformWidth(), 0);
-			for (int j = 0; j < wfSamples.size(); j++)
+			for (size_t j = 0; j < wfSamples.size(); j++)
 			{
 				float relPos = (float) j / wfSamples.size();
 				float origPos = relPos * smplsPerWF;
@@ -341,7 +341,7 @@ void WavetableEditController::addWavWaveforms(int idx, int amnt, int width,
 			int newIdx = idx + i;
 			data_->addWaveform(newIdx);
 			WPSamples* part = new WPSamples(0, 1, wfSamples);
-			if (newIdx < 0 || newIdx >= selectedParts_.size())
+			if (newIdx < 0 || (size_t) newIdx >= selectedParts_.size())
 			{
 				selectedParts_.push_back(0);
 			}
@@ -378,13 +378,13 @@ void WavetableEditController::crossfadeWaveforms(int idx, int amnt)
 
 			for (int wf = 1; wf <= amnt; wf++)
 			{
-				for (int smpl = 0; smpl < smpls1.size(); smpl++)
+				for (size_t smpl = 0; smpl < smpls1.size(); smpl++)
 				{
 					newSmpls[smpl] = smpls1[smpl] + (wf * amntPerWF) * (smpls2[smpl] - smpls1[smpl]);
 				}
 				int newIdx = i;
 				data_->addWaveform(newIdx);
-				if (newIdx < 0 || newIdx >= selectedParts_.size())
+				if (newIdx < 0 || (size_t) newIdx >= selectedParts_.size())
 				{
 					selectedParts_.push_back(0);
 				}
@@ -430,7 +430,7 @@ void WavetableEditController::spectralFadeWaveforms(int idx, int amnt,
 			}
 			if (zeroAll)
 			{
-				for (int htpos = 0; htpos < htable1.size(); htpos++)
+				for (size_t htpos = 0; htpos < htable1.size(); htpos++)
 				{
 					htable1[htpos].second = 0;
 					htable2[htpos].second = 0;
@@ -439,7 +439,7 @@ void WavetableEditController::spectralFadeWaveforms(int idx, int amnt,
 				WPHarmonics* part = new WPHarmonics(0, 1, htable1);
 
 				std::vector<WaveformPart*>* wf = data_->getWaveform(i);
-				for (int i = 0; i < wf->size(); i++)
+				for (size_t i = 0; i < wf->size(); i++)
 				{
 					delete (*wf)[i];
 				}
@@ -454,7 +454,7 @@ void WavetableEditController::spectralFadeWaveforms(int idx, int amnt,
 				WPHarmonics* part = new WPHarmonics(0, 1, htable1);
 
 				std::vector<WaveformPart*>* wf = data_->getWaveform(i);
-				for (int i = 0; i < wf->size(); i++)
+				for (size_t i = 0; i < wf->size(); i++)
 				{
 					delete (*wf)[i];
 				}
@@ -465,27 +465,27 @@ void WavetableEditController::spectralFadeWaveforms(int idx, int amnt,
 
 			for (int wf = 1; wf <= amnt; wf++)
 			{
-				for (int htpos = 0; htpos < htable1.size(); htpos++)
+				for (size_t htpos = 0; htpos < htable1.size(); htpos++)
 				{
 					newHtable[htpos].first = htable1[htpos].first + (wf * amntPerWF) * (htable2[htpos].first - htable1[htpos].first);
 				}
 				if (!zeroAll)
 				{
-					for (int htpos = 0; htpos < htable1.size(); htpos++)
+					for (size_t htpos = 0; htpos < htable1.size(); htpos++)
 					{
 						newHtable[htpos].second = htable1[htpos].second + (wf * amntPerWF) * (htable2[htpos].second - htable1[htpos].second);
 					}
 				}
 				else
 				{
-					for (int htpos = 0; htpos < htable1.size(); htpos++)
+					for (size_t htpos = 0; htpos < htable1.size(); htpos++)
 					{
 						newHtable[htpos].second = 0;
 					}
 				}
 				int newIdx = i;
 				data_->addWaveform(newIdx);
-				if (newIdx < 0 || newIdx >= selectedParts_.size())
+				if (newIdx < 0 || (size_t) newIdx >= selectedParts_.size())
 				{
 					selectedParts_.push_back(0);
 				}
@@ -500,14 +500,14 @@ void WavetableEditController::spectralFadeWaveforms(int idx, int amnt,
 		htable1 = getWFHarmonics(end, true);
 		if (zeroAll)
 		{
-			for (int htpos = 0; htpos < htable1.size(); htpos++)
+			for (size_t htpos = 0; htpos < htable1.size(); htpos++)
 			{
 				htable1[htpos].second = 0;
 			}
 			WPHarmonics* part = new WPHarmonics(0, 1, htable1);
 
 			std::vector<WaveformPart*>* wf = data_->getWaveform(end);
-			for (int i = 0; i < wf->size(); i++)
+			for (size_t i = 0; i < wf->size(); i++)
 			{
 				delete (*wf)[i];
 			}
@@ -521,7 +521,7 @@ void WavetableEditController::spectralFadeWaveforms(int idx, int amnt,
 			WPHarmonics* part = new WPHarmonics(0, 1, htable1);
 
 			std::vector<WaveformPart*>* wf = data_->getWaveform(end);
-			for (int i = 0; i < wf->size(); i++)
+			for (size_t i = 0; i < wf->size(); i++)
 			{
 				delete (*wf)[i];
 			}
@@ -553,10 +553,10 @@ bool WavetableEditController::addPart(WaveformPart* part, int idx)
 
 void WavetableEditController::removePart(int idx)
 {
-	if (data_ && idx >= 0 && idx < data_->getWaveform(wtPos_)->size())
+	if (data_ && idx >= 0 && (size_t) idx < data_->getWaveform(wtPos_)->size())
 	{
 		data_->removePart(wtPos_, idx);
-		if (selectedParts_[wtPos_] >= data_->getWaveform(wtPos_)->size())
+		if ((size_t) selectedParts_[wtPos_] >= data_->getWaveform(wtPos_)->size())
 		{
 			selectedParts_[wtPos_] = data_->getWaveform(wtPos_)->size() - 1;
 		}
@@ -569,7 +569,7 @@ void WavetableEditController::removePart(int idx)
 
 void WavetableEditController::movePart(int idx, int newIdx)
 {
-	if (data_ && idx >= 0 && idx < data_->getWaveform(wtPos_)->size() && newIdx >= 0)
+	if (data_ && idx >= 0 && (size_t) idx < data_->getWaveform(wtPos_)->size() && newIdx >= 0)
 	{
 		WaveformPart* part = data_->getPartByIndex(wtPos_, idx);
 		if (part)
@@ -650,7 +650,7 @@ void WavetableEditController::resizePart(float start, float end)
 
 				std::vector<float>* samples = wpsmpls->getSamples();
 
-				if (samples->size() < neededSamples)
+				if (samples->size() < (size_t) neededSamples)
 				{
 					samples->resize(neededSamples - samples->size(), 0);
 				}
@@ -829,7 +829,7 @@ void WavetableEditController::convertToSin(bool highQuality)
 			return;
 		}
 
-		for (int i = 0; i < wf->size(); i++)
+		for (size_t i = 0; i < wf->size(); i++)
 		{
 			delete (*wf)[i];
 		}
@@ -975,7 +975,7 @@ void WavetableEditController::setGridY(int y)
 	gridY_ = y;
 }
 
-void WavetableEditController::selectPartAction(int x, int y, int w, int h)
+void WavetableEditController::selectPartAction(int x, int, int w, int)
 {
 	float rmx = (float) x / w;
 
@@ -1097,15 +1097,12 @@ void WavetableEditController::addHistoryPoint()
 	{
 		void* data = nullptr;
 		data_->getData(&data);
-		if (historyIndex_ > 0)
+		for (size_t i = 0; i < historyIndex_; i++)
 		{
-			for (int i = 0; i < historyIndex_; i++)
-			{
-				delete[] editHistory_[0].first;
-				editHistory_.pop_front();
-			}
-			historyIndex_ = 0;
+			delete[] editHistory_[0].first;
+			editHistory_.pop_front();
 		}
+			historyIndex_ = 0;
 		if (editHistory_.size() >= historySize_)
 		{
 			delete[] editHistory_[editHistory_.size() - 1].first;
@@ -1119,7 +1116,7 @@ void WavetableEditController::addHistoryPoint()
 void WavetableEditController::deleteHistory()
 {
 	signalHistoryDelete_.emit(editHistory_);
-	for (int i = 0; i < editHistory_.size(); i++)
+	for (size_t i = 0; i < editHistory_.size(); i++)
 	{
 		delete[] editHistory_[i].first;
 	}
@@ -1128,7 +1125,7 @@ void WavetableEditController::deleteHistory()
 
 bool WavetableEditController::undoPossible()
 {
-	return historyIndex_ < ((int) editHistory_.size() - 1);
+	return editHistory_.size() > 0 && historyIndex_ < (editHistory_.size() - 1);
 }
 
 void WavetableEditController::undo()

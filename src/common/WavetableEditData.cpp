@@ -73,9 +73,9 @@ WavetableEditData::WavetableEditData(char* data)
 
 WavetableEditData::~WavetableEditData()
 {
-	for (int i = 0; i < parts.size(); i++)
+	for (size_t i = 0; i < parts.size(); i++)
 	{
-		for (int j = 0; j < parts[i].size(); j++)
+		for (size_t j = 0; j < parts[i].size(); j++)
 		{
 			delete parts[i][j];
 		}
@@ -86,9 +86,9 @@ WavetableEditData::~WavetableEditData()
 
 WavetableEditData& WavetableEditData::operator =(const WavetableEditData& data)
 {
-	for (int i = 0; i < parts.size(); i++)
+	for (size_t i = 0; i < parts.size(); i++)
 	{
-		for (int j = 0; j < parts[i].size(); j++)
+		for (size_t j = 0; j < parts[i].size(); j++)
 		{
 			delete parts[i][j];
 		}
@@ -96,10 +96,10 @@ WavetableEditData& WavetableEditData::operator =(const WavetableEditData& data)
 	}
 	parts.clear();
 
-	for (int i = 0; i < data.parts.size(); i++)
+	for (size_t i = 0; i < data.parts.size(); i++)
 	{
 		parts.push_back(std::vector<WaveformPart*>());
-		for (int j = 0; j < data.parts[i].size(); j++)
+		for (size_t j = 0; j < data.parts[i].size(); j++)
 		{
 			WaveformPart* copy = WaveformPart::copy(*(data.parts[i][j]));
 			parts[i].push_back(copy);
@@ -118,7 +118,7 @@ WaveformPart* WavetableEditData::getPartByIndex(int row, int idx)
 	std::vector<WaveformPart*>* wf = getWaveform(row);
 	if (wf)
 	{
-		if (0 <= idx && idx < wf->size())
+		if (0 <= idx && (size_t) idx < wf->size())
 		{
 			return (*wf)[idx];
 		}
@@ -131,7 +131,7 @@ int WavetableEditData::getIndexOfPart(int row, WaveformPart* part)
 	std::vector<WaveformPart*>* wf = getWaveform(row);
 	if (wf)
 	{
-		for (int i = 0; i < wf->size(); i++)
+		for (size_t i = 0; i < wf->size(); i++)
 		{
 			if ((*wf)[i] == part)
 			{
@@ -152,9 +152,9 @@ std::vector<std::pair<float, float>> WavetableEditData::getVisibleAreas(int row,
 		ret.push_back(
 				std::pair<float, float>(part->getStart(), part->getEnd()));
 		std::vector<WaveformPart*>* wf = getWaveform(row);
-		for (idx++; idx < wf->size(); idx++)
+		for (idx++; (size_t) idx < wf->size(); idx++)
 		{
-			for (int i = 0; i < ret.size(); i++)
+			for (size_t i = 0; i < ret.size(); i++)
 			{
 				if ((*wf)[idx]->getStart() <= ret[i].first)
 				{
@@ -196,7 +196,7 @@ WaveformPart* WavetableEditData::getVisiblePartAtPos(int row, float pos)
 	WaveformPart* part = nullptr;
 	if (wf)
 	{
-		for (int i = 0; i < wf->size(); i++)
+		for (size_t i = 0; i < wf->size(); i++)
 		{
 			if ((*wf)[i]->getStart() <= pos && (*wf)[i]->getEnd() >= pos)
 			{
@@ -216,7 +216,7 @@ void WavetableEditData::addWaveform(int idx)
 	 WPHarmonics* harm = new WPHarmonics(0, 1, ht, WPHarmonics::SIN);
 	 row.push_back(harm); //new WPFunction(0, 1, "sin(2pi*x)"));
 	 row[0]->setEnd(1);*/
-	if (idx < 0 || idx >= parts.size())
+	if (idx < 0 || (size_t) idx >= parts.size())
 	{
 		parts.push_back(row);
 	}
@@ -228,11 +228,11 @@ void WavetableEditData::addWaveform(int idx)
 
 void WavetableEditData::removeWaveform(int idx, bool erase)
 {
-	if (idx >= 0 && idx < parts.size())
+	if (idx >= 0 && (size_t) idx < parts.size())
 	{
 		if (erase)
 		{
-			for (int i = 0; i < parts[idx].size(); i++)
+			for (size_t i = 0; i < parts[idx].size(); i++)
 			{
 				delete parts[idx][i];
 			}
@@ -246,7 +246,7 @@ void WavetableEditData::addPart(int row, WaveformPart* part, int idx)
 	std::vector<WaveformPart*>* wf = getWaveform(row);
 	if (wf)
 	{
-		if (idx >= 0 && idx < wf->size())
+		if (idx >= 0 && (size_t) idx < wf->size())
 		{
 			wf->insert(wf->begin() + idx, part);
 		}
@@ -262,7 +262,7 @@ void WavetableEditData::removePart(int row, WaveformPart* part)
 	std::vector<WaveformPart*>* wf = getWaveform(row);
 	if (wf)
 	{
-		for (int i = 0; i < wf->size(); i++)
+		for (size_t i = 0; i < wf->size(); i++)
 		{
 			if ((*wf)[i] == part)
 			{
@@ -279,7 +279,7 @@ void WavetableEditData::removePart(int row, int idx, bool erase)
 	std::vector<WaveformPart*>* wf = getWaveform(row);
 	if (wf)
 	{
-		if (0 <= idx && idx < wf->size())
+		if (0 <= idx && (size_t) idx < wf->size())
 		{
 			if (erase)
 			{
@@ -297,7 +297,7 @@ std::vector<std::vector<WaveformPart*>>* WavetableEditData::getWaveforms()
 
 std::vector<WaveformPart*>* WavetableEditData::getWaveform(int row)
 {
-	if (0 <= row && row < parts.size())
+	if (0 <= row && (size_t) row < parts.size())
 	{
 		return &parts[row];
 	}
@@ -327,7 +327,7 @@ void WavetableEditData::getSamples(std::vector<float>& samples, int row, int ste
 void WavetableEditData::getSamples(std::vector<std::vector<float>>& samples)
 {
 	samples.resize(parts.size());
-	for (int i = 0; i < parts.size(); i++)
+	for (size_t i = 0; i < parts.size(); i++)
 	{
 		getSamples(samples[i], i);
 	}
@@ -353,11 +353,11 @@ int WavetableEditData::getData(void** buffer)
 {
 	int totalsize = 0;
 	std::vector<std::vector<std::pair<void*, int>>> partdata;
-	for (int i = 0; i < parts.size(); i++)
+	for (size_t i = 0; i < parts.size(); i++)
 	{
 		totalsize += sizeof(int);
 		partdata.push_back(std::vector<std::pair<void*, int>>());
-		for (int j = 0; j < parts[i].size(); j++)
+		for (size_t j = 0; j < parts[i].size(); j++)
 		{
 			void* data = nullptr;
 			int size = parts[i][j]->getData(&data);
@@ -373,11 +373,11 @@ int WavetableEditData::getData(void** buffer)
 	*(int*) mem = width;
 	mem += sizeof(int);
 	
-	for (int i = 0; i < partdata.size(); i++)
+	for (size_t i = 0; i < partdata.size(); i++)
 	{
 		*(int*) mem = partdata[i].size();
 		mem += sizeof(int);
-		for (int j = 0; j < partdata[i].size(); j++)
+		for (size_t j = 0; j < partdata[i].size(); j++)
 		{
 			memcpy(mem, partdata[i][j].first, partdata[i][j].second);
 			mem += partdata[i][j].second;
@@ -391,7 +391,7 @@ void WavetableEditData::update(char* data)
 {
 	int size = *(int*) data;
 	data += sizeof(int);
-	int row = *(int*) data;
+	size_t row = *(int*) data;
 	data += sizeof(int);
 	size -= sizeof(int);
 
@@ -405,7 +405,7 @@ void WavetableEditData::update(char* data)
 	}
 	else
 	{
-		for (int i = 0; i < parts[row].size(); i++)
+		for (size_t i = 0; i < parts[row].size(); i++)
 		{
 			delete parts[row][i];
 			parts[row][i] = nullptr;
@@ -424,7 +424,7 @@ int WavetableEditData::getUpdate(void** buffer, int row)
 {
 	int totalsize = 0;
 	std::vector<std::pair<void*, int>> partdata;
-	for (int j = 0; j < parts[row].size(); j++)
+	for (size_t j = 0; j < parts[row].size(); j++)
 	{
 		void* data = nullptr;
 		int size = parts[row][j]->getData(&data);
@@ -443,7 +443,7 @@ int WavetableEditData::getUpdate(void** buffer, int row)
 	*(int*) mem = row;
 	mem += sizeof(int);
 
-	for (int i = 0; i < partdata.size(); i++)
+	for (size_t i = 0; i < partdata.size(); i++)
 	{
 		memcpy(mem, partdata[i].first, partdata[i].second);
 		mem += partdata[i].second;
@@ -457,10 +457,10 @@ std::string WavetableEditData::to_string()
 	std::string str = "WTED: [";
 	str += "width = " + std::to_string(width);
 	str += "\n";
-	for (int i = 0; i < parts.size(); i++)
+	for (size_t i = 0; i < parts.size(); i++)
 	{
 		str += "[";
-		for (int j = 0; j < parts[i].size(); j++)
+		for (size_t j = 0; j < parts[i].size(); j++)
 		{
 			str += parts[i][j]->to_string() + " ; ";
 		}

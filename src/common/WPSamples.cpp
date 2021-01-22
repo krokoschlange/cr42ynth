@@ -78,18 +78,18 @@ int WPSamples::getData(void** buffer)
 	memcpy(mem, head, sizeof(PartDataHead));
 	mem += sizeof(PartDataHead);
 	
-	for (int i = 0; i < samples.size(); *(float*) mem = samples[i], mem += sizeof(float), i++) {}
+	for (size_t i = 0; i < samples.size(); *(float*) mem = samples[i], mem += sizeof(float), i++) {}
 	
 	delete head;
 	
 	return totalSize;
 }
 
-float WPSamples::getSample(int size, int pos, int ypos)
+float WPSamples::getSample(int size, int pos, int)
 {
 	int startPos = size * getStart();
 	int relPos = pos - startPos;
-	if (relPos >= 0 && relPos < samples.size())
+	if (relPos >= 0 && (size_t) relPos < samples.size())
 	{
 		return samples[relPos];
 	}

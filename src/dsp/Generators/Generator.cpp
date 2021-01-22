@@ -48,7 +48,7 @@ Generator::~Generator()
 
 void Generator::addProperty(Property* ctrl)
 {
-	for (int i = 0; i < controls.size(); i++)
+	for (size_t i = 0; i < controls.size(); i++)
 	{
 		if (controls[i] == ctrl)
 		{
@@ -60,7 +60,7 @@ void Generator::addProperty(Property* ctrl)
 
 void Generator::removeProperty(Property* ctrl)
 {
-	for (int i = 0; i < controls.size(); i++)
+	for (size_t i = 0; i < controls.size(); i++)
 	{
 		if (controls[i] == ctrl)
 		{

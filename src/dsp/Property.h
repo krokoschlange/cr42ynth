@@ -47,10 +47,10 @@ public:
 	Property(Voice* vce, Control* ctrl = nullptr, float val = 0, float min = 0, float max = 0, Generator* gen = nullptr);
 	virtual ~Property();
 
-	void valueCallback(float val);
-	void minCallback(float min);
-	void maxCallback(float max);
-	void genCallback(std::string gen);
+	void valueCallback(float val, Control* ctrl);
+	void minCallback(float min, Control* ctrl);
+	void maxCallback(float max, Control* ctrl);
+	void genCallback(std::string gen, Control* ctrl);
 
 	void listenTo(Control* ctrl);
 

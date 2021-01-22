@@ -64,7 +64,7 @@ CR42YWaveformEditor::~CR42YWaveformEditor()
 {
 	std::vector<Gtk::Widget*> children = get_children();
 
-	for (int i = 0; i < children.size(); i++)
+	for (size_t i = 0; i < children.size(); i++)
 	{
 		remove(*(children[i]));
 		delete children[i];
@@ -173,7 +173,7 @@ bool CR42YWaveformEditor::on_expose_event(GdkEventExpose* event)
 
 		float pixelPerSample = (float) get_width() / samples.size();
 
-		for (int i = 1; i < samples.size(); i++)
+		for (size_t i = 1; i < samples.size(); i++)
 		{
 			cr->move_to(pixelPerSample * i,
 					get_height() * -0.5 * samples[i] + get_height() / 2);
@@ -196,7 +196,7 @@ bool CR42YWaveformEditor::on_expose_event(GdkEventExpose* event)
 		std::vector<std::pair<float, float>> parts;
 		parts = controller_->getVisibleAreas(sel);
 
-		for (int i = 0; i < parts.size(); i++)
+		for (size_t i = 0; i < parts.size(); i++)
 		{
 			cr->rectangle(parts[i].first * get_width(), 0,
 					(parts[i].second - parts[i].first) * get_width(),
@@ -319,7 +319,7 @@ void CR42YWaveformEditor::updateButtons()
 {
 	std::vector<Gtk::Widget*> children = get_children();
 
-	for (int i = 0; i < children.size(); i++)
+	for (size_t i = 0; i < children.size(); i++)
 	{
 		Gtk::Widget* child = children[i];
 		remove(*child);

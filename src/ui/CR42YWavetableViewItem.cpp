@@ -46,8 +46,8 @@ CR42YWavetableViewItem::CR42YWavetableViewItem(CR42YUI* ui) :
 		Glib::ObjectBase("CR42YWavetableViewItem"),
 		CR42YRelativeContainer(ui),
 		removeBtn_(nullptr),
-		waveform_(0),
 		controller_(nullptr),
+		waveform_(0),
 		dropLocation_(-1),
 		mouseDown_(false),
 		inDnD_(false)
@@ -147,7 +147,7 @@ bool CR42YWavetableViewItem::on_expose_event(GdkEventExpose* event)
 		Cairo::RefPtr<Cairo::Context> cr = win->create_cairo_context();
 		draw(cr);
 	}
-	Gtk::Container::on_expose_event(event);
+	return Gtk::Container::on_expose_event(event);
 }
 
 void CR42YWavetableViewItem::draw(Cairo::RefPtr<Cairo::Context> cr)
@@ -183,7 +183,7 @@ void CR42YWavetableViewItem::draw(Cairo::RefPtr<Cairo::Context> cr)
 		std::vector<float> samples;
 		controller_->getSamples(samples, waveform_, stepSize);
 		float ppS = (float) get_width() / samples.size();
-		for (int j = 1; j < samples.size(); j++)
+		for (size_t j = 1; j < samples.size(); j++)
 		{
 			cr->move_to(ppS * j, get_height() * 0.5 - (get_height() - tm->lineThick()) * 0.5 * samples[j]);
 			cr->line_to(ppS * (j - 1), get_height() * 0.5 - (get_height() - tm->lineThick()) * 0.5 * samples[j - 1]);
@@ -272,8 +272,8 @@ void CR42YWavetableViewItem::on_drag_begin(
 }
 
 void CR42YWavetableViewItem::on_drag_data_get(
-		const Glib::RefPtr<Gdk::DragContext>& context,
-		Gtk::SelectionData& selection_data, guint info, guint time)
+		const Glib::RefPtr<Gdk::DragContext>&,
+		Gtk::SelectionData& selection_data, guint, guint)
 {
 	//gtk_selection_data_set(selection_data.gobj(), gdk_atom_intern_static_string("CR42YWavetableViewItem"), 32, (const guchar*) this, sizeof(gpointer));
 	const std::string type = "CR42YWavetableViewItem";
@@ -284,8 +284,8 @@ void CR42YWavetableViewItem::on_drag_data_get(
 }
 
 void CR42YWavetableViewItem::on_drag_data_received(
-		const Glib::RefPtr<Gdk::DragContext>& context, int x, int y,
-		const Gtk::SelectionData& selection_data, guint info, guint time)
+		const Glib::RefPtr<Gdk::DragContext>&, int, int y,
+		const Gtk::SelectionData& selection_data, guint, guint)
 {
 	CR42YWavetableViewItem* source = *((CR42YWavetableViewItem**) selection_data.get_data());
 	if (source == this)
@@ -321,23 +321,25 @@ void CR42YWavetableViewItem::on_drag_data_received(
 }
 
 bool CR42YWavetableViewItem::on_drag_motion(
-		const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint time)
+		const Glib::RefPtr<Gdk::DragContext>&, int x, int y, guint)
 {
 	if (x > 0 && x < get_width() && y > 0 && y < get_height())
 	{
 		dropLocation_ = y > get_height() / 2;
 		queue_draw();
+		return true;
 	}
+	return false;
 }
 
 void CR42YWavetableViewItem::on_drag_leave(
-		const Glib::RefPtr<Gdk::DragContext>& context, guint time)
+		const Glib::RefPtr<Gdk::DragContext>&, guint)
 {
 	dropLocation_ = -1;
 	queue_draw();
 }
 
-void CR42YWavetableViewItem::on_drag_end(const Glib::RefPtr<Gdk::DragContext>& context)
+void CR42YWavetableViewItem::on_drag_end(const Glib::RefPtr<Gdk::DragContext>&)
 {
 	inDnD_ = false;
 }

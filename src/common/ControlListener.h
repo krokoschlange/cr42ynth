@@ -48,10 +48,10 @@ public:
 	ControlListener();
 	virtual ~ControlListener();
 
-	virtual void valueCallback(float val) = 0;
-	virtual void minCallback(float min) = 0;
-	virtual void maxCallback(float max) = 0;
-	virtual void genCallback(std::string gen) = 0;
+	virtual void valueCallback(float val, Control* ctrl) = 0;
+	virtual void minCallback(float min, Control* ctrl) = 0;
+	virtual void maxCallback(float max, Control* ctrl) = 0;
+	virtual void genCallback(std::string gen, Control* ctrl) = 0;
 
 	virtual void connect(Control& ctrl);
 	virtual void disconnect(Control& ctrl);

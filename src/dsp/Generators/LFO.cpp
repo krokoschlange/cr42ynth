@@ -43,15 +43,15 @@ LFO::LFO(std::vector<Voice*>* vce, int id, float rate) :
 		Generator(vce),
 		number(id),
 		samplerate(rate),
-		waveform(nullptr),
-		syncedPhase(0), //TODO fix this
 		unsyncedPhase(0),
+		syncedPhase(0), //TODO fix this
 		synced("/lfos/" + std::to_string(id) + "/sync", CR42YnthDSP::getInstance()->getCommunicator(), 1),
 		retrigger("/lfos/" + std::to_string(id) + "/retrigger", CR42YnthDSP::getInstance()->getCommunicator(), 1),
 		smooth("/lfos/" + std::to_string(id) + "/smooth", CR42YnthDSP::getInstance()->getCommunicator(), 1),
 		useFrequency("/lfos/" + std::to_string(id) + "/use_freq", CR42YnthDSP::getInstance()->getCommunicator()),
 		frequency("/lfos/" + std::to_string(id) + "/frequency", CR42YnthDSP::getInstance()->getCommunicator(), 1, 0, 10000),
-		lenghtInNotes("/lfos/" + std::to_string(id) + "/lenght", CR42YnthDSP::getInstance()->getCommunicator(), 1, 0, 20)
+		lenghtInNotes("/lfos/" + std::to_string(id) + "/lenght", CR42YnthDSP::getInstance()->getCommunicator(), 1, 0, 20),
+		waveform(nullptr)
 {
 	phases.insert(std::pair<Voice*, float>(CR42YnthDSP::getInstance()->getGlobalVoice(), 0));
 	phases.insert(std::pair<Voice*, float>(CR42YnthDSP::getInstance()->getFreeVoice(), 0));
@@ -84,16 +84,16 @@ void LFO::voiceRemoved(Voice* vce)
 	while (it != phases.end())
 	{
 		phases.erase(it);
-		std::map<Voice*, float>::iterator it = phases.find(vce);
+		//std::map<Voice*, float>::iterator it = phases.find(vce);
 	}
 }
 
-void LFO::getState(std::vector<OSCEvent>& events)
+void LFO::getState(std::vector<OSCEvent>&)
 {
 
 }
 
-bool LFO::receiveOSCMessage(OSCEvent* event)
+bool LFO::receiveOSCMessage(OSCEvent*)
 {
 
 	return false;

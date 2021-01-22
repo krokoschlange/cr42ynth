@@ -78,9 +78,9 @@ OSCSettingsController::OSCSettingsController(CR42YnthCommunicator* communicator,
 
 OSCSettingsController::~OSCSettingsController()
 {
-	for (int i = 0; i < editHistory_.size(); i++)
+	for (size_t i = 0; i < editHistory_.size(); i++)
 	{
-		for (int j = 0; j < editHistory_[i].size(); j++)
+		for (size_t j = 0; j < editHistory_[i].size(); j++)
 		{
 			delete[] editHistory_[i][j].first;
 		}
@@ -88,7 +88,7 @@ OSCSettingsController::~OSCSettingsController()
 	}
 	editHistory_.clear();
 
-	for (int i = 0; i < controls_.size(); i++)
+	for (size_t i = 0; i < controls_.size(); i++)
 	{
 		delete controls_[i];
 	}
@@ -102,7 +102,7 @@ OSCSettingsController::~OSCSettingsController()
 
 WavetableEditData* OSCSettingsController::getEditData(int idx)
 {
-	if (idx >= 0 && idx < editData_.size())
+	if (idx >= 0 && (size_t) idx < editData_.size())
 	{
 		return &(editData_[idx]);
 	}
@@ -111,7 +111,7 @@ WavetableEditData* OSCSettingsController::getEditData(int idx)
 
 OscillatorControls* OSCSettingsController::getControls(int idx)
 {
-	if (idx >= 0 && idx < controls_.size())
+	if (idx >= 0 && (size_t) idx < controls_.size())
 	{
 		return controls_[idx];
 	}
@@ -159,7 +159,7 @@ bool OSCSettingsController::handleOSCEvent(OSCEvent* event)
 
 void OSCSettingsController::getState(std::vector<OSCEvent>& events)
 {
-	for (int i = 0; i < editData_.size(); i++)
+	for (size_t i = 0; i < editData_.size(); i++)
 	{
 		std::string address = "/oscillators/" + std::to_string(i)
 				+ "/wavetable";
@@ -187,7 +187,7 @@ void OSCSettingsController::wavetableChangedCallback()
 	WavetableEditData* dataPtr = wtEditController_->data();
 
 	int idx = -1;
-	for (int i = 0; i < editData_.size() && idx < 0; i++)
+	for (size_t i = 0; i < editData_.size() && idx < 0; i++)
 	{
 		if (dataPtr == &(editData_[i]))
 		{

@@ -159,7 +159,7 @@ bool CR42YWFView::on_expose_event(GdkEventExpose* event)
 				float pixelsPerSample = (float) get_width() / samples.size();
 
 
-				for (int i = 1; i < samples.size(); i++)
+				for (size_t i = 1; i < samples.size(); i++)
 				{
 					cr->move_to(i * pixelsPerSample, (samples[i] * get_height() - get_height()) / -2);
 					cr->line_to((i - 1) * pixelsPerSample, (samples[i - 1] * get_height() - get_height()) / -2);

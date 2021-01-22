@@ -45,8 +45,8 @@
 namespace cr42y
 {
 
-LV2UI_Handle instantiateUI(const LV2UI_Descriptor* descriptor,
-		const char* plugin_uri, const char* bundlePath,
+LV2UI_Handle instantiateUI(const LV2UI_Descriptor*,
+		const char*, const char* bundlePath,
 		LV2UI_Write_Function writeFunction, LV2UI_Controller controller,
 		LV2UI_Widget* widget, const LV2_Feature* const * features)
 {

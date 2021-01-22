@@ -48,7 +48,7 @@ CR42YToggleSelector::CR42YToggleSelector(CR42YUI* ui) :
 
 CR42YToggleSelector::~CR42YToggleSelector()
 {
-	for (int i = 0; i < toggles_.size(); i++)
+	for (size_t i = 0; i < toggles_.size(); i++)
 	{
 		toggles_[i].second.disconnect();
 		remove(*(toggles_[i].first));
@@ -63,9 +63,9 @@ void CR42YToggleSelector::select(int selected, bool callback)
 {
 	int old = selected_;
 	selected_ = selected;
-	for (int i = 0; i < toggles_.size(); i++)
+	for (size_t i = 0; i < toggles_.size(); i++)
 	{
-		if (i == selected)
+		if (i == (size_t) selected)
 		{
 			toggles_[i].first->set_state(Gtk::STATE_ACTIVE);
 		}
@@ -97,7 +97,7 @@ void CR42YToggleSelector::putToggle(CR42YToggle* toggle, double x, double y,
 
 void CR42YToggleSelector::removeToggle(CR42YToggle* toggle)
 {
-	for (int i = 0; i < toggles_.size(); i++)
+	for (size_t i = 0; i < toggles_.size(); i++)
 	{
 		if (toggles_[i].first == toggle)
 		{

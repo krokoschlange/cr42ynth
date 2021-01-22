@@ -46,10 +46,10 @@ namespace cr42y
 CR42YOSCPanelScroll::CR42YOSCPanelScroll(CR42YUI* ui, CR42YnthCommunicator* comm, WavetableEditController* wtEditController, CR42YToggleSelector* viewSelector) :
 		Glib::ObjectBase("CR42YOSCPanelScroll"),
 		CR42YGrid(ui),
-		leftBtn_(new CR42YButton(ui)),
-		rightBtn_(new CR42YButton(ui)),
 		scrollIndex_(0),
-		controller_(new OSCSettingsController(comm, wtEditController))
+		controller_(new OSCSettingsController(comm, wtEditController)),
+		leftBtn_(new CR42YButton(ui)),
+		rightBtn_(new CR42YButton(ui))
 {
 	configureColumn(0, 1, 0, 0, 70, 0);
 	for (int i = 0; i < panelAmount_; i++)
@@ -94,7 +94,7 @@ CR42YOSCPanelScroll::CR42YOSCPanelScroll(CR42YUI* ui, CR42YnthCommunicator* comm
 
 CR42YOSCPanelScroll::~CR42YOSCPanelScroll()
 {
-	for (int i = 0; i < panels_.size(); i++)
+	for (size_t i = 0; i < panels_.size(); i++)
 	{
 		remove(*(panels_[i]));
 		delete panels_[i];
@@ -103,7 +103,7 @@ CR42YOSCPanelScroll::~CR42YOSCPanelScroll()
 
 void CR42YOSCPanelScroll::update()
 {
-	for (int i = 0; i < panels_.size(); i++)
+	for (size_t i = 0; i < panels_.size(); i++)
 	{
 		panels_[i]->connectData(i + scrollIndex_, controller_);
 	}

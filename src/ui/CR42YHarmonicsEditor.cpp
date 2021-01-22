@@ -72,7 +72,7 @@ CR42YHarmonicsEditor::~CR42YHarmonicsEditor()
 {
 	std::vector<Gtk::Widget*> children = get_children();
 
-	for (int i = 0; i < children.size(); i++)
+	for (size_t i = 0; i < children.size(); i++)
 	{
 		remove(*(children[i]));
 		delete children[i];
@@ -94,28 +94,28 @@ void CR42YHarmonicsEditor::update()
 		std::vector<std::pair<float, float>>* harmTable = controller_->getHarmonicsTable();
 		if (harmTable)
 		{
-			int max = harmTable->size();
-			for (int i = 0; i < max && i < ampScales_.size(); i++)
+			size_t max = harmTable->size();
+			for (size_t i = 0; i < max && i < ampScales_.size(); i++)
 			{
 				ampScales_[i]->set_sensitive(true);
 				ampScales_[i]->setValue(((*harmTable)[i].first + 1) / 2, false);
 			}
 			if (max < ampScales_.size())
 			{
-				for (int i = max; i < ampScales_.size(); i++)
+				for (size_t i = max; i < ampScales_.size(); i++)
 				{
 					ampScales_[i]->set_sensitive(false);
 					ampScales_[i]->setValue(0.5, false);
 				}
 			}
-			for (int i = 0; i < max && i < phaseScales_.size(); i++)
+			for (size_t i = 0; i < max && i < phaseScales_.size(); i++)
 			{
 				phaseScales_[i]->set_sensitive(true);
 				phaseScales_[i]->setValue(((*harmTable)[i].second + 1) / 2, false);
 			}
 			if (max < phaseScales_.size())
 			{
-				for (int i = max; i < phaseScales_.size(); i++)
+				for (size_t i = max; i < phaseScales_.size(); i++)
 				{
 					phaseScales_[i]->set_sensitive(false);
 					phaseScales_[i]->setValue(0.5, false);
@@ -125,12 +125,12 @@ void CR42YHarmonicsEditor::update()
 	}
 	else
 	{
-		for (int i = 0; i < ampScales_.size(); i++)
+		for (size_t i = 0; i < ampScales_.size(); i++)
 		{
 			ampScales_[i]->set_sensitive(false);
 			ampScales_[i]->setValue(0.5, false);
 		}
-		for (int i = 0; i < phaseScales_.size(); i++)
+		for (size_t i = 0; i < phaseScales_.size(); i++)
 		{
 			phaseScales_[i]->set_sensitive(false);
 			phaseScales_[i]->setValue(0.5, false);
@@ -164,6 +164,7 @@ bool CR42YHarmonicsEditor::on_expose_event(GdkEventExpose* event)
 			cr->show_text(str);
 		}
 	}
+	return true;
 }
 
 void CR42YHarmonicsEditor::changedCallback(double value, int column, bool isAmp, bool end)

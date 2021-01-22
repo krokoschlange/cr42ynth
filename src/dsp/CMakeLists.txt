@@ -22,10 +22,11 @@ add_executable(cr42ynth.so
 	../common/CR42YnthCommunicator.cpp
 	../common/common.cpp
 	../common/Control.cpp
+	../common/ControlListener.cpp
+	../common/ModulationControls.cpp
 	../common/OSCEvent.cpp
 	../common/OSCEventListener.cpp
 	../common/OscillatorControls.cpp
-	../common/ControlListener.cpp
 	../common/WavetableEditData.cpp
 	../common/WaveformPart.cpp
 	../common/WPFunction.cpp
@@ -52,3 +53,4 @@ link_directories(${LIBSNDFILE_LINK_DIRS})
 
 target_link_libraries(cr42ynth.so ${PROJECT_BINARY_DIR}/../rtosc/librtosc.a)
 target_link_libraries(cr42ynth.so ${LIBSNDFILE_LIBRARIES})
+target_compile_options(cr42ynth.so PRIVATE -Werror -Wall -Wextra)

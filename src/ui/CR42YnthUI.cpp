@@ -47,6 +47,8 @@
 #include "CR42YToggle.h"
 #include "CR42YOSCSettings.h"
 
+#include "CR42YConfig.h"
+
 namespace cr42y
 {
 
@@ -54,12 +56,12 @@ CR42YnthUI::CR42YnthUI(CR42YnthCommunicator* comm, const char* path) :
 		Glib::ObjectBase("CR42YnthUI"),
 		CR42YUI(),
 		gtkMain_(Gtk::Main::instance()),
-		communicator_(comm),
 		bundlePath_(new char[strlen(path) + 1]),
+		communicator_(comm),
 		screenSelector_(nullptr),
+		selectedScreen_(-1),
 		oscSettings_(nullptr),
-		wtEditor_(nullptr),
-		selectedScreen_(-1)
+		wtEditor_(nullptr)
 {
 	set_size_request(500, 350);
 
@@ -79,6 +81,9 @@ CR42YnthUI::CR42YnthUI(CR42YnthCommunicator* comm, const char* path) :
 		themeConf.close();
 	}
 
+	CR42YConfig cfg;
+	cfg.read(themeStr);
+	
 	setTheme(new CR42YTheme(themeStr));
 
 	screenSelector_ = new CR42YToggleSelector(this);
@@ -123,7 +128,6 @@ CR42YnthUI::CR42YnthUI(CR42YnthCommunicator* comm, const char* path) :
 		comm->writeMessage(event);
 
 		addr = "/global/state";
-		buffer[bufferSize];
 		len = rtosc_message(buffer, bufferSize, addr.c_str(), "s", "get");
 		event = OSCEvent(buffer, len, nullptr, 0);
 		comm->writeMessage(event);

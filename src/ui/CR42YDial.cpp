@@ -43,18 +43,18 @@ CR42YDial::CR42YDial(CR42YUI* ui) :
 		Gtk::Widget(),
 		CR42YWidget(ui),
 		value_(0),
+		logicalMin_(0),
+		logicalMax_(1),
 		preClickValue_(0),
 		prePreClickValue_(0),
 		mouseY_(0),
 		oldValue_(0),
 		defaultValue_(0),
-		text_(""),
 		valueMode_(true),
 		minValue_(0),
 		maxValue_(1),
 		grabMax_(true),
-		logicalMin_(0),
-		logicalMax_(1)
+		text_("")
 {
 	set_flags(Gtk::NO_WINDOW);
 	add_events(
@@ -159,7 +159,7 @@ sigc::signal<void, double> CR42YDial::signalDone()
 	return signalDone_;
 }
 
-bool CR42YDial::on_expose_event(GdkEventExpose* event)
+bool CR42YDial::on_expose_event(GdkEventExpose*)
 {
 	Glib::RefPtr<Gdk::Window> win = get_window();
 	if (win)
@@ -220,6 +220,7 @@ bool CR42YDial::on_expose_event(GdkEventExpose* event)
 			cr->show_text(text_);
 		}
 	}
+	return false;
 }
 
 void CR42YDial::on_realize()

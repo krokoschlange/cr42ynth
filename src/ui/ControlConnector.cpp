@@ -37,16 +37,16 @@ namespace cr42y
 
 ControlConnector::ControlConnector() :
 		ControlListener(),
-		ignoreCallback_(false),
-		control_(nullptr)
+		control_(nullptr),
+		ignoreCallback_(false)
 {
-	widgetSetValue_ = [](float value)
+	widgetSetValue_ = [](float)
 	{};
-	widgetSetMin_ = [](float min)
+	widgetSetMin_ = [](float)
 	{};
-	widgetSetMax_ = [](float max)
+	widgetSetMax_ = [](float)
 	{};
-	widgetSetGenerator_ = [](std::string generator)
+	widgetSetGenerator_ = [](std::string)
 	{};
 }
 
@@ -111,7 +111,7 @@ void ControlConnector::setWidgetGeneratorSetter(
 	widgetSetGenerator_ = widgetSetGenerator;
 }
 
-void ControlConnector::valueCallback(float val)
+void ControlConnector::valueCallback(float val, Control*)
 {
 	if (!ignoreCallback_)
 	{
@@ -120,7 +120,7 @@ void ControlConnector::valueCallback(float val)
 	}
 }
 
-void ControlConnector::minCallback(float min)
+void ControlConnector::minCallback(float min, Control*)
 {
 	if (!ignoreCallback_)
 	{
@@ -129,7 +129,7 @@ void ControlConnector::minCallback(float min)
 	}
 }
 
-void ControlConnector::maxCallback(float max)
+void ControlConnector::maxCallback(float max, Control*)
 {
 	if (!ignoreCallback_)
 	{
@@ -138,7 +138,7 @@ void ControlConnector::maxCallback(float max)
 	}
 }
 
-void ControlConnector::genCallback(std::string gen)
+void ControlConnector::genCallback(std::string gen, Control*)
 {
 	if (!ignoreCallback_)
 	{
@@ -149,7 +149,7 @@ void ControlConnector::genCallback(std::string gen)
 
 void ControlConnector::connect(Control& ctrl)
 {
-	for (int i = 0; i < connections_.size(); i++)
+	for (size_t i = 0; i < connections_.size(); i++)
 	{
 		ControlListener::disconnect(*connections_[i]);
 	}

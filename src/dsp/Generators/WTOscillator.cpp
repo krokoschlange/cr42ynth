@@ -54,9 +54,8 @@ WTOscillator::WTOscillator(CR42YnthCommunicator* comm, int id, float rate) :
 		communicator_(comm),
 		number(id),
 		samplerate(rate),
-		wavetable_(),
-
 		editData(new WavetableEditData(4096)),
+		wavetable_(),
 		controls_(new OscillatorControls(id, comm))
 {
 	std::vector<std::vector<float>> smpls;

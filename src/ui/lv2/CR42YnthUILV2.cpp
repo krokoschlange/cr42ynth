@@ -83,13 +83,13 @@ CR42YnthUI_LV2::CR42YnthUI_LV2(const char* bundlePath,
 	
 	uris_ = new CR42YnthLV2URIS(map);
 
+	//intptr_t parent = 0;
 	LV2UI_Resize* resize = nullptr;
-	intptr_t parent = 0;
 	for (int i = 0; features[i]; i++)
 	{
 		if (!strcmp(features[i]->URI, LV2_UI__parent))
 		{
-			parent = (intptr_t) features[i]->data;
+			//parent = (intptr_t) features[i]->data;
 		}
 		else if (!strcmp(features[i]->URI, LV2_UI__resize))
 		{
@@ -213,15 +213,15 @@ void CR42YnthUI_LV2::log(std::string msg)
 	lv2_log_note(logger, "[CR42Ynth UI]: %s\n", msg.c_str());
 }
 
-void CR42YnthUI_LV2::portEvent(uint32_t port, uint32_t bufferSize,
-		uint32_t format, const void* buffer)
+void CR42YnthUI_LV2::portEvent(uint32_t port, uint32_t,
+		uint32_t format, const void*)
 {
 	switch (port)
 	{
 	case NOTIFY:
 		if (format == uris_->atomEventTransfer)
 		{
-			const LV2_Atom* atom = (const LV2_Atom*) buffer;
+			//const LV2_Atom* atom = (const LV2_Atom*) buffer;
 			//readAtom(atom);
 		}
 	}

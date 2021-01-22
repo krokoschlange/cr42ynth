@@ -47,6 +47,8 @@ class Property;
 class CR42YnthCommunicator;
 class OSCEvent;
 class Control;
+class ModulationControls;
+class LFO;
 
 
 class CR42YnthDSP : OSCEventListener
@@ -101,6 +103,10 @@ private:
 	Property* volProp;
 
 	std::vector<WTOscillator*> oscillators;
+	
+	std::vector<LFO*> lfos_;
+	
+	ModulationControls* modCtrls_;
 	/*std::vector<LFO*> lfos;
 	std::vector<Envelope*> envelopes;*/
 
