@@ -171,7 +171,7 @@ namespace cr42y
 
 Voice::~Voice()
 {
-	for (int osc = 0; osc < CR42Ynth_OSC_COUNT; osc++)
+	for (int osc = 0; osc < oscCount_; osc++)
 	{
 		if (oscData_[osc].wavetable)
 		{

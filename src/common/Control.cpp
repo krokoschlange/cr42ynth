@@ -247,7 +247,7 @@ void Control::getState(std::vector<OSCEvent>& events, bool sendVal, bool sendMin
 
 void Control::addListener(ControlListener* listener)
 {
-	for (unsigned int i = 0; i < listeners.size(); i++)
+	for (size_t i = 0; i < listeners.size(); i++)
 	{
 		if (listeners[i] == listener)
 		{
@@ -259,7 +259,7 @@ void Control::addListener(ControlListener* listener)
 
 void Control::removeListener(ControlListener* listener)
 {
-	for (unsigned int i = 0; i < listeners.size(); i++)
+	for (size_t i = 0; i < listeners.size(); i++)
 	{
 		if (listeners[i] == listener)
 		{
