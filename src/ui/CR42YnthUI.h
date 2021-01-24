@@ -46,6 +46,7 @@ class OSCEvent;
 class CR42YToggleSelector;
 class CR42YOSCSettings;
 class CR42YWavetableEditor;
+class CR42YModulationEditor;
 
 class CR42YnthUI : public CR42YUI
 {
@@ -75,6 +76,7 @@ private:
 	
 	CR42YOSCSettings* oscSettings_;
 	CR42YWavetableEditor* wtEditor_;
+	CR42YModulationEditor* modEditor_;
 
 
 	void screenSelectCallback(int selected);

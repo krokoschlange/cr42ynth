@@ -47,7 +47,7 @@
 namespace cr42y
 {
 
-	Voice::Voice(int n, int midivel, std::vector<WTOscillator*>& oscillators, ModulationControls* modCtrls, std::vector<LFO*>&) :
+Voice::Voice(int n, int midivel, std::vector<WTOscillator*>& oscillators, ModulationControls* modCtrls, std::vector<LFO*>&) :
 		note(n),
 		start(0),
 		velocity(midivel / 127.),
@@ -142,13 +142,13 @@ namespace cr42y
 		
 		for (int j = 0; j < CR42Ynth_OSC_COUNT; j++)
 		{
-			dataControls_[i].modFactors[j] = modCtrls->amControls[i * CR42Ynth_OSC_COUNT + j];
+			dataControls_[i].modFactors[j] = modCtrls->amControls[j * CR42Ynth_OSC_COUNT + oscData_[i].id];
 			dataControls_[i].modFactors[j]->addListener(this);
-			dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT] = modCtrls->fmControls[i * CR42Ynth_OSC_COUNT + j];
+			dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT] = modCtrls->fmControls[j * CR42Ynth_OSC_COUNT + oscData_[i].id];
 			dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT]->addListener(this);
-			dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT * 2] = modCtrls->pmControls[i * CR42Ynth_OSC_COUNT + j];
+			dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT * 2] = modCtrls->pmControls[j * CR42Ynth_OSC_COUNT + oscData_[i].id];
 			dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT * 2]->addListener(this);
-			dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT * 3] = modCtrls->rmControls[i * CR42Ynth_OSC_COUNT + j];
+			dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT * 3] = modCtrls->rmControls[j * CR42Ynth_OSC_COUNT + oscData_[i].id];
 			dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT * 3]->addListener(this);
 		}
 		

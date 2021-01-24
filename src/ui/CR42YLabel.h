@@ -57,6 +57,8 @@ public:
 	void setFontSize(int size);
 
 	void setForcedSizeRatio(double forcedSizeRatio);
+	
+	void setDrawBorder(bool drawBorder);
 
 protected:
 
@@ -73,6 +75,7 @@ private:
 	int fontSize_;
 
 	double forcedSizeRatio_;
+	bool drawBorder_;
 
 	Cairo::RefPtr<Cairo::Surface> surfActive_;
 	Cairo::RefPtr<Cairo::Surface> surfInactive_;

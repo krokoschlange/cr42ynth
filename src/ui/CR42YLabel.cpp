@@ -44,7 +44,8 @@ CR42YLabel::CR42YLabel(CR42YUI* ui) :
 		CR42YWidget(ui),
 		text_(""),
 		fontSize_(CR42YTheme::SMALL),
-		forcedSizeRatio_(0)
+		forcedSizeRatio_(0),
+		drawBorder_(true)
 {
 	set_flags(Gtk::NO_WINDOW);
 }
@@ -94,6 +95,12 @@ void CR42YLabel::setForcedSizeRatio(double forcedSizeRatio)
 	forcedSizeRatio_ = forcedSizeRatio;
 }
 
+void CR42YLabel::setDrawBorder(bool drawBorder)
+{
+	drawBorder_ = drawBorder;
+	queue_draw();
+}
+
 bool CR42YLabel::on_expose_event(GdkEventExpose* event)
 {
 	if (window_)
@@ -139,7 +146,10 @@ bool CR42YLabel::on_expose_event(GdkEventExpose* event)
 			break;
 		}
 		cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
-		cr->stroke();
+		if (drawBorder_)
+		{
+			cr->stroke();
+		}
 
 		Cairo::RefPtr<Cairo::Surface> surf;
 		if (state == Gtk::STATE_ACTIVE)

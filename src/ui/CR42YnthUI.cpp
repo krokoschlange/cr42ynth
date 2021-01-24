@@ -46,6 +46,7 @@
 #include "CR42YToggleSelector.h"
 #include "CR42YToggle.h"
 #include "CR42YOSCSettings.h"
+#include "CR42YModulationEditor.h"
 
 #include "CR42YConfig.h"
 
@@ -61,7 +62,8 @@ CR42YnthUI::CR42YnthUI(CR42YnthCommunicator* comm, const char* path) :
 		screenSelector_(nullptr),
 		selectedScreen_(-1),
 		oscSettings_(nullptr),
-		wtEditor_(nullptr)
+		wtEditor_(nullptr),
+		modEditor_(nullptr)
 {
 	set_size_request(500, 350);
 
@@ -89,6 +91,7 @@ CR42YnthUI::CR42YnthUI(CR42YnthCommunicator* comm, const char* path) :
 	screenSelector_ = new CR42YToggleSelector(this);
 	wtEditor_ = new CR42YWavetableEditor(this);
 	oscSettings_ = new CR42YOSCSettings(this, comm, wtEditor_->getController(), screenSelector_);
+	modEditor_ = new CR42YModulationEditor(this);
 
 
 	CR42YToggle* tgl = new CR42YToggle(this);
@@ -109,13 +112,13 @@ CR42YnthUI::CR42YnthUI(CR42YnthCommunicator* comm, const char* path) :
 	screenSelector_->putToggle(tgl, 0.75, 0, 0.25, 1, 0, 2, 2, 2);
 
 	screenSelector_->select(0);
-
 	screenSelector_->signalSelected().connect(
 			sigc::mem_fun(this, &CR42YnthUI::screenSelectCallback));
 
 	put(screenSelector_, 0.25, 0, 0.5, 0.15);
 	put(oscSettings_, 0, 0.15, 1, 0.85);
 	put(wtEditor_, 0, 0.15, 1, 0.85);
+	put(modEditor_, 0, 0.15, 1, 0.85);
 
 	if (comm)
 	{
@@ -173,6 +176,7 @@ void CR42YnthUI::screenSelectCallback(int selected)
 
 	oscSettings_->hide_all();
 	wtEditor_->hide_all();
+	modEditor_->hide_all();
 
 	switch (selected)
 	{
@@ -180,6 +184,7 @@ void CR42YnthUI::screenSelectCallback(int selected)
 		oscSettings_->show_all();
 		break;
 	case 1:
+		modEditor_->show_all();
 		break;
 	case 2:
 		break;

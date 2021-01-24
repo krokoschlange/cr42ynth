@@ -106,6 +106,8 @@ add_executable(cr42ynth_ui.so
 	CR42YWFView.cpp
 	OSCSettingsController.cpp
 	CR42YControlToggle.cpp
+	CR42YModulationEditor.cpp
+	CR42YSquareContainer.cpp
 	
 	helpers.cpp
 )
