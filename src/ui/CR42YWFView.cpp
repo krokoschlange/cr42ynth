@@ -80,7 +80,7 @@ void CR42YWFView::setSelectedWaveform(float selectedWaveform)
 {
 	if (data_)
 	{
-		selectedWaveform_ = selectedWaveform * (data_->getWaveforms()->size() - 1);
+		selectedWaveform_ = selectedWaveform * (data_->getWaveforms()->size() - 1) + 0.5;
 	}
 	else
 	{

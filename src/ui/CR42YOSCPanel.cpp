@@ -105,7 +105,7 @@ void CR42YOSCPanel::connectData(int oscIndex, OSCSettingsController* controller)
 
 void CR42YOSCPanel::wtPosCallback(double value)
 {
-	wfView_->setSelectedWaveform(value + 0.5);
+	wfView_->setSelectedWaveform(value);
 }
 
 } /* namespace cr42y */
