@@ -69,7 +69,7 @@ Control::~Control()
 	}
 }
 
-void Control::setValue(float val, bool callback)
+void Control::setValue(float val, bool callback, bool updateListeners)
 {
 	value = val;
 	if (callback && communicator)
@@ -77,14 +77,17 @@ void Control::setValue(float val, bool callback)
 		std::vector<OSCEvent> events;
 		getState(events, true, false, false, false);
 		communicator->writeMessage(events[0]);//sendState(true, false, false, false);
-		for (unsigned int i = 0; i < listeners.size(); i++)
+	}
+	if (updateListeners)
+	{
+		for (size_t i = 0; i < listeners.size(); i++)
 		{
 			listeners[i]->valueCallback(getValue(), this);
 		}
 	}
 }
 
-void Control::setMin(float m, bool callback)
+void Control::setMin(float m, bool callback, bool updateListeners)
 {
 	min = m;
 	if (callback && communicator)
@@ -92,14 +95,17 @@ void Control::setMin(float m, bool callback)
 		std::vector<OSCEvent> events;
 		getState(events, false, true, false, false);
 		communicator->writeMessage(events[0]);
-		for (unsigned int i = 0; i < listeners.size(); i++)
+	}
+	if (updateListeners)
+	{
+		for (size_t i = 0; i < listeners.size(); i++)
 		{
 			listeners[i]->minCallback(getMin(), this);
 		}
 	}
 }
 
-void Control::setMax(float m, bool callback)
+void Control::setMax(float m, bool callback, bool updateListeners)
 {
 	max = m;
 	if (callback && communicator)
@@ -107,14 +113,17 @@ void Control::setMax(float m, bool callback)
 		std::vector<OSCEvent> events;
 		getState(events, false, false, true, false);
 		communicator->writeMessage(events[0]);
-		for (unsigned int i = 0; i < listeners.size(); i++)
+	}
+	if (updateListeners)
+	{
+		for (size_t i = 0; i < listeners.size(); i++)
 		{
 			listeners[i]->maxCallback(getMax(), this);
 		}
 	}
 }
 
-void Control::setGenerator(std::string gen, bool callback)
+void Control::setGenerator(std::string gen, bool callback, bool updateListeners)
 {
 	generator = gen;
 	if (callback && communicator)
@@ -122,7 +131,10 @@ void Control::setGenerator(std::string gen, bool callback)
 		std::vector<OSCEvent> events;
 		getState(events, false, false, false, true);
 		communicator->writeMessage(events[0]);
-		for (unsigned int i = 0; i < listeners.size(); i++)
+	}
+	if (updateListeners)
+	{
+		for (size_t i = 0; i < listeners.size(); i++)
 		{
 			listeners[i]->genCallback(getGenerator(), this);
 		}

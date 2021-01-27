@@ -84,7 +84,7 @@ Voice::Voice(int n, int midivel, std::vector<WTOscillator*>& oscillators, Modula
 		oscData_[i].noteShift = ctrl.getNoteShiftCtrl()->getValue();
 		oscData_[i].unisonSpread = ctrl.getUnisonSpreadCtrl()->getValue();
 		oscData_[i].unisonDetune = ctrl.getUnisonDetuneCtrl()->getValue();
-		oscData_[i].wtPos = ctrl.getWTPosCtrl()->getValue() * (oscData_[i].wtSize - 1);
+		oscData_[i].wtPos = ctrl.getWTPosCtrl()->getValue();
 		oscData_[i].unisonAmount = ctrl.getUnisonAmountCtrl()->getValue();
 		oscData_[i].AM = 1;
 		oscData_[i].FM = 1;
@@ -131,25 +131,35 @@ Voice::Voice(int n, int midivel, std::vector<WTOscillator*>& oscillators, Modula
 		oscModData_[i].phaseShiftMin = 0;
 		oscModData_[i].phaseShiftRange = 0;
 		
-		for (int j = 0; j < CR42Ynth_OSC_COUNT * 4; j++)
-		{
-			oscData_[i].modFactors[j] = 0; //TODO: do something useful instead (also below)
-			
-			oscModData_[i].modFactorsMod[j] = 0;
-			oscModData_[i].modFactorsMin[j] = 0;
-			oscModData_[i].modFactorsRange[j] = 0;
-		}
-		
 		for (int j = 0; j < CR42Ynth_OSC_COUNT; j++)
 		{
 			dataControls_[i].modFactors[j] = modCtrls->amControls[j * CR42Ynth_OSC_COUNT + oscData_[i].id];
 			dataControls_[i].modFactors[j]->addListener(this);
+			oscData_[i].modFactors[j] = dataControls_[i].modFactors[j]->getValue();
+			oscModData_[i].modFactorsMod[j] = 0; //TODO
+			oscModData_[i].modFactorsMin[j] = dataControls_[i].modFactors[j]->getMin();
+			oscModData_[i].modFactorsRange[j] = dataControls_[i].modFactors[j]->getMax() - oscModData_[i].modFactorsMin[j];
+			
 			dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT] = modCtrls->fmControls[j * CR42Ynth_OSC_COUNT + oscData_[i].id];
 			dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT]->addListener(this);
+			oscData_[i].modFactors[j + CR42Ynth_OSC_COUNT] = dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT]->getValue();
+			oscModData_[i].modFactorsMod[j + CR42Ynth_OSC_COUNT] = 0; //TODO
+			oscModData_[i].modFactorsMin[j + CR42Ynth_OSC_COUNT] = dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT]->getMin();
+			oscModData_[i].modFactorsRange[j + CR42Ynth_OSC_COUNT] = dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT]->getMax() - oscModData_[i].modFactorsMin[j];
+			
 			dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT * 2] = modCtrls->pmControls[j * CR42Ynth_OSC_COUNT + oscData_[i].id];
 			dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT * 2]->addListener(this);
+			oscData_[i].modFactors[j + CR42Ynth_OSC_COUNT * 2] = dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT * 2]->getValue();
+			oscModData_[i].modFactorsMod[j + CR42Ynth_OSC_COUNT * 2] = 0; //TODO
+			oscModData_[i].modFactorsMin[j + CR42Ynth_OSC_COUNT * 2] = dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT * 2]->getMin();
+			oscModData_[i].modFactorsRange[j + CR42Ynth_OSC_COUNT * 2] = dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT * 2]->getMax() - oscModData_[i].modFactorsMin[j];
+			
 			dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT * 3] = modCtrls->rmControls[j * CR42Ynth_OSC_COUNT + oscData_[i].id];
 			dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT * 3]->addListener(this);
+			oscData_[i].modFactors[j + CR42Ynth_OSC_COUNT * 3] = dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT * 3]->getValue();
+			oscModData_[i].modFactorsMod[j + CR42Ynth_OSC_COUNT * 3] = 0; //TODO
+			oscModData_[i].modFactorsMin[j + CR42Ynth_OSC_COUNT * 3] = dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT * 3]->getMin();
+			oscModData_[i].modFactorsRange[j + CR42Ynth_OSC_COUNT * 3] = dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT * 3]->getMax() - oscModData_[i].modFactorsMin[j];
 		}
 		
 		for (size_t j = 0; j < oscData_[i].unisonAmount; j++)
@@ -236,7 +246,7 @@ void Voice::calculate(float* left, float* right, uint32_t samples)
 			oscData_[osc].FM = 1;
 			oscData_[osc].PM = 0;
 			oscData_[osc].RM = 1;
-			for (int osc2 = oscCount_ - 1; osc2 > 0; osc2--)
+			for (int osc2 = oscCount_ - 1; osc2 >= 0; osc2--)
 			{
 				calcParamMod(oscModData_[osc].modFactorsMod[osc2], oscModData_[osc].modFactorsMin[osc2], oscModData_[osc].modFactorsRange[osc], data.modFactors[oscData_[osc2].id]);
 				
@@ -259,7 +269,7 @@ void Voice::calculate(float* left, float* right, uint32_t samples)
 			calcParamMod(oscModData_[osc].phaseShiftMod, oscModData_[osc].phaseShiftMin, oscModData_[osc].phaseShiftRange, data.wtPos);
 			
 			float oscValue = 0;
-			int wtpos = data.wtPos;
+			int wtpos = data.wtPos * (oscData_[osc].wtSize - 1) + 0.5;
 			
 			for (int unison = data.unisonAmount - 1; unison >= 0; unison--)
 			{

@@ -52,16 +52,16 @@ public:
 	Control(std::string addr, CR42YnthCommunicator* comm, float val = 0, float mi = 0, float ma = 1, std::string gen = "");
 	virtual ~Control();
 
-	void setValue(float val, bool callback = true);
+	void setValue(float val, bool callback = true, bool updateListeners = true);
 	bool handleOSCEvent(OSCEvent* event);
 
 	void getState(std::vector<OSCEvent>& events);
 	void getState(std::vector<OSCEvent>& events, bool sendVal, bool sendMin, bool sendMax, bool sendGen);
 
-	void setGenerator(std::string g, bool callback = true);
+	void setGenerator(std::string g, bool callback = true, bool updateListeners = true);
 
-	void setMax(float m, bool callback = true);
-	void setMin(float m, bool callback = true);
+	void setMax(float m, bool callback = true, bool updateListeners = true);
+	void setMin(float m, bool callback = true, bool updateListeners = true);
 
 	std::string getAddress();
 	std::string getGenerator();

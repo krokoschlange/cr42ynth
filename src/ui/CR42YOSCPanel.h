@@ -65,6 +65,8 @@ private:
 	CR42YControlToggle* oscToggle_;
 	CR42YControlDial* volumeDial_;
 	CR42YControlDial* wtPosDial_;
+	
+	void wtPosCallback(double value);
 };
 
 } /* namespace cr42y */

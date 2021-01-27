@@ -138,7 +138,6 @@ void CR42YnthLV2::run(uint32_t n_samples)
 			!lv2_atom_sequence_is_end(&(ctrlIn)->body, ctrlIn->atom.size, event);
 			event = lv2_atom_sequence_next(event))
 	{
-		log("EVENT");
 		if (lv2_atom_forge_is_object_type(forge_, event->body.type))
 		{
 			LV2_Atom_Object* obj = (LV2_Atom_Object*) &event->body;

@@ -91,7 +91,7 @@ CR42YnthUI::CR42YnthUI(CR42YnthCommunicator* comm, const char* path) :
 	screenSelector_ = new CR42YToggleSelector(this);
 	wtEditor_ = new CR42YWavetableEditor(this);
 	oscSettings_ = new CR42YOSCSettings(this, comm, wtEditor_->getController(), screenSelector_);
-	modEditor_ = new CR42YModulationEditor(this);
+	modEditor_ = new CR42YModulationEditor(this, comm);
 
 
 	CR42YToggle* tgl = new CR42YToggle(this);

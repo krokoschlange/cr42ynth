@@ -34,6 +34,7 @@ add_executable(cr42ynth_ui.so
 	../common/common.cpp
 	../common/CR42YnthCommunicator.cpp
 	../common/CR42YConfig.cpp
+	../common/ModulationControls.cpp
 	
 	
 	../common/lv2/CR42YnthLV2URIS.cpp

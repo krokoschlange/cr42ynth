@@ -37,8 +37,7 @@ namespace cr42y
 
 ControlConnector::ControlConnector() :
 		ControlListener(),
-		control_(nullptr),
-		ignoreCallback_(false)
+		control_(nullptr)
 {
 	widgetSetValue_ = [](float)
 	{};
@@ -58,8 +57,7 @@ void ControlConnector::setControlValue(double value)
 {
 	if (control_)
 	{
-		control_->setValue(value, true);
-		ignoreCallback_ = true;
+		control_->setValue(value, true, false);
 	}
 }
 
@@ -67,8 +65,7 @@ void ControlConnector::setControlMin(double min)
 {
 	if (control_)
 	{
-		control_->setMin(min, true);
-		ignoreCallback_ = true;
+		control_->setMin(min, true, false);
 	}
 }
 
@@ -76,8 +73,7 @@ void ControlConnector::setControlMax(double max)
 {
 	if (control_)
 	{
-		control_->setValue(max, true);
-		ignoreCallback_ = true;
+		control_->setValue(max, true, false);
 	}
 }
 
@@ -85,8 +81,7 @@ void ControlConnector::setControlGenerator(std::string generator)
 {
 	if (control_)
 	{
-		control_->setGenerator(generator, true);
-		ignoreCallback_ = true;
+		control_->setGenerator(generator, true, false);
 	}
 }
 
@@ -113,38 +108,22 @@ void ControlConnector::setWidgetGeneratorSetter(
 
 void ControlConnector::valueCallback(float val, Control*)
 {
-	if (!ignoreCallback_)
-	{
-		widgetSetValue_(val);
-		ignoreCallback_ = false;
-	}
+	widgetSetValue_(val);
 }
 
 void ControlConnector::minCallback(float min, Control*)
 {
-	if (!ignoreCallback_)
-	{
-		widgetSetMin_(min);
-		ignoreCallback_ = false;
-	}
+	widgetSetMin_(min);
 }
 
 void ControlConnector::maxCallback(float max, Control*)
 {
-	if (!ignoreCallback_)
-	{
-		widgetSetMax_(max);
-		ignoreCallback_ = false;
-	}
+	widgetSetMax_(max);
 }
 
 void ControlConnector::genCallback(std::string gen, Control*)
 {
-	if (!ignoreCallback_)
-	{
-		widgetSetGenerator_(gen);
-		ignoreCallback_ = false;
-	}
+	widgetSetGenerator_(gen);
 }
 
 void ControlConnector::connect(Control& ctrl)
@@ -153,6 +132,7 @@ void ControlConnector::connect(Control& ctrl)
 	{
 		ControlListener::disconnect(*connections_[i]);
 	}
+	ControlListener::connect(ctrl);
 	control_ = &ctrl;
 }
 

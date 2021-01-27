@@ -71,7 +71,7 @@ CR42YOSCPanel::CR42YOSCPanel(CR42YUI* ui, WavetableEditController* wtEditControl
 	volumeDial_->setText("VOL");
 	wtPosDial_->setText("WT POS");
 	
-	wtPosDial_->signalChanged().connect(sigc::mem_fun(wfView_, &CR42YWFView::setSelectedWaveform));
+	wtPosDial_->signalChanged().connect(sigc::mem_fun(this, &CR42YOSCPanel::wtPosCallback));
 
 	put(oscToggle_, 0, 0);
 	put(idxLabel_, 0, 1);
@@ -101,6 +101,11 @@ void CR42YOSCPanel::connectData(int oscIndex, OSCSettingsController* controller)
 	wtPosDial_->connectControl(controller->getControls(oscIndex)->getWTPosCtrl());
 
 	oscToggle_->connectControl(controller->getControls(oscIndex)->getActiveCtrl());
+}
+
+void CR42YOSCPanel::wtPosCallback(double value)
+{
+	wfView_->setSelectedWaveform(value + 0.5);
 }
 
 } /* namespace cr42y */
