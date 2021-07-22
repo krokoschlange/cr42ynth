@@ -185,12 +185,12 @@ void WPHarmonics::update(int size)
 		std::vector<double> imag(size);
 
 		size_t i;
-		for (i = 0; i < hTable.size(); i++)
+		for (i = 0; i < hTable.size() && i < (size_t) size; i++)
 		{
 			real[i] = -sin(hTable[i].second * 2 * M_PI) * hTable[i].first;
 			imag[i] = -cos(hTable[i].second * 2 * M_PI) * hTable[i].first;
 		}
-		for (; i <= (size_t) size; i++)
+		for (; i < (size_t) size; i++)
 		{
 			real[i] = 0;
 			imag[i] = 0;

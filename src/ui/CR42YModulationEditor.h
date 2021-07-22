@@ -31,33 +31,41 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_UI_CR42YCONTROLTOGGLE_H_
-#define SRC_UI_CR42YCONTROLTOGGLE_H_
+#ifndef CR42Y_CR42YMODULATIONEDITOR_H
+#define CR42Y_CR42YMODULATIONEDITOR_H
 
-#include "CR42YToggle.h"
-
-#include "ControlConnector.h"
+#include "CR42YSquareContainer.h"
 
 namespace cr42y
 {
-	
-class CR42YControlToggle : public CR42YToggle
+class CR42YControlDial;
+class CR42YGrid;
+class CR42YnthCommunicator;
+class CR42YToggleSelector;
+class ModulationControls;
+
+class CR42YModulationEditor : public CR42YSquareContainer
 {
 public:
-	CR42YControlToggle(CR42YUI* ui);
-	virtual ~CR42YControlToggle();
+	CR42YModulationEditor(CR42YUI* ui, CR42YnthCommunicator* communicator);
 
-	void connectControl(Control* control);
-
-	void setValue(double value);
-	double value();
+    virtual ~CR42YModulationEditor();
 
 private:
-	ControlConnector connector_;
-
-	void clickedCallback();
+	CR42YGrid* grid_;
+	CR42YToggleSelector* modSelector_;
+	CR42YSquareContainer* modSquare_;
+	CR42YGrid* modGrid_;
+	
+	std::vector<CR42YControlDial*> dials_;
+	
+	ModulationControls* controls_;
+	
+	void connectControls();
+	
+	void selectCallback(int selected);
 };
 
-} /* namespace cr42y */
+}
 
-#endif /* SRC_UI_CR42YCONTROLTOGGLE_H_ */
+#endif // CR42Y_CR42YMODULATIONEDITOR_H

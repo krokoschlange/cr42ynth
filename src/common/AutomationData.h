@@ -31,33 +31,56 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_UI_CR42YCONTROLTOGGLE_H_
-#define SRC_UI_CR42YCONTROLTOGGLE_H_
+#ifndef CR42Y_AUTOMATIONDATA_H
+#define CR42Y_AUTOMATIONDATA_H
 
-#include "CR42YToggle.h"
-
-#include "ControlConnector.h"
+#include <vector>
+#include <bits/stdint-uintn.h>
 
 namespace cr42y
 {
-	
-class CR42YControlToggle : public CR42YToggle
+
+class AutomationData
 {
 public:
-	CR42YControlToggle(CR42YUI* ui);
-	virtual ~CR42YControlToggle();
+	AutomationData();
 
-	void connectControl(Control* control);
+	AutomationData(const AutomationData& other);
 
-	void setValue(double value);
-	double value();
+	AutomationData(uint8_t* data);
+
+	virtual ~AutomationData();
+
+	AutomationData& operator=(const AutomationData& other);
+	
+	size_t getData(void** buffer);
+
+	void moveSection(size_t section, float newStart);
+	void moveStartValue(size_t section, float value);
+	void moveHandle(size_t section, float value);
+
+	void getSamples(std::vector<float>& samples, size_t length);
+
+	struct Section
+	{
+		float start;
+		float startValue;
+		float handle;
+	};
+
+	size_t addSection(Section section);
+	void removeSection(size_t section);
+	
+	std::vector<Section>& getSections();
+	float getSectionSample(size_t section, float position);
 
 private:
-	ControlConnector connector_;
+	std::vector<Section> sections_;
 
-	void clickedCallback();
+
+	float handleSigmoid(float handle);
 };
 
-} /* namespace cr42y */
+}
 
-#endif /* SRC_UI_CR42YCONTROLTOGGLE_H_ */
+#endif // CR42Y_AUTOMATIONDATA_H

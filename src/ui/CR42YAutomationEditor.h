@@ -31,33 +31,52 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_UI_CR42YCONTROLTOGGLE_H_
-#define SRC_UI_CR42YCONTROLTOGGLE_H_
+#ifndef CR42Y_CR42YAUTOMATIONEDITOR_H
+#define CR42Y_CR42YAUTOMATIONEDITOR_H
 
-#include "CR42YToggle.h"
-
-#include "ControlConnector.h"
+#include "CR42YGrid.h"
 
 namespace cr42y
 {
-	
-class CR42YControlToggle : public CR42YToggle
+class AutomationEditController;
+class CR42YnthCommunicator;
+class CR42YAutomationSampleEditor;
+class CR42YAutomationSelector;
+class CR42YIntegerEditor;
+class CR42YButton;
+class CR42YAutomationSettings;
+
+class CR42YAutomationEditor : public CR42YGrid
 {
 public:
-	CR42YControlToggle(CR42YUI* ui);
-	virtual ~CR42YControlToggle();
+	CR42YAutomationEditor(CR42YUI* ui, CR42YnthCommunicator* communicator);
 
-	void connectControl(Control* control);
-
-	void setValue(double value);
-	double value();
+	virtual ~CR42YAutomationEditor();
 
 private:
-	ControlConnector connector_;
-
-	void clickedCallback();
+	AutomationEditController* controller_;
+	CR42YnthCommunicator* communicator_;
+	
+	CR42YAutomationSampleEditor* sampleEditor_;
+	//CR42YIntegerEditor* gridXEditor_;
+	//CR42YIntegerEditor* gridYEditor_;
+	
+	CR42YAutomationSelector* selector_;
+	
+	CR42YButton* addBtn_;
+	CR42YButton* removeBtn_;
+	
+	CR42YAutomationSettings* settings_;
+	
+	void gridXChange(int newGrid);
+	void gridYChange(int newGrid);
+	void selectionChange(size_t selected);
+	void selected(int selection);
+	void dataChange();
+	void addCallback();
+	void removeCallback();
 };
 
-} /* namespace cr42y */
+}
 
-#endif /* SRC_UI_CR42YCONTROLTOGGLE_H_ */
+#endif // CR42Y_CR42YAUTOMATIONEDITOR_H

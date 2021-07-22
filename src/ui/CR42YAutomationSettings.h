@@ -31,33 +31,69 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_UI_CR42YCONTROLTOGGLE_H_
-#define SRC_UI_CR42YCONTROLTOGGLE_H_
+#ifndef CR42Y_CR42YAUTOMATIONSETTINGS_H
+#define CR42Y_CR42YAUTOMATIONSETTINGS_H
 
-#include "CR42YToggle.h"
-
-#include "ControlConnector.h"
+#include "CR42YGrid.h"
+#include <sigc++/sigc++.h>
 
 namespace cr42y
 {
-	
-class CR42YControlToggle : public CR42YToggle
+
+class AutomationEditController;
+class CR42YLabel;
+class CR42YIntegerEditor;
+class CR42YControlIntegerEditor;
+class CR42YControlToggleSelector;
+class CR42YControlDial;
+
+class CR42YAutomationSettings : public CR42YGrid
 {
 public:
-	CR42YControlToggle(CR42YUI* ui);
-	virtual ~CR42YControlToggle();
 
-	void connectControl(Control* control);
+	CR42YAutomationSettings(CR42YUI* ui, AutomationEditController* controller);
 
-	void setValue(double value);
-	double value();
+	virtual ~CR42YAutomationSettings();
+	
+	void update();
+	
+	sigc::signal<void, int> signalGridX();
+	sigc::signal<void, int> signalGridY();
 
+protected:
+	void on_realize();
 private:
-	ControlConnector connector_;
-
-	void clickedCallback();
+	AutomationEditController* controller_;
+	
+	CR42YLabel* gridXLabel_;
+	CR42YLabel* gridYLabel_;
+	CR42YIntegerEditor* gridXEditor_;
+	CR42YIntegerEditor* gridYEditor_;
+	
+	CR42YGrid* settingsGrid_;
+	CR42YControlToggleSelector* typeSelector_;
+	
+	CR42YLabel* sustainLabel_;
+	CR42YControlIntegerEditor* sustainEditor_;
+	
+	CR42YControlToggleSelector* syncSelector_;
+	CR42YControlToggleSelector* timingSelector_;
+	
+	
+	CR42YGrid* secondsTimingGrid_;
+	CR42YLabel* secondsLabel_;
+	CR42YControlDial* secondsDial_;
+	
+	CR42YGrid* beatsTimingGrid_;
+	CR42YLabel* beatsLabel_;
+	CR42YControlIntegerEditor* numeratorEditor_;
+	CR42YLabel* lineLabel_;
+	CR42YControlIntegerEditor* denominatorEditor_;
+	
+	void timingSelectCallback(int selected);
+	void typeSelectCallback(int selected);
 };
 
-} /* namespace cr42y */
+}
 
-#endif /* SRC_UI_CR42YCONTROLTOGGLE_H_ */
+#endif // CR42Y_CR42YAUTOMATIONSETTINGS_H

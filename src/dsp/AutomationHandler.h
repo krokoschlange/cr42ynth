@@ -31,33 +31,44 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_UI_CR42YCONTROLTOGGLE_H_
-#define SRC_UI_CR42YCONTROLTOGGLE_H_
+#ifndef CR42Y_AUTOMATIONHANDLER_H
+#define CR42Y_AUTOMATIONHANDLER_H
 
-#include "CR42YToggle.h"
+#include "OSCEventListener.h"
 
-#include "ControlConnector.h"
+#include <bits/stdint-uintn.h>
+
 
 namespace cr42y
 {
-	
-class CR42YControlToggle : public CR42YToggle
+class Automation;
+class CR42YnthCommunicator;
+
+class AutomationHandler : public OSCEventListener
 {
 public:
-	CR42YControlToggle(CR42YUI* ui);
-	virtual ~CR42YControlToggle();
+	AutomationHandler(CR42YnthCommunicator* communicator);
 
-	void connectControl(Control* control);
-
-	void setValue(double value);
-	double value();
+	virtual ~AutomationHandler();
+	
+	bool handleOSCEvent(OSCEvent* event) override;
+	
+	void getState(std::vector<OSCEvent>& events) override;
+	
+	Automation* getAutomation(uint32_t id);
+	
+	std::vector<Automation*>& getAutomations();
 
 private:
-	ControlConnector connector_;
-
-	void clickedCallback();
+	CR42YnthCommunicator* communicator_;
+	
+	void createAutomation(uint32_t id);
+	
+	void removeAutomation(uint32_t id);
+	
+	std::vector<Automation*> automations_;
 };
 
-} /* namespace cr42y */
+}
 
-#endif /* SRC_UI_CR42YCONTROLTOGGLE_H_ */
+#endif // CR42Y_AUTOMATIONHANDLER_H

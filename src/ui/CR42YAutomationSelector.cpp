@@ -31,57 +31,72 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_DSP_GENERATORS_LFO_H_
-#define SRC_DSP_GENERATORS_LFO_H_
 
-#include "Generator.h"
-#include "Control.h"
+#include "CR42YAutomationSelector.h"
+
+#include "AutomationEditController.h"
+#include "CR42YAutomationItem.h"
 
 namespace cr42y
 {
 
-class LFO : public Generator
+CR42YAutomationSelector::CR42YAutomationSelector(CR42YUI* ui, AutomationEditController* controller) :
+		CR42YToggleSelector(ui),
+		controller_(controller),
+		boxSize_(50)
 {
-public:
-	LFO(std::vector<Voice*>* vce, int id, float rate);
-	virtual ~LFO();
+	update();
+}
 
-	void nextSample();
-	virtual void voiceAdded(Voice* vce);
-	virtual void voiceRemoved(Voice* vce);
+CR42YAutomationSelector::~CR42YAutomationSelector()
+{
+}
 
-	virtual void getState(std::vector<OSCEvent>& events);
+void CR42YAutomationSelector::on_size_request(Gtk::Requisition* requisition)
+{
+	*requisition = Gtk::Requisition();
+	if (controller_)
+	{
+		int height = boxSize_ * controller_->getAutomationCount();
+		requisition->height = height; //std::max<int>(height, get_parent()->get_height());
+		requisition->width = 10;
+	}
+	else
+	{
+		requisition->height = 10; //get_parent()->get_height();
+		requisition->width = 10;
+	}
+}
 
-	virtual bool receiveOSCMessage(OSCEvent* event);
+void CR42YAutomationSelector::update()
+{
+	if (controller_)
+	{		
+		for (size_t i = items_.size(); i < controller_->getAutomationCount(); i++)
+		{
+			CR42YAutomationItem* item = new CR42YAutomationItem(ui_);
+			putToggle(item, 0, i * boxSize_, 1, boxSize_);
+			items_.push_back(item);
+			item->show();
+		}
+		while ((size_t) controller_->getAutomationCount() < items_.size())
+		{
+			removeToggle(items_[items_.size() - 1]);
+			delete items_[items_.size() - 1];
+			items_.erase(items_.begin() + items_.size() - 1);
+		}
+		for (size_t i = 0; i < items_.size(); i++)
+		{
+			std::string typeText = "LFO";
+			if (controller_->getType(i) > 0)
+			{
+				typeText = "ENV";
+			}
+			items_[i]->setText(std::to_string(controller_->getID(i)) + " " + typeText);
+		}
+		select(controller_->selectedAutomation());
+	}
+	set_size_request(10, boxSize_ * items_.size());
+}
 
-	float getSample(Voice* vce);
-
-	void sync(float pos);
-
-	void setWaveform(std::vector<float>* wf);
-
-	void midiPanic();
-
-private:
-	int number;
-	float samplerate;
-
-	float unsyncedPhase;
-	float syncedPhase;
-
-	Control synced;
-	Control retrigger;
-	Control smooth;
-
-	Control useFrequency;
-	Control frequency;
-	Control lenghtInNotes;
-
-	std::vector<float>* waveform;
-	std::map<Voice*, float> phases;
-
-};
-
-} /* namespace cr42y */
-
-#endif /* SRC_DSP_GENERATORS_LFO_H_ */
+}

@@ -34,6 +34,7 @@
 #include "CR42YOSCSettings.h"
 
 #include "CR42YOSCPanelScroll.h"
+#include "CR42YAutomationEditor.h"
 
 namespace cr42y
 {
@@ -46,7 +47,8 @@ CR42YOSCSettings::CR42YOSCSettings(CR42YUI* ui,
 		CR42YGrid(ui),
 		oscPanelScroll_(
 				new CR42YOSCPanelScroll(ui, communicator, wtEditController,
-						viewSelector))
+						viewSelector)),
+		automationEditor_(new CR42YAutomationEditor(ui, communicator))
 {
 	configureColumn(0, 1, 0, 0, 0, 0);
 
@@ -54,6 +56,7 @@ CR42YOSCSettings::CR42YOSCSettings(CR42YUI* ui,
 	configureRow(1, 1, 0, 0, 0, 0);
 
 	put(oscPanelScroll_, 0, 0);
+	put(automationEditor_, 1, 0);
 
 	oscPanelScroll_->update();
 }
@@ -61,6 +64,7 @@ CR42YOSCSettings::CR42YOSCSettings(CR42YUI* ui,
 CR42YOSCSettings::~CR42YOSCSettings()
 {
 	delete oscPanelScroll_;
+	delete automationEditor_;
 }
 
 } /* namespace cr42y */

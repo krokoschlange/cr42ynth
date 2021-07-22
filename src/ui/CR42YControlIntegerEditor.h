@@ -31,33 +31,31 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_UI_CR42YCONTROLTOGGLE_H_
-#define SRC_UI_CR42YCONTROLTOGGLE_H_
+#ifndef CR42Y_CR42YCONTROLINTEGEREDITOR_H
+#define CR42Y_CR42YCONTROLINTEGEREDITOR_H
 
-#include "CR42YToggle.h"
-
+#include "CR42YIntegerEditor.h"
 #include "ControlConnector.h"
 
 namespace cr42y
 {
-	
-class CR42YControlToggle : public CR42YToggle
+
+class CR42YControlIntegerEditor : public CR42YIntegerEditor
 {
 public:
-	CR42YControlToggle(CR42YUI* ui);
-	virtual ~CR42YControlToggle();
+	CR42YControlIntegerEditor(CR42YUI* ui);
 
+	virtual ~CR42YControlIntegerEditor();
+	
 	void connectControl(Control* control);
-
-	void setValue(double value);
-	double value();
-
+	
+	//void setValue(double value);
+	
 private:
 	ControlConnector connector_;
 
-	void clickedCallback();
 };
 
-} /* namespace cr42y */
+}
 
-#endif /* SRC_UI_CR42YCONTROLTOGGLE_H_ */
+#endif // CR42Y_CR42YCONTROLINTEGEREDITOR_H

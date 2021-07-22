@@ -31,33 +31,38 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_UI_CR42YCONTROLTOGGLE_H_
-#define SRC_UI_CR42YCONTROLTOGGLE_H_
 
-#include "CR42YToggle.h"
-
-#include "ControlConnector.h"
+#include "CR42YAutomationItem.h"
 
 namespace cr42y
 {
-	
-class CR42YControlToggle : public CR42YToggle
+
+CR42YAutomationItem::CR42YAutomationItem(CR42YUI* ui) :
+		CR42YToggle(ui)
 {
-public:
-	CR42YControlToggle(CR42YUI* ui);
-	virtual ~CR42YControlToggle();
 
-	void connectControl(Control* control);
+}
 
-	void setValue(double value);
-	double value();
+CR42YAutomationItem::~CR42YAutomationItem()
+{
 
-private:
-	ControlConnector connector_;
+}
 
-	void clickedCallback();
-};
+void CR42YAutomationItem::on_drag_begin(
+	const Glib::RefPtr<Gdk::DragContext>& )
+{
+}
 
-} /* namespace cr42y */
+void CR42YAutomationItem::on_drag_data_get(
+	const Glib::RefPtr<Gdk::DragContext>&,
+	Gtk::SelectionData& , guint, guint)
+{
+	
+}
 
-#endif /* SRC_UI_CR42YCONTROLTOGGLE_H_ */
+
+void CR42YAutomationItem::on_drag_end(const Glib::RefPtr<Gdk::DragContext>&)
+{
+}
+
+}

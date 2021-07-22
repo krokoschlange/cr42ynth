@@ -31,33 +31,43 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_UI_CR42YCONTROLTOGGLE_H_
-#define SRC_UI_CR42YCONTROLTOGGLE_H_
-
-#include "CR42YToggle.h"
-
-#include "ControlConnector.h"
+#include "CR42YControlToggleSelector.h"
 
 namespace cr42y
 {
-	
-class CR42YControlToggle : public CR42YToggle
+
+CR42YControlToggleSelector::CR42YControlToggleSelector(CR42YUI* ui) :
+		CR42YToggleSelector(ui)
 {
-public:
-	CR42YControlToggle(CR42YUI* ui);
-	virtual ~CR42YControlToggle();
+	using std::placeholders::_1;
+	connector_.setWidgetValueSetter(std::bind(&CR42YControlToggleSelector::setValue, this, _1));
+	signalSelected().connect(sigc::mem_fun(this, &CR42YControlToggleSelector::selectCallback));
+}
 
-	void connectControl(Control* control);
+CR42YControlToggleSelector::~CR42YControlToggleSelector()
+{
 
-	void setValue(double value);
-	double value();
+}
 
-private:
-	ControlConnector connector_;
+void CR42YControlToggleSelector::connectControl(Control* control)
+{
+	connector_.connect(*control);
+	setValue(connector_.getControl()->getValue());
+}
 
-	void clickedCallback();
-};
+void CR42YControlToggleSelector::setValue(double value)
+{
+	select((int) value);
+}
 
-} /* namespace cr42y */
+double CR42YControlToggleSelector::value()
+{
+	return selected();
+}
 
-#endif /* SRC_UI_CR42YCONTROLTOGGLE_H_ */
+void CR42YControlToggleSelector::selectCallback(int)
+{
+	connector_.setControlValue(value());
+}
+
+}

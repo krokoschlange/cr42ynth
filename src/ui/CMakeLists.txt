@@ -35,6 +35,7 @@ add_executable(cr42ynth_ui.so
 	../common/CR42YnthCommunicator.cpp
 	../common/CR42YConfig.cpp
 	../common/ModulationControls.cpp
+	../common/AutomationData.cpp
 	
 	
 	../common/lv2/CR42YnthLV2URIS.cpp
@@ -50,6 +51,7 @@ add_executable(cr42ynth_ui.so
 	../common/FftRealPair.cpp
 	
 	WavetableEditController.cpp
+	AutomationEditController.cpp
 	
 	tools/FreeTool.cpp
 	tools/SinHalfTool.cpp
@@ -109,6 +111,13 @@ add_executable(cr42ynth_ui.so
 	CR42YControlToggle.cpp
 	CR42YModulationEditor.cpp
 	CR42YSquareContainer.cpp
+	CR42YAutomationSampleEditor.cpp
+	CR42YAutomationEditor.cpp
+	CR42YAutomationSelector.cpp
+	CR42YAutomationItem.cpp
+	CR42YAutomationSettings.cpp
+	CR42YControlToggleSelector.cpp
+	CR42YControlIntegerEditor.cpp
 	
 	helpers.cpp
 )

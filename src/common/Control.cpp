@@ -63,6 +63,10 @@ Control::Control(std::string addr, CR42YnthCommunicator* comm, float val,
 Control::~Control()
 {
 	//CR42YnthDSP::getInstance()->removeControl(this);
+	for (size_t i = 0; i < listeners.size(); i++)
+	{
+		listeners[i]->disconnect(*this);
+	}
 	if (communicator)
 	{
 		communicator->removeOSCEventListener(this);

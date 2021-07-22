@@ -31,33 +31,33 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_UI_CR42YCONTROLTOGGLE_H_
-#define SRC_UI_CR42YCONTROLTOGGLE_H_
-
-#include "CR42YToggle.h"
-
-#include "ControlConnector.h"
+#include "ModulationControls.h"
+#include "Control.h"
 
 namespace cr42y
 {
-	
-class CR42YControlToggle : public CR42YToggle
+ModulationControls::ModulationControls(CR42YnthCommunicator* comm)
 {
-public:
-	CR42YControlToggle(CR42YUI* ui);
-	virtual ~CR42YControlToggle();
+	for (int mod = 0; mod < CR42Ynth_OSC_COUNT; mod++)
+	{
+		for (int carr = 0; carr < CR42Ynth_OSC_COUNT; carr++)
+		{
+			amControls[mod * CR42Ynth_OSC_COUNT + carr] = new Control("/modulation/am/" + std::to_string(carr) + "/" + std::to_string(mod), comm);
+			fmControls[mod * CR42Ynth_OSC_COUNT + carr] = new Control("/modulation/fm/" + std::to_string(carr) + "/" + std::to_string(mod), comm);
+			pmControls[mod * CR42Ynth_OSC_COUNT + carr] = new Control("/modulation/pm/" + std::to_string(carr) + "/" + std::to_string(mod), comm);
+			rmControls[mod * CR42Ynth_OSC_COUNT + carr] = new Control("/modulation/rm/" + std::to_string(carr) + "/" + std::to_string(mod), comm);
+		}
+	}
+}
 
-	void connectControl(Control* control);
-
-	void setValue(double value);
-	double value();
-
-private:
-	ControlConnector connector_;
-
-	void clickedCallback();
-};
-
-} /* namespace cr42y */
-
-#endif /* SRC_UI_CR42YCONTROLTOGGLE_H_ */
+ModulationControls::~ModulationControls()
+{
+	for (int i = 0; i < CR42Ynth_OSC_COUNT * CR42Ynth_OSC_COUNT; i++)
+	{
+		delete amControls[i];
+		delete fmControls[i];
+		delete pmControls[i];
+		delete rmControls[i];
+	}
+}
+}

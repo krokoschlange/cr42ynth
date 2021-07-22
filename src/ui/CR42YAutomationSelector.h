@@ -31,33 +31,38 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_UI_CR42YCONTROLTOGGLE_H_
-#define SRC_UI_CR42YCONTROLTOGGLE_H_
 
-#include "CR42YToggle.h"
+#ifndef CR42Y_AUTOMATIONSELECTOR_H
+#define CR42Y_AUTOMATIONSELECTOR_H
 
-#include "ControlConnector.h"
+#include "CR42YToggleSelector.h"
 
 namespace cr42y
 {
-	
-class CR42YControlToggle : public CR42YToggle
+
+class AutomationEditController;
+class CR42YAutomationItem;
+
+class CR42YAutomationSelector : public CR42YToggleSelector
 {
 public:
-	CR42YControlToggle(CR42YUI* ui);
-	virtual ~CR42YControlToggle();
+	CR42YAutomationSelector(CR42YUI* ui, AutomationEditController* controller);
 
-	void connectControl(Control* control);
-
-	void setValue(double value);
-	double value();
+	virtual ~CR42YAutomationSelector();
+	
+	void update();
+	
+protected:
+	void on_size_request(Gtk::Requisition * requisition) override;
 
 private:
-	ControlConnector connector_;
-
-	void clickedCallback();
+	AutomationEditController* controller_;
+	size_t boxSize_;
+	
+	std::vector<CR42YAutomationItem*> items_;
+	
 };
 
-} /* namespace cr42y */
+}
 
-#endif /* SRC_UI_CR42YCONTROLTOGGLE_H_ */
+#endif // CR42Y_AUTOMATIONSELECTOR_H

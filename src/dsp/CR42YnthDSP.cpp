@@ -47,7 +47,7 @@
 #include "Property.h"
 #include "common.h"
 #include "ModulationControls.h"
-#include "LFO.h"
+#include "AutomationHandler.h"
 
 namespace cr42y
 {
@@ -78,13 +78,16 @@ CR42YnthDSP::CR42YnthDSP(float rate, CR42YnthCommunicator* comm) :
 		bpmProp(nullptr),
 		vol(nullptr),
 		volProp(nullptr),
-		modCtrls_(nullptr),globalVoice(nullptr),//new Voice(0, 0, std::vector<WTOscillator*>())),
+		modCtrls_(nullptr),
+		automationHandler_(nullptr),
+		globalVoice(nullptr),//new Voice(0, 0, std::vector<WTOscillator*>())),
 		freeVoice(nullptr),//new Voice(0, 0, std::vector<WTOscillator*>())),
 		outR(nullptr),
 		outL(nullptr)
 {
 	comm->addOSCEventListener(this);
 	modCtrls_ = new ModulationControls(comm);
+	automationHandler_ = new AutomationHandler(comm);
 }
 
 CR42YnthDSP::~CR42YnthDSP()
@@ -130,11 +133,7 @@ CR42YnthDSP::~CR42YnthDSP()
 	delete freeVoice;
 	freeVoice = nullptr;
 	delete modCtrls_;
-	
-	for (size_t i = 0; i < lfos_.size(); i++)
-	{
-		delete lfos_[i];
-	}
+
 	//controls.clear();
 }
 
@@ -240,7 +239,7 @@ bool CR42YnthDSP::handleOSCEvent(OSCEvent* event)
 					activeOscs.push_back(oscillators[i]);
 				}
 			}
-			Voice* voice = new Voice(midi[1], midi[2], activeOscs, modCtrls_, lfos_);
+			Voice* voice = new Voice(midi[1], midi[2], activeOscs, modCtrls_, automationHandler_);
 			voices.push_back(voice);
 			/*for (int i = 0; i < oscillators.size(); i++)
 			{

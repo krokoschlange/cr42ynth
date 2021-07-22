@@ -48,12 +48,13 @@ namespace cr42y
 class WTOscillator;
 class OscillatorVoiceData;
 class ModulationControls;
-class LFO;
-	
+class AutomationHandler;
+class Automation;
+
 class Voice : public ControlListener
 {
 public:
-	Voice(int n, int midivel, std::vector<WTOscillator*>& oscillators, ModulationControls* modCtrls, std::vector<LFO*>& lfos);
+	Voice(int n, int midivel, std::vector<WTOscillator*>& oscillators, ModulationControls* modCtrls, AutomationHandler* automationHandler);
 	virtual ~Voice();
 
 	int getNote();
@@ -181,6 +182,8 @@ private:
 	};
 	
 	OscillatorDataControls dataControls_[CR42Ynth_OSC_COUNT];
+	
+	uint32_t getAutomationData(Automation* automation);
 };
 
 inline void Voice::calcParamMod(uint32_t data, float min, float range, float& out)

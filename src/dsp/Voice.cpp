@@ -42,17 +42,49 @@
 #include "OscillatorControls.h"
 #include "ModulationControls.h"
 #include "WTOscillator.h"
-#include "LFO.h"
+#include "AutomationHandler.h"
+#include "Automation.h"
 
 namespace cr42y
 {
 
-Voice::Voice(int n, int midivel, std::vector<WTOscillator*>& oscillators, ModulationControls* modCtrls, std::vector<LFO*>&) :
+Voice::Voice(int n, int midivel, std::vector<WTOscillator*>& oscillators, ModulationControls* modCtrls, AutomationHandler* automationHandler) :
 		note(n),
 		start(0),
 		velocity(midivel / 127.),
 		pressed_(true)
 {
+	std::vector<Automation*>& automations = automationHandler->getAutomations();
+	for (size_t i = 0; i < automations.size(); i++)
+	{
+		Automation* automation = automations[i];
+		if (automation->type() == 0)
+		{
+			ENVData env = {
+				automation->id(),
+				automation->waveform(),
+				(uint32_t) automation->wfSize(),
+				0,
+				automation->deltaPhase(),
+				automation->sustain(),
+				0
+			};
+			envelopes_.push_back(env);
+		}
+		else
+		{
+			LFOData lfo = {
+				automation->id(),
+				automation->waveform(),
+				(uint32_t) automation->wfSize(),
+				0,
+				automation->deltaPhase(),
+				0
+			};
+			lfos_.push_back(lfo);
+		}
+	}
+	
 	for (int i = 0; i < CR42Ynth_OSC_COUNT; i++)
 	{
 		oscData_[i].wavetable = nullptr;
@@ -456,6 +488,35 @@ void Voice::maxCallback(float max, Control* ctrl)
 void Voice::genCallback(std::string, Control*)
 {
 	//haven't thought about this yet, maybe ignore?
+}
+
+uint32_t Voice::getAutomationData(Automation* automation)
+{
+	uint32_t data = 0;
+	if (automation->type() == 0)
+	{
+		data = data | (TYPE_ENV << 24);
+		for (size_t i = 0; i < envelopes_.size(); i++)
+		{
+			if (envelopes_[i].id == automation->id())
+			{
+				data = data | (0xffffff & i); 
+				return data;
+			}
+		}
+	}
+	else
+	{
+		data = data | (TYPE_LFO << 24);
+		for (size_t i = 0; i < lfos_.size(); i++)
+		{
+			if (lfos_[i].id == automation->id())
+			{
+				data = data | (0xffffff & i); 
+				return data;
+			}
+		}
+	}
 }
 
 } /* namespace cr42y */

@@ -31,33 +31,34 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_UI_CR42YCONTROLTOGGLE_H_
-#define SRC_UI_CR42YCONTROLTOGGLE_H_
+#ifndef CR42Y_CR42YCONTROLTOGGLESELECTOR_H
+#define CR42Y_CR42YCONTROLTOGGLESELECTOR_H
 
-#include "CR42YToggle.h"
+#include "CR42YToggleSelector.h"
 
 #include "ControlConnector.h"
 
 namespace cr42y
 {
-	
-class CR42YControlToggle : public CR42YToggle
+
+class CR42YControlToggleSelector : public CR42YToggleSelector
 {
 public:
-	CR42YControlToggle(CR42YUI* ui);
-	virtual ~CR42YControlToggle();
+	CR42YControlToggleSelector(CR42YUI* ui);
 
+	virtual ~CR42YControlToggleSelector();
+	
 	void connectControl(Control* control);
-
+	
 	void setValue(double value);
 	double value();
-
+	
 private:
 	ControlConnector connector_;
-
-	void clickedCallback();
+	
+	void selectCallback(int selected);
 };
 
-} /* namespace cr42y */
+}
 
-#endif /* SRC_UI_CR42YCONTROLTOGGLE_H_ */
+#endif // CR42Y_CR42YCONTROLTOGGLESELECTOR_H

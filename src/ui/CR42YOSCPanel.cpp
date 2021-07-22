@@ -75,7 +75,7 @@ CR42YOSCPanel::CR42YOSCPanel(CR42YUI* ui, WavetableEditController* wtEditControl
 
 	put(oscToggle_, 0, 0);
 	put(idxLabel_, 0, 1);
-	put(wfView_, 1, 0, 1, 3);
+	put(wfView_, 1, 0, 1, 4);
 	put(volumeDial_, 2, 0, 1, 2);
 	put(wtPosDial_, 2, 2, 1, 1);
 }

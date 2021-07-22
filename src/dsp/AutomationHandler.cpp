@@ -31,33 +31,82 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_UI_CR42YCONTROLTOGGLE_H_
-#define SRC_UI_CR42YCONTROLTOGGLE_H_
+#include "AutomationHandler.h"
 
-#include "CR42YToggle.h"
+#include "Automation.h"
+#include "OSCEvent.h"
 
-#include "ControlConnector.h"
+#include "rtosc/rtosc.h"
 
 namespace cr42y
 {
-	
-class CR42YControlToggle : public CR42YToggle
+
+AutomationHandler::AutomationHandler(CR42YnthCommunicator* communicator) :
+		communicator_(communicator)
 {
-public:
-	CR42YControlToggle(CR42YUI* ui);
-	virtual ~CR42YControlToggle();
 
-	void connectControl(Control* control);
+}
 
-	void setValue(double value);
-	double value();
+AutomationHandler::~AutomationHandler()
+{
 
-private:
-	ControlConnector connector_;
+}
 
-	void clickedCallback();
-};
+bool AutomationHandler::handleOSCEvent(OSCEvent* event)
+{
+	char* end = nullptr;
+	std::string pattern = "/automation/create";
+	rtosc_match_path(pattern.c_str(), event->getMessage(), (const char**) &end);
+	if (end && *end == '\0' && rtosc_type(event->getMessage(), 0) == 'i')
+	{
+		createAutomation(rtosc_argument(event->getMessage(), 0).i);
+		return true;
+	}
+	pattern = "/automation/remove";
+	rtosc_match_path(pattern.c_str(), event->getMessage(), (const char**) &end);
+	if (end && *end == '\0' && rtosc_type(event->getMessage(), 0) == 'i')
+	{
+		removeAutomation(rtosc_argument(event->getMessage(), 0).i);
+		return true;
+	}
+	return false;
+}
 
-} /* namespace cr42y */
+void AutomationHandler::getState(std::vector<OSCEvent>&)
+{
+	
+}
 
-#endif /* SRC_UI_CR42YCONTROLTOGGLE_H_ */
+Automation* AutomationHandler::getAutomation(uint32_t id)
+{
+	if (automations_.size() > id)
+	{
+		return automations_[id];
+	}
+	return nullptr;
+}
+
+std::vector<Automation*>& AutomationHandler::getAutomations()
+{
+	return automations_;
+}
+
+void AutomationHandler::createAutomation(uint32_t id)
+{
+	if (automations_.size() <= id)
+	{
+		automations_.resize(id, nullptr);
+	}
+	automations_[id] = new Automation(id, communicator_);
+}
+
+void AutomationHandler::removeAutomation(uint32_t id)
+{
+	if (automations_.size() > id && automations_[id] != nullptr)
+	{
+		delete automations_[id];
+		automations_[id] = nullptr;
+	}
+}
+
+}

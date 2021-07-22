@@ -42,6 +42,7 @@ class CR42YnthCommunicator;
 class CR42YOSCPanelScroll;
 class CR42YToggleSelector;
 class WavetableEditController;
+class CR42YAutomationEditor;
 
 class CR42YOSCSettings : public CR42YGrid
 {
@@ -53,6 +54,7 @@ public:
 
 private:
 	CR42YOSCPanelScroll* oscPanelScroll_;
+	CR42YAutomationEditor* automationEditor_;
 };
 
 } /* namespace cr42y */

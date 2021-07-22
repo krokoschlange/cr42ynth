@@ -31,33 +31,56 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_UI_CR42YCONTROLTOGGLE_H_
-#define SRC_UI_CR42YCONTROLTOGGLE_H_
+#ifndef CR42Y_CR42YAUTOMATIONSAMPLEEDITOR_H
+#define CR42Y_CR42YAUTOMATIONSAMPLEEDITOR_H
 
-#include "CR42YToggle.h"
-
-#include "ControlConnector.h"
+#include <gtkmm.h>
+#include <CR42YWidget.h>
 
 namespace cr42y
 {
-	
-class CR42YControlToggle : public CR42YToggle
+	class AutomationEditController;
+
+class CR42YAutomationSampleEditor : public Gtk::Widget, public CR42YWidget
 {
 public:
-	CR42YControlToggle(CR42YUI* ui);
-	virtual ~CR42YControlToggle();
+	CR42YAutomationSampleEditor(CR42YUI* ui, AutomationEditController* controller);
 
-	void connectControl(Control* control);
+	virtual ~CR42YAutomationSampleEditor();
+	
+	void setGridX(int gridX);
+	void setGridY(int gridY);
 
-	void setValue(double value);
-	double value();
-
+protected:
+	virtual bool on_expose_event(GdkEventExpose* event);
+	virtual void on_realize();
+	
+	bool on_button_press(GdkEventButton* event);
+	bool on_button_release(GdkEventButton* event);
+	bool on_motion_notify(GdkEventMotion* event);
+	
 private:
-	ControlConnector connector_;
-
-	void clickedCallback();
+	Glib::RefPtr<Gdk::Window> window_;
+	
+	AutomationEditController* controller_;
+	
+	bool grabbed_;
+	size_t grabbedHandle_;
+	bool isSectionHandle_;
+	int grabX_;
+	int grabY_;
+	bool reset_;
+	
+	float blobSize_;
+	float blobGrabSize_;
+	
+	int gridX_;
+	int gridY_;
+	
+	void dataUpdateCallback();
+	void selectionUpdateCallback(size_t selected);
 };
 
-} /* namespace cr42y */
+}
 
-#endif /* SRC_UI_CR42YCONTROLTOGGLE_H_ */
+#endif // CR42Y_CR42YAUTOMATIONSAMPLEEDITOR_H

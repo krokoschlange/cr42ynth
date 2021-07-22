@@ -31,33 +31,83 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_UI_CR42YCONTROLTOGGLE_H_
-#define SRC_UI_CR42YCONTROLTOGGLE_H_
+#include "Automation.h"
 
-#include "CR42YToggle.h"
-
-#include "ControlConnector.h"
+#include "CR42YnthDSP.h"
 
 namespace cr42y
 {
-	
-class CR42YControlToggle : public CR42YToggle
+
+Automation::Automation(uint32_t id, CR42YnthCommunicator* comm) :
+		ControlListener(),
+		id_(id),
+		communicator_(comm),
+		typeControl_("/automation/" + std::to_string(id) + "/typeControl", comm, 0),
+		syncControl_("/automation/" + std::to_string(id) + "/syncControl", comm, 0),
+		useBeatsControl_("/automation/" + std::to_string(id) + "/useBeatsLength", comm, 0),
+		secondsControl_("/automation/" + std::to_string(id) + "/lengthSeconds", comm, 0),
+		beatsNumeratorControl_("/automation/" + std::to_string(id) + "/lengthBeatsNumerator", comm, 0),
+		beatsDenominatorControl_("/automation/" + std::to_string(id) + "/lengthBeatsDenominator", comm, 0),
+		sustainControl_("/automation/" + std::to_string(id) + "/sustainControl", comm, 0)
 {
-public:
-	CR42YControlToggle(CR42YUI* ui);
-	virtual ~CR42YControlToggle();
+	connect(typeControl_);
+	connect(syncControl_);
+	connect(useBeatsControl_);
+	connect(secondsControl_);
+	connect(beatsNumeratorControl_);
+	connect(beatsDenominatorControl_);
+	connect(sustainControl_);
+}
 
-	void connectControl(Control* control);
+Automation::~Automation()
+{
 
-	void setValue(double value);
-	double value();
+}
 
-private:
-	ControlConnector connector_;
+void Automation::valueCallback(float, Control*)
+{
+	
+}
 
-	void clickedCallback();
-};
+void Automation::minCallback(float, Control*)
+{
+	
+}
 
-} /* namespace cr42y */
+void Automation::maxCallback(float, Control*)
+{
+	
+}
 
-#endif /* SRC_UI_CR42YCONTROLTOGGLE_H_ */
+void Automation::genCallback(std::string, Control*)
+{
+	
+}
+
+void Automation::setWaveform(float* waveform, size_t size)
+{
+	if (waveform_)
+	{
+		delete[] waveform_;
+	}
+	waveform_ = waveform;
+	wfSize_ = size;
+}
+
+void Automation::updateTiming()
+{
+	if (useBeatsControl_.getValue() > 0.5)
+	{
+		double beats = beatsNumeratorControl_.getValue() / beatsDenominatorControl_.getValue() * 4;
+		double bps = CR42YnthDSP::getInstance()->getBPM() / 60;
+		double seconds = beats / bps;
+		deltaPhase_ = 1 / (seconds * samplerate_);
+		
+	}
+	else
+	{
+		deltaPhase_ = 1 / (secondsControl_.getValue() * samplerate_);
+	}
+}
+
+}

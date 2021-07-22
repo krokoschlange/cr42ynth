@@ -38,7 +38,6 @@ add_executable(cr42ynth.so
 	Generators/OscillatorVoiceData.cpp
 	Generators/Generator.cpp
 	Generators/WTOscillator.cpp
-	Generators/LFO.cpp
 	
 	
 	lv2/lv2DSP.cpp
@@ -47,6 +46,9 @@ add_executable(cr42ynth.so
 	CR42YnthDSP.cpp
 	Voice.cpp
 	Property.cpp
+	
+	Automation.cpp
+	AutomationHandler.cpp
 )
 
 link_directories(${LIBSNDFILE_LINK_DIRS})

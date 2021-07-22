@@ -31,33 +31,29 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_UI_CR42YCONTROLTOGGLE_H_
-#define SRC_UI_CR42YCONTROLTOGGLE_H_
+#ifndef MODULATIONCONTROLS_H
+#define MODULATIONCONTROLS_H
 
-#include "CR42YToggle.h"
-
-#include "ControlConnector.h"
+#include "common.h"
 
 namespace cr42y
 {
-	
-class CR42YControlToggle : public CR42YToggle
+
+class Control;
+class CR42YnthCommunicator;
+class ModulationControls
 {
 public:
-	CR42YControlToggle(CR42YUI* ui);
-	virtual ~CR42YControlToggle();
+    ModulationControls(CR42YnthCommunicator* comm);
 
-	void connectControl(Control* control);
-
-	void setValue(double value);
-	double value();
-
-private:
-	ControlConnector connector_;
-
-	void clickedCallback();
+    virtual ~ModulationControls();
+	
+	Control* amControls[CR42Ynth_OSC_COUNT * CR42Ynth_OSC_COUNT];
+	Control* fmControls[CR42Ynth_OSC_COUNT * CR42Ynth_OSC_COUNT];
+	Control* pmControls[CR42Ynth_OSC_COUNT * CR42Ynth_OSC_COUNT];
+	Control* rmControls[CR42Ynth_OSC_COUNT * CR42Ynth_OSC_COUNT];
 };
 
-} /* namespace cr42y */
+}
 
-#endif /* SRC_UI_CR42YCONTROLTOGGLE_H_ */
+#endif // MODULATIONCONTROLS_H

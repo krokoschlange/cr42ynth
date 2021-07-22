@@ -31,33 +31,34 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_UI_CR42YCONTROLTOGGLE_H_
-#define SRC_UI_CR42YCONTROLTOGGLE_H_
+#ifndef CR42Y_CR42YSQUARECONTAINER_H
+#define CR42Y_CR42YSQUARECONTAINER_H
 
-#include "CR42YToggle.h"
+#include <gtkmm.h>
+#include "CR42YWidget.h"
 
-#include "ControlConnector.h"
+namespace cr42y {
 
-namespace cr42y
-{
-	
-class CR42YControlToggle : public CR42YToggle
+class CR42YSquareContainer : public Gtk::Container
 {
 public:
-	CR42YControlToggle(CR42YUI* ui);
-	virtual ~CR42YControlToggle();
+    CR42YSquareContainer();
 
-	void connectControl(Control* control);
-
-	void setValue(double value);
-	double value();
-
+    virtual ~CR42YSquareContainer();
+	
+protected:
+	void on_remove(Gtk::Widget* child) override;
+	void on_add(Gtk::Widget* child) override;
+	void on_realize() override;
+	bool on_expose_event(GdkEventExpose* event) override;
+	void on_size_allocate(Gtk::Allocation& alloc) override;
+	void on_size_request(Gtk::Requisition* requisition) override;
+	void forall_vfunc(gboolean include_internals, GtkCallback callback, gpointer callback_data) override;
+	
 private:
-	ControlConnector connector_;
-
-	void clickedCallback();
+	Gtk::Widget* child_;
 };
 
-} /* namespace cr42y */
+}
 
-#endif /* SRC_UI_CR42YCONTROLTOGGLE_H_ */
+#endif // CR42Y_CR42YSQUARECONTAINER_H

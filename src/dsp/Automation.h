@@ -31,33 +31,81 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-#ifndef SRC_UI_CR42YCONTROLTOGGLE_H_
-#define SRC_UI_CR42YCONTROLTOGGLE_H_
+#ifndef CR42Y_AUTOMATION_H
+#define CR42Y_AUTOMATION_H
 
-#include "CR42YToggle.h"
+#include "OSCEventListener.h"
+#include "ControlListener.h"
 
-#include "ControlConnector.h"
+#include "Control.h"
 
 namespace cr42y
 {
-	
-class CR42YControlToggle : public CR42YToggle
+
+class Automation : public ControlListener
 {
 public:
-	CR42YControlToggle(CR42YUI* ui);
-	virtual ~CR42YControlToggle();
+	Automation(uint32_t id, CR42YnthCommunicator* comm);
 
-	void connectControl(Control* control);
-
-	void setValue(double value);
-	double value();
-
+	virtual ~Automation();
+	
+	inline uint32_t id()
+	{
+		return id_;
+	}
+	
+	inline uint32_t type()
+	{
+		return typeControl_.getValue();
+	}
+	
+	inline float* waveform()
+	{
+		return waveform_;
+	}
+	
+	inline size_t wfSize()
+	{
+		return wfSize_;
+	}
+	
+	inline float deltaPhase()
+	{
+		return deltaPhase_;
+	}
+	
+	inline uint32_t sustain()
+	{
+		return sustainControl_.getValue();
+	}
+	
+	virtual void valueCallback(float val, Control* ctrl);
+	virtual void minCallback(float min, Control* ctrl);
+	virtual void maxCallback(float max, Control* ctrl);
+	virtual void genCallback(std::string gen, Control* ctrl);
+	
 private:
-	ControlConnector connector_;
-
-	void clickedCallback();
+	uint32_t id_;
+	float* waveform_;
+	size_t wfSize_;
+	size_t samplerate_;
+	
+	float deltaPhase_;
+	
+	CR42YnthCommunicator* communicator_;
+	
+	Control typeControl_;
+	Control syncControl_;
+	Control useBeatsControl_;
+	Control secondsControl_;
+	Control beatsNumeratorControl_;
+	Control beatsDenominatorControl_;
+	Control sustainControl_;
+	
+	void setWaveform(float* waveform, size_t size);
+	void updateTiming();
 };
 
-} /* namespace cr42y */
+}
 
-#endif /* SRC_UI_CR42YCONTROLTOGGLE_H_ */
+#endif // CR42Y_AUTOMATION_H
