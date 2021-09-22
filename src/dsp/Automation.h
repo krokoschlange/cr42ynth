@@ -42,10 +42,12 @@
 namespace cr42y
 {
 
+class AutomationData;
+	
 class Automation : public ControlListener
 {
 public:
-	Automation(uint32_t id, CR42YnthCommunicator* comm);
+	Automation(uint32_t id, CR42YnthCommunicator* comm, float smplrt);
 
 	virtual ~Automation();
 	
@@ -74,15 +76,17 @@ public:
 		return deltaPhase_;
 	}
 	
-	inline uint32_t sustain()
+	inline float sustain()
 	{
-		return sustainControl_.getValue();
+		return sustain_;
 	}
 	
-	virtual void valueCallback(float val, Control* ctrl);
-	virtual void minCallback(float min, Control* ctrl);
-	virtual void maxCallback(float max, Control* ctrl);
-	virtual void genCallback(std::string gen, Control* ctrl);
+	virtual void valueCallback(float val, Control* ctrl) override;
+	virtual void minCallback(float min, Control* ctrl) override;
+	virtual void maxCallback(float max, Control* ctrl) override;
+	virtual void genCallback(uint32_t gen, Control* ctrl) override;
+	
+	void setData(AutomationData* data);
 	
 private:
 	uint32_t id_;
@@ -91,6 +95,10 @@ private:
 	size_t samplerate_;
 	
 	float deltaPhase_;
+	
+	float sustain_;
+	
+	AutomationData* data_;
 	
 	CR42YnthCommunicator* communicator_;
 	
@@ -101,9 +109,10 @@ private:
 	Control beatsNumeratorControl_;
 	Control beatsDenominatorControl_;
 	Control sustainControl_;
-	
+
 	void setWaveform(float* waveform, size_t size);
 	void updateTiming();
+	void updateSustain();
 };
 
 }

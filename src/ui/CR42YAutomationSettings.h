@@ -62,6 +62,7 @@ public:
 
 protected:
 	void on_realize();
+	void on_show();
 private:
 	AutomationEditController* controller_;
 	
@@ -92,6 +93,8 @@ private:
 	
 	void timingSelectCallback(int selected);
 	void typeSelectCallback(int selected);
+	
+	void dataChangeCallback();
 };
 
 }

@@ -97,9 +97,7 @@ private:
 	//std::vector<Control*> controls;
 
 	Control* bpm;
-	Property* bpmProp;
 	Control* vol;
-	Property* volProp;
 
 	std::vector<WTOscillator*> oscillators;
 		

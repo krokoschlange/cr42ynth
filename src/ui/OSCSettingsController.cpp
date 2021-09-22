@@ -170,10 +170,11 @@ void OSCSettingsController::getState(std::vector<OSCEvent>& events)
 		int len = rtosc_message(buffer, bufferSize, address.c_str(), "s",
 				"set");
 
-		void* dataBuffer = nullptr;
-		int dataSize = editData_[i].getData(&dataBuffer);
+		uint8_t* dataBuffer = nullptr;
+		int dataSize = editData_[i].getData((void**) &dataBuffer);
 		events.push_back(OSCEvent(buffer, len, dataBuffer, dataSize));
 		//communicator_->writeMessage(buffer, len, dataBuffer, dataSize);
+		delete[] dataBuffer;
 	}
 }
 
@@ -206,10 +207,11 @@ void OSCSettingsController::wavetableChangedCallback()
 
 	int len = rtosc_message(buffer, bufferSize, address.c_str(), "s", "set");
 
-	void* dataBuffer = nullptr;
-	int dataSize = editData_[idx].getData(&dataBuffer);
+	uint8_t* dataBuffer = nullptr;
+	int dataSize = editData_[idx].getData((void**) &dataBuffer);
 	OSCEvent event = OSCEvent(buffer, len, dataBuffer, dataSize);
 	communicator_->writeMessage(event);
+	delete[] dataBuffer;
 }
 
 void OSCSettingsController::eraseHistoryCallback(

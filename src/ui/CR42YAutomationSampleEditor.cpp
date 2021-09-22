@@ -193,13 +193,13 @@ bool CR42YAutomationSampleEditor::on_expose_event(GdkEventExpose*)
 			cr->set_line_width(tm->lineThick() * 2);
 			cr->stroke();
 		}
-		for (size_t i = 0; i < controller_->sectionAmount() - 1; i++)
+		for (size_t i = 1; i < controller_->sectionAmount(); i++)
 		{
 			float x1 = 0;
 			float x2 = 0;
-			float y = controller_->handlePosition(i);
-			controller_->sectionHandle(&x1, nullptr, i);
-			controller_->sectionHandle(&x2, nullptr, i + 1);
+			float y = controller_->handlePosition(i - 1);
+			controller_->sectionHandle(&x1, nullptr, i - 1);
+			controller_->sectionHandle(&x2, nullptr, i);
 			float x = (x1 + x2) / 2;
 			
 			cr->arc(get_width() * x, get_height() * (1 - y),
@@ -252,20 +252,20 @@ bool CR42YAutomationSampleEditor::on_button_press(GdkEventButton* event)
 				isSectionHandle_ = true;
 			}
 		}
-		for (size_t i = 0; i < controller_->sectionAmount() - 1; i++)
+		for (size_t i = 1; i < controller_->sectionAmount(); i++)
 		{
 			float hx1 = 0;
 			float hx2 = 0;
-			controller_->sectionHandle(&hx1, nullptr, i);
-			controller_->sectionHandle(&hx2, nullptr, i + 1);
+			controller_->sectionHandle(&hx1, nullptr, i - 1);
+			controller_->sectionHandle(&hx2, nullptr, i);
 			float hx = (hx1 + hx2) / 2 * get_width();
-			float hy = controller_->handlePosition(i) * get_height();
+			float hy = controller_->handlePosition(i - 1) * get_height();
 			float dist = std::sqrt((x - hx) * (x - hx) + (y - hy) * (y - hy));
 			if (dist < get_height() * blobGrabSize_ && (closest < 0 || dist < closest))
 			{
 				closest = dist;
 				grabbed_ = true;
-				grabbedHandle_ = i;
+				grabbedHandle_ = i - 1;
 				isSectionHandle_ = false;
 			}
 		}

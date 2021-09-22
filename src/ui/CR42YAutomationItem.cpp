@@ -38,9 +38,12 @@ namespace cr42y
 {
 
 CR42YAutomationItem::CR42YAutomationItem(CR42YUI* ui) :
-		CR42YToggle(ui)
+		CR42YToggle(ui),
+		generator_(0)
 {
-
+	std::vector<Gtk::TargetEntry> entries;
+	entries.push_back(Gtk::TargetEntry(("CR42YGenerator"), Gtk::TARGET_SAME_APP, 0));
+	drag_source_set(entries, Gdk::BUTTON1_MASK, Gdk::ACTION_MOVE);
 }
 
 CR42YAutomationItem::~CR42YAutomationItem()
@@ -48,16 +51,34 @@ CR42YAutomationItem::~CR42YAutomationItem()
 
 }
 
+void CR42YAutomationItem::setGenerator(uint32_t generator)
+{
+	generator_ = generator;
+	uint8_t type = generator >> 24;
+	uint32_t id = generator & 0xffffff;
+	std::string text = "";
+	if (type == TYPE_ENV)
+	{
+		text += "ENV";
+	}
+	else if (type == TYPE_LFO)
+	{
+		text += "LFO";
+	}
+	setText(std::to_string(id) + " " + text);
+}
+
 void CR42YAutomationItem::on_drag_begin(
-	const Glib::RefPtr<Gdk::DragContext>& )
+	const Glib::RefPtr<Gdk::DragContext>&)
 {
 }
 
 void CR42YAutomationItem::on_drag_data_get(
 	const Glib::RefPtr<Gdk::DragContext>&,
-	Gtk::SelectionData& , guint, guint)
+	Gtk::SelectionData& selectionData, guint, guint)
 {
-	
+	const guchar* data = (const guchar*) &generator_;
+	selectionData.set("CR42YGenerator", sizeof(uint32_t) * 8, data, sizeof(uint32_t));
 }
 
 

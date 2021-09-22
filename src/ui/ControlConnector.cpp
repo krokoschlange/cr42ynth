@@ -45,7 +45,7 @@ ControlConnector::ControlConnector() :
 	{};
 	widgetSetMax_ = [](float)
 	{};
-	widgetSetGenerator_ = [](std::string)
+	widgetSetGenerator_ = [](uint32_t)
 	{};
 }
 
@@ -73,11 +73,11 @@ void ControlConnector::setControlMax(double max)
 {
 	if (control_)
 	{
-		control_->setValue(max, true, false);
+		control_->setMax(max, true, false);
 	}
 }
 
-void ControlConnector::setControlGenerator(std::string generator)
+void ControlConnector::setControlGenerator(uint32_t generator)
 {
 	if (control_)
 	{
@@ -101,7 +101,7 @@ void ControlConnector::setWidgetMaxSetter(std::function<void(double)> widgetSetM
 }
 
 void ControlConnector::setWidgetGeneratorSetter(
-		std::function<void(std::string)> widgetSetGenerator)
+	std::function<void(uint32_t)> widgetSetGenerator)
 {
 	widgetSetGenerator_ = widgetSetGenerator;
 }
@@ -121,7 +121,7 @@ void ControlConnector::maxCallback(float max, Control*)
 	widgetSetMax_(max);
 }
 
-void ControlConnector::genCallback(std::string gen, Control*)
+void ControlConnector::genCallback(uint32_t gen, Control*)
 {
 	widgetSetGenerator_(gen);
 }

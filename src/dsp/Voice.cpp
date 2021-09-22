@@ -34,8 +34,6 @@
 
 #include <cmath>
 
-#include <iostream>
-
 #include "Voice.h"
 #include "common.h"
 #include "OscillatorVoiceData.h"
@@ -44,6 +42,7 @@
 #include "WTOscillator.h"
 #include "AutomationHandler.h"
 #include "Automation.h"
+#include "common.h"
 
 namespace cr42y
 {
@@ -52,36 +51,40 @@ Voice::Voice(int n, int midivel, std::vector<WTOscillator*>& oscillators, Modula
 		note(n),
 		start(0),
 		velocity(midivel / 127.),
-		pressed_(true)
+		pressed_(true),
+		ended_(false)
 {
 	std::vector<Automation*>& automations = automationHandler->getAutomations();
 	for (size_t i = 0; i < automations.size(); i++)
 	{
 		Automation* automation = automations[i];
-		if (automation->type() == 0)
+		if (automation)
 		{
-			ENVData env = {
-				automation->id(),
-				automation->waveform(),
-				(uint32_t) automation->wfSize(),
-				0,
-				automation->deltaPhase(),
-				automation->sustain(),
-				0
-			};
-			envelopes_.push_back(env);
-		}
-		else
-		{
-			LFOData lfo = {
-				automation->id(),
-				automation->waveform(),
-				(uint32_t) automation->wfSize(),
-				0,
-				automation->deltaPhase(),
-				0
-			};
-			lfos_.push_back(lfo);
+			if (automation->type() == 0)
+			{
+				ENVData env = {
+					automation->id(),
+					automation->waveform(),
+					(uint32_t) automation->wfSize(),
+					0,
+					automation->deltaPhase(),
+					automation->sustain(),
+					0
+				};
+				envelopes_.push_back(env);
+			}
+			else
+			{
+				LFOData lfo = {
+					automation->id(),
+					automation->waveform(),
+					(uint32_t) automation->wfSize(),
+					0,
+					automation->deltaPhase(),
+					0
+				};
+				lfos_.push_back(lfo);
+			}
 		}
 	}
 	
@@ -91,7 +94,8 @@ Voice::Voice(int n, int midivel, std::vector<WTOscillator*>& oscillators, Modula
 	}
 	
 	oscCount_ = oscillators.size();
-	for (size_t i = 0; i < oscillators.size(); i++)
+	size_t i = 0;
+	for (; i < oscillators.size(); i++)
 	{
 		oscData_[i].id = oscillators[i]->getNumber();
 		std::vector<std::vector<float>> wt = oscillators[i]->wavetable();
@@ -141,55 +145,56 @@ Voice::Voice(int n, int midivel, std::vector<WTOscillator*>& oscillators, Modula
 		dataControls_[i].wtPos->addListener(this);
 		
 		//omfg wtf is this crap
-		oscModData_[i].volumeMod = 0;
-		oscModData_[i].volumeMin = 0;
-		oscModData_[i].volumeRange = 1;
-		oscModData_[i].panMod = 0;
-		oscModData_[i].panMin = 0;
-		oscModData_[i].panRange = 1;
-		oscModData_[i].noteshiftMod = 0;
-		oscModData_[i].noteshiftMin = 0;
-		oscModData_[i].noteshiftRange = 0;
-		oscModData_[i].unisonDetuneMod = 0;
-		oscModData_[i].unisonDetuneMin = 0;
-		oscModData_[i].unisonDetuneRange = 0;
-		oscModData_[i].unisonSpreadMod = 0;
-		oscModData_[i].unisonSpreadMin = 0;
-		oscModData_[i].unisonSpreadRange = 0;
-		oscModData_[i].wtPosMod = 0;
-		oscModData_[i].wtPosMin = 0;
-		oscModData_[i].wtPosRange = 0;
+		oscModData_[i].volumeMod = getAutomationData(dataControls_[i].volume->getGenerator());
+		oscModData_[i].volumeMin = dataControls_[i].volume->getMin();
+		oscModData_[i].volumeRange = dataControls_[i].volume->getMax() - dataControls_[i].volume->getMin();
+		oscModData_[i].panMod = getAutomationData(dataControls_[i].pan->getGenerator());
+		oscModData_[i].panMin = dataControls_[i].pan->getMin();
+		oscModData_[i].panRange = dataControls_[i].pan->getMax() - dataControls_[i].pan->getMin();
+		oscModData_[i].noteshiftMod = getAutomationData(dataControls_[i].noteShift->getGenerator());
+		oscModData_[i].noteshiftMin = dataControls_[i].noteShift->getMin();
+		oscModData_[i].noteshiftRange = dataControls_[i].noteShift->getMax() - dataControls_[i].noteShift->getMin();
+		oscModData_[i].unisonDetuneMod = getAutomationData(dataControls_[i].unisonDetune->getGenerator());
+		oscModData_[i].unisonDetuneMin = dataControls_[i].unisonDetune->getMin();
+		oscModData_[i].unisonDetuneRange = dataControls_[i].unisonDetune->getMax() - dataControls_[i].unisonDetune->getMin();
+		oscModData_[i].unisonSpreadMod = getAutomationData(dataControls_[i].unisonSpread->getGenerator());
+		oscModData_[i].unisonSpreadMin = dataControls_[i].unisonSpread->getMin();
+		oscModData_[i].unisonSpreadRange = dataControls_[i].unisonSpread->getMax() - dataControls_[i].unisonSpread->getMin();
+		oscModData_[i].wtPosMod = getAutomationData(dataControls_[i].wtPos->getGenerator());
+		oscModData_[i].wtPosMin = dataControls_[i].wtPos->getMin();
+		oscModData_[i].wtPosRange = dataControls_[i].wtPos->getMax() - dataControls_[i].wtPos->getMin();
+// 		oscModData_[i].phaseShiftMod = getAutomationData(dataControls_[i].phaseShift->getGenerator());
 		oscModData_[i].phaseShiftMod = 0;
-		oscModData_[i].phaseShiftMin = 0;
-		oscModData_[i].phaseShiftRange = 0;
+		oscModData_[i].phaseShiftMin = dataControls_[i].phaseShift->getMin();
+		oscModData_[i].phaseShiftRange = dataControls_[i].phaseShift->getMax() - dataControls_[i].phaseShift->getMin();
 		
 		for (int j = 0; j < CR42Ynth_OSC_COUNT; j++)
 		{
 			dataControls_[i].modFactors[j] = modCtrls->amControls[j * CR42Ynth_OSC_COUNT + oscData_[i].id];
 			dataControls_[i].modFactors[j]->addListener(this);
 			oscData_[i].modFactors[j] = dataControls_[i].modFactors[j]->getValue();
-			oscModData_[i].modFactorsMod[j] = 0; //TODO
+			oscModData_[i].modFactorsMod[j] = getAutomationData(dataControls_[i].modFactors[j]->getGenerator());
 			oscModData_[i].modFactorsMin[j] = dataControls_[i].modFactors[j]->getMin();
 			oscModData_[i].modFactorsRange[j] = dataControls_[i].modFactors[j]->getMax() - oscModData_[i].modFactorsMin[j];
 			
 			dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT] = modCtrls->fmControls[j * CR42Ynth_OSC_COUNT + oscData_[i].id];
 			dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT]->addListener(this);
 			oscData_[i].modFactors[j + CR42Ynth_OSC_COUNT] = dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT]->getValue();
-			oscModData_[i].modFactorsMod[j + CR42Ynth_OSC_COUNT] = 0; //TODO
+			oscModData_[i].modFactorsMod[j + CR42Ynth_OSC_COUNT] = getAutomationData(dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT]->getGenerator());
 			oscModData_[i].modFactorsMin[j + CR42Ynth_OSC_COUNT] = dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT]->getMin();
 			oscModData_[i].modFactorsRange[j + CR42Ynth_OSC_COUNT] = dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT]->getMax() - oscModData_[i].modFactorsMin[j];
 			
 			dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT * 2] = modCtrls->pmControls[j * CR42Ynth_OSC_COUNT + oscData_[i].id];
 			dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT * 2]->addListener(this);
 			oscData_[i].modFactors[j + CR42Ynth_OSC_COUNT * 2] = dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT * 2]->getValue();
-			oscModData_[i].modFactorsMod[j + CR42Ynth_OSC_COUNT * 2] = 0; //TODO
+			oscModData_[i].modFactorsMod[j + CR42Ynth_OSC_COUNT * 2] = getAutomationData(dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT * 2]->getGenerator());
 			oscModData_[i].modFactorsMin[j + CR42Ynth_OSC_COUNT * 2] = dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT * 2]->getMin();
 			oscModData_[i].modFactorsRange[j + CR42Ynth_OSC_COUNT * 2] = dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT * 2]->getMax() - oscModData_[i].modFactorsMin[j];
 			
 			dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT * 3] = modCtrls->rmControls[j * CR42Ynth_OSC_COUNT + oscData_[i].id];
 			dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT * 3]->addListener(this);
 			oscData_[i].modFactors[j + CR42Ynth_OSC_COUNT * 3] = dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT * 3]->getValue();
-			oscModData_[i].modFactorsMod[j + CR42Ynth_OSC_COUNT * 3] = 0; //TODO
+			oscModData_[i].modFactorsMod[j + CR42Ynth_OSC_COUNT * 3] = getAutomationData(dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT * 3]->getGenerator());
 			oscModData_[i].modFactorsMin[j + CR42Ynth_OSC_COUNT * 3] = dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT * 3]->getMin();
 			oscModData_[i].modFactorsRange[j + CR42Ynth_OSC_COUNT * 3] = dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT * 3]->getMax() - oscModData_[i].modFactorsMin[j];
 		}
@@ -207,7 +212,35 @@ Voice::Voice(int n, int midivel, std::vector<WTOscillator*>& oscillators, Modula
 		
 		samplerate = oscillators[i]->getSamplerate();
 	}
-		
+	for (; i < CR42Ynth_OSC_COUNT; i++)
+	{
+		for (int j = 0; j < CR42Ynth_OSC_COUNT; j++)
+		{
+			dataControls_[i].modFactors[j] = nullptr;
+			oscData_[i].modFactors[j] = 0;
+			oscModData_[i].modFactorsMod[j] = 0;
+			oscModData_[i].modFactorsMin[j] = 0;
+			oscModData_[i].modFactorsRange[j] = 0;
+			
+			dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT] = nullptr;
+			oscData_[i].modFactors[j + CR42Ynth_OSC_COUNT] = 0;
+			oscModData_[i].modFactorsMod[j + CR42Ynth_OSC_COUNT] = 0;
+			oscModData_[i].modFactorsMin[j + CR42Ynth_OSC_COUNT] = 0;
+			oscModData_[i].modFactorsRange[j + CR42Ynth_OSC_COUNT] = 0;
+			
+			dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT * 2] = nullptr;
+			oscData_[i].modFactors[j + CR42Ynth_OSC_COUNT * 2] = 0;
+			oscModData_[i].modFactorsMod[j + CR42Ynth_OSC_COUNT * 2] = 0;
+			oscModData_[i].modFactorsMin[j + CR42Ynth_OSC_COUNT * 2] = 0;
+			oscModData_[i].modFactorsRange[j + CR42Ynth_OSC_COUNT * 2] = 0;
+			
+			dataControls_[i].modFactors[j + CR42Ynth_OSC_COUNT * 3] = nullptr;
+			oscData_[i].modFactors[j + CR42Ynth_OSC_COUNT * 3] = 0;
+			oscModData_[i].modFactorsMod[j + CR42Ynth_OSC_COUNT * 3] = 0;
+			oscModData_[i].modFactorsMin[j + CR42Ynth_OSC_COUNT * 3] = 0;
+			oscModData_[i].modFactorsRange[j + CR42Ynth_OSC_COUNT * 3] = 0;
+		}
+	}
 	baseFrequency = std::exp2((note - 69.f) / 12) * 440;
 }
 
@@ -245,6 +278,20 @@ float Voice::getVelocity()
 	return velocity;
 }
 
+void Voice::stopPress()
+{
+	pressed_ = false;
+	for (size_t i = 0; i < envelopes_.size(); i++)
+	{
+		envelopes_[i].pos = envelopes_[i].sustain;
+	}
+}
+
+bool Voice::hasEnded()
+{
+	return ended_ && !pressed_;
+}
+
 void Voice::calculate(float* left, float* right, uint32_t samples)
 {
 	for (uint32_t s = 0; s < samples; s++)
@@ -253,21 +300,21 @@ void Voice::calculate(float* left, float* right, uint32_t samples)
 		{
 			LFOData& data = lfos_[lfo];
 			data.phase += data.deltaPhase - floorf(data.phase);
-			data.value = data.waveform[(int) (data.phase * data.wavesize)];
+			data.value = data.waveform[(int) (data.phase * (data.wavesize - 1))];
 		}
 		for (size_t env = 0; env < envelopes_.size(); env++)
 		{
 			ENVData& data = envelopes_[env];
-			data.pos += data.deltaPos - floorf(data.pos);
-			if (pressed_ && data.pos > data.sustain)
+			data.pos += data.deltaPos;// - floorf(data.pos);
+			if (pressed_ && data.pos > data.sustain) //TODO Segfault somewhere???
 			{
 				data.pos = data.sustain;
 			}
-			if (data.pos >= data.size)
+			if (data.pos >= 1)
 			{
-				data.pos = data.size - 1;
+				data.pos = 1;
 			}
-			data.value = data.samples[(int) data.pos];
+			data.value = data.samples[(int) (data.pos * (data.size - 1))];
 		}
 		
 		for (int osc = 0; osc < oscCount_; osc++)
@@ -344,8 +391,14 @@ void Voice::calculate(float* left, float* right, uint32_t samples)
 			//use unison#0 as value
 			data.value = oscValue;
 		}
-		
-		//TODO: update lfo, env
+	}
+	ended_ = true;
+	for (size_t i = 0; i < envelopes_.size(); i++)
+	{
+		if (envelopes_[i].pos < 1)
+		{
+			ended_ = false;
+		}
 	}
 }
 
@@ -406,36 +459,44 @@ void Voice::minCallback(float min, Control* ctrl)
 		if (ctrls.volume == ctrl)
 		{
 			oscModData_[osc].volumeMin = min;
+			oscModData_[osc].volumeRange = dataControls_[osc].volume->getMax() - min;
 		}
 		else if (ctrls.pan == ctrl)
 		{
 			oscModData_[osc].panMin = min;
+			oscModData_[osc].panRange = dataControls_[osc].pan->getMax() - min;
 		}
 		else if (ctrls.phaseShift == ctrl)
 		{
 			oscModData_[osc].phaseShiftMin = min;
+			oscModData_[osc].phaseShiftRange = dataControls_[osc].phaseShift->getMax() - min;
 		}
 		else if (ctrls.noteShift == ctrl)
 		{
 			oscModData_[osc].noteshiftMin = min;
+			oscModData_[osc].noteshiftRange = dataControls_[osc].noteShift->getMax() - min;
 		}
 		else if (ctrls.unisonSpread == ctrl)
 		{
 			oscModData_[osc].unisonSpreadMin = min;
+			oscModData_[osc].unisonSpreadRange = dataControls_[osc].unisonSpread->getMax() - min;
 		}
 		else if (ctrls.unisonDetune == ctrl)
 		{
 			oscModData_[osc].unisonDetuneMin = min;
+			oscModData_[osc].unisonDetuneRange = dataControls_[osc].unisonDetune->getMax() - min;
 		}
 		else if (ctrls.wtPos == ctrl)
 		{
 			oscModData_[osc].wtPosMin = min;
+			oscModData_[osc].wtPosRange = dataControls_[osc].wtPos->getMax() - min;
 		}
 		for (int i = 0; i < CR42Ynth_OSC_COUNT * 4; i++)
 		{
 			if (ctrls.modFactors[i] == ctrl)
 			{
 				oscModData_[osc].modFactorsMin[i] = min;
+				oscModData_[osc].modFactorsRange[i] = dataControls_[osc].modFactors[i]->getMax() - min;
 			}
 		}
 	}
@@ -485,7 +546,7 @@ void Voice::maxCallback(float max, Control* ctrl)
 	}
 }
 
-void Voice::genCallback(std::string, Control*)
+void Voice::genCallback(uint32_t, Control*)
 {
 	//haven't thought about this yet, maybe ignore?
 }
@@ -495,7 +556,7 @@ uint32_t Voice::getAutomationData(Automation* automation)
 	uint32_t data = 0;
 	if (automation->type() == 0)
 	{
-		data = data | (TYPE_ENV << 24);
+		data = data | (((uint32_t) TYPE_ENV) << 24);
 		for (size_t i = 0; i < envelopes_.size(); i++)
 		{
 			if (envelopes_[i].id == automation->id())
@@ -507,7 +568,7 @@ uint32_t Voice::getAutomationData(Automation* automation)
 	}
 	else
 	{
-		data = data | (TYPE_LFO << 24);
+		data = data | (((uint32_t) TYPE_LFO) << 24);
 		for (size_t i = 0; i < lfos_.size(); i++)
 		{
 			if (lfos_[i].id == automation->id())
@@ -517,6 +578,63 @@ uint32_t Voice::getAutomationData(Automation* automation)
 			}
 		}
 	}
+	return data;
+}
+
+uint32_t Voice::getAutomationData(uint32_t generator)
+{
+	/*uint32_t data = 0;
+	uint8_t type = (generator >> 24);
+	uint32_t id = generator & 0xffffff;
+	if (type == TYPE_ENV)
+	{
+		for (size_t i = 0; i < envelopes_.size(); i++)
+		{
+			if (envelopes_[i].id == id)
+			{
+				data = ((uint32_t) TYPE_ENV) << 24;
+				data = data | (0xffffff & i); 
+				return data;
+			}
+		}
+	}
+	if (type == TYPE_LFO)
+	{
+		for (size_t i = 0; i < lfos_.size(); i++)
+		{
+			if (lfos_[i].id == id)
+			{
+				data = ((uint32_t) TYPE_LFO) << 24;
+				data = data | (0xffffff & i); 
+				return data;
+			}
+		}
+	}*/
+	uint32_t data = 0;
+	uint32_t id = generator & 0xffffff;
+	uint8_t type = (generator >> 24);
+	if (type == TYPE_LFO || type == TYPE_ENV)
+	{
+		for (size_t i = 0; i < envelopes_.size(); i++)
+		{
+			if (envelopes_[i].id == id)
+			{
+				data = ((uint32_t) TYPE_ENV) << 24;
+				data = data | (0xffffff & i); 
+				return data;
+			}
+		}
+		for (size_t i = 0; i < lfos_.size(); i++)
+		{
+			if (lfos_[i].id == id)
+			{
+				data = ((uint32_t) TYPE_LFO) << 24;
+				data = data | (0xffffff & i); 
+				return data;
+			}
+		}
+	}
+	return data;
 }
 
 } /* namespace cr42y */

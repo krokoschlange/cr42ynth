@@ -118,6 +118,7 @@ add_executable(cr42ynth_ui.so
 	CR42YAutomationSettings.cpp
 	CR42YControlToggleSelector.cpp
 	CR42YControlIntegerEditor.cpp
+	CR42YAutomationDial.cpp
 	
 	helpers.cpp
 )

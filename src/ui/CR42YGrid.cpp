@@ -523,8 +523,6 @@ void CR42YGrid::on_size_allocate(Gtk::Allocation& alloc)
 		y += padTop;
 		h -= padTop + padBottom;
 
-		//std::cout << x << " " << y << " " << w << " " << h << " " << x2 << " " << y2 << " \n";
-
 		if (has_no_window())
 		{
 			childAlloc.set_x(get_allocation().get_x());

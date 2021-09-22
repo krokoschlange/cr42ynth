@@ -85,6 +85,8 @@ public:
 	
 	sigc::signal<void, size_t>& selectionChangedSignal();
 	sigc::signal<void>& dataChangedSignal();
+	
+	void sendData();
 
 private:
 	struct Automation
@@ -108,6 +110,7 @@ private:
 	sigc::signal<void> dataChangedSignal_;
 	
 	void deleteAutomation(Automation& data);
+	
 };
 
 }

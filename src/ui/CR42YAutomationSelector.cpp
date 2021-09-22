@@ -87,12 +87,20 @@ void CR42YAutomationSelector::update()
 		}
 		for (size_t i = 0; i < items_.size(); i++)
 		{
-			std::string typeText = "LFO";
+			/*std::string typeText = "LFO";
 			if (controller_->getType(i) > 0)
 			{
 				typeText = "ENV";
 			}
-			items_[i]->setText(std::to_string(controller_->getID(i)) + " " + typeText);
+			items_[i]->setText(std::to_string(controller_->getID(i)) + " " + typeText);*/
+			uint8_t type = TYPE_ENV;
+			if (controller_->getType(i) > 0)
+			{
+				type = TYPE_LFO;
+			}
+			uint32_t id = controller_->getID(i);
+			uint32_t gen = (((uint32_t) type) << 24) | (id & 0xffffff);
+			items_[i]->setGenerator(gen);
 		}
 		select(controller_->selectedAutomation());
 	}

@@ -47,7 +47,7 @@ class CR42YnthCommunicator;
 class AutomationHandler : public OSCEventListener
 {
 public:
-	AutomationHandler(CR42YnthCommunicator* communicator);
+	AutomationHandler(CR42YnthCommunicator* communicator, float smplrt);
 
 	virtual ~AutomationHandler();
 	
@@ -61,6 +61,7 @@ public:
 
 private:
 	CR42YnthCommunicator* communicator_;
+	float samplerate_;
 	
 	void createAutomation(uint32_t id);
 	

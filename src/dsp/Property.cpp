@@ -73,7 +73,7 @@ void Property::maxCallback(float max, Control*)
 	maximum = max;
 }
 
-void Property::genCallback(std::string gen, Control*)
+void Property::genCallback(uint32_t gen, Control*)
 {
 	if (generator)
 	{

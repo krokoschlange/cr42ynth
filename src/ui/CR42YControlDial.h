@@ -49,7 +49,7 @@ public:
 
 	void connectControl(Control* control);
 
-private:
+protected:
 	ControlConnector connector_;
 };
 

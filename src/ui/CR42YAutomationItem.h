@@ -36,6 +36,7 @@
 #define CR42Y_AUTOMATIONITEM_H
 
 #include "CR42YToggle.h"
+#include "common.h"
 
 namespace cr42y
 {
@@ -46,11 +47,16 @@ public:
 	CR42YAutomationItem(CR42YUI* ui);
 
 	~CR42YAutomationItem();
+	
+	void setGenerator(uint32_t generator);
 
 protected:
 	void on_drag_begin(const Glib::RefPtr<Gdk::DragContext>& context);
 	void on_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context, Gtk::SelectionData& selection_data, guint info, guint time);
 	void on_drag_end(const Glib::RefPtr<Gdk::DragContext>& context);
+	
+private:
+	uint32_t generator_;
 };
 
 }

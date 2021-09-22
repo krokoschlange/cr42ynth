@@ -34,13 +34,22 @@
 #include "Automation.h"
 
 #include "CR42YnthDSP.h"
+#include "AutomationData.h"
+
+#include <cstring>
 
 namespace cr42y
 {
 
-Automation::Automation(uint32_t id, CR42YnthCommunicator* comm) :
+Automation::Automation(uint32_t id, CR42YnthCommunicator* comm, float smplrt) :
 		ControlListener(),
 		id_(id),
+		waveform_(nullptr),
+		wfSize_(0),
+		samplerate_(smplrt),
+		deltaPhase_(0),
+		sustain_(1),
+		data_(nullptr),
 		communicator_(comm),
 		typeControl_("/automation/" + std::to_string(id) + "/typeControl", comm, 0),
 		syncControl_("/automation/" + std::to_string(id) + "/syncControl", comm, 0),
@@ -61,12 +70,24 @@ Automation::Automation(uint32_t id, CR42YnthCommunicator* comm) :
 
 Automation::~Automation()
 {
-
+	if (data_)
+	{
+		delete data_;
+	}
 }
 
-void Automation::valueCallback(float, Control*)
+void Automation::valueCallback(float, Control* control)
 {
-	
+	if (control == &syncControl_ || control == &useBeatsControl_ ||
+		control == &secondsControl_ || control == &beatsNumeratorControl_ ||
+		control == &beatsDenominatorControl_)
+	{
+		updateTiming();
+	}
+	else if (control == &sustainControl_)
+	{
+		updateSustain();
+	}
 }
 
 void Automation::minCallback(float, Control*)
@@ -79,9 +100,24 @@ void Automation::maxCallback(float, Control*)
 	
 }
 
-void Automation::genCallback(std::string, Control*)
+void Automation::genCallback(uint32_t, Control*)
 {
 	
+}
+
+void Automation::setData(AutomationData* data)
+{
+	if (data_)
+	{
+		delete data_;
+	}
+	data_ = data;
+	std::vector<float> smpls;
+	data->getSamples(smpls, 400);
+	float* wf = new float[400];
+	memcpy(wf, smpls.data(), 400 * sizeof(float));
+	setWaveform(wf, 400);
+	updateSustain();
 }
 
 void Automation::setWaveform(float* waveform, size_t size)
@@ -107,6 +143,31 @@ void Automation::updateTiming()
 	else
 	{
 		deltaPhase_ = 1 / (secondsControl_.getValue() * samplerate_);
+	}
+}
+
+void Automation::updateSustain()
+{
+	if (data_)
+	{
+		uint32_t sustainPoint = sustainControl_.getValue();
+		uint32_t sectionCount = data_->getSections().size();
+		if (sectionCount > 0)
+		{
+			if (sustainPoint >= sectionCount)
+			{
+				sustainPoint = data_->getSections().size() - 1;
+			}
+			sustain_ = data_->getSections()[sustainPoint].start;
+		}
+		else
+		{
+			sustain_ = 1;
+		}
+	}
+	else
+	{
+		sustain_ = 1;
 	}
 }
 

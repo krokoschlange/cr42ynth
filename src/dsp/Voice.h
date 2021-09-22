@@ -59,6 +59,8 @@ public:
 
 	int getNote();
 	float getVelocity();
+	void stopPress();
+	bool hasEnded();
 	
 	void calculate(float* left, float* right, uint32_t samples);
 private:
@@ -68,30 +70,31 @@ private:
 	float samplerate;
 	float baseFrequency;
 	bool pressed_;
+	bool ended_;
 	
 	struct OscillatorData
 	{
-		int id;
-		float* wavetable;
-		uint32_t wtSize;
-		uint32_t wtWidth;
-		float volume;
-		float pan;
-		float phaseShift;
-		float detune;
-		float noteShift;
-		float unisonSpread;
-		float unisonDetune;
-		float wtPos;
-		uint32_t unisonAmount;
-		float AM;
-		float FM;
-		float PM;
-		float RM;
+		int id = 0;
+		float* wavetable = nullptr;
+		uint32_t wtSize = 0;
+		uint32_t wtWidth = 0;
+		float volume = 0;
+		float pan = 0;
+		float phaseShift = 0;
+		float detune = 0;
+		float noteShift = 0;
+		float unisonSpread = 0;
+		float unisonDetune = 0;
+		float wtPos = 0;
+		uint32_t unisonAmount = 0;
+		float AM = 0;
+		float FM = 0;
+		float PM = 0;
+		float RM = 0;
 		float modFactors[CR42Ynth_OSC_COUNT * 4];
 		float phase[CR42Ynth_UNISON_MAX];
-		float value;
-		bool noise;
+		float value = 0;
+		bool noise = false;
 	};
 	
 	//float modFactors_[CR42Ynth_OSC_COUNT * CR42Ynth_OSC_COUNT * 4];
@@ -116,7 +119,7 @@ private:
 		uint32_t size;
 		float pos;
 		float deltaPos;
-		uint32_t sustain;
+		float sustain;
 		float value;
 	};
 	
@@ -125,27 +128,27 @@ private:
 	
 	struct OscParamModData
 	{
-		uint32_t volumeMod;
-		float volumeMin;
-		float volumeRange;
-		uint32_t panMod;
-		float panMin;
-		float panRange;
-		uint32_t noteshiftMod;
-		float noteshiftMin;
-		float noteshiftRange;
-		uint32_t unisonDetuneMod;
-		float unisonDetuneMin;
-		float unisonDetuneRange;
-		uint32_t unisonSpreadMod;
-		float unisonSpreadMin;
-		float unisonSpreadRange;
-		uint32_t wtPosMod;
-		float wtPosMin;
-		float wtPosRange;
-		uint32_t phaseShiftMod;
-		float phaseShiftMin;
-		float phaseShiftRange;
+		uint32_t volumeMod = 0;
+		float volumeMin = 0;
+		float volumeRange = 0;
+		uint32_t panMod = 0;
+		float panMin = 0;
+		float panRange = 0;
+		uint32_t noteshiftMod = 0;
+		float noteshiftMin = 0;
+		float noteshiftRange = 0;
+		uint32_t unisonDetuneMod = 0;
+		float unisonDetuneMin = 0;
+		float unisonDetuneRange = 0;
+		uint32_t unisonSpreadMod = 0;
+		float unisonSpreadMin = 0;
+		float unisonSpreadRange = 0;
+		uint32_t wtPosMod = 0;
+		float wtPosMin = 0;
+		float wtPosRange = 0;
+		uint32_t phaseShiftMod = 0;
+		float phaseShiftMin = 0;
+		float phaseShiftRange = 0;
 		uint32_t modFactorsMod[CR42Ynth_OSC_COUNT * 4];
 		float modFactorsMin[CR42Ynth_OSC_COUNT * 4];
 		float modFactorsRange[CR42Ynth_OSC_COUNT * 4];
@@ -155,35 +158,28 @@ private:
 	
 	OscParamModData oscModData_[CR42Ynth_OSC_COUNT];
 	
-	enum ParamModType : uint8_t
-	{
-		TYPE_NONE = 0,
-		TYPE_LFO = 1,
-		TYPE_ENV = 2,
-		TYPE_EXT = 3
-	};
-	
-	void valueCallback(float val, Control* ctrl);
-	void minCallback(float min, Control* ctrl);
-	void maxCallback(float max, Control* ctrl);
-	void genCallback(std::string gen, Control* ctrl);
+	void valueCallback(float val, Control* ctrl) override;
+	void minCallback(float min, Control* ctrl) override;
+	void maxCallback(float max, Control* ctrl) override;
+	void genCallback(uint32_t gen, Control* ctrl) override;
 	
 	struct OscillatorDataControls
 	{
-		Control* volume;
-		Control* pan;
-		Control* phaseShift;
-		Control* detune;
-		Control* noteShift;
-		Control* unisonSpread;
-		Control* unisonDetune;
-		Control* wtPos;
+		Control* volume = nullptr;
+		Control* pan = nullptr;
+		Control* phaseShift = nullptr;
+		Control* detune = nullptr;
+		Control* noteShift = nullptr;
+		Control* unisonSpread = nullptr;
+		Control* unisonDetune = nullptr;
+		Control* wtPos = nullptr;
 		Control* modFactors[CR42Ynth_OSC_COUNT * 4];
 	};
 	
 	OscillatorDataControls dataControls_[CR42Ynth_OSC_COUNT];
 	
 	uint32_t getAutomationData(Automation* automation);
+	uint32_t getAutomationData(uint32_t generator);
 };
 
 inline void Voice::calcParamMod(uint32_t data, float min, float range, float& out)

@@ -32,6 +32,7 @@
  *******************************************************************************/
 #include "CR42YOSCPanel.h"
 
+#include "CR42YAutomationDial.h"
 #include "CR42YControlDial.h"
 #include "CR42YControlToggle.h"
 #include "CR42YUI.h"
@@ -49,8 +50,8 @@ CR42YOSCPanel::CR42YOSCPanel(CR42YUI* ui, WavetableEditController* wtEditControl
 		wfView_(new CR42YWFView(ui, wtEditController, viewSelector)),
 		idxLabel_(new CR42YLabel(ui)),
 		oscToggle_(new CR42YControlToggle(ui)),
-		volumeDial_(new CR42YControlDial(ui)),
-		wtPosDial_(new CR42YControlDial(ui))
+		volumeDial_(new CR42YAutomationDial(ui)),
+		wtPosDial_(new CR42YAutomationDial(ui))
 {
 	configureRow(0, 1, 0.003, 0.003, 0, 0);
 	configureRow(1, 5, 0.003, 0.003, 0, 0);

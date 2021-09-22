@@ -67,6 +67,8 @@ public:
 	double maxValue();
 
 	sigc::signal<void, double> signalChanged();
+	sigc::signal<void, double> signalMinChanged();
+	sigc::signal<void, double> signalMaxChanged();
 	sigc::signal<void, double> signalDone();
 
 protected:
@@ -74,20 +76,24 @@ protected:
 	virtual bool on_expose_event(GdkEventExpose* event);
 	virtual void on_realize();
 
-	bool on_button_press(GdkEventButton* event);
-	bool on_button_release(GdkEventButton* event);
-	bool on_motion_notify(GdkEventMotion* event);
+	virtual bool on_button_press(GdkEventButton* event);
+	virtual bool on_button_release(GdkEventButton* event);
+	virtual bool on_motion_notify(GdkEventMotion* event);
 
 private:
 	Glib::RefPtr<Gdk::Window> window_;
 
 	sigc::signal<void, double> signalChanged_;
+	sigc::signal<void, double> signalMinChanged_;
+	sigc::signal<void, double> signalMaxChanged_;
 	sigc::signal<void, double> signalDone_;
 
 	double value_;
 	double logicalMin_;
 	double logicalMax_;
 
+	bool grab_;
+	
 	double preClickValue_;
 	double prePreClickValue_;
 	int mouseY_;

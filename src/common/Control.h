@@ -49,7 +49,7 @@ class ControlListener;
 class Control : public OSCEventListener
 {
 public:
-	Control(std::string addr, CR42YnthCommunicator* comm, float val = 0, float mi = 0, float ma = 1, std::string gen = "");
+	Control(std::string addr, CR42YnthCommunicator* comm, float val = 0, float mi = 0, float ma = 1, uint32_t gen = 0);
 	virtual ~Control();
 
 	void setValue(float val, bool callback = true, bool updateListeners = true);
@@ -58,13 +58,13 @@ public:
 	void getState(std::vector<OSCEvent>& events);
 	void getState(std::vector<OSCEvent>& events, bool sendVal, bool sendMin, bool sendMax, bool sendGen);
 
-	void setGenerator(std::string g, bool callback = true, bool updateListeners = true);
+	void setGenerator(uint32_t g, bool callback = true, bool updateListeners = true);
 
 	void setMax(float m, bool callback = true, bool updateListeners = true);
 	void setMin(float m, bool callback = true, bool updateListeners = true);
 
 	std::string getAddress();
-	std::string getGenerator();
+	uint32_t getGenerator();
 
 	float getMax();
 	float getMin();
@@ -79,7 +79,7 @@ protected:
 	CR42YnthCommunicator* communicator;
 	float value;
 
-	std::string generator;
+	uint32_t generator;
 	float max;
 	float min;
 

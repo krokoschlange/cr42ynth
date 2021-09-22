@@ -58,6 +58,14 @@ enum CR42YnthPort
 	EXT8
 };
 
+enum ParamModType : uint8_t
+{
+	TYPE_NONE = 0,
+	TYPE_LFO = 1,
+	TYPE_ENV = 2,
+	TYPE_EXT = 3
+};
+
 std::string to_string(float num);
 
 } /* namespace cr42y */

@@ -145,6 +145,8 @@ CR42YAutomationSettings::CR42YAutomationSettings(CR42YUI* ui, AutomationEditCont
 	
 	sustainLabel_->setText("Sustain");
 	
+	sustainEditor_->signalChanged().connect(sigc::hide(sigc::mem_fun(controller_->dataChangedSignal(), &sigc::signal<void>::emit)));
+	
 	put(gridXLabel_, 0, 0, 1, 2);
 	put(gridYLabel_, 0, 2, 1, 2);
 	put(gridXEditor_, 1, 0, 1, 2);
@@ -156,6 +158,8 @@ CR42YAutomationSettings::CR42YAutomationSettings(CR42YUI* ui, AutomationEditCont
 	put(beatsTimingGrid_, 3, 1, 1, 2);
 	put(sustainLabel_, 4, 1, 1, 2);
 	put(sustainEditor_, 5, 1, 1, 2);
+	
+	controller_->dataChangedSignal().connect(sigc::mem_fun(this, &CR42YAutomationSettings::dataChangeCallback));
 }
 
 CR42YAutomationSettings::~CR42YAutomationSettings()
@@ -184,6 +188,13 @@ void CR42YAutomationSettings::on_realize()
 	timingSelectCallback(timingSelector_->selected());
 }
 
+void CR42YAutomationSettings::on_show()
+{
+	CR42YGrid::on_show();
+	timingSelectCallback(timingSelector_->selected());
+	typeSelectCallback(typeSelector_->selected());
+}
+
 void CR42YAutomationSettings::update()
 {
 	typeSelector_->connectControl(controller_->typeControl());
@@ -194,6 +205,7 @@ void CR42YAutomationSettings::update()
 	numeratorEditor_->connectControl(controller_->lengthBeatsNumeratorControl());
 	denominatorEditor_->connectControl(controller_->lengthBeatsDenominatorControl());
 	sustainEditor_->connectControl(controller_->sustainControl());
+	sustainEditor_->setMax((int) controller_->sectionAmount() - 1);
 }
 
 sigc::signal<void, int> cr42y::CR42YAutomationSettings::signalGridX()
@@ -235,6 +247,13 @@ void CR42YAutomationSettings::typeSelectCallback(int selected)
 		sustainLabel_->hide();
 		sustainEditor_->hide();
 	}
+	controller_->dataChangedSignal().emit();
+}
+
+void CR42YAutomationSettings::dataChangeCallback()
+{
+	sustainEditor_->setMax((int) controller_->sectionAmount() - 1);
+	sustainEditor_->setValue(std::min(sustainEditor_->value(), (int) controller_->sectionAmount() - 1));
 }
 
 }

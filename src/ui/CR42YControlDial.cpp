@@ -42,7 +42,11 @@ CR42YControlDial::CR42YControlDial(CR42YUI* ui) :
 {
 	using std::placeholders::_1;
 	connector_.setWidgetValueSetter((std::function<void(double)>)std::bind(&CR42YControlDial::setValue, this, _1, false));
+	connector_.setWidgetMinSetter((std::function<void(double)>)std::bind(&CR42YControlDial::setMinValue, this, _1));
+	connector_.setWidgetMaxSetter((std::function<void(double)>)std::bind(&CR42YControlDial::setMaxValue, this, _1));
 	signalChanged().connect(sigc::mem_fun(&connector_, &ControlConnector::setControlValue));
+	signalMinChanged().connect(sigc::mem_fun(&connector_, &ControlConnector::setControlMin));
+	signalMaxChanged().connect(sigc::mem_fun(&connector_, &ControlConnector::setControlMax));
 }
 
 CR42YControlDial::~CR42YControlDial()
@@ -51,8 +55,15 @@ CR42YControlDial::~CR42YControlDial()
 
 void CR42YControlDial::connectControl(Control* control)
 {
-	connector_.connect(*control);
-	setValue(connector_.getControl()->getValue(), false);
+	if (control)
+	{
+		connector_.connect(*control);
+		setValue(connector_.getControl()->getValue(), false);
+	}
+	else
+	{
+		setValue(0);
+	}
 }
 
 } /* namespace cr42y */

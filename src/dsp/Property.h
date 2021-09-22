@@ -50,7 +50,7 @@ public:
 	void valueCallback(float val, Control* ctrl);
 	void minCallback(float min, Control* ctrl);
 	void maxCallback(float max, Control* ctrl);
-	void genCallback(std::string gen, Control* ctrl);
+	void genCallback(uint32_t gen, Control* ctrl);
 
 	void listenTo(Control* ctrl);
 

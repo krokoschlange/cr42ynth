@@ -45,6 +45,7 @@ CR42YDial::CR42YDial(CR42YUI* ui) :
 		value_(0),
 		logicalMin_(0),
 		logicalMax_(1),
+		grab_(false),
 		preClickValue_(0),
 		prePreClickValue_(0),
 		mouseY_(0),
@@ -95,12 +96,16 @@ void CR42YDial::setLogicalMin(double logicalMin)
 {
 	logicalMin_ = logicalMin;
 	setValue(value_);
+	setMinValue(minValue_);
+	setMaxValue(maxValue_);
 }
 
 void CR42YDial::setLogicalMax(double logicalMax)
 {
 	logicalMax_ = logicalMax;
 	setValue(value_);
+	setMinValue(minValue_);
+	setMaxValue(maxValue_);
 }
 
 double CR42YDial::defaultValue()
@@ -127,11 +132,15 @@ void CR42YDial::setText(std::string text)
 void CR42YDial::setMode(bool valueMode)
 {
 	valueMode_ = valueMode;
+	queue_draw();
 }
 
 void CR42YDial::setMinValue(double minValue)
 {
-	minValue_ = minValue;
+	double newVal = fmax(logicalMin_, fmin(minValue, fmin(logicalMax_, maxValue_)));
+	minValue_ = newVal;
+	signalMinChanged_.emit(minValue_);
+	queue_draw();
 }
 
 double CR42YDial::minValue()
@@ -141,7 +150,10 @@ double CR42YDial::minValue()
 
 void CR42YDial::setMaxValue(double maxValue)
 {
-	maxValue_ = maxValue;
+	double newVal = fmax(fmax(logicalMin_, minValue_), fmin(maxValue, logicalMax_));
+	maxValue_ = newVal;
+	signalMaxChanged_.emit(maxValue_);
+	queue_draw();
 }
 
 double CR42YDial::maxValue()
@@ -152,6 +164,16 @@ double CR42YDial::maxValue()
 sigc::signal<void, double> CR42YDial::signalChanged()
 {
 	return signalChanged_;
+}
+
+sigc::signal<void, double> CR42YDial::signalMinChanged()
+{
+	return signalMinChanged_;
+}
+
+sigc::signal<void, double> CR42YDial::signalMaxChanged()
+{
+	return signalMaxChanged_;
 }
 
 sigc::signal<void, double> CR42YDial::signalDone()
@@ -268,6 +290,7 @@ bool CR42YDial::on_button_press(GdkEventButton* event)
 			//setValue(1 - event->y / get_height());
 			mouseY_ = event->y;
 			gtk_grab_add(gobj());
+			grab_ = true;
 			return true;
 		}
 		else if (event->button == 1 && event->type == GDK_2BUTTON_PRESS)
@@ -305,6 +328,7 @@ bool CR42YDial::on_button_press(GdkEventButton* event)
 			grabMax_ = true;
 			mouseY_ = event->y;
 			gtk_grab_add(gobj());
+			grab_ = true;
 			return true;
 		}
 		else if (event->button == 3)
@@ -312,6 +336,7 @@ bool CR42YDial::on_button_press(GdkEventButton* event)
 			grabMax_ = false;
 			mouseY_ = event->y;
 			gtk_grab_add(gobj());
+			grab_ = true;
 			return true;
 		}
 	}
@@ -323,6 +348,7 @@ bool CR42YDial::on_button_release(GdkEventButton* event)
 	if (event->button == 1 || event->button == 3)
 	{
 		gtk_grab_remove(gobj());
+		grab_ = false;
 		signalDone_.emit(value_);
 		return true;
 	}
@@ -331,7 +357,7 @@ bool CR42YDial::on_button_release(GdkEventButton* event)
 
 bool CR42YDial::on_motion_notify(GdkEventMotion* event)
 {
-	if (get_state() != Gtk::STATE_INSENSITIVE)
+	if (get_state() != Gtk::STATE_INSENSITIVE && grab_)
 	{
 		if (valueMode_)
 		{
@@ -349,11 +375,11 @@ bool CR42YDial::on_motion_notify(GdkEventMotion* event)
 			float ydiff = mouseY_ - event->y;
 			if (grabMax_)
 			{
-				setMaxValue(maxValue_ + ydiff / get_height() / 2);
+				setMaxValue(maxValue_ + ydiff / get_height() / 2 * (logicalMax_ - logicalMin_));
 			}
 			else
 			{
-				setMinValue(minValue_ + ydiff / get_height() / 2);
+				setMinValue(minValue_ + ydiff / get_height() / 2 * (logicalMax_ - logicalMin_));
 			}
 			mouseY_ = event->y;
 			return true;

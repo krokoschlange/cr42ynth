@@ -49,17 +49,17 @@ public:
 	void setControlValue(double value);
 	void setControlMin(double min);
 	void setControlMax(double max);
-	void setControlGenerator(std::string generator);
+	void setControlGenerator(uint32_t generator);
 
 	void setWidgetValueSetter(std::function<void(double)> widgetSetValue);
 	void setWidgetMinSetter(std::function<void(double)> widgetSetMin);
 	void setWidgetMaxSetter(std::function<void(double)> widgetSetMax);
-	void setWidgetGeneratorSetter(std::function<void(std::string)> widgetSetGenerator);
+	void setWidgetGeneratorSetter(std::function<void(uint32_t)> widgetSetGenerator);
 
 	void valueCallback(float val, Control* ctrl) override;
 	void minCallback(float min, Control* ctrl) override;
 	void maxCallback(float max, Control* ctrl) override;
-	void genCallback(std::string gen, Control* ctrl) override;
+	void genCallback(uint32_t gen, Control* ctrl) override;
 	
 	void connect(Control& ctrl) override;
 	void disconnect(Control& ctrl) override;
@@ -72,7 +72,7 @@ private:
 	std::function<void(double)> widgetSetValue_;
 	std::function<void(double)> widgetSetMin_;
 	std::function<void(double)> widgetSetMax_;
-	std::function<void(std::string)> widgetSetGenerator_;
+	std::function<void(uint32_t)> widgetSetGenerator_;
 };
 
 } /* namespace cr42y */

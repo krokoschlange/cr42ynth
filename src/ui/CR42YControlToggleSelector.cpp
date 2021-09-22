@@ -51,8 +51,15 @@ CR42YControlToggleSelector::~CR42YControlToggleSelector()
 
 void CR42YControlToggleSelector::connectControl(Control* control)
 {
-	connector_.connect(*control);
-	setValue(connector_.getControl()->getValue());
+	if (control)
+	{
+		connector_.connect(*control);
+		setValue(connector_.getControl()->getValue());
+	}
+	else
+	{
+		setValue(0);
+	}
 }
 
 void CR42YControlToggleSelector::setValue(double value)

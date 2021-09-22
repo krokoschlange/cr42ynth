@@ -35,16 +35,22 @@
 
 #include "Automation.h"
 #include "OSCEvent.h"
+#include "AutomationData.h"
+#include "CR42YnthCommunicator.h"
 
 #include "rtosc/rtosc.h"
 
 namespace cr42y
 {
 
-AutomationHandler::AutomationHandler(CR42YnthCommunicator* communicator) :
-		communicator_(communicator)
+AutomationHandler::AutomationHandler(CR42YnthCommunicator* communicator, float smplrt) :
+		communicator_(communicator),
+		samplerate_(smplrt)
 {
-
+	if (communicator)
+	{
+		communicator->addOSCEventListener(this);
+	}
 }
 
 AutomationHandler::~AutomationHandler()
@@ -67,6 +73,20 @@ bool AutomationHandler::handleOSCEvent(OSCEvent* event)
 	if (end && *end == '\0' && rtosc_type(event->getMessage(), 0) == 'i')
 	{
 		removeAutomation(rtosc_argument(event->getMessage(), 0).i);
+		return true;
+	}
+	pattern = "/automation/update";
+	rtosc_match_path(pattern.c_str(), event->getMessage(), (const char**) &end);
+	if (end && *end == '\0' && rtosc_type(event->getMessage(), 0) == 'i')
+	{
+		Automation* automation = getAutomation(rtosc_argument(event->getMessage(), 0).i);
+		if (automation)
+		{
+			size_t dataSize = 0;
+			uint8_t* data = (uint8_t*) event->getData(&dataSize);
+			AutomationData* automationData = new AutomationData(data);
+			automation->setData(automationData);
+		}
 		return true;
 	}
 	return false;
@@ -95,9 +115,9 @@ void AutomationHandler::createAutomation(uint32_t id)
 {
 	if (automations_.size() <= id)
 	{
-		automations_.resize(id, nullptr);
+		automations_.resize(id + 1, nullptr);
 	}
-	automations_[id] = new Automation(id, communicator_);
+	automations_[id] = new Automation(id, communicator_, samplerate_);
 }
 
 void AutomationHandler::removeAutomation(uint32_t id)

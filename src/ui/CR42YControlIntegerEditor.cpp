@@ -50,8 +50,15 @@ CR42YControlIntegerEditor::~CR42YControlIntegerEditor()
 
 void CR42YControlIntegerEditor::connectControl(Control* control)
 {
-	connector_.connect(*control);
-	setValue(connector_.getControl()->getValue());
+	if (control)
+	{
+		connector_.connect(*control);
+		setValue(connector_.getControl()->getValue());
+	}
+	else
+	{
+		setValue(0);
+	}
 }
 
 /*void CR42YControlIntegerEditor::setValue(double value)

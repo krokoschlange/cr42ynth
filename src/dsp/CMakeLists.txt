@@ -32,10 +32,10 @@ add_executable(cr42ynth.so
 	../common/WPFunction.cpp
 	../common/WPHarmonics.cpp
 	../common/WPSamples.cpp
-	
+	../common/AutomationData.cpp
 	../common/lv2/CR42YnthLV2URIS.cpp
 	
-	Generators/OscillatorVoiceData.cpp
+#	Generators/OscillatorVoiceData.cpp
 	Generators/Generator.cpp
 	Generators/WTOscillator.cpp
 	
@@ -45,7 +45,7 @@ add_executable(cr42ynth.so
 	
 	CR42YnthDSP.cpp
 	Voice.cpp
-	Property.cpp
+#	Property.cpp
 	
 	Automation.cpp
 	AutomationHandler.cpp

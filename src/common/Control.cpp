@@ -44,7 +44,7 @@ namespace cr42y
 {
 
 Control::Control(std::string addr, CR42YnthCommunicator* comm, float val,
-		float mi, float ma, std::string gen) :
+		float mi, float ma, uint32_t gen) :
 		address(addr),
 		communicator(comm),
 		value(val),
@@ -127,7 +127,7 @@ void Control::setMax(float m, bool callback, bool updateListeners)
 	}
 }
 
-void Control::setGenerator(std::string gen, bool callback, bool updateListeners)
+void Control::setGenerator(uint32_t gen, bool callback, bool updateListeners)
 {
 	generator = gen;
 	if (callback && communicator)
@@ -150,7 +150,7 @@ std::string Control::getAddress()
 	return address;
 }
 
-std::string Control::getGenerator()
+uint32_t Control::getGenerator()
 {
 	return generator;
 }
@@ -206,9 +206,9 @@ bool Control::handleOSCEvent(OSCEvent* event)
 			}
 			if (!strcmp(rtosc_argument(msg, 0).s, "set_generator"))
 			{
-				if (rtosc_type(msg, 1) == 's')
+				if (rtosc_type(msg, 1) == 'i')
 				{
-					setGenerator(std::string(rtosc_argument(msg, 1).s), false);
+					setGenerator(rtosc_argument(msg, 1).i, false);
 					return true;
 				}
 			}
@@ -232,31 +232,31 @@ void Control::getState(std::vector<OSCEvent>& events, bool sendVal, bool sendMin
 	char buffer[bufferSize];
 	if (sendVal)
 	{
-		rtosc_message(buffer, bufferSize, getAddress().c_str(), "sf",
+		size_t len = rtosc_message(buffer, bufferSize, getAddress().c_str(), "sf",
 				"set_value", getValue());
-		events.push_back(OSCEvent(buffer, bufferSize, nullptr, 0));
+		events.push_back(OSCEvent(buffer, len, nullptr, 0));
 		//communicator->writeMessage(buffer, len, nullptr, 0);
 		//communicator->log(buffer);
 	}
 	if (sendMin)
 	{
-		rtosc_message(buffer, bufferSize, getAddress().c_str(), "sf",
+		size_t len = rtosc_message(buffer, bufferSize, getAddress().c_str(), "sf",
 				"set_min", getMin());
-		events.push_back(OSCEvent(buffer, bufferSize, nullptr, 0));
+		events.push_back(OSCEvent(buffer, len, nullptr, 0));
 		//communicator->writeMessage(buffer, len, nullptr, 0);
 	}
 	if (sendMax)
 	{
-		rtosc_message(buffer, bufferSize, getAddress().c_str(), "sf",
+		size_t len = rtosc_message(buffer, bufferSize, getAddress().c_str(), "sf",
 				"set_max", getMax());
-		events.push_back(OSCEvent(buffer, bufferSize, nullptr, 0));
+		events.push_back(OSCEvent(buffer, len, nullptr, 0));
 		//communicator->writeMessage(buffer, len, nullptr, 0);
 	}
 	if (sendGen)
 	{
-		rtosc_message(buffer, bufferSize, getAddress().c_str(), "ss",
-				"set_generator", getGenerator().c_str());
-		events.push_back(OSCEvent(buffer, bufferSize, nullptr, 0));
+		size_t len = rtosc_message(buffer, bufferSize, getAddress().c_str(), "si",
+				"set_generator", getGenerator());
+		events.push_back(OSCEvent(buffer, len, nullptr, 0));
 		//communicator->writeMessage(buffer, len, nullptr, 0);
 	}
 }

@@ -31,35 +31,35 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
+#ifndef CR42Y_CR42YAUTOMATIONDIAL_H
+#define CR42Y_CR42YAUTOMATIONDIAL_H
 
-#ifndef SRC_COMMON_CONTROLLISTENER_H_
-#define SRC_COMMON_CONTROLLISTENER_H_
-
-#include <string>
-
-#include "Control.h"
+#include "CR42YControlDial.h"
 
 namespace cr42y
 {
 
-class ControlListener
+class CR42YAutomationDial : public CR42YControlDial
 {
 public:
-	ControlListener();
-	virtual ~ControlListener();
+	CR42YAutomationDial(CR42YUI* ui);
 
-	virtual void valueCallback(float val, Control* ctrl) = 0;
-	virtual void minCallback(float min, Control* ctrl) = 0;
-	virtual void maxCallback(float max, Control* ctrl) = 0;
-	virtual void genCallback(uint32_t gen, Control* ctrl) = 0;
-
-	virtual void connect(Control& ctrl);
-	virtual void disconnect(Control& ctrl);
+	virtual ~CR42YAutomationDial();
+	
+	void generatorSetterCallback();
 
 protected:
-	std::vector<Control*> connections_;
+	virtual bool on_expose_event(GdkEventExpose* event);
+	virtual bool on_button_press(GdkEventButton* event);
+	
+	void on_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context,
+							   int x, int y,
+							const Gtk::SelectionData& selection_data,
+							guint info, guint time);
+	
+	
 };
 
-} /* namespace cr42y */
+}
 
-#endif /* SRC_COMMON_CONTROLLISTENER_H_ */
+#endif // CR42Y_CR42YAUTOMATIONDIAL_H

@@ -49,6 +49,8 @@
 #include "ModulationControls.h"
 #include "AutomationHandler.h"
 
+#include <iostream>
+
 namespace cr42y
 {
 
@@ -75,9 +77,7 @@ CR42YnthDSP::CR42YnthDSP(float rate, CR42YnthCommunicator* comm) :
 		samplerate(rate),
 		communicator(comm),
 		bpm(nullptr),
-		bpmProp(nullptr),
 		vol(nullptr),
-		volProp(nullptr),
 		modCtrls_(nullptr),
 		automationHandler_(nullptr),
 		globalVoice(nullptr),//new Voice(0, 0, std::vector<WTOscillator*>())),
@@ -87,7 +87,7 @@ CR42YnthDSP::CR42YnthDSP(float rate, CR42YnthCommunicator* comm) :
 {
 	comm->addOSCEventListener(this);
 	modCtrls_ = new ModulationControls(comm);
-	automationHandler_ = new AutomationHandler(comm);
+	automationHandler_ = new AutomationHandler(comm, samplerate);
 }
 
 CR42YnthDSP::~CR42YnthDSP()
@@ -107,16 +107,6 @@ CR42YnthDSP::~CR42YnthDSP()
 		delete oscillators[i];
 	}
 	oscillators.clear();
-	if (bpmProp)
-	{
-		delete bpmProp;
-		bpmProp = nullptr;
-	}
-	if (volProp)
-	{
-		delete volProp;
-		volProp = nullptr;
-	}
 	if (bpm)
 	{
 		delete bpm;
@@ -140,10 +130,8 @@ CR42YnthDSP::~CR42YnthDSP()
 void CR42YnthDSP::init()
 {
 	bpm = new Control("/global/bpm", getCommunicator(), 140, 0, 999);
-	bpmProp = new Property(globalVoice, bpm);
 
 	vol = new Control("/global/volume", getCommunicator(), 1, 0, 1);
-	volProp = new Property(globalVoice, vol);
 
 	for (int i = 0; i < CR42Ynth_OSC_COUNT; i++)
 	{
@@ -199,8 +187,23 @@ float* CR42YnthDSP::getOutR()
 
 bool CR42YnthDSP::handleOSCEvent(OSCEvent* event)
 {
+	size_t msglen = 0;
+	const unsigned char* msg = (const unsigned char*) event->getMessage(&msglen);
+	for (size_t i = 0; i < msglen; i++)
+	{
+		if (msg[i] >= 32 && msg[i] < 127)
+		{
+			std::cout << msg[i];
+		}
+		else
+		{
+			std::cout << " 0x" << std::hex << (unsigned int) msg[i] << std::dec << " ";
+		}
+	}
+	std::cout << "\n";
+	
 	bool eaten = false;
-
+		
 	char* end = nullptr;
 	std::string pattern = "/global/midi";
 	rtosc_match_path(pattern.c_str(), event->getMessage(), (const char**) &end);
@@ -222,9 +225,7 @@ bool CR42YnthDSP::handleOSCEvent(OSCEvent* event)
 					{
 						oscillators[j]->voiceRemoved(voices[i]);
 					}*/
-					delete voices[i];
-					voices.erase(voices.begin() + i);
-					i--;
+					voices[i]->stopPress();
 				}
 			}
 			eaten = true;
@@ -263,6 +264,15 @@ bool CR42YnthDSP::handleOSCEvent(OSCEvent* event)
 			break;
 		}
 	}
+	for (size_t i = 0; i < voices.size(); i++)
+	{
+		if (voices[i]->hasEnded())
+		{
+			delete voices[i];
+			voices.erase(voices.begin() + i);
+			i--;
+		}
+	}
 	/*pattern = "/global/state";
 	rtosc_match_path(pattern.c_str(), event->getMessage(), (const char**) &end);
 	if (end && *end == '\0' && rtosc_type(event->getMessage(), 0) == 's')
@@ -289,7 +299,6 @@ bool CR42YnthDSP::handleOSCEvent(OSCEvent* event)
 void CR42YnthDSP::getState(std::vector<OSCEvent>& events)
 {
 	getCommunicator()->log("sending state");
-	//std::cout << "sending state\n";
 	for (size_t i = 0; i < voices.size(); i++)
 	{
 		char buffer[32];

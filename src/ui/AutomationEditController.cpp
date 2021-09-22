@@ -45,9 +45,10 @@ namespace cr42y
 {
 
 AutomationEditController::AutomationEditController(CR42YnthCommunicator* communicator) :
-		communicator_(communicator)
+		communicator_(communicator),
+		selected_(0)
 {
-	createAutomation();
+	dataChangedSignal().connect(sigc::mem_fun(this, &AutomationEditController::sendData));
 }
 
 AutomationEditController::~AutomationEditController()
@@ -232,7 +233,10 @@ size_t AutomationEditController::createAutomation()
 	char* buffer = new char[32];
 	size_t len = rtosc_message(buffer, 32, "/automation/create", "i", id);
 	OSCEvent createEvent(buffer, len, nullptr, 0);
-	communicator_->writeMessage(createEvent);
+	if (communicator_)
+	{
+		communicator_->writeMessage(createEvent);
+	}
 	AutomationData* data = new AutomationData();
 	Control* useBeatsLength = new Control("/automation/" + std::to_string(id) + "/useBeatsLength", communicator_, 1);
 	Control* lengthSeconds = new Control("/automation/" + std::to_string(id) + "/lengthSeconds", communicator_, 0.25);
@@ -253,6 +257,22 @@ size_t AutomationEditController::createAutomation()
 							syncControl,
 							sustainControl
 						});
+	if (communicator_)
+	{
+		std::vector<OSCEvent> events;
+		useBeatsLength->getState(events);
+		lengthSeconds->getState(events);
+		lengthBeatsNumerator->getState(events);
+		lengthBeatsDenominator->getState(events);
+		typeControl->getState(events);
+		syncControl->getState(events);
+		sustainControl->getState(events);
+		for (size_t i = 0; i < events.size(); i++)
+		{
+			communicator_->writeMessage(events[i]);
+		}
+	}
+	
 	selected_ = index;
 	dataChangedSignal_.emit();
 	selectionChangedSignal_.emit(selected_);
@@ -268,7 +288,10 @@ void AutomationEditController::removeAutomation(size_t id)
 			char* buffer = new char[32];
 			size_t len = rtosc_message(buffer, 32, "/automation/remove", "i", id);
 			OSCEvent deleteEvent(buffer, len, nullptr, 0);
-			communicator_->writeMessage(deleteEvent);
+			if (communicator_)
+			{
+				communicator_->writeMessage(deleteEvent);
+			}
 			deleteAutomation(automations_[i]);
 			automations_.erase(automations_.begin() + i);
 			if (selected_ >= automations_.size())
@@ -321,37 +344,65 @@ size_t AutomationEditController::getID(size_t automation)
 
 Control* AutomationEditController::useBeatsLengthControl()
 {
-	return automations_[selected_].useBeatsLength_;
+	if (selected_ < automations_.size())
+	{
+		return automations_[selected_].useBeatsLength_;
+	}
+	return nullptr;
 }
 
 Control* AutomationEditController::lengthSecondsControl()
 {
-	return automations_[selected_].lengthSeconds_;
+	if (selected_ < automations_.size())
+	{
+		return automations_[selected_].lengthSeconds_;
+	}
+	return nullptr;
 }
 
 Control* AutomationEditController::lengthBeatsNumeratorControl()
 {
-	return automations_[selected_].lengthBeatsNumerator_;
+	if (selected_ < automations_.size())
+	{
+		return automations_[selected_].lengthBeatsNumerator_;
+	}
+	return nullptr;
 }
 
 Control* AutomationEditController::lengthBeatsDenominatorControl()
 {
-	return automations_[selected_].lengthBeatsDenominator_;
+	if (selected_ < automations_.size())
+	{
+		return automations_[selected_].lengthBeatsDenominator_;
+	}
+	return nullptr;
 }
 
 Control* AutomationEditController::typeControl()
 {
-	return automations_[selected_].typeControl_;
+	if (selected_ < automations_.size())
+	{
+		return automations_[selected_].typeControl_;
+	}
+	return nullptr;
 }
 
 Control* AutomationEditController::syncControl()
 {
-	return automations_[selected_].syncControl_;
+	if (selected_ < automations_.size())
+	{
+		return automations_[selected_].syncControl_;
+	}
+	return nullptr;
 }
 
 Control* AutomationEditController::sustainControl()
 {
-	return automations_[selected_].sustainControl_;
+	if (selected_ < automations_.size())
+	{
+		return automations_[selected_].sustainControl_;
+	}
+	return nullptr;
 }
 
 sigc::signal<void, size_t> & AutomationEditController::selectionChangedSignal()
@@ -374,6 +425,21 @@ void AutomationEditController::deleteAutomation(Automation& data)
 	delete data.typeControl_;
 	delete data.syncControl_;
 	delete data.sustainControl_;
+}
+
+void AutomationEditController::sendData()
+{
+	if (selected_ < automations_.size() && communicator_)
+	{
+		AutomationData* automationData = automations_[selected_].data_;
+		char buffer[64];
+		size_t len = rtosc_message(buffer, 64, "/automation/update", "i", automations_[selected_].id_);
+		uint8_t* data = nullptr;
+		size_t dataLen = automationData->getData((void**) &data);
+		OSCEvent event(buffer, len, data, dataLen);
+		communicator_->writeMessage(event);
+		delete[] data;
+	}
 }
 
 }

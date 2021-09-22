@@ -39,6 +39,7 @@
 namespace cr42y
 {
 
+class CR42YAutomationDial;
 class CR42YControlDial;
 class CR42YControlToggle;
 class CR42YLabel;
@@ -63,8 +64,8 @@ private:
 	CR42YLabel* idxLabel_;
 
 	CR42YControlToggle* oscToggle_;
-	CR42YControlDial* volumeDial_;
-	CR42YControlDial* wtPosDial_;
+	CR42YAutomationDial* volumeDial_;
+	CR42YAutomationDial* wtPosDial_;
 	
 	void wtPosCallback(double value);
 };
