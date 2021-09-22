@@ -264,15 +264,6 @@ bool CR42YnthDSP::handleOSCEvent(OSCEvent* event)
 			break;
 		}
 	}
-	for (size_t i = 0; i < voices.size(); i++)
-	{
-		if (voices[i]->hasEnded())
-		{
-			delete voices[i];
-			voices.erase(voices.begin() + i);
-			i--;
-		}
-	}
 	/*pattern = "/global/state";
 	rtosc_match_path(pattern.c_str(), event->getMessage(), (const char**) &end);
 	if (end && *end == '\0' && rtosc_type(event->getMessage(), 0) == 's')
@@ -347,6 +338,15 @@ void CR42YnthDSP::run(uint32_t n_samples)
 	for (size_t i = 0; i < voices.size(); i++)
 	{
 		voices[i]->calculate(outL, outR, n_samples);
+	}
+	for (size_t i = 0; i < voices.size(); i++)
+	{
+		if (voices[i]->hasEnded())
+		{
+			delete voices[i];
+			voices.erase(voices.begin() + i);
+			i--;
+		}
 	}
 }
 

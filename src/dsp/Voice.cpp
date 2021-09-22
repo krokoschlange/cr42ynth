@@ -283,7 +283,24 @@ void Voice::stopPress()
 	pressed_ = false;
 	for (size_t i = 0; i < envelopes_.size(); i++)
 	{
-		envelopes_[i].pos = envelopes_[i].sustain;
+		ENVData& data = envelopes_[i];
+		float oldVal = data.samples[(int) (data.pos * (data.size - 1))];
+		data.pos = data.sustain;
+		int smpl = (int) (data.pos * (data.size - 1));
+		float val = data.samples[smpl];
+		while (val > oldVal)
+		{
+			smpl++;
+			val = data.samples[smpl];
+		}
+		data.pos = (float) smpl / (data.size - 1);
+	}
+	for (size_t i = 0; i < CR42Ynth_OSC_COUNT; i++)
+	{
+		if (oscModData_[i].volumeMod == 0)
+		{
+			oscData_[i].volume = 0;
+		}
 	}
 }
 
@@ -306,7 +323,7 @@ void Voice::calculate(float* left, float* right, uint32_t samples)
 		{
 			ENVData& data = envelopes_[env];
 			data.pos += data.deltaPos;// - floorf(data.pos);
-			if (pressed_ && data.pos > data.sustain) //TODO Segfault somewhere???
+			if (pressed_ && data.pos > data.sustain)
 			{
 				data.pos = data.sustain;
 			}
