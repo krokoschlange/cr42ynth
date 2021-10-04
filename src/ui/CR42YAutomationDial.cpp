@@ -90,7 +90,7 @@ bool CR42YAutomationDial::on_expose_event(GdkEventExpose* event)
 {
 	CR42YControlDial::on_expose_event(event);
 	Glib::RefPtr<Gdk::Window> win = get_window();
-	if (connector_.getControl()->getGenerator() && win)
+	if (connector_.getControl() && connector_.getControl()->getGenerator() && win)
 	{
 		Cairo::RefPtr<Cairo::Context> cr = win->create_cairo_context();
 		CR42YTheme* tm = theme();

@@ -1,9 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
-
-#add_subdirectory(wtEditor/)
-
-#project(cr42ynth_ui.so)
-#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/../../bin)
+cmake_minimum_required(VERSION 3.10)
 
 find_package(PkgConfig)
 
@@ -15,17 +10,17 @@ pkg_check_modules(GTKMM gtkmm-2.4 REQUIRED)
 include_directories(SYSTEM ${GTKMM_INCLUDE_DIRS})
 link_directories   ( ${GTKMM_LIBRARY_DIRS})
 
-include_directories ("${PROJECT_SOURCE_DIR}/../rtosc/include/")
-include_directories ("${PROJECT_SOURCE_DIR}/../exprtk/")
-include_directories ("${PROJECT_SOURCE_DIR}/dsp/Generators/")
-include_directories ("${PROJECT_SOURCE_DIR}/common/")
-include_directories ("${PROJECT_SOURCE_DIR}/common/lv2/")
-include_directories ("${PROJECT_SOURCE_DIR}/ui/lv2/")
-include_directories ("${PROJECT_SOURCE_DIR}/ui/")
-include_directories ("${PROJECT_SOURCE_DIR}/ui/tools/")
-include_directories ("${PROJECT_SOURCE_DIR}/dsp/lv2/")
+include_directories ("${PROJECT_SOURCE_DIR}/rtosc/include/")
+include_directories ("${PROJECT_SOURCE_DIR}/exprtk/")
+include_directories ("${PROJECT_SOURCE_DIR}/src/dsp/Generators/")
+include_directories ("${PROJECT_SOURCE_DIR}/src/common/")
+include_directories ("${PROJECT_SOURCE_DIR}/src/common/lv2/")
+include_directories ("${PROJECT_SOURCE_DIR}/src/ui/lv2/")
+include_directories ("${PROJECT_SOURCE_DIR}/src/ui/")
+include_directories ("${PROJECT_SOURCE_DIR}/src/ui/tools/")
+include_directories ("${PROJECT_SOURCE_DIR}/src/dsp/lv2/")
 
-add_executable(cr42ynth_ui.so
+add_library(cr42ynth_ui SHARED
 	../common/OSCEvent.cpp
 	../common/OSCEventListener.cpp
 	../common/OscillatorControls.cpp
@@ -61,20 +56,6 @@ add_executable(cr42ynth_ui.so
 	
 	ControlConnector.cpp
 	
-	#wtEditor/CRSurfaceButton.cpp
-	#wtEditor/CustomScroll.cpp
-	#wtEditor/DragBar.cpp
-	
-	#wtEditor/HarmonicsEditor.cpp
-	#wtEditor/HarmonicsView.cpp
-	#wtEditor/ToolPanel.cpp
-	#wtEditor/WaveformView.cpp
-	#wtEditor/WTEditor.cpp
-	#wtEditor/WTView.cpp
-	
-	#PanelSwitcher.cpp
-	#PanelSwitcherEntry.cpp
-	#LineEntry.cpp
 	CR42YnthUI.cpp
 	CR42YWidget.cpp
 	CR42YTheme.cpp
@@ -119,11 +100,24 @@ add_executable(cr42ynth_ui.so
 	CR42YControlToggleSelector.cpp
 	CR42YControlIntegerEditor.cpp
 	CR42YAutomationDial.cpp
+	CR42YDetuneEditor.cpp
 	
 	helpers.cpp
 )
 
-target_link_libraries(cr42ynth_ui.so ${PROJECT_BINARY_DIR}/../rtosc/librtosc.a)
-target_link_libraries(cr42ynth_ui.so ${LIBSNDFILE_LIBRARIES})
-target_link_libraries(cr42ynth_ui.so ${GTKMM_LIBRARIES})
-target_compile_options(cr42ynth_ui.so PRIVATE -Werror -Wall -Wextra)
+set_target_properties(cr42ynth_ui PROPERTIES PREFIX "")
+
+target_link_libraries(cr42ynth_ui ${PROJECT_BINARY_DIR}/rtosc/librtosc.a)
+target_link_libraries(cr42ynth_ui ${LIBSNDFILE_LIBRARIES})
+target_link_libraries(cr42ynth_ui ${GTKMM_LIBRARIES})
+target_compile_options(cr42ynth_ui PRIVATE -Werror -Wall -Wextra)
+
+add_executable(cr42ynth_ui_dummy
+	main.cpp
+)
+
+target_link_libraries(cr42ynth_ui_dummy cr42ynth_ui)
+target_link_libraries(cr42ynth_ui_dummy ${PROJECT_BINARY_DIR}/rtosc/librtosc.a)
+target_link_libraries(cr42ynth_ui_dummy ${LIBSNDFILE_LIBRARIES})
+target_link_libraries(cr42ynth_ui_dummy ${GTKMM_LIBRARIES})
+target_compile_options(cr42ynth_ui_dummy PRIVATE -Werror -Wall -Wextra)

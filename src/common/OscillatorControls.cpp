@@ -46,18 +46,18 @@ OscillatorControls::OscillatorControls(int id, CR42YnthCommunicator* comm) :
 		volume_("/oscillators/" + std::to_string(id) + "/volume", comm, 1),
 		detune_("/oscillators/" + std::to_string(id) + "/detune", comm, 0, -96,
 				96),
-		pan_("/oscillators/" + std::to_string(id) + "/pan", comm, 0, -1, 1),
+		pan_("/oscillators/" + std::to_string(id) + "/pan", comm, 0.5, 0, 1),
 		noteShift_("/oscillators/" + std::to_string(id) + "/note_shift", comm,
-				0, -24, 24),
+				0.5, 0, 1),
 		wtPos_("/oscillators/" + std::to_string(id) + "/wt_pos", comm),
 		unisonAmount_("/oscillators/" + std::to_string(id) + "/unison_amount",
 				comm, 1, 1, 16),
 		unisonDetune_("/oscillators/" + std::to_string(id) + "/unison_detune",
-				comm, 0, -8, 8),
+				comm, 0, 0, 1),
 		unisonSpread_("/oscillators/" + std::to_string(id) + "/unison_spread",
 				comm),
 		phaseShift_("/oscillators/" + std::to_string(id) + "/phase_shift", comm,
-				0, -1, 1),
+				0, 0, 1),
 		phaseRand_("/oscillators/" + std::to_string(id) + "/phase_rand", comm)
 {
 	if (id == 0)

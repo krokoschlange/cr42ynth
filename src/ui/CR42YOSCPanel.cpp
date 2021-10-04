@@ -35,6 +35,8 @@
 #include "CR42YAutomationDial.h"
 #include "CR42YControlDial.h"
 #include "CR42YControlToggle.h"
+#include "CR42YDetuneEditor.h"
+#include "CR42YControlIntegerEditor.h"
 #include "CR42YUI.h"
 #include "CR42YWFView.h"
 #include "OSCSettingsController.h"
@@ -51,16 +53,27 @@ CR42YOSCPanel::CR42YOSCPanel(CR42YUI* ui, WavetableEditController* wtEditControl
 		idxLabel_(new CR42YLabel(ui)),
 		oscToggle_(new CR42YControlToggle(ui)),
 		volumeDial_(new CR42YAutomationDial(ui)),
-		wtPosDial_(new CR42YAutomationDial(ui))
+		detuneEditor_(new CR42YDetuneEditor(ui)),
+		panDial_(new CR42YAutomationDial(ui)),
+		noteShiftDial_(new CR42YAutomationDial(ui)),
+		wtPosDial_(new CR42YAutomationDial(ui)),
+		unisonAmountEditor_(new CR42YControlIntegerEditor(ui)),
+		unisonDetuneDial_(new CR42YAutomationDial(ui)),
+		unisonSpreadDial_(new CR42YAutomationDial(ui)),
+		phaseShiftDial_(new CR42YAutomationDial(ui)),
+		phaseRandDial_(new CR42YControlDial(ui))
 {
-	configureRow(0, 1, 0.003, 0.003, 0, 0);
-	configureRow(1, 5, 0.003, 0.003, 0, 0);
-	configureRow(2, 2, 0.003, 0.003, 0, 0);
+	configureRow(0, 2, 0.003, 0.003, 0, 0);
+	configureRow(1, 10, 0.003, 0.003, 0, 0);
+	configureRow(2, 3, 0.003, 0.003, 0, 0);
+	configureRow(3, 3, 0.003, 0.003, 0, 0);
 
 	configureColumn(0, 1, 0.003, 0.003, 0, 0);
 	configureColumn(1, 1, 0.003, 0.003, 0, 0);
 	configureColumn(2, 2, 0.003, 0.003, 0, 0);
 	configureColumn(3, 2, 0.003, 0.003, 0, 0);
+	configureColumn(4 ,2, 0.003, 0.003, 0, 0);
+	configureColumn(5 ,2, 0.003, 0.003, 0, 0);
 
 	oscToggle_->setForcedSizeRatio(1);
 	oscToggle_->setSurfActive(Cairo::ImageSurface::create_from_png(ui->resourceRoot() + "media/power.png"));
@@ -70,15 +83,39 @@ CR42YOSCPanel::CR42YOSCPanel(CR42YUI* ui, WavetableEditController* wtEditControl
 	idxLabel_->setFontSize(CR42YTheme::MIDDLE);
 	
 	volumeDial_->setText("VOL");
+	panDial_->setText("PAN");
+	noteShiftDial_->setText("NOTE");
 	wtPosDial_->setText("WT POS");
+	unisonDetuneDial_->setText("U DET");
+	unisonSpreadDial_->setText("U SPREAD");
+	phaseShiftDial_->setText("PHASE");
+	phaseRandDial_->setText("PHASE RAND");
+	
+	panDial_->setDefaultValue(0.5);
+	panDial_->setValue(0.5);
+	
+	unisonAmountEditor_->setMin(1);
+	unisonAmountEditor_->setMax(16);
+	unisonAmountEditor_->setValue(1);
+	
+	noteShiftDial_->setDefaultValue(0.5);
+	noteShiftDial_->setValue(0.5);
 	
 	wtPosDial_->signalChanged().connect(sigc::mem_fun(this, &CR42YOSCPanel::wtPosCallback));
 
 	put(oscToggle_, 0, 0);
 	put(idxLabel_, 0, 1);
-	put(wfView_, 1, 0, 1, 4);
+	put(wfView_, 1, 0, 1, 6);
 	put(volumeDial_, 2, 0, 1, 2);
+	put(detuneEditor_, 2, 5, 1, 1);
+	put(panDial_, 2, 3, 1, 1);
+	put(noteShiftDial_, 3, 5, 1, 1);
 	put(wtPosDial_, 2, 2, 1, 1);
+	put(unisonAmountEditor_, 3, 0, 1, 2);
+	put(unisonDetuneDial_, 3, 2, 1, 1);
+	put(unisonSpreadDial_, 3, 3, 1, 1);
+	put(phaseShiftDial_, 2, 4, 1, 1);
+	put(phaseRandDial_, 3, 4, 1, 1);
 }
 
 CR42YOSCPanel::~CR42YOSCPanel()
@@ -87,7 +124,15 @@ CR42YOSCPanel::~CR42YOSCPanel()
 	delete idxLabel_;
 	delete oscToggle_;
 	delete volumeDial_;
+	delete detuneEditor_;
+	delete panDial_;
+	delete noteShiftDial_;
 	delete wtPosDial_;
+	delete unisonAmountEditor_;
+	delete unisonDetuneDial_;
+	delete unisonSpreadDial_;
+	delete phaseShiftDial_;
+	delete phaseRandDial_;
 }
 
 void CR42YOSCPanel::connectData(int oscIndex, OSCSettingsController* controller)
@@ -99,7 +144,15 @@ void CR42YOSCPanel::connectData(int oscIndex, OSCSettingsController* controller)
 	idxLabel_->queue_draw();
 
 	volumeDial_->connectControl(controller->getControls(oscIndex)->getVolumeCtrl());
+	detuneEditor_->connectControl(controller->getControls(oscIndex)->getDetuneCtrl());
+	panDial_->connectControl(controller->getControls(oscIndex)->getPanCtrl());
+	noteShiftDial_->connectControl(controller->getControls(oscIndex)->getNoteShiftCtrl());
 	wtPosDial_->connectControl(controller->getControls(oscIndex)->getWTPosCtrl());
+	unisonAmountEditor_->connectControl(controller->getControls(oscIndex)->getUnisonAmountCtrl());
+	unisonDetuneDial_->connectControl(controller->getControls(oscIndex)->getUnisonDetuneCtrl());
+	unisonSpreadDial_->connectControl(controller->getControls(oscIndex)->getUnisonSpreadCtrl());
+	phaseShiftDial_->connectControl(controller->getControls(oscIndex)->getPhaseShiftCtrl());
+	phaseRandDial_->connectControl(controller->getControls(oscIndex)->getPhaseRandCtrl());
 
 	oscToggle_->connectControl(controller->getControls(oscIndex)->getActiveCtrl());
 }

@@ -362,7 +362,7 @@ void Voice::calculate(float* left, float* right, uint32_t samples)
 			calcParamMod(oscModData_[osc].unisonDetuneMod, oscModData_[osc].unisonDetuneMin, oscModData_[osc].unisonDetuneRange, data.unisonDetune);
 			calcParamMod(oscModData_[osc].unisonSpreadMod, oscModData_[osc].unisonSpreadMin, oscModData_[osc].unisonSpreadRange, data.unisonSpread);
 			calcParamMod(oscModData_[osc].wtPosMod, oscModData_[osc].wtPosMin, oscModData_[osc].wtPosRange, data.wtPos);
-			calcParamMod(oscModData_[osc].phaseShiftMod, oscModData_[osc].phaseShiftMin, oscModData_[osc].phaseShiftRange, data.wtPos);
+			calcParamMod(oscModData_[osc].phaseShiftMod, oscModData_[osc].phaseShiftMin, oscModData_[osc].phaseShiftRange, data.phaseShift);
 			
 			float oscValue = 0;
 			int wtpos = data.wtPos * (oscData_[osc].wtSize - 1) + 0.5;
@@ -381,12 +381,12 @@ void Voice::calculate(float* left, float* right, uint32_t samples)
 					oscValue = data.wavetable[wtpos * data.wtWidth + wavepos];
 				}
 				
-				float panFactor = data.pan;
-				float phaseCalc = data.detune + data.noteShift;
+				float panFactor = data.pan * 2 - 1;
+				float phaseCalc = data.detune + data.noteShift * 48 - 24;
 				if (data.unisonAmount > 1)
 				{
 					//TODO: make this more reasonable
-					panFactor += -data.unisonSpread + 1 * (data.unisonSpread * 2 / (data.unisonAmount - 1));
+					panFactor += -data.unisonSpread + unison * (data.unisonSpread * 2 / (data.unisonAmount - 1));
 					
 					//TODO: this as well
 					phaseCalc += -data.unisonDetune + unison * (data.unisonDetune * 2 / (data.unisonAmount - 1));
@@ -399,7 +399,7 @@ void Voice::calculate(float* left, float* right, uint32_t samples)
 				left[s] += oscValue * data.volume * velocity * sinf(panFactor);
 				right[s] += oscValue * data.volume * velocity * cosf(panFactor);
 				
-				phaseCalc = baseFrequency * std::exp2(phaseCalc) * data.FM;
+				phaseCalc = baseFrequency * std::exp2(phaseCalc / 12) * data.FM;
 				phaseCalc /= samplerate;
 				
 				data.phase[unison] += phaseCalc - floorf(data.phase[unison]);

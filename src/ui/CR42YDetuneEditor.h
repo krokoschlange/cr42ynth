@@ -30,56 +30,42 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
-#ifndef SRC_UI_CR42YOSCPANEL_H_
-#define SRC_UI_CR42YOSCPANEL_H_
+
+#ifndef CR42Y_CR42YDETUNEEDITOR_H
+#define CR42Y_CR42YDETUNEEDITOR_H
 
 #include "CR42YGrid.h"
-#include "ControlListener.h"
+#include "ControlConnector.h"
 
-namespace cr42y
-{
+namespace cr42y {
 
-class CR42YAutomationDial;
-class CR42YControlDial;
-class CR42YControlIntegerEditor;
-class CR42YControlToggle;
-class CR42YDetuneEditor;
-class CR42YLabel;
-class CR42YToggleSelector;
-class CR42YWFView;
+class CR42YIntegerEditor;
 
-class WavetableEditController;
-
-class OSCSettingsController;
-
-class CR42YOSCPanel : public CR42YGrid
+class CR42YDetuneEditor : public CR42YGrid
 {
 public:
-	CR42YOSCPanel(CR42YUI* ui, WavetableEditController* wtEditController, CR42YToggleSelector* viewSelector);
-	virtual ~CR42YOSCPanel();
+	CR42YDetuneEditor(CR42YUI* ui);
 
-	void connectData(int oscIndex, OSCSettingsController* controller);
-
-private:
-	CR42YWFView* wfView_;
-
-	CR42YLabel* idxLabel_;
-
-	CR42YControlToggle* oscToggle_;
-	CR42YAutomationDial* volumeDial_;
-	CR42YDetuneEditor* detuneEditor_;
-	CR42YAutomationDial* panDial_;
-	CR42YAutomationDial* noteShiftDial_;
-	CR42YAutomationDial* wtPosDial_;
-	CR42YControlIntegerEditor* unisonAmountEditor_;
-	CR42YAutomationDial* unisonDetuneDial_;
-	CR42YAutomationDial* unisonSpreadDial_;
-	CR42YAutomationDial* phaseShiftDial_;
-	CR42YControlDial* phaseRandDial_;
+	virtual ~CR42YDetuneEditor();
 	
-	void wtPosCallback(double value);
+	void connectControl(Control* control);
+	
+	void setValue(float value);
+	float getValue();
+
+	sigc::signal<void, float> signalChanged();
+	
+private:
+	CR42YIntegerEditor* semiEditor_;
+	CR42YIntegerEditor* centEditor_;
+	
+	ControlConnector connector_;
+	
+	sigc::signal<void, float> signalChanged_;
+	
+	void editorCallback(int value);
 };
 
-} /* namespace cr42y */
+}
 
-#endif /* SRC_UI_CR42YOSCPANEL_H_ */
+#endif // CR42Y_CR42YDETUNEEDITOR_H

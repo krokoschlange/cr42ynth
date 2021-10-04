@@ -1,3 +1,4 @@
+
 /*******************************************************************************
  * Copyright (c) 2020 krokoschlange and contributors.
  *
@@ -30,56 +31,33 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
-#ifndef SRC_UI_CR42YOSCPANEL_H_
-#define SRC_UI_CR42YOSCPANEL_H_
 
-#include "CR42YGrid.h"
-#include "ControlListener.h"
+#include <iostream>
+#include <lv2/ui/ui.h>
+#include <lv2/options/options.h>
 
-namespace cr42y
+#include <gtkmm.h>
+#include "CR42YnthUI.h"
+
+int main(int argc, char* argv[])
 {
-
-class CR42YAutomationDial;
-class CR42YControlDial;
-class CR42YControlIntegerEditor;
-class CR42YControlToggle;
-class CR42YDetuneEditor;
-class CR42YLabel;
-class CR42YToggleSelector;
-class CR42YWFView;
-
-class WavetableEditController;
-
-class OSCSettingsController;
-
-class CR42YOSCPanel : public CR42YGrid
-{
-public:
-	CR42YOSCPanel(CR42YUI* ui, WavetableEditController* wtEditController, CR42YToggleSelector* viewSelector);
-	virtual ~CR42YOSCPanel();
-
-	void connectData(int oscIndex, OSCSettingsController* controller);
-
-private:
-	CR42YWFView* wfView_;
-
-	CR42YLabel* idxLabel_;
-
-	CR42YControlToggle* oscToggle_;
-	CR42YAutomationDial* volumeDial_;
-	CR42YDetuneEditor* detuneEditor_;
-	CR42YAutomationDial* panDial_;
-	CR42YAutomationDial* noteShiftDial_;
-	CR42YAutomationDial* wtPosDial_;
-	CR42YControlIntegerEditor* unisonAmountEditor_;
-	CR42YAutomationDial* unisonDetuneDial_;
-	CR42YAutomationDial* unisonSpreadDial_;
-	CR42YAutomationDial* phaseShiftDial_;
-	CR42YControlDial* phaseRandDial_;
+	std::cout << "Use as LV2 Plugin\n";
 	
-	void wtPosCallback(double value);
-};
-
-} /* namespace cr42y */
-
-#endif /* SRC_UI_CR42YOSCPANEL_H_ */
+	Gtk::Main* main = new Gtk::Main(argc, argv);
+	
+	Gtk::Window win(Gtk::WINDOW_TOPLEVEL);
+	
+	cr42y::CR42YnthUI* ui = new cr42y::CR42YnthUI(nullptr, "media/");
+	
+	win.add(*ui);
+	win.show_all();
+	win.present();
+	//main->run(*ui);
+	while (win.is_visible())
+	{
+		main->iteration(false);
+		Glib::usleep(100);
+	}
+	
+	return 0;
+}

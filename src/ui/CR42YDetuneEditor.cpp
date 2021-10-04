@@ -30,56 +30,83 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
-#ifndef SRC_UI_CR42YOSCPANEL_H_
-#define SRC_UI_CR42YOSCPANEL_H_
 
-#include "CR42YGrid.h"
-#include "ControlListener.h"
+#include "CR42YDetuneEditor.h"
+
+#include "CR42YIntegerEditor.h"
 
 namespace cr42y
 {
 
-class CR42YAutomationDial;
-class CR42YControlDial;
-class CR42YControlIntegerEditor;
-class CR42YControlToggle;
-class CR42YDetuneEditor;
-class CR42YLabel;
-class CR42YToggleSelector;
-class CR42YWFView;
-
-class WavetableEditController;
-
-class OSCSettingsController;
-
-class CR42YOSCPanel : public CR42YGrid
+CR42YDetuneEditor::CR42YDetuneEditor(CR42YUI* ui) :
+		CR42YGrid(ui),
+		semiEditor_(new CR42YIntegerEditor(ui)),
+		centEditor_(new CR42YIntegerEditor(ui)),
+		connector_()
 {
-public:
-	CR42YOSCPanel(CR42YUI* ui, WavetableEditController* wtEditController, CR42YToggleSelector* viewSelector);
-	virtual ~CR42YOSCPanel();
-
-	void connectData(int oscIndex, OSCSettingsController* controller);
-
-private:
-	CR42YWFView* wfView_;
-
-	CR42YLabel* idxLabel_;
-
-	CR42YControlToggle* oscToggle_;
-	CR42YAutomationDial* volumeDial_;
-	CR42YDetuneEditor* detuneEditor_;
-	CR42YAutomationDial* panDial_;
-	CR42YAutomationDial* noteShiftDial_;
-	CR42YAutomationDial* wtPosDial_;
-	CR42YControlIntegerEditor* unisonAmountEditor_;
-	CR42YAutomationDial* unisonDetuneDial_;
-	CR42YAutomationDial* unisonSpreadDial_;
-	CR42YAutomationDial* phaseShiftDial_;
-	CR42YControlDial* phaseRandDial_;
+	using std::placeholders::_1;
+	connector_.setWidgetValueSetter((std::function<void(double)>) std::bind(&CR42YDetuneEditor::setValue, this, _1));
+	signalChanged().connect(sigc::mem_fun(&connector_, &ControlConnector::setControlValue));
 	
-	void wtPosCallback(double value);
-};
+	semiEditor_->signalChanged().connect(sigc::mem_fun(this, &CR42YDetuneEditor::editorCallback));
+	centEditor_->signalChanged().connect(sigc::mem_fun(this, &CR42YDetuneEditor::editorCallback));
+	
+	semiEditor_->setMin(-48);
+	semiEditor_->setMax(48);
+	centEditor_->setMin(-100);
+	centEditor_->setMax(100);
+	
+	configureColumn(0, 1, 0, 0, 0, 0);
+	
+	configureRow(0, 1, 0, 0, 0, 0);
+	configureRow(1, 1, 0, 0, 0, 0);
+	
+	put(semiEditor_, 0, 0);
+	put(centEditor_, 1, 0);
+}
 
-} /* namespace cr42y */
+CR42YDetuneEditor::~CR42YDetuneEditor()
+{
+	delete semiEditor_;
+	delete centEditor_;
+}
 
-#endif /* SRC_UI_CR42YOSCPANEL_H_ */
+void CR42YDetuneEditor::connectControl(Control* control)
+{
+	if (control)
+	{
+		connector_.connect(*control);
+		setValue(connector_.getControl()->getValue());
+	}
+	else
+	{
+		setValue(0);
+	}
+}
+
+void CR42YDetuneEditor::setValue(float value)
+{
+	int32_t semis = (uint32_t) value;
+	int32_t cents = (value - semis) * 100;
+	
+	semiEditor_->setValue(semis);
+	centEditor_->setValue(cents);
+	signalChanged_.emit(getValue());
+}
+
+float CR42YDetuneEditor::getValue()
+{
+	return semiEditor_->value() + centEditor_->value() / 100.;
+}
+
+sigc::signal<void, float> cr42y::CR42YDetuneEditor::signalChanged()
+{
+	return signalChanged_;
+}
+
+void CR42YDetuneEditor::editorCallback(int)
+{
+	signalChanged_.emit(getValue());
+}
+
+}

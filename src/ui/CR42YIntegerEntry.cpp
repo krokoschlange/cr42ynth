@@ -111,7 +111,7 @@ sigc::signal<void, int> CR42YIntegerEntry::signalChanged()
 
 bool CR42YIntegerEntry::on_button_press_event(GdkEventButton* event)
 {
-	if (event->button == 1 && event->x > get_width() * 0.25 && event->x < get_width() * 0.75)
+	if (event->button == 1 && event->x > get_width() && event->x < get_width())
 	{
 		setShowValue(0);
 		if (!has_focus())
@@ -120,6 +120,7 @@ bool CR42YIntegerEntry::on_button_press_event(GdkEventButton* event)
 		}
 		return true;
 	}
+	setValue(showValue_);
 	return false;
 }
 

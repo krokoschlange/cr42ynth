@@ -65,7 +65,7 @@ CR42YnthUI::CR42YnthUI(CR42YnthCommunicator* comm, const char* path) :
 		wtEditor_(nullptr),
 		modEditor_(nullptr)
 {
-	set_size_request(500, 350);
+	set_size_request(1024, 720);
 
 	strcpy(bundlePath_, path);
 	setResourceRoot(std::string(bundlePath_) + "../");

@@ -194,15 +194,23 @@ bool CR42YDial::on_expose_event(GdkEventExpose*)
 		cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
 		cr->fill();
 		
-		
+		Cairo::TextExtents xtents;
+		int textHeight = 0;
+		if (text_.size() > 0)
+		{
+			cr->select_font_face(tm->font(), Cairo::FONT_SLANT_NORMAL,
+								 Cairo::FONT_WEIGHT_NORMAL);
+			cr->set_font_size(tm->fontSizeSmall());
+			cr->get_text_extents(text_, xtents);
+			textHeight = xtents.height;
+		}
 
-		int squareSize =
-				get_width() < get_height() ? get_width() : get_height();
+		int squareSize = std::min(get_width(), get_height() - textHeight);
 		
 		double smallWidth = squareSize / 15.;
 		double largeWidth = squareSize / 5.;
 		
-		cr->arc(get_width() / 2, get_height() / 2, squareSize / 5 * 2, 2.45,
+		cr->arc(get_width() / 2., get_height() / 2. - textHeight / 2., squareSize / 5. * 2, 2.45,
 				0.69);
 		clr = tm->color(FG);
 		cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3]);
@@ -211,7 +219,7 @@ bool CR42YDial::on_expose_event(GdkEventExpose*)
 
 		if (valueMode_)
 		{
-			cr->arc(get_width() / 2, get_height() / 2, squareSize / 5 * 2, 2.45,
+			cr->arc(get_width() / 2., get_height() / 2. - textHeight / 2., squareSize / 5. * 2, 2.45,
 					2.45 + (value_ / (logicalMax_ - logicalMin_)) * 4.52);
 			clr = tm->color(HIGHLIGHT);
 			cr->set_source_rgba(clr[0], clr[1], clr[2], clr[3] * 0.8);
@@ -220,7 +228,7 @@ bool CR42YDial::on_expose_event(GdkEventExpose*)
 		}
 		else
 		{
-			cr->arc(get_width() / 2, get_height() / 2, squareSize / 5 * 2,
+			cr->arc(get_width() / 2., get_height() / 2. - textHeight / 2., squareSize / 5 * 2,
 					2.45 + (minValue_ / (logicalMax_ - logicalMin_)) * 4.52,
 					2.45 + (maxValue_ / (logicalMax_ - logicalMin_)) * 4.52);
 			clr = tm->color(HIGHLIGHT); //TODO: Different color
@@ -230,15 +238,9 @@ bool CR42YDial::on_expose_event(GdkEventExpose*)
 		}
 
 		if (text_.size() > 0)
-		{
-			Cairo::TextExtents xtents;
-			cr->select_font_face(tm->font(), Cairo::FONT_SLANT_NORMAL,
-					Cairo::FONT_WEIGHT_NORMAL);
-			cr->set_font_size(tm->fontSizeSmall());
-			cr->get_text_extents(text_, xtents);
-
-			cr->move_to(get_width() / 2 - xtents.width / 2,
-					get_height() - tm->fontSizeSmall() / 2);
+		{			
+			cr->move_to(get_width() / 2. - xtents.width / 2,
+					get_height() / 2. + squareSize / 2. + xtents.height / 2);
 			cr->show_text(text_);
 		}
 	}

@@ -1,6 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
-#project(cr42ynth.so)
-#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/../../bin)
+cmake_minimum_required(VERSION 3.10)
 
 find_package(PkgConfig)
 
@@ -8,16 +6,16 @@ pkg_check_modules(LIBSNDFILE sndfile REQUIRED)
 
 include_directories(${LIBSNDFILE_INCLUDE_DIRS})
 
-include_directories ("${PROJECT_SOURCE_DIR}/dsp/")
-include_directories ("${PROJECT_SOURCE_DIR}/dsp/Generators/")
-include_directories ("${PROJECT_SOURCE_DIR}/dsp/lv2/")
+include_directories ("${PROJECT_SOURCE_DIR}/src/dsp/")
+include_directories ("${PROJECT_SOURCE_DIR}/src/dsp/Generators/")
+include_directories ("${PROJECT_SOURCE_DIR}/src/dsp/lv2/")
 
-include_directories ("${PROJECT_SOURCE_DIR}/common/")
-include_directories ("${PROJECT_SOURCE_DIR}/common/lv2/")
-include_directories ("${PROJECT_SOURCE_DIR}/../rtosc/include/")
-include_directories ("${PROJECT_SOURCE_DIR}/../exprtk/")
+include_directories ("${PROJECT_SOURCE_DIR}/src/common/")
+include_directories ("${PROJECT_SOURCE_DIR}/src/common/lv2/")
+include_directories ("${PROJECT_SOURCE_DIR}/rtosc/include/")
+include_directories ("${PROJECT_SOURCE_DIR}/exprtk/")
 
-add_executable(cr42ynth.so
+add_library(cr42ynth SHARED
 	../common/FftRealPair.cpp
 	../common/CR42YnthCommunicator.cpp
 	../common/common.cpp
@@ -35,7 +33,6 @@ add_executable(cr42ynth.so
 	../common/AutomationData.cpp
 	../common/lv2/CR42YnthLV2URIS.cpp
 	
-#	Generators/OscillatorVoiceData.cpp
 	Generators/Generator.cpp
 	Generators/WTOscillator.cpp
 	
@@ -45,14 +42,15 @@ add_executable(cr42ynth.so
 	
 	CR42YnthDSP.cpp
 	Voice.cpp
-#	Property.cpp
 	
 	Automation.cpp
 	AutomationHandler.cpp
 )
 
+set_target_properties(cr42ynth PROPERTIES PREFIX "") 
+
 link_directories(${LIBSNDFILE_LINK_DIRS})
 
-target_link_libraries(cr42ynth.so ${PROJECT_BINARY_DIR}/../rtosc/librtosc.a)
-target_link_libraries(cr42ynth.so ${LIBSNDFILE_LIBRARIES})
-target_compile_options(cr42ynth.so PRIVATE -Werror -Wall -Wextra)
+target_link_libraries(cr42ynth ${PROJECT_BINARY_DIR}/rtosc/librtosc.a)
+target_link_libraries(cr42ynth ${LIBSNDFILE_LIBRARIES})
+target_compile_options(cr42ynth PRIVATE -Werror -Wall -Wextra)
