@@ -48,6 +48,12 @@ public:
 	virtual bool handleOSCEvent(OSCEvent* event) = 0;
 
 	virtual void getState(std::vector<OSCEvent>& events) = 0;
+	
+	bool hasPriority();
+	void setPriority(bool priority);
+	
+private:
+	bool priority_;
 };
 
 } /* namespace cr42y */

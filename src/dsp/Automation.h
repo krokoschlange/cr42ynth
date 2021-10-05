@@ -88,6 +88,8 @@ public:
 	
 	void setData(AutomationData* data);
 	
+	size_t getData(uint8_t** buffer);
+	
 private:
 	uint32_t id_;
 	float* waveform_;

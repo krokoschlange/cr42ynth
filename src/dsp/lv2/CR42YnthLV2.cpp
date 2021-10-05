@@ -257,7 +257,17 @@ LV2_State_Status CR42YnthLV2::save(LV2_State_Store_Function store,
 
 	for (size_t i = 0; i < listeners_.size(); i++)
 	{
-		listeners_[i]->getState(events);
+		if (listeners_[i]->hasPriority())
+		{
+			listeners_[i]->getState(events);
+		}
+	}
+	for (size_t i = 0; i < listeners_.size(); i++)
+	{
+		if (!listeners_[i]->hasPriority())
+		{
+			listeners_[i]->getState(events);
+		}
 	}
 
 	uint64_t bufferSize = sizeof(uint64_t) * 2;

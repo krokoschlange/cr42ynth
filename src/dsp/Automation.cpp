@@ -120,6 +120,15 @@ void Automation::setData(AutomationData* data)
 	updateSustain();
 }
 
+size_t Automation::getData(uint8_t** buffer)
+{
+	if (data_)
+	{
+		return data_->getData((void**) buffer);
+	}
+	return 0;
+}
+
 void Automation::setWaveform(float* waveform, size_t size)
 {
 	if (waveform_)

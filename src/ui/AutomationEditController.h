@@ -37,13 +37,15 @@
 #include <vector>
 #include <sigc++/sigc++.h>
 
+#include "OSCEventListener.h"
+
 namespace cr42y
 {
 class AutomationData;
 class Control;
 class CR42YnthCommunicator;
 	
-class AutomationEditController
+class AutomationEditController : public OSCEventListener
 {
 public:
 	AutomationEditController(CR42YnthCommunicator* communicator);
@@ -66,6 +68,7 @@ public:
 	float getSectionHeight(size_t section);
 	
 	size_t createAutomation();
+	size_t createAutomation(uint32_t id, size_t index);
 	void removeAutomation(size_t id);
 	
 	void selectAutomation(size_t automation);
@@ -87,7 +90,9 @@ public:
 	sigc::signal<void>& dataChangedSignal();
 	
 	void sendData();
-
+	
+	bool handleOSCEvent(OSCEvent* event) override;
+	void getState(std::vector<OSCEvent>& events) override;
 private:
 	struct Automation
 	{
@@ -110,6 +115,7 @@ private:
 	sigc::signal<void> dataChangedSignal_;
 	
 	void deleteAutomation(Automation& data);
+	void getNewAutomationID(uint32_t& id, size_t& index);
 	
 };
 

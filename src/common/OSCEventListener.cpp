@@ -35,15 +35,23 @@
 namespace cr42y
 {
 
-OSCEventListener::OSCEventListener()
-{
-	// TODO Auto-generated constructor stub
-	
+OSCEventListener::OSCEventListener() :
+		priority_(false)
+{	
 }
 
 OSCEventListener::~OSCEventListener()
 {
-	// TODO Auto-generated destructor stub
+}
+
+bool OSCEventListener::hasPriority()
+{
+	return priority_;
+}
+
+void OSCEventListener::setPriority(bool priority)
+{
+	priority_ = priority;
 }
 
 } /* namespace cr42y */

@@ -47,6 +47,7 @@ AutomationHandler::AutomationHandler(CR42YnthCommunicator* communicator, float s
 		communicator_(communicator),
 		samplerate_(smplrt)
 {
+	setPriority(true);
 	if (communicator)
 	{
 		communicator->addOSCEventListener(this);
@@ -92,9 +93,24 @@ bool AutomationHandler::handleOSCEvent(OSCEvent* event)
 	return false;
 }
 
-void AutomationHandler::getState(std::vector<OSCEvent>&)
+void AutomationHandler::getState(std::vector<OSCEvent>& events)
 {
-	
+	for (size_t i = 0; i < automations_.size(); i++)
+	{
+		if (automations_[i])
+		{
+			char buffer[64];
+			size_t len = rtosc_message(buffer, 32, "/automation/create", "i", automations_[i]->id());
+			OSCEvent event(buffer, len, nullptr, 0);
+			events.push_back(event);
+			
+			len = rtosc_message(buffer, 32, "/automation/update", "i", automations_[i]->id());
+			uint8_t* data = nullptr;
+			size_t datalen = automations_[i]->getData(&data);
+			event = OSCEvent(buffer, len, data, datalen);
+			events.push_back(event);
+		}
+	}
 }
 
 Automation* AutomationHandler::getAutomation(uint32_t id)

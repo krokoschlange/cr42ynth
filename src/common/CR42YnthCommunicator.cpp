@@ -96,12 +96,27 @@ void CR42YnthCommunicator::sendState()
 	std::vector<OSCEvent> events;
 	for (size_t i = 0; i < listeners_.size(); i++)
 	{
-		listeners_[i]->getState(events);
-		for (unsigned int j = 0; j < events.size(); j++)
+		if (listeners_[i]->hasPriority())
 		{
-			writeMessage(events[j]);
+			listeners_[i]->getState(events);
+			for (unsigned int j = 0; j < events.size(); j++)
+			{
+				writeMessage(events[j]);
+			}
+			events.clear();
 		}
-		events.clear();
+	}
+	for (size_t i = 0; i < listeners_.size(); i++)
+	{
+		if (!listeners_[i]->hasPriority())
+		{
+			listeners_[i]->getState(events);
+			for (unsigned int j = 0; j < events.size(); j++)
+			{
+				writeMessage(events[j]);
+			}
+			events.clear();
+		}
 	}
 }
 

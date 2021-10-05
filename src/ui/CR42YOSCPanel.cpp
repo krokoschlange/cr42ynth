@@ -138,7 +138,6 @@ CR42YOSCPanel::~CR42YOSCPanel()
 void CR42YOSCPanel::connectData(int oscIndex, OSCSettingsController* controller)
 {
 	wfView_->setData(controller->getEditData(oscIndex));
-	//TODO: others
 
 	idxLabel_->setText(std::to_string(oscIndex + 1));
 	idxLabel_->queue_draw();
