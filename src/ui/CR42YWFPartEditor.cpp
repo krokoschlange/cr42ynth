@@ -78,13 +78,13 @@ CR42YWFPartEditor::CR42YWFPartEditor(CR42YUI* ui) :
 
 	CR42YToggle* toggle = new CR42YToggle(ui);
 	toggle->setText("SMPLS");
-	typeSelector_->putToggle(toggle, 0.666, 0, 0.334, 1, 0, 2, 2, 2);
+	typeSelector_->putToggle(toggle, 0.666, 0, 0.334, 1, 0, 0, 0, 0);
 	toggle = new CR42YToggle(ui);
 	toggle->setText("FUNC");
-	typeSelector_->putToggle(toggle, 0, 0, 0.334, 1, 2, 2, 0, 2);
+	typeSelector_->putToggle(toggle, 0, 0, 0.334, 1, 0, 0, 0, 0);
 	toggle = new CR42YToggle(ui);
 	toggle->setText("HARM");
-	typeSelector_->putToggle(toggle, 0.333, 0, 0.334, 1, 0, 2, 0, 2);
+	typeSelector_->putToggle(toggle, 0.333, 0, 0.334, 1, 0, 0, 0, 0);
 
 	typeSelector_->signalSelected().connect(
 			sigc::mem_fun(this, &CR42YWFPartEditor::typeSelectCallback));
@@ -93,8 +93,8 @@ CR42YWFPartEditor::CR42YWFPartEditor(CR42YUI* ui) :
 	wfFunctionEditor_->signal_changed().connect(
 			sigc::mem_fun(this, &CR42YWFPartEditor::functionEditCallback));
 
-	wfFunctionGroup_->configureColumn(0, 1, 0, 0.003, 0, 0);
-	wfFunctionGroup_->configureColumn(1, 2, 0.003, 0, 0, 0);
+	wfFunctionGroup_->configureColumn(0, 1, 0, 0, 0, 0);
+	wfFunctionGroup_->configureColumn(1, 2, 0, 0, 0, 0);
 
 	wfFunctionGroup_->configureRow(0, 1, 0, 0, 0, 0);
 	wfFunctionGroup_->configureRow(1, 1, 0, 0, 0, 0);
@@ -104,16 +104,16 @@ CR42YWFPartEditor::CR42YWFPartEditor(CR42YUI* ui) :
 
 	toggle = new CR42YToggle(ui);
 	toggle->setText("SIN");
-	wfHarmonicsSelector_->putToggle(toggle, 0, 0, 0.333, 0.5, 2, 2, 0, 0);
+	wfHarmonicsSelector_->putToggle(toggle, 0, 0, 0.333, 0.5, 0, 0, 0, 0);
 	toggle = new CR42YToggle(ui);
 	toggle->setText("TRI");
-	wfHarmonicsSelector_->putToggle(toggle, 0.333, 0, 0.333, 0.5, 0, 2, 0, 0);
+	wfHarmonicsSelector_->putToggle(toggle, 0.333, 0, 0.333, 0.5, 0, 0, 0, 0);
 	toggle = new CR42YToggle(ui);
 	toggle->setText("SAW");
-	wfHarmonicsSelector_->putToggle(toggle, 0.666, 0, 0.333, 0.5, 0, 2, 2, 0);
+	wfHarmonicsSelector_->putToggle(toggle, 0.666, 0, 0.333, 0.5, 0, 0, 0, 0);
 	toggle = new CR42YToggle(ui);
 	toggle->setText("SQR");
-	wfHarmonicsSelector_->putToggle(toggle, 0, 0.5, 0.333, 0.5, 2, 0, 0, 2);
+	wfHarmonicsSelector_->putToggle(toggle, 0, 0.5, 0.333, 0.5, 0, 0, 0, 0);
 	wfHarmonicsSelector_->signalSelected().connect(
 			sigc::mem_fun(this, &CR42YWFPartEditor::harmSelectCallback));
 

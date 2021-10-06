@@ -154,12 +154,13 @@ bool CR42YHarmonicsEditor::on_expose_event(GdkEventExpose* event)
 		{
 			str = i > 0 ? std::to_string(i) : "DC";
 			cr->select_font_face(tm->font(), Cairo::FONT_SLANT_NORMAL, Cairo::FONT_WEIGHT_NORMAL);
-			cr->set_font_size(tm->fontSizeSmall());
+			int fontSize = std::min<int>(tm->fontSizeSmall(), 15);
+			cr->set_font_size(fontSize);
 			cr->get_text_extents(str, xtents);
 
 			Gtk::Allocation alloc = get_allocation();
 
-			cr->move_to(alloc.get_x() + i * columnWidth_ + (columnWidth_ - xtents.width) / 2, alloc.get_y() + get_height() * 0.5 + (tm->fontSizeSmall() + 2 + xtents.height) / 2);
+			cr->move_to(alloc.get_x() + i * columnWidth_ + (columnWidth_ - xtents.width) / 2, alloc.get_y() + get_height() * 0.5 + (tm->fontSizeSmall() + 2 + fontSize) / 2);
 
 			cr->show_text(str);
 		}

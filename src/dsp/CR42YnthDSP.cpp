@@ -44,7 +44,6 @@
 #include "Voice.h"
 #include "WTOscillator.h"
 #include "Control.h"
-#include "Property.h"
 #include "common.h"
 #include "ModulationControls.h"
 #include "AutomationHandler.h"
@@ -80,8 +79,6 @@ CR42YnthDSP::CR42YnthDSP(float rate, CR42YnthCommunicator* comm) :
 		vol(nullptr),
 		modCtrls_(nullptr),
 		automationHandler_(nullptr),
-		globalVoice(nullptr),//new Voice(0, 0, std::vector<WTOscillator*>())),
-		freeVoice(nullptr),//new Voice(0, 0, std::vector<WTOscillator*>())),
 		outR(nullptr),
 		outL(nullptr)
 {
@@ -92,16 +89,6 @@ CR42YnthDSP::CR42YnthDSP(float rate, CR42YnthCommunicator* comm) :
 
 CR42YnthDSP::~CR42YnthDSP()
 {
-	/*if (outL)
-	{
-		delete[] outL;
-	}
-	outL = nullptr;
-	if (outR)
-	{
-		delete[] outR;
-	}
-	outR = nullptr;*/
 	for (size_t i = 0; i < oscillators.size(); i++)
 	{
 		delete oscillators[i];
@@ -118,13 +105,7 @@ CR42YnthDSP::~CR42YnthDSP()
 		vol = nullptr;
 	}
 
-	delete globalVoice;
-	globalVoice = nullptr;
-	delete freeVoice;
-	freeVoice = nullptr;
 	delete modCtrls_;
-
-	//controls.clear();
 }
 
 void CR42YnthDSP::init()
@@ -158,16 +139,6 @@ std::vector<WTOscillator*> CR42YnthDSP::getOscillators()
 {
 	return oscillators;
 }
-
-/*LFO** CR42YnthDSP::getLFOs()
- {
- return lfos;
- }
-
- Envelope** CR42YnthDSP::getEnvelopes()
- {
- return envelopes;
- }*/
 
 void CR42YnthDSP::setSink(float* left, float* right)
 {
@@ -221,10 +192,6 @@ bool CR42YnthDSP::handleOSCEvent(OSCEvent* event)
 			{
 				if (voices[i]->getNote() == midi[1])
 				{
-					/*for (int j = 0; j < oscillators.size(); j++)
-					{
-						oscillators[j]->voiceRemoved(voices[i]);
-					}*/
 					voices[i]->stopPress();
 				}
 			}
@@ -242,10 +209,6 @@ bool CR42YnthDSP::handleOSCEvent(OSCEvent* event)
 			}
 			Voice* voice = new Voice(midi[1], midi[2], activeOscs, modCtrls_, automationHandler_);
 			voices.push_back(voice);
-			/*for (int i = 0; i < oscillators.size(); i++)
-			{
-				oscillators[i]->voiceAdded(voice);
-			}*/
 			eaten = true;
 			break;
 		}
@@ -264,26 +227,6 @@ bool CR42YnthDSP::handleOSCEvent(OSCEvent* event)
 			break;
 		}
 	}
-	/*pattern = "/global/state";
-	rtosc_match_path(pattern.c_str(), event->getMessage(), (const char**) &end);
-	if (end && *end == '\0' && rtosc_type(event->getMessage(), 0) == 's')
-	{
-		if (!strcmp(rtosc_argument(event->getMessage(), 0).s, "get"))
-		{
-			eaten = true;
-			sendState();
-		}
-	}*/
-
-	/*for (int i = 0; i < controls.size() && !eaten; i++)
-	{
-		eaten = controls[i]->receiveOSCMessage(event);
-	}*/
-
-	/*for (int i = 0; i < oscillators.size() && !eaten; i++)
-	{
-		eaten = oscillators[i]->receiveOSCMessage(event);
-	}*/
 	return eaten;
 }
 
@@ -295,46 +238,14 @@ void CR42YnthDSP::getState(std::vector<OSCEvent>& events)
 		char buffer[32];
 		int len = rtosc_message(buffer, 32, "/global/note", "i", voices[i]->getNote());
 		events.push_back(OSCEvent(buffer, len, nullptr, 0));
-		//getCommunicator()->writeMessage(buffer, len, nullptr, 0);
 	}
-
-	/*for (int i = 0; i < controls.size(); i++)
-	{
-		controls[i]->sendState();
-	}*/
-	/*for (int i = 0; i < oscillators.size(); i++)
-	{
-		oscillators[i]->sendState();
-	}*/
 }
 
 void CR42YnthDSP::run(uint32_t n_samples)
 {
-	/*if (outL)
-	{
-		delete[] outL;
-		outL = nullptr;
-	}
-	if (outR)
-	{
-		delete[] outR;
-		outR = nullptr;
-	}
-	outL = new float[n_samples];
-	outR = new float[n_samples];*/
-
 	std::fill(outL, outL + n_samples, 0);
 	std::fill(outR, outR + n_samples, 0);
-	/*for (int i = 0; i < oscillators.size(); i++)
-	{
-		if (oscillators[i]->getControls().getActiveCtrl()->getValue())
-		{
-			for (int s = 0; s < n_samples; s++)
-			{
-				oscillators[i]->nextSample(outL + s, outR + s);
-			}
-		}
-	}*/
+
 	for (size_t i = 0; i < voices.size(); i++)
 	{
 		voices[i]->calculate(outL, outR, n_samples);
@@ -350,28 +261,6 @@ void CR42YnthDSP::run(uint32_t n_samples)
 	}
 }
 
-/*void CR42YnthDSP::addControl(Control* ctrl)
-{
-	for (int i = 0; i < controls.size(); i++)
-	{
-		if (controls[i] == ctrl)
-		{
-			return;
-		}
-	}
-	controls.push_back(ctrl);
-}
-
-void CR42YnthDSP::removeControl(Control* ctrl)
-{
-	for (int i = 0; i < controls.size(); i++)
-	{
-		if (controls[i] == ctrl)
-		{
-			controls.erase(controls.begin() + i);
-		}
-	}
-}*/
 
 void CR42YnthDSP::calculateOscillators(float*, float*, uint32_t samples)
 {
@@ -380,27 +269,6 @@ void CR42YnthDSP::calculateOscillators(float*, float*, uint32_t samples)
 	{
 		
 	}
-}
-
-Generator* CR42YnthDSP::getGeneratorFromString(std::string str)
-{
-	if (str.size() == 0)
-	{
-		return nullptr;
-	}
-	
-
-	return nullptr;
-}
-
-Voice* CR42YnthDSP::getGlobalVoice()
-{
-	return globalVoice;
-}
-
-Voice* CR42YnthDSP::getFreeVoice()
-{
-	return freeVoice;
 }
 
 } /* namespace cr42y */

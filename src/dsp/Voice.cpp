@@ -36,7 +36,6 @@
 
 #include "Voice.h"
 #include "common.h"
-#include "OscillatorVoiceData.h"
 #include "OscillatorControls.h"
 #include "ModulationControls.h"
 #include "WTOscillator.h"

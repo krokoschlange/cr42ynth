@@ -61,10 +61,10 @@ CR42YWaveformEditorControlPanel::CR42YWaveformEditorControlPanel(CR42YUI* ui,
 {
 	setDrawBorder(true);
 
-	gridXLabel_->setText("Grid X");
+	gridXLabel_->setText("GRID X");
 	gridXEditor_->setMin(0);
 	gridXEditor_->setMax(0, false);
-	gridYLabel_->setText("Grid Y");
+	gridYLabel_->setText("GRID Y");
 	gridYEditor_->setMin(0);
 	gridYEditor_->setMax(0, false);
 

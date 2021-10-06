@@ -33,8 +33,7 @@ add_library(cr42ynth SHARED
 	../common/AutomationData.cpp
 	../common/lv2/CR42YnthLV2URIS.cpp
 	
-	Generators/Generator.cpp
-	Generators/WTOscillator.cpp
+	WTOscillator.cpp
 	
 	
 	lv2/lv2DSP.cpp

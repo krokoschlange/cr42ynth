@@ -54,14 +54,14 @@ CR42YWFView::CR42YWFView(CR42YUI* ui, WavetableEditController* controller, CR42Y
 	setDrawBG(false);
 	setDrawBorder(true);
 
-	configureColumn(0, 10, 0, 0, 0, 0);
+	configureColumn(0, 8, 0, 0, 0, 0);
 	configureColumn(1, 1, 0.003, 0.003, 0, 0);
 
 	configureRow(0, 1, 0.003, 0.003, 0, 0);
-	configureRow(1, 7, 0, 0, 0, 0);
+	configureRow(1, 5, 0, 0, 0, 0);
 
 
-	editBtn_->setText("Edit");
+	editBtn_->setText("EDIT");
 	editBtn_->signalClicked().connect(sigc::mem_fun(this, &CR42YWFView::editWFCallback));
 
 	put(editBtn_, 0, 1);

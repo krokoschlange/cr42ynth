@@ -42,7 +42,6 @@
 
 #include "CR42YnthCommunicator.h"
 #include "WavetableEditData.h"
-#include "OscillatorVoiceData.h"
 #include "OscillatorControls.h"
 #include "OSCEvent.h"
 #include "Voice.h"

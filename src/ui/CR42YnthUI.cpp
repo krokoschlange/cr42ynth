@@ -101,19 +101,19 @@ CR42YnthUI::CR42YnthUI(CR42YnthCommunicator* comm, const char* path) :
 	CR42YToggle* tgl = new CR42YToggle(this);
 	tgl->setText("OSC");
 	tgl->setFontSize(CR42YTheme::BIG);
-	screenSelector_->putToggle(tgl, 0, 0, 0.25, 1, 2, 2, 0, 2);
+	screenSelector_->putToggle(tgl, 0, 0, 0.25, 1, 0, 0, 0, 0);
 	tgl = new CR42YToggle(this);
 	tgl->setText("MOD");
 	tgl->setFontSize(CR42YTheme::BIG);
-	screenSelector_->putToggle(tgl, 0.25, 0, 0.25, 1, 0, 2, 0, 2);
+	screenSelector_->putToggle(tgl, 0.25, 0, 0.25, 1, 0, 0, 0, 0);
 	tgl = new CR42YToggle(this);
 	tgl->setText("FX");
 	tgl->setFontSize(CR42YTheme::BIG);
-	screenSelector_->putToggle(tgl, 0.5, 0, 0.25, 1, 0, 2, 0, 2);
+	screenSelector_->putToggle(tgl, 0.5, 0, 0.25, 1, 0, 0, 0, 0);
 	tgl = new CR42YToggle(this);
 	tgl->setText("WT");
 	tgl->setFontSize(CR42YTheme::BIG);
-	screenSelector_->putToggle(tgl, 0.75, 0, 0.25, 1, 0, 2, 2, 2);
+	screenSelector_->putToggle(tgl, 0.75, 0, 0.25, 1, 0, 0, 0, 0);
 
 	screenSelector_->select(0);
 	screenSelector_->signalSelected().connect(

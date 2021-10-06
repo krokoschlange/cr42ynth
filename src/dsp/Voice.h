@@ -46,7 +46,6 @@
 namespace cr42y
 {
 class WTOscillator;
-class OscillatorVoiceData;
 class ModulationControls;
 class AutomationHandler;
 class Automation;

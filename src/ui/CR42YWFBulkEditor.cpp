@@ -81,65 +81,64 @@ CR42YWFBulkEditor::CR42YWFBulkEditor(CR42YUI* ui) :
 
 	CR42YToggle* tgl = new CR42YToggle(ui);
 	tgl->setText("MATH");
-	opSelector_->putToggle(tgl, 0, 0, 0.333, 1, 2, 2, 0, 2);
+	opSelector_->putToggle(tgl, 0, 0, 0.333, 1, 0, 0, 0, 0);
 	tgl = new CR42YToggle(ui);
 	tgl->setText("WAV");
-	opSelector_->putToggle(tgl, 0.333, 0, 0.333, 1, 0, 2, 0, 2);
+	opSelector_->putToggle(tgl, 0.333, 0, 0.333, 1, 0, 0, 0, 0);
 	tgl = new CR42YToggle(ui);
 	tgl->setText("MORPH");
-	opSelector_->putToggle(tgl, 0.666, 0, 0.334, 1, 0, 2, 2, 2);
+	opSelector_->putToggle(tgl, 0.666, 0, 0.334, 1, 0, 0, 0, 0);
 
 	opSelector_->select(0);
 
 	opSelector_->signalSelected().connect(
 			sigc::mem_fun(this, &CR42YWFBulkEditor::opSelectCallback));
 
-	addBtn_->setText("Add");
+	addBtn_->setText("ADD");
 	addBtn_->signalClicked().connect(
 			sigc::mem_fun(this, &CR42YWFBulkEditor::addCallback));
 
 	mathFuncLabel_->setText("f(x, y)=");
-	mathStartLabel_->setText("Start");
+	mathStartLabel_->setText("START");
 	mathStartEditor_->setMin(0, true);
-	mathAmntLabel_->setText("Amount");
+	mathAmntLabel_->setText("AMOUNT");
 	mathAmntEditor_->setMin(1, true);
 	mathAmntEditor_->setMax(1, false);
 	mathAmntEditor_->setValue(1);
 
-	mathGroup_->configureColumn(0, 1, 0, 0.003, 0, 0);
-	mathGroup_->configureColumn(1, 1, 0.003, 0.003, 0, 0);
-	mathGroup_->configureColumn(2, 3, 0.003, 0, 0, 0);
+	mathGroup_->configureColumn(0, 2, 0, 0.003, 0, 0);
+	mathGroup_->configureColumn(1, 3, 0.003, 0, 0, 0);
 
 	mathGroup_->configureRow(0, 1, 0, 0.003, 0, 0);
 	mathGroup_->configureRow(1, 1, 0.003, 0.003, 0, 0);
 	mathGroup_->configureRow(2, 1, 0.003, 0, 0, 0);
 
 	mathGroup_->put(mathFuncLabel_, 0, 0); //0, 0, 0.2, 0.4, 2, 2, 2, 2);
-	mathGroup_->put(mathFuncEntry_, 0, 1, 1, 2); //0.2, 0, 0.8, 0.4, 2, 2, 2, 2);
-	mathGroup_->put(mathStartLabel_, 1, 0, 1, 2); //0, 0.4, 0.4, 0.3, 2, 2, 2, 2);
-	mathGroup_->put(mathStartEditor_, 1, 2); //0.4, 0.4, 0.6, 0.3, 2, 2, 2, 2);
-	mathGroup_->put(mathAmntLabel_, 2, 0, 1, 2); //0, 0.7, 0.4, 0.3, 2, 2, 2, 2);
-	mathGroup_->put(mathAmntEditor_, 2, 2); //0.4, 0.7, 0.6, 0.3, 2, 2, 2, 2);
+	mathGroup_->put(mathFuncEntry_, 0, 1); //0.2, 0, 0.8, 0.4, 2, 2, 2, 2);
+	mathGroup_->put(mathStartLabel_, 1, 0); //0, 0.4, 0.4, 0.3, 2, 2, 2, 2);
+	mathGroup_->put(mathStartEditor_, 1, 1); //0.4, 0.4, 0.6, 0.3, 2, 2, 2, 2);
+	mathGroup_->put(mathAmntLabel_, 2, 0); //0, 0.7, 0.4, 0.3, 2, 2, 2, 2);
+	mathGroup_->put(mathAmntEditor_, 2, 1); //0.4, 0.7, 0.6, 0.3, 2, 2, 2, 2);
 
 	wavFileBtn_->setText("...");
-	wavStartLabel_->setText("Start");
+	wavStartLabel_->setText("START");
 	wavStartEditor_->setMin(0, true);
 
 	wavFileBtn_->signalClicked().connect(
 			sigc::mem_fun(this, &CR42YWFBulkEditor::fileChooseCallback));
 
 	tgl = new CR42YToggle(ui);
-	tgl->setText("Amount");
-	wavAmntTypeSelector_->putToggle(tgl, 0, 0, 0.5, 1, 2, 2, 2, 2);
+	tgl->setText("AMOUNT");
+	wavAmntTypeSelector_->putToggle(tgl, 0, 0, 0.5, 1, 0, 0, 0, 0);
 	tgl = new CR42YToggle(ui);
-	tgl->setText("Width");
-	wavAmntTypeSelector_->putToggle(tgl, 0.5, 0, 0.5, 1, 2, 2, 2, 2);
+	tgl->setText("WIDTH");
+	wavAmntTypeSelector_->putToggle(tgl, 0.5, 0, 0.5, 1, 0, 0, 0, 0);
 
-	wavAmntTypeSelector_->select(0);
+	wavAmntTypeSelector_->select(1);
 
 	wavAmntEditor_->setMin(1, true);
 	wavAmntEditor_->setMax(1, false);
-	wavAmntEditor_->setValue(256);
+	wavAmntEditor_->setValue(2048);
 
 	wavGroup_->configureColumn(0, 2, 0, 0.003, 0, 0);
 	wavGroup_->configureColumn(1, 2, 0.003, 0.003, 0, 0);
@@ -157,25 +156,25 @@ CR42YWFBulkEditor::CR42YWFBulkEditor(CR42YUI* ui) :
 	wavGroup_->put(wavAmntTypeSelector_, 2, 0, 1, 3); //0, 0.5, 1, 0.25, 2, 2, 2, 2);
 	wavGroup_->put(wavAmntEditor_, 3, 0, 1, 3); //0, 0.75, 1, 0.25, 2, 2, 2, 2);
 
-	morphStartLabel_->setText("Start");
+	morphStartLabel_->setText("START");
 	morphStartEditor_->setMin(0, true);
-	morphAmntLabel_->setText("Amount");
+	morphAmntLabel_->setText("AMOUNT");
 	morphAmntEditor_->setMin(1, true);
 	morphAmntEditor_->setMax(1, false);
 	morphAmntEditor_->setValue(1);
 
 	tgl = new CR42YToggle(ui);
 	tgl->setText("XFADE");
-	morphTypeSelector_->putToggle(tgl, 0, 0, 0.5, 0.5, 2, 2, 0, 0);
+	morphTypeSelector_->putToggle(tgl, 0, 0, 0.5, 0.5, 0, 0, 0, 0);
 	tgl = new CR42YToggle(ui);
 	tgl->setText("SPECTRAL");
-	morphTypeSelector_->putToggle(tgl, 0.5, 0, 0.5, 0.5, 0, 2, 2, 0);
+	morphTypeSelector_->putToggle(tgl, 0.5, 0, 0.5, 0.5, 0, 0, 0, 0);
 	tgl = new CR42YToggle(ui);
 	tgl->setText("SPECTRAL (0 FUND)");
-	morphTypeSelector_->putToggle(tgl, 0, 0.5, 0.5, 0.5, 2, 0, 0, 2);
+	morphTypeSelector_->putToggle(tgl, 0, 0.5, 0.5, 0.5, 0, 0, 0, 0);
 	tgl = new CR42YToggle(ui);
 	tgl->setText("SPECTRAL (0 ALL)");
-	morphTypeSelector_->putToggle(tgl, 0.5, 0.5, 0.5, 0.5, 0, 0, 2, 2);
+	morphTypeSelector_->putToggle(tgl, 0.5, 0.5, 0.5, 0.5, 0, 0, 0, 0);
 
 	morphTypeSelector_->select(0);
 
@@ -184,7 +183,7 @@ CR42YWFBulkEditor::CR42YWFBulkEditor(CR42YUI* ui) :
 
 	morphGroup_->configureRow(0, 1, 0, 0.003, 0, 0);
 	morphGroup_->configureRow(1, 1, 0.003, 0.003, 0, 0);
-	morphGroup_->configureRow(2, 3, 0.003, 0, 0, 0);
+	morphGroup_->configureRow(2, 2, 0.003, 0, 0, 0);
 
 	morphGroup_->put(morphStartLabel_, 0, 0); //0, 0, 0.4, 0.2, 2, 2, 2, 2);
 	morphGroup_->put(morphStartEditor_, 0, 1); //0.4, 0, 0.6, 0.2, 2, 2, 2, 2);

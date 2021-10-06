@@ -83,7 +83,6 @@ bool CR42YnthCommunicator::handleOSCEvent(OSCEvent* event)
 			sendState();
 		}
 	}
-	//log(std::to_string(listeners_.size()).c_str());
 	for (size_t i = 0; i < listeners_.size() && !handled; i++)
 	{
 		handled = listeners_[i]->handleOSCEvent(event);

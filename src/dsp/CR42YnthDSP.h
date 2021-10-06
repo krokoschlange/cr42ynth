@@ -43,7 +43,6 @@ namespace cr42y
 class WTOscillator;
 class Generator;
 class Voice;
-class Property;
 class CR42YnthCommunicator;
 class OSCEvent;
 class Control;
@@ -63,8 +62,6 @@ public:
 	CR42YnthCommunicator* getCommunicator();
 
 	std::vector<WTOscillator*> getOscillators();
-	/*LFO** getLFOs();
-	Envelope** getEnvelopes();*/
 
 	void run(uint32_t n_samples);
 	bool handleOSCEvent(OSCEvent* event);
@@ -77,14 +74,6 @@ public:
 	float* getOutR();
 	float* getOutL();
 
-	/*void addControl(Control* ctrl);
-	void removeControl(Control* ctrl);*/
-
-	Generator* getGeneratorFromString(std::string str);
-
-	Voice* getGlobalVoice();
-	Voice* getFreeVoice();
-
 private:
 	static CR42YnthDSP* instance;
 	CR42YnthDSP(float rate, CR42YnthCommunicator* comm);
@@ -94,8 +83,6 @@ private:
 	float samplerate;
 	CR42YnthCommunicator* communicator;
 
-	//std::vector<Control*> controls;
-
 	Control* bpm;
 	Control* vol;
 
@@ -103,11 +90,7 @@ private:
 		
 	ModulationControls* modCtrls_;
 	AutomationHandler* automationHandler_;
-	/*std::vector<LFO*> lfos;
-	std::vector<Envelope*> envelopes;*/
 
-	Voice* globalVoice;
-	Voice* freeVoice;
 	std::vector<Voice*> voices;
 
 	float* outR;

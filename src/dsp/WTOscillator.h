@@ -32,52 +32,63 @@
  *******************************************************************************/
 
 
-#include "Generator.h"
+#ifndef SRC_DSP_GENERATORS_WTOSCILLATOR_H_
+#define SRC_DSP_GENERATORS_WTOSCILLATOR_H_
+
+#include "OSCEventListener.h"
 
 namespace cr42y
 {
+class CR42YnthCommunicator;
+class OscillatorControls;
+class WavetableEditData;
 
-Generator::Generator(std::vector<Voice*>* vce) :
-		voices(vce)
+class WTOscillator : public OSCEventListener
 {
+public:
+	WTOscillator(CR42YnthCommunicator* comm, int id, float rate);
+	virtual ~WTOscillator();
+
+	void setWavetable(std::vector<std::vector<float>>& wt);
+	
+	std::vector<std::vector<float>>& wavetable();
+
+	void setEditData(WavetableEditData* ed);
+
+	virtual void getState(std::vector<OSCEvent>& events);
+
+	bool handleOSCEvent(OSCEvent* event);
+
+	OscillatorControls& getControls();
+	
+	float getSamplerate();
+	
+	int getNumber();
+
+private:
+	CR42YnthCommunicator* communicator_;
+
+	int number;
+
+	float samplerate;
+
+	WavetableEditData* editData;
+
+	std::vector<std::vector<float>> wavetable_;
+
+	OscillatorControls* controls_;
+};
+
+inline float WTOscillator::getSamplerate()
+{
+	return samplerate;
 }
 
-Generator::~Generator()
+inline int WTOscillator::getNumber()
 {
-}
-
-void Generator::addProperty(Property* ctrl)
-{
-	for (size_t i = 0; i < controls.size(); i++)
-	{
-		if (controls[i] == ctrl)
-		{
-			return;
-		}
-	}
-	controls.push_back(ctrl);
-}
-
-void Generator::removeProperty(Property* ctrl)
-{
-	for (size_t i = 0; i < controls.size(); i++)
-	{
-		if (controls[i] == ctrl)
-		{
-			controls.erase(controls.begin() + i);
-			i--;
-		}
-	}
-}
-
-float Generator::getSample(Voice* vce)
-{
-	std::map<Voice*, float>::iterator it = values.find(vce);
-	if (it != values.end())
-	{
-		return it->second;
-	}
-	return 0;
+	return number;
 }
 
 } /* namespace cr42y */
+
+#endif /* SRC_DSP_GENERATORS_WTOSCILLATOR_H_ */

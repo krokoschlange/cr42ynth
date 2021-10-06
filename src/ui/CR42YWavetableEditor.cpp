@@ -67,7 +67,7 @@ CR42YWavetableEditor::CR42YWavetableEditor(CR42YUI* ui, WavetableEditController*
 		wfBulkEditor_(new CR42YWFBulkEditor(ui))
 {
 	configureColumn(0, 1, 0.003, 0.003, 0, 0);
-	configureColumn(1, 7, 0.003, 0.003, 0, 0);
+	configureColumn(1, 5, 0.003, 0.003, 0, 0);
 	configureColumn(2, 1, 0.003, 0.003, 0, 0);
 	configureColumn(3, 1, 0, 1, 0, 15);
 
@@ -85,7 +85,7 @@ CR42YWavetableEditor::CR42YWavetableEditor(CR42YUI* ui, WavetableEditController*
 	wfPartEditor_->setController(controller_);
 	wfBulkEditor_->setController(controller_);
 
-	addWaveformButton_->setText("Add WF");
+	addWaveformButton_->setText("ADD WF");
 	addWaveformButton_->signalClicked().connect(
 			sigc::mem_fun(this, &CR42YWavetableEditor::waveformAddCallback));
 
