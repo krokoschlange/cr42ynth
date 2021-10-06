@@ -34,30 +34,38 @@
 #ifndef CR42Y_CR42YMODULATIONEDITOR_H
 #define CR42Y_CR42YMODULATIONEDITOR_H
 
-#include "CR42YSquareContainer.h"
+#include "CR42YGrid.h"
 
 namespace cr42y
 {
-class CR42YControlDial;
-class CR42YGrid;
+class CR42YAutomationDial;
+class CR42YAutomationOverview;
+class CR42YSquareContainer;
 class CR42YnthCommunicator;
 class CR42YToggleSelector;
 class ModulationControls;
+class AutomationEditController;
+class CR42YVScrollbar;
 
-class CR42YModulationEditor : public CR42YSquareContainer
+class CR42YModulationEditor : public CR42YGrid
 {
 public:
-	CR42YModulationEditor(CR42YUI* ui, CR42YnthCommunicator* communicator);
+	CR42YModulationEditor(CR42YUI* ui, CR42YnthCommunicator* communicator, AutomationEditController* automationEditController);
 
     virtual ~CR42YModulationEditor();
 
 private:
+	CR42YSquareContainer* outerSquare_;
 	CR42YGrid* grid_;
 	CR42YToggleSelector* modSelector_;
 	CR42YSquareContainer* modSquare_;
 	CR42YGrid* modGrid_;
 	
-	std::vector<CR42YControlDial*> dials_;
+	CR42YAutomationOverview* automations_;
+	CR42YVScrollbar* automScrollbar_;
+	Gtk::Viewport* automVP_;
+	
+	std::vector<CR42YAutomationDial*> dials_;
 	
 	ModulationControls* controls_;
 	

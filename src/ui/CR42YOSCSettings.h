@@ -43,12 +43,14 @@ class CR42YOSCPanelScroll;
 class CR42YToggleSelector;
 class WavetableEditController;
 class CR42YAutomationEditor;
+class AutomationEditController;
 
 class CR42YOSCSettings : public CR42YGrid
 {
 public:
 	CR42YOSCSettings(CR42YUI* ui, CR42YnthCommunicator* communicator,
 			WavetableEditController* wtEditController,
+			AutomationEditController* automationEditController,
 			CR42YToggleSelector* viewSelector);
 	virtual ~CR42YOSCSettings();
 

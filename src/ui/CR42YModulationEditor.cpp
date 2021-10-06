@@ -33,27 +33,51 @@
 
 #include "CR42YModulationEditor.h"
 
-#include "CR42YControlDial.h"
-#include "CR42YGrid.h"
+#include "CR42YAutomationDial.h"
+#include "CR42YSquareContainer.h"
 #include "CR42YTheme.h"
 #include "CR42YToggle.h"
 #include "CR42YToggleSelector.h"
 #include "ModulationControls.h"
+#include "CR42YAutomationOverview.h"
+#include "CR42YVScrollbar.h"
 
 #include "common.h"
 
 namespace cr42y
 {
 
-CR42YModulationEditor::CR42YModulationEditor(CR42YUI* ui, CR42YnthCommunicator* communicator) :
-	CR42YSquareContainer(),
+	CR42YModulationEditor::CR42YModulationEditor(CR42YUI* ui, CR42YnthCommunicator* communicator, AutomationEditController* automationEditController) :
+	CR42YGrid(ui),
+	outerSquare_(new CR42YSquareContainer()),
 	grid_(new CR42YGrid(ui)),
 	modSelector_(new CR42YToggleSelector(ui)),
 	modSquare_(new CR42YSquareContainer()),
 	modGrid_(new CR42YGrid(ui)),
+	automations_(new CR42YAutomationOverview(ui, automationEditController)),
+	automScrollbar_(new CR42YVScrollbar(ui)),
+	automVP_(nullptr),
 	controls_(new ModulationControls(communicator))
 {
-	add(*grid_);
+	configureRow(0, 1, 0, 0, 0, 0);
+	configureColumn(0, 1, 0, 0, 0, 0);
+	configureColumn(1, 1, 0, 0, 0, 15);
+	configureColumn(2, 5, 0, 0, 0, 0);
+	configureColumn(3, 1, 0, 0, 0, 15);
+	configureColumn(4, 1, 0, 0, 0, 0);
+	
+	put(outerSquare_, 0, 2, 1, 1);
+	
+	Gtk::Adjustment hAdj(0, 0, 0, 0, 0, 0);
+	automVP_ = new Gtk::Viewport(hAdj, *automScrollbar_->get_adjustment());
+	automVP_->signal_scroll_event().connect(sigc::mem_fun(automScrollbar_, &CR42YVScrollbar::scroll_event));
+	automVP_->set_shadow_type(Gtk::SHADOW_NONE);
+	automVP_->add(*automations_);
+	
+	put(automVP_, 0, 0, 1, 1);
+	put(automScrollbar_, 0, 1, 1, 1);
+	
+	outerSquare_->add(*grid_);
 
 	grid_->configureRow(0, 1, 0.002, 0.002, 0, 0);
 	grid_->configureRow(1, 8, 0.002, 0.002, 0, 0);
@@ -121,7 +145,7 @@ CR42YModulationEditor::CR42YModulationEditor(CR42YUI* ui, CR42YnthCommunicator* 
 	{
 		for (int carr = 0; carr < CR42Ynth_OSC_COUNT; carr++)
 		{
-			CR42YControlDial* dial = new CR42YControlDial(ui);
+			CR42YAutomationDial* dial = new CR42YAutomationDial(ui);
 			modGrid_->put(dial, mod + 1, carr + 1, 1, 1);
 			dials_.push_back(dial);
 		}
@@ -149,6 +173,8 @@ CR42YModulationEditor::~CR42YModulationEditor()
 
 	//modSquare_ and modSelector_ are already deleted here
 	delete grid_;
+	delete outerSquare_;
+	delete automations_;
 }
 
 void CR42YModulationEditor::connectControls()

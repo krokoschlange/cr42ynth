@@ -43,9 +43,9 @@
 namespace cr42y
 {
 
-CR42YAutomationEditor::CR42YAutomationEditor(CR42YUI* ui, CR42YnthCommunicator* communicator) :
+	CR42YAutomationEditor::CR42YAutomationEditor(CR42YUI* ui, CR42YnthCommunicator* communicator, AutomationEditController* automationEditController) :
 		CR42YGrid(ui),
-		controller_(new AutomationEditController(communicator)),
+		controller_(automationEditController),
 		communicator_(communicator),
 		sampleEditor_(new CR42YAutomationSampleEditor(ui, controller_)),
 		//gridXEditor_(new CR42YIntegerEditor(ui)),

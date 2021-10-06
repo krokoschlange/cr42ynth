@@ -50,10 +50,10 @@
 namespace cr42y
 {
 
-CR42YWavetableEditor::CR42YWavetableEditor(CR42YUI* ui) :
+CR42YWavetableEditor::CR42YWavetableEditor(CR42YUI* ui, WavetableEditController* controller) :
 		Glib::ObjectBase("CR42YWavetableEditor"),
 		CR42YGrid(ui),
-		controller_(new WavetableEditController()),
+		controller_(controller),
 		wfEditor_(new CR42YWaveformEditor(ui)),
 		wfeControllerPanel_(
 				new CR42YWaveformEditorControlPanel(ui, wfEditor_,
@@ -156,7 +156,6 @@ CR42YWavetableEditor::~CR42YWavetableEditor()
 		delete children[i];
 	}
 
-	delete controller_;
 }
 
 void CR42YWavetableEditor::setData(WavetableEditData* data)

@@ -31,63 +31,29 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
+#ifndef CR42Y_CR42YAUTOMATIONOVERVIEW_H
+#define CR42Y_CR42YAUTOMATIONOVERVIEW_H
 
-#ifndef SRC_UI_CR42YNTHUI_H_
-#define SRC_UI_CR42YNTHUI_H_
+#include "CR42YAutomationSelector.h"
 
-#include "CR42YRelativeContainer.h"
-#include "CR42YUI.h"
+namespace cr42y {
 
-namespace cr42y
-{
-
-class CR42YnthCommunicator;
-class OSCEvent;
-class CR42YToggleSelector;
-class CR42YOSCSettings;
-class CR42YWavetableEditor;
-class CR42YModulationEditor;
-class WavetableEditController;
 class AutomationEditController;
 
-class CR42YnthUI : public CR42YUI
+
+class CR42YAutomationOverview : public CR42YAutomationSelector
 {
 public:
-	CR42YnthUI(CR42YnthCommunicator* comm, const char* path);
-	virtual ~CR42YnthUI();
-	
-	const char* getBundlePath();
+	CR42YAutomationOverview(CR42YUI* ui, AutomationEditController* controller);
 
-	void idle();
-
-	CR42YnthCommunicator* getCommunicator();
-
-protected:
-	void on_realize();
-	void on_show();
+	~CR42YAutomationOverview();
 
 private:
-	Gtk::Main* gtkMain_;
-
-	char* bundlePath_;
-
-	CR42YnthCommunicator* communicator_;
-
-	CR42YToggleSelector* screenSelector_;
-	int selectedScreen_;
-	
-	WavetableEditController* wtEditController_;
-	AutomationEditController* automationEditController_;
-	
-	CR42YOSCSettings* oscSettings_;
-	CR42YWavetableEditor* wtEditor_;
-	CR42YModulationEditor* modEditor_;
-
-
-	void screenSelectCallback(int selected);
-
+	void deselect(int selected);
+	void selectionChange(size_t selected);
+	void dataChange();
 };
 
-} /* namespace cr42y */
+}
 
-#endif /* SRC_UI_CR42YNTHUI_H_ */
+#endif // CR42Y_CR42YAUTOMATIONOVERVIEW_H

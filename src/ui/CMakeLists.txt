@@ -101,6 +101,7 @@ add_library(cr42ynth_ui SHARED
 	CR42YControlIntegerEditor.cpp
 	CR42YAutomationDial.cpp
 	CR42YDetuneEditor.cpp
+	CR42YAutomationOverview.cpp
 	
 	helpers.cpp
 )

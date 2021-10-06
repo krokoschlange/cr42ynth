@@ -31,63 +31,38 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-
-#ifndef SRC_UI_CR42YNTHUI_H_
-#define SRC_UI_CR42YNTHUI_H_
-
-#include "CR42YRelativeContainer.h"
-#include "CR42YUI.h"
+#include "CR42YAutomationOverview.h"
+#include "AutomationEditController.h"
 
 namespace cr42y
 {
 
-class CR42YnthCommunicator;
-class OSCEvent;
-class CR42YToggleSelector;
-class CR42YOSCSettings;
-class CR42YWavetableEditor;
-class CR42YModulationEditor;
-class WavetableEditController;
-class AutomationEditController;
-
-class CR42YnthUI : public CR42YUI
+CR42YAutomationOverview::CR42YAutomationOverview(CR42YUI* ui, AutomationEditController* controller) :
+		CR42YAutomationSelector(ui, controller)
 {
-public:
-	CR42YnthUI(CR42YnthCommunicator* comm, const char* path);
-	virtual ~CR42YnthUI();
-	
-	const char* getBundlePath();
+	signalSelected().connect(sigc::mem_fun(this, &CR42YAutomationOverview::deselect));
+	controller->selectionChangedSignal().connect(sigc::mem_fun(this, &CR42YAutomationOverview::selectionChange));
+	controller->dataChangedSignal().connect(sigc::mem_fun(this, &CR42YAutomationOverview::dataChange));
+}
 
-	void idle();
+CR42YAutomationOverview::~CR42YAutomationOverview()
+{
 
-	CR42YnthCommunicator* getCommunicator();
+}
 
-protected:
-	void on_realize();
-	void on_show();
+void CR42YAutomationOverview::deselect(int)
+{
+	select(-1);
+}
 
-private:
-	Gtk::Main* gtkMain_;
+void CR42YAutomationOverview::selectionChange(size_t)
+{
+	update();
+}
 
-	char* bundlePath_;
+void CR42YAutomationOverview::dataChange()
+{
+	update();
+}
 
-	CR42YnthCommunicator* communicator_;
-
-	CR42YToggleSelector* screenSelector_;
-	int selectedScreen_;
-	
-	WavetableEditController* wtEditController_;
-	AutomationEditController* automationEditController_;
-	
-	CR42YOSCSettings* oscSettings_;
-	CR42YWavetableEditor* wtEditor_;
-	CR42YModulationEditor* modEditor_;
-
-
-	void screenSelectCallback(int selected);
-
-};
-
-} /* namespace cr42y */
-
-#endif /* SRC_UI_CR42YNTHUI_H_ */
+}

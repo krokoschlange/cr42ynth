@@ -47,6 +47,8 @@
 #include "CR42YToggle.h"
 #include "CR42YOSCSettings.h"
 #include "CR42YModulationEditor.h"
+#include "WavetableEditController.h"
+#include "AutomationEditController.h"
 
 #include "CR42YConfig.h"
 
@@ -61,6 +63,8 @@ CR42YnthUI::CR42YnthUI(CR42YnthCommunicator* comm, const char* path) :
 		communicator_(comm),
 		screenSelector_(nullptr),
 		selectedScreen_(-1),
+		wtEditController_(new WavetableEditController()),
+		automationEditController_(new AutomationEditController(comm)),
 		oscSettings_(nullptr),
 		wtEditor_(nullptr),
 		modEditor_(nullptr)
@@ -89,9 +93,9 @@ CR42YnthUI::CR42YnthUI(CR42YnthCommunicator* comm, const char* path) :
 	setTheme(new CR42YTheme(themeStr));
 
 	screenSelector_ = new CR42YToggleSelector(this);
-	wtEditor_ = new CR42YWavetableEditor(this);
-	oscSettings_ = new CR42YOSCSettings(this, comm, wtEditor_->getController(), screenSelector_);
-	modEditor_ = new CR42YModulationEditor(this, comm);
+	wtEditor_ = new CR42YWavetableEditor(this, wtEditController_);
+	oscSettings_ = new CR42YOSCSettings(this, comm, wtEditController_, automationEditController_, screenSelector_);
+	modEditor_ = new CR42YModulationEditor(this, comm, automationEditController_);
 
 
 	CR42YToggle* tgl = new CR42YToggle(this);
@@ -141,6 +145,8 @@ CR42YnthUI::~CR42YnthUI()
 {
 	delete[] bundlePath_;
 	//delete wtEditor;
+	delete wtEditController_;
+	delete automationEditController_;
 }
 
 const char* CR42YnthUI::getBundlePath()

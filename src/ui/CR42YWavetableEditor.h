@@ -55,7 +55,7 @@ class WavetableEditData;
 class CR42YWavetableEditor : public CR42YGrid
 {
 public:
-	CR42YWavetableEditor(CR42YUI* ui);
+	CR42YWavetableEditor(CR42YUI* ui, WavetableEditController* controller);
 	virtual ~CR42YWavetableEditor();
 
 	void setData(WavetableEditData* data);

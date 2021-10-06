@@ -42,13 +42,14 @@ namespace cr42y
 CR42YOSCSettings::CR42YOSCSettings(CR42YUI* ui,
 		CR42YnthCommunicator* communicator,
 		WavetableEditController* wtEditController,
+		AutomationEditController* automationEditController,
 		CR42YToggleSelector* viewSelector) :
 		Glib::ObjectBase("CR42YOSCSettings"),
 		CR42YGrid(ui),
 		oscPanelScroll_(
 				new CR42YOSCPanelScroll(ui, communicator, wtEditController,
 						viewSelector)),
-		automationEditor_(new CR42YAutomationEditor(ui, communicator))
+		automationEditor_(new CR42YAutomationEditor(ui, communicator, automationEditController))
 {
 	configureColumn(0, 1, 0, 0, 0, 0);
 

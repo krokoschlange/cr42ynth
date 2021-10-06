@@ -49,7 +49,7 @@ class CR42YAutomationSettings;
 class CR42YAutomationEditor : public CR42YGrid
 {
 public:
-	CR42YAutomationEditor(CR42YUI* ui, CR42YnthCommunicator* communicator);
+	CR42YAutomationEditor(CR42YUI* ui, CR42YnthCommunicator* communicator, AutomationEditController* automationEditController);
 
 	virtual ~CR42YAutomationEditor();
 
