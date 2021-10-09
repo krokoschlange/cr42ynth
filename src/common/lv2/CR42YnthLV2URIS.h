@@ -55,6 +55,7 @@ public:
 	
 	LV2_URID midiEvent;
 	LV2_URID timePosition;
+	LV2_URID timeBeat;
 	LV2_URID timeBarBeat;
 	LV2_URID timeBPM;
 	LV2_URID timeSpeed;

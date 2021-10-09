@@ -58,6 +58,7 @@ public:
 	void init();
 
 	float getBPM();
+	float getPosition();
 	float getSamplerate();
 	CR42YnthCommunicator* getCommunicator();
 
@@ -66,8 +67,6 @@ public:
 	void run(uint32_t n_samples);
 	bool handleOSCEvent(OSCEvent* event);
 	
-	void calculateOscillators(float* left, float* right, uint32_t samples);
-
 	void getState(std::vector<OSCEvent>& events);
 
 	void setSink(float* left, float* right);
@@ -80,21 +79,22 @@ private:
 	virtual ~CR42YnthDSP();
 
 
-	float samplerate;
-	CR42YnthCommunicator* communicator;
+	float samplerate_;
+	CR42YnthCommunicator* communicator_;
 
-	Control* bpm;
-	Control* vol;
+	Control* bpm_;
+	Control* position_;
+	Control* vol_;
 
-	std::vector<WTOscillator*> oscillators;
+	std::vector<WTOscillator*> oscillators_;
 		
 	ModulationControls* modCtrls_;
 	AutomationHandler* automationHandler_;
 
-	std::vector<Voice*> voices;
+	std::vector<Voice*> voices_;
 
-	float* outR;
-	float* outL;
+	float* outR_;
+	float* outL_;
 };
 
 } /* namespace cr42y */

@@ -144,29 +144,29 @@ void CR42YnthLV2::run(uint32_t n_samples)
 			if (obj->body.otype == uris_->timePosition)
 			{
 				LV2_Atom* beat = nullptr, *bpm = nullptr, *speed = nullptr;
-				lv2_atom_object_get(obj, uris_->timeBarBeat, &beat,
+				lv2_atom_object_get(obj, uris_->timeBeat, &beat,
 									uris_->timeBPM, &bpm, uris_->timeSpeed, &speed, nullptr);
 				if (bpm && bpm->type == uris_->atomFloat)
 				{
 					char buffer[32];
-					int len = rtosc_message(buffer, 32, "/global/bpm", "f",
-							((LV2_Atom_Float*) bpm)->body);
+					int len = rtosc_message(buffer, 32, "/global/bpm", "sf",
+							"set_value", ((LV2_Atom_Float*) bpm)->body);
 					OSCEvent event(buffer, len, nullptr, 0);
 					handleOSCEvent(&event);
 				}
 				if (speed && speed->type == uris_->atomFloat)
 				{
 					char buffer[32];
-					int len = rtosc_message(buffer, 32, "/global/speed", "f",
-							((LV2_Atom_Float*) speed)->body);
+					int len = rtosc_message(buffer, 32, "/global/speed", "sf",
+							"set_value", ((LV2_Atom_Float*) speed)->body);
 					OSCEvent event(buffer, len, nullptr, 0);
 					handleOSCEvent(&event);
 				}
 				if (beat && beat->type == uris_->atomFloat)
 				{
 					char buffer[32];
-					int len = rtosc_message(buffer, 32, "/global/beat", "f",
-							((LV2_Atom_Float*) beat)->body);
+					int len = rtosc_message(buffer, 32, "/global/beat", "sf",
+							"set_value", ((LV2_Atom_Float*) beat)->body);
 					OSCEvent event(buffer, len, nullptr, 0);
 					handleOSCEvent(&event);
 				}

@@ -57,6 +57,7 @@ CR42YnthLV2URIS::CR42YnthLV2URIS(LV2_URID_Map* map) :
 	midiEvent = map->map(map->handle, LV2_MIDI__MidiEvent);
 	
 	timePosition = map->map(map->handle, LV2_TIME__Position);
+	timeBeat = map->map(map->handle, LV2_TIME__beat);
 	timeBarBeat = map->map(map->handle, LV2_TIME__barBeat);
 	timeBPM = map->map(map->handle, LV2_TIME__beatsPerMinute);
 	timeSpeed = map->map(map->handle, LV2_TIME__speed);
